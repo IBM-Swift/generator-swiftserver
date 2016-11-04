@@ -9,7 +9,7 @@ To use this module, you will need Node.js and Swift 3 installed on your Linux or
 
 You will also need the Yeoman command line utility [yo](https://github.com/yeoman/yo) installed in your global Node.js module directory.  
 To install yo, use: `npm install -g yo`  
-To install this generator, use: `npm install git+https://github.com/IBM-Swift/generator-swiftserver`
+To install this generator, use: `npm install -g git+https://github.com/IBM-Swift/generator-swiftserver`
 
 ## Quick start
 To create a Swift Server Generator project with no models defined, use: `yo swiftserver`  
