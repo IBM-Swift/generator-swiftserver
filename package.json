@@ -2,15 +2,21 @@
   "name": "generator-swiftserver",
   "version": "0.0.1",
   "description": "Generator for Kitura REST webservice servers",
-  "keywords": [
-    "yeoman-generator",
-    "swift",
-    "kitura"
-  ],
   "scripts": {
     "test": "mocha test/unit/*",
     "testint": "mocha test/integration/*"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IBM-Swift/generator-swiftserver.git"
+  },
+  "keywords": [
+    "yeoman-generator",
+    "swift",
+    "kitura",
+    "swiftserver",
+    "generator"
+  ],
   "dependencies": {
     "yeoman-generator": "^0.21.1",
     "chalk": "1.x",
@@ -21,5 +27,11 @@
     "yeoman-assert": "^2.2.1",
     "yeoman-test": "^1.5.1",
     "rimraf": "2.5.4"
-  }
+  },
+  "author": "tunniclm",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/IBM-Swift/generator-swiftserver/issues"
+  },
+  "homepage": "https://github.com/IBM-Swift/generator-swiftserver#readme"
 }
