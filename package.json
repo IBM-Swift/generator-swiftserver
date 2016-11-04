@@ -1,0 +1,25 @@
+{
+  "name": "generator-swiftserver",
+  "version": "0.0.1",
+  "description": "Generator for Kitura REST webservice servers",
+  "keywords": [
+    "yeoman-generator",
+    "swift",
+    "kitura"
+  ],
+  "scripts": {
+    "test": "mocha test/unit/*",
+    "testint": "mocha test/integration/*"
+  },
+  "dependencies": {
+    "yeoman-generator": "^0.21.1",
+    "chalk": "1.x",
+    "js-yaml": "3.4.6"
+  },
+  "devDependencies": {
+    "mocha": "^3.1.2",
+    "yeoman-assert": "^2.2.1",
+    "yeoman-test": "^1.5.1",
+    "rimraf": "2.5.4"
+  }
+}

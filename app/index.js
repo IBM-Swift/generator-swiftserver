@@ -1,0 +1,221 @@
+/*
+ * Copyright IBM Corporation 2016
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
+
+'use strict';
+var generators = require('yeoman-generator');
+
+var chalk = require('chalk');
+var path = require('path');
+var fs = require('fs');
+
+var helpers = require('../lib/helpers');
+var validateDirName = helpers.validateDirName;
+var validateAppName = helpers.validateAppName;
+
+module.exports = generators.Base.extend({
+
+  constructor: function() {
+    generators.Base.apply(this, arguments);
+
+    // Allow the user to pass the application name into the generator directly
+    this.argument('name', {
+      desc: 'Name of the application to scaffold.',
+      required: false,
+      type: String
+    });
+    // Add support for --testmode flag
+    this.option('testmode');
+  },
+
+  initializing: {
+    initAppName: function() {
+      this.appname = null; // Discard yeoman default appname
+      this.skipPromptingAppName = false;
+
+      if (this.name) {
+        // User passed a desired application name as an argument
+        var validation = validateAppName(this.name);
+        if (validation === true) {
+          // Desired application name is valid, skip prompting for it
+          // later
+          this.appname = this.name;
+          this.skipPromptingAppName = true;
+        } else {
+          // Log reason for validation failure, if provided
+          validation = validation || 'Application name not valid';
+          this.log(validation);
+        }
+      }
+
+      if (this.appname === null) {
+        // Fall back to name of current working directory
+        // Normalize if it contains special characters
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[\/@\s\+%:\.]+?/g, '-');
+        // We hope that sanitizedCWD is always valid, but check just
+        // in case it isn't
+        if (validateAppName(sanitizedCWD) === true) {
+          this.appname = sanitizedCWD;
+        } else {
+          // Fall back again to a known valid name
+          this.log('Failed to produce a valid application name from the current working directory');
+          this.appname = 'app';
+        }
+      }
+    }
+  },
+
+  prompting: {
+    promptAppName: function() {
+      if (this.skipPromptingAppName) { return; }
+
+      var done = this.async();
+      var prompts = [
+        {
+          type: 'input',
+          name: 'name',
+          message: 'What\'s the name of your application?',
+          default: this.appname,
+          validate: validateAppName
+        }
+      ];
+      this.prompt(prompts, function(props) {
+        this.appname = props.name;
+        done();
+      }.bind(this));
+    },
+
+    /*
+     * Configure the destination directory, asking the user if required.
+     * Set up the generator environment so that destinationRoot is set
+     * to point to the directory where we want to generate code.
+     */
+    promptAppDir: function() {
+      if (this.appname === path.basename(this.destinationRoot())) {
+        // When the project name is the same as the current directory,
+        // we are assuming the user has already created the project dir
+        this.log('working directory is %s', path.basename(this.destinationRoot()));
+        return;
+      }
+
+      var done = this.async();
+      var prompts = [
+        {
+          type: 'input',
+          name: 'dir',
+          message: 'Enter the name of the directory to contain the project:',
+          default: this.appname,
+          validate: validateDirName
+        }
+      ];
+      this.prompt(prompts, function(answers) {
+        if (answers.dir !== '.') {
+          this.destinationRoot(answers.dir);
+        }
+        done();
+      }.bind(this));
+    },
+  },
+
+  writing: {
+    writeConfig: function() {
+      this.config = {
+        appName: this.appname,
+        store: 'memory',
+        logger: 'helium',
+        port: 8090
+      };
+      this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+    },
+
+    writeGeneratorConfig: function() {
+      this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
+    },
+
+    writePackageSwift: function() {
+      let packageSwift = helpers.generatePackageSwift(this.config, false);
+      this.fs.write(this.destinationPath('Package.swift'), packageSwift);
+    },
+
+    writeMainSwift: function() {
+      this.fs.copy(this.templatePath('main.swift'),
+                   this.destinationPath('Sources', this.appname, 'main.swift'));
+    },
+
+    writeProjectMarker: function() {
+      // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
+      // directory
+      this.fs.write(".swiftservergenerator-project", "");
+    }
+  },
+
+  install: {
+    buildDefinitions: function() {
+
+      // this.composeWith with just the subgenerator name doesn't work with the
+      // Yeoman test framework (yeoman-test)
+
+      // Defining settings.local for the path allows Yeoman to call the
+      // subgenerators directly when 'integration testing' using yeoman-test.
+
+      // Adding a testmode allows us to stub the subgenerators (for unit testing).
+      // (This is to work around https://github.com/yeoman/yeoman-test/issues/16)
+
+      this.composeWith('swiftserver:refresh',
+           {},
+           this.options.testmode ? null : { local: require.resolve('../refresh')});
+    },
+
+    buildApp: function() {
+
+      this.composeWith('swiftserver:build',
+           {},
+           this.options.testmode ? null : { local: require.resolve('../build')});
+    }
+  },
+
+  end: function() {
+    // Get the root command name by checking env var, so that we can tailor the next
+    // steps output for the user
+    var command = 'yo';
+    if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
+      command = process.env.RUN_BY_COMMAND;
+    }
+
+    // Inform the user what they should do next
+    this.log('Next steps:');
+    this.log();
+    if (this.destinationRoot() && this.destinationRoot() !== '.') {
+      this.log('  Change directory to your app');
+      this.log(chalk.green('    $ cd ' + this.destinationRoot()));
+      this.log();
+    }
+    if (command === 'swiftservergenerator') {
+      this.log('  Create a model in your app');
+      this.log(chalk.green('    $ swiftservergenerator --model'));
+      this.log();
+      this.log('  Run the app');
+      this.log(chalk.green('    $ .build/debug/' + this.appname));
+      this.log();
+    } else { // We were started by yo
+      this.log('  Create a model in your app');
+      this.log(chalk.green('    $ yo swiftserver:model'));
+      this.log();
+      this.log('  Run the app');
+      this.log(chalk.green('    $ .build/debug/' + this.appname));
+      this.log();
+    }
+  }
+});
