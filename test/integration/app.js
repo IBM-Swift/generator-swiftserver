@@ -61,10 +61,6 @@ describe('swiftserver:app integration test', function () {
       assert.fileContent('Package.swift', 'name: "notes"');
     });
 
-    it('generates the expected yaml files', function () {
-      assert.file('definitions/notes.yaml');
-    });
-
     it('compiles the application', function () {
       assert.file(process.cwd()+'/.build/debug/notes');
     });

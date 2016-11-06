@@ -41,6 +41,16 @@ var expected = [];
             expected = ['definitions/'+dirName+'.yaml'];
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
             fs.writeFileSync(tmpFile, "");
+            fs.mkdirSync(path.join(tmpDir, "models"));
+            var testModel = {
+                name: "test",
+                plural: "tests",
+                classname: "Test",
+                properties: {
+                    id: { type: "number", id: true }
+                }
+            };
+            fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
           })
           .toPromise();                        // Get a Promise back when the generator finishes
 
@@ -53,8 +63,8 @@ var expected = [];
     // This is only a starter set of checks, we need to add further check in.
     it('the project yaml file contains the expected content', function() {
       assert.fileContent([
-        [expected[1], 'name: ' + dirName],
-        [expected[1], 'title: ' + dirName]
+        [expected[0], 'title: ' + dirName],
+        [expected[0], 'test:']
       ]);
     });
   });
