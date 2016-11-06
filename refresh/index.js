@@ -42,7 +42,7 @@ module.exports = generators.Base.extend({
         'title': this.projectName
       },
     
-      'schemes': ['https'],
+      'schemes': ['http'],
       'basePath': '/api',
     
       'consumes': ['application/json'],
