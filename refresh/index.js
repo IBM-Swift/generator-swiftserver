@@ -25,6 +25,10 @@ var debug = require('debug')('generator-swiftserver:refresh');
 var actions = require('../lib/actions');
 
 module.exports = generators.Base.extend({
+  constructor: function() {
+    generators.Base.apply(this, arguments);
+  },
+
   initializing: {
     ensureInProject: actions.ensureInProject,
 
@@ -50,6 +54,42 @@ module.exports = generators.Base.extend({
     }
   },
 
+  buildProduct: function() {
+    if (!this.options.apic) return;
+    this.product = {
+      'product': '1.0.0',
+      'info': {
+        'name': this.projectName,
+        'title': this.projectName,
+        'version': this.projectVersion
+      },
+      'apis': {
+        [this.projectName]: {
+          '$ref': this.projectName + '.yaml'
+        }
+      },
+      'visibility': {
+        'view': {
+          'type': 'public'
+        },
+        'subscribe': {
+          'type': 'authenticated'
+        }
+      },
+      'plans': {
+        'default': {
+          'title': 'Default Plan',
+          'description': 'Default Plan',
+          'approval': false,
+          'rate-limit': {
+            'value': '100/hour',
+            'hard-limit': false
+          }
+        }
+      }
+    };
+  },
+
   buildSwagger: function() {
     var swagger = {
       'swagger': '2.0',
@@ -67,6 +107,52 @@ module.exports = generators.Base.extend({
       'paths': {},
       'definitions': {}
     };
+
+    if (this.options.apic) {
+      swagger['info']['x-ibm-name'] = this.projectName;
+      swagger['schemes'] = ['https'];
+      swagger['host'] = '$(catalog.host)';
+      swagger['securityDefinitions'] = {
+        'clientIdHeader': {
+          'type': 'apiKey',
+          'in': 'header',
+          'name': 'X-IBM-Client-Id'
+        },
+        'clientSecretHeader': {
+          'type': 'apiKey',
+          'in': 'header',
+          'name': 'X-IBM-Client-Secret'
+        }
+      };
+      swagger['security'] = [{
+        'clientIdHeader': [],
+        'clientSecretHeader': []
+      }];
+      swagger['x-ibm-configuration'] = {
+        'testable': true,
+        'enforced': true,
+        'cors': { 'enabled': true },
+        'catalogs': {
+          'apic-dev': {
+            'properties': {
+              'runtime-url': '$(TARGET_URL)'
+            }
+          },
+          'sb': {
+            'properties': {
+              'runtime-url': 'http://localhost:4001'
+            }
+          }
+        },
+        'assembly': {
+          'execute': [{
+            'invoke': {
+              'target-url': '$(runtime-url)$(request.path)$(request.search)'
+            }
+          }]
+        }
+      };
+    }
 
     try {
       debug('attempting to load files from', this.destinationPath('models'));
@@ -295,6 +381,16 @@ module.exports = generators.Base.extend({
   },
 
   writing: function() {
+    if (this.product) {
+      var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`);
+      var productFilename = this.destinationPath(productRelativeFilename);
+      if (this.fs.exists(productFilename)) {
+        // Do not overwrite this file if it already exists
+        this.log(chalk.red('exists, not modifying ') + productRelativeFilename);
+      } else {
+        this.fs.write(productFilename, YAML.safeDump(this.product));
+      }
+    }
     if (this.swagger) {
       var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
       this.conflicter.force = true;

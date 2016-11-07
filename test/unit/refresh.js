@@ -71,4 +71,57 @@ describe('swiftserver:refresh', function () {
       ]);
     });
   });
+
+  describe('Basic refresh generator test with apic option. ' +
+           'Check the yaml files exist and ' +
+           'are written out correctly.', function () {
+
+    var dirName;
+    var expected = [
+      'definitions/%s-product.yaml',
+      'definitions/%s.yaml'
+    ];
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .inTmpDir(function (tmpDir) {
+            dirName = path.basename(tmpDir);
+            expected = expected.map((path) => format(path, dirName));
+            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
+            fs.writeFileSync(tmpFile, "");
+            fs.mkdirSync(path.join(tmpDir, "models"));
+            var testModel = {
+              name: "test",
+              plural: "tests",
+              classname: "Test",
+              properties: {
+                id: { type: "number", id: true }
+              }
+            };
+            fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
+          })
+          .withOptions({ apic: true })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files', function () {
+      assert.file(expected);
+    });
+
+    it('the product file contains the expected content', function() {
+      assert.fileContent([
+        [expected[0], 'name: ' + dirName],
+        [expected[0], 'title: ' + dirName]
+      ]);
+    });
+
+    // This is only a starter set of checks, we need to add further check in.
+    it('the swagger file contains the expected content', function() {
+      assert.fileContent([
+        [expected[1], 'name: ' + dirName],
+        [expected[1], 'title: ' + dirName]
+      ]);
+    });
+  });
 });
