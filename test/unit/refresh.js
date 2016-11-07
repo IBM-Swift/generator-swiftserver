@@ -19,48 +19,46 @@ var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var fs = require('fs');
-
-var expected = [
-  'definitions/refreshProjectName.yaml'
-];
-
+var format = require('util').format;
 
 describe('swiftserver:refresh', function () {
-var dirName;
-var expected = [];
-
   describe('Basic refresh generator test. ' +
-           'Check the product.yaml file exists and ' +
+           'Check the Swagger file exists and ' +
            'is written out correctly.', function () {
+
+    var dirName;
+    var expected = [
+      'definitions/%s.yaml'
+    ];
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
         return helpers.run(path.join( __dirname, '../../refresh'))
           .inTmpDir(function (tmpDir) {
-            dirName = tmpDir.split('/').pop()
-            expected = ['definitions/'+dirName+'.yaml'];
+            dirName = path.basename(tmpDir);
+            expected = expected.map((path) => format(path, dirName));
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
             fs.writeFileSync(tmpFile, "");
             fs.mkdirSync(path.join(tmpDir, "models"));
             var testModel = {
-                name: "test",
-                plural: "tests",
-                classname: "Test",
-                properties: {
-                    id: { type: "number", id: true }
-                }
+              name: "test",
+              plural: "tests",
+              classname: "Test",
+              properties: {
+                id: { type: "number", id: true }
+              }
             };
             fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
           })
           .toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('generates the expected yaml files', function () {
+    it('generates the expected files', function () {
       assert.file(expected);
     });
 
     // This is only a starter set of checks, we need to add further check in.
-    it('the project yaml file contains the expected content', function() {
+    it('the swagger file contains the expected content', function() {
       assert.fileContent([
         [expected[0], 'title: ' + dirName],
         [expected[0], 'test:']
