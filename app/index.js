@@ -49,7 +49,6 @@ module.exports = generators.Base.extend({
     initAppName: function() {
       this.appname = null; // Discard yeoman default appname
       this.skipPromptingAppName = false;
-
       if (this.name) {
         // User passed a desired application name as an argument
         var validation = validateAppName(this.name);
@@ -269,6 +268,13 @@ module.exports = generators.Base.extend({
 
     writeModelsDirectory: function() {
       this.fs.write(this.destinationPath('models', '.keep'), '');
+    },
+
+    writeNodeWrapper: function() {
+      if (this.options.apic) {
+        this.fs.copy(this.templatePath('apic-node-wrapper.js'),
+                     this.destinationPath('index.js'));
+      }
     }
   },
 
@@ -284,8 +290,12 @@ module.exports = generators.Base.extend({
       // Adding a testmode allows us to stub the subgenerators (for unit testing).
       // (This is to work around https://github.com/yeoman/yeoman-test/issues/16)
 
-      this.composeWith('swiftserver:refresh',
-           {},
+      this.composeWith('swiftserver:refresh', {
+             // Pass in the option to refresh to decided whether or not we create the *-product.yml
+             options: {
+               apic: this.options.apic
+             }
+           },
            this.options.testmode ? null : { local: require.resolve('../refresh')});
     },
 
@@ -298,13 +308,6 @@ module.exports = generators.Base.extend({
   },
 
   end: function() {
-    // Get the root command name by checking env var, so that we can tailor the next
-    // steps output for the user
-    var command = 'yo';
-    if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
-      command = process.env.RUN_BY_COMMAND;
-    }
-
     // Inform the user what they should do next
     this.log('Next steps:');
     this.log();
@@ -313,20 +316,19 @@ module.exports = generators.Base.extend({
       this.log(chalk.green('    $ cd ' + this.destinationRoot()));
       this.log();
     }
-    if (command === 'swiftservergenerator') {
-      this.log('  Create a model in your app');
-      this.log(chalk.green('    $ swiftservergenerator --model'));
-      this.log();
-      this.log('  Run the app');
-      this.log(chalk.green('    $ .build/debug/' + this.appname));
-      this.log();
-    } else { // We were started by yo
-      this.log('  Create a model in your app');
-      this.log(chalk.green('    $ yo swiftserver:model'));
-      this.log();
-      this.log('  Run the app');
-      this.log(chalk.green('    $ .build/debug/' + this.appname));
-      this.log();
+    var createModelInstruction = '    $ yo swiftserver:model';
+    if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
+      createModelInstruction = '    $ swiftservergenerator --model';
+    } else if (process.env.RUN_BY_COMMAND === 'apic') {
+      createModelInstruction = '    $ apic create --type model-swiftserver';
     }
+
+    this.log('  Create a model in your app');
+    this.log(chalk.green(createModelInstruction));
+    this.log();
+    this.log('  Run the app');
+    this.log(chalk.green('    $ .build/debug/' + this.appname));
+    this.log();
   }
 });
+module.exports._yeoman = generators;
