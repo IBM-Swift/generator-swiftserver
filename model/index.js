@@ -100,7 +100,7 @@ module.exports = generators.Base.extend({
 
   writing: {
     writePackageSwift: function() {
-      let packageSwift = helpers.generatePackageSwift(this.config, true);
+      let packageSwift = helpers.generatePackageSwift(this.config);
       this.fs.write(this.destinationPath('Package.swift'), packageSwift);
     },
 
