@@ -53,7 +53,6 @@ var expected = [];
             fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
           })
           .toPromise();                        // Get a Promise back when the generator finishes
-
     });
 
     it('generates the expected yaml files', function () {

@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */ 
+ */
 
 'use strict';
 var generators = require('yeoman-generator');
@@ -145,13 +145,18 @@ module.exports = generators.Base.extend({
     },
 
     writePackageSwift: function() {
-      let packageSwift = helpers.generatePackageSwift(this.config, false);
+      let packageSwift = helpers.generatePackageSwift(this.config);
       this.fs.write(this.destinationPath('Package.swift'), packageSwift);
     },
 
     writeMainSwift: function() {
       this.fs.copy(this.templatePath('main.swift'),
                    this.destinationPath('Sources', this.appname, 'main.swift'));
+    },
+
+    writeAppConfigSwift: function() {
+      this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
+                   this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
     },
 
     writeProjectMarker: function() {
