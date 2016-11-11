@@ -19,6 +19,7 @@ var generators = require('yeoman-generator');
 
 var actions = require('../lib/actions');
 var helpers = require('../lib/helpers');
+var debug = require('debug')('generator-swiftserver:property');
 var validatePropertyName = helpers.validatePropertyName;
 var validateDefaultValue = helpers.validateDefaultValue;
 var convertDefaultValue = helpers.convertDefaultValue;
@@ -53,11 +54,11 @@ module.exports = generators.Base.extend({
       var results = [];
 
       var modelsDir = this.destinationPath('models');
-      console.log('Looking for modelsDir: ', modelsDir);
+      debug('using directory %s to search for model .json files', modelsDir);
 
       if (fs.existsSync(modelsDir)) {
         var files = fs.readdirSync(modelsDir);
-        console.log('files: ', files);
+        debug('found %d files in model directory %s:', files.length, modelsDir, files);
         results = files.filter((element) => element.endsWith('.json'))
                        .map((element) => element.substring(0, element.lastIndexOf('.json')));
 

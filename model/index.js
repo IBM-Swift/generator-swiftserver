@@ -18,6 +18,7 @@
 var generators = require('yeoman-generator');
 
 var chalk = require('chalk');
+var debug = require('debug')('generator-swiftserver:model');
 
 var actions = require('../lib/actions');
 var helpers = require('../lib/helpers');
@@ -58,6 +59,7 @@ module.exports = generators.Base.extend({
     },
 
     readConfig: function() {
+      debug('reading config json from: ', this.destinationPath('config.json'));
       this.config = this.fs.readJSON(this.destinationPath('config.json'));
     }
   },
@@ -125,6 +127,7 @@ module.exports = generators.Base.extend({
       var modelFilename = this.destinationPath('models', `${this.name}.json`);
       if (this.fs.exists(modelFilename)) {
         // TODO warn about name clash?
+        debug('modifying the existing model: ', modelFilename);
         this.log(chalk.red("Warning, modifying existing model"));
       }
       this.fs.extendJSON(modelFilename, model, null, 2);

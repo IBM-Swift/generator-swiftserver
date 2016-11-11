@@ -20,6 +20,7 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
+var debug = require('debug')('generator-swiftserver:app');
 
 var helpers = require('../lib/helpers');
 var validateDirName = helpers.validateDirName;
@@ -56,6 +57,7 @@ module.exports = generators.Base.extend({
         } else {
           // Log reason for validation failure, if provided
           validation = validation || 'Application name not valid';
+          debug(this.name, ' is not valid because ', validation);
           this.log(validation);
         }
       }
@@ -71,6 +73,7 @@ module.exports = generators.Base.extend({
         } else {
           // Fall back again to a known valid name
           this.log('Failed to produce a valid application name from the current working directory');
+          debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'');
           this.appname = 'app';
         }
       }

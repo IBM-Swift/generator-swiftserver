@@ -20,6 +20,7 @@ var fs = require('fs');
 var path = require('path');
 var chalk = require('chalk');
 var YAML = require('js-yaml');
+var debug = require('debug')('generator-swiftserver:refresh');
 
 var actions = require('../lib/actions');
 
@@ -44,27 +45,29 @@ module.exports = generators.Base.extend({
     
       'schemes': ['http'],
       'basePath': '/api',
-    
+
       'consumes': ['application/json'],
       'produces': ['application/json'],
-    
+
       'paths': {},
       'definitions': {}
     };
 
     try {
+      debug('attempting to load files from', this.destinationPath('models'));
       var modelFiles = fs.readdirSync(this.destinationPath('models'));
       modelFiles.forEach(function(modelFile) {
         try {
+          debug('reading model json:', this.destinationPath('models', modelFile));
           var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
           var model = JSON.parse(modelJSON);
-          
+
           var modelName = model['name'];
           var modelNamePlural = model['plural'];
           var modelProperties = model['properties'];
           var collectivePath = `/${modelNamePlural}`;
           var singlePath = `/${modelName}/{id}`;
-      
+
           // tunniclm: Generate definitions
           var swaggerProperties = {};
           var requiredProperties = [];
@@ -87,7 +90,7 @@ module.exports = generators.Base.extend({
           if (requiredProperties.length > 0) {
             swagger['definitions'][modelName]['required'] = requiredProperties;
           }
-      
+
           // tunniclm: Generate paths
           swagger['paths'][singlePath] = {
             'get': {
@@ -221,11 +224,14 @@ module.exports = generators.Base.extend({
           this.log(`Failed to process model file ${modelFile}`);
         }
       }.bind(this));
-      if (modelFiles.length > 0) {
+      if (modelFiles.length === 0){
+        debug('no files in the model directory')
+      } else {
         this.swagger = swagger;
       }
     } catch (_) {
       // No models directory
+      debug(this.destinationPath('models'), 'directory does not exist')
     }
   },
 
