@@ -47,34 +47,11 @@ public func readConfig(configURL: URL) throws -> Int {
         Model.store = MemoryStore()
 
     case "cloudant":
-        let keys = storeConfig?.keys
-        guard let host = (keys?.contains("host"))! ? storeConfig?["host"]?.string : "localhost" else {
-            throw ConfigurationError.typeMismatch(name: "host", expectedType: "string", type: "\((storeConfig?["host"]?.type)!)")
-        }
-        guard let port = (keys?.contains("port"))! ? storeConfig?["port"]?.int16 : 5984 else {
-            throw ConfigurationError.typeMismatch(name: "port", expectedType: "int16", type: "\((storeConfig?["port"]?.type)!)")
-        }
-        guard let secured = (keys?.contains("secured"))! ? storeConfig?["secured"]?.bool : false else {
-            throw ConfigurationError.typeMismatch(name: "secured", expectedType: "bool", type: "\((storeConfig?["secured"]?.type)!)")
-        }
-
-        //Check if the username has been defined in the config and is of type string else default to nil
-        var username: String? = nil
-        if (keys?.contains("username"))! {
-            guard let tempUser = storeConfig?["username"]?.string else {
-                throw ConfigurationError.typeMismatch(name: "username", expectedType: "string", type: "\((storeConfig?["username"]?.type)!)")
-            }
-            username = tempUser
-        }
-
-        //Check if the password has been defined in the config and is of type string else default to nil
-        var password: String? = nil
-        if (keys?.contains("password"))! {
-            guard let tempPass = storeConfig?["password"]?.string else {
-                throw ConfigurationError.typeMismatch(name: "password", expectedType: "string", type: "\((storeConfig?["password"]?.type)!)")
-            }
-            password = tempPass
-        }
+        let host = try extractValueFromJSON(fromKey: "host", ofType: .string, fromJSON: storeConfig, defaultingTo: "localhost")
+        let port = Int16(try extractValueFromJSON(fromKey: "port", ofType: .number, fromJSON: storeConfig, defaultingTo: 5984))
+        let secured = try extractValueFromJSON(fromKey: "secured", ofType: .bool, fromJSON: storeConfig, defaultingTo: false)
+        let username: String? = try extractValueFromJSON(fromKey: "username", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
+        let password: String? = try extractValueFromJSON(fromKey: "password", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
 
         Model.store = CloudantStore(ConnectionProperties(
             host: host,
@@ -89,6 +66,21 @@ public func readConfig(configURL: URL) throws -> Int {
     }
     return port
 }
+
+
+func extractValueFromJSON<T>(fromKey key: String, ofType type: Type, fromJSON json: [String: JSON]?, defaultingTo defaultValue: T) throws -> T {
+    guard let json = json, let value = json[key] else {
+        Log.info("Using default value '\(defaultValue)' for '\(key)'")
+        return defaultValue
+    }
+
+    guard value.type == type else {
+        throw ConfigurationError.typeMismatch(name: key, expectedType: "\(type)", type: "\(value.type)")
+    }
+
+    return value.rawValue as! T
+}
+
 
 public enum ConfigurationError: Error {
     case invalidStoreConfiguration(message: String)
