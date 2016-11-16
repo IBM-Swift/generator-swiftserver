@@ -25,6 +25,8 @@ var debug = require('debug')('generator-swiftserver:app');
 var helpers = require('../lib/helpers');
 var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
+var validateCredential = helpers.validateRequiredCredential;
+var validatePort = helpers.validatePort;
 
 module.exports = generators.Base.extend({
 
@@ -130,13 +132,107 @@ module.exports = generators.Base.extend({
         done();
       }.bind(this));
     },
+
+    /*
+     * Configure the data store, asking the user what type of data store they
+     * are using and configuring the data store if needed. These answers will
+     * be the basis for the config.json.
+     */
+    promptDataStore: function() {
+      var done = this.async();
+      var prompts = [
+        {
+          name: 'store',
+          message: 'Select the data store',
+          type: 'list',
+          choices: ['memory (for development purposes)', 'cloudant'],
+          filter: (store) => store.split(" ")[0]
+        }
+      ];
+      this.prompt(prompts, function(answer) {
+        if(answer.store === 'memory') {
+          //No need to ask for anything else
+          this.store = answer.store;
+          done();
+          return;
+        } else {
+          this.storeType = answer.store;
+        }
+
+        this.defaultHost = 'localhost';
+        this.defualtPort = 5984;
+        this.defualtSecured = false;
+        var storeConfigPrompt = [
+          {
+            name: 'default',
+            message: 'Use default configuration for CloudantStore?',
+            type: 'confirm',
+            default: true
+          },
+          {
+            name: 'host',
+            message: 'Enter the host name',
+            default: this.defaultHost,
+            when: (answers) => !answers.default
+          },
+          {
+            name: 'port',
+            message: 'Enter the port number',
+            default: this.defualtPort,
+            when: (answers) => !answers.default,
+            validate: (port) => validatePort(port),
+            filter: (port) => parseInt(port)
+          },
+          {
+            name: 'secured',
+            message: 'Is this secure?',
+            type: 'confirm',
+            default: this.defualtSecured,
+            when: (answers) => !answers.default
+          },
+          {
+            name: 'credentials',
+            message: 'Set credentials?',
+            type: 'confirm',
+            default: false
+          },
+          {
+            name: 'username',
+            message: 'Enter username',
+            when: (answers) => answers.credentials,
+            validate: (username) => validateCredential(username)
+          },
+          {
+            name: 'password',
+            message: 'Enter password',
+            when: (answers) => answers.credentials,
+            validate: (password) => validateCredential(password)
+          }
+        ];
+        this.prompt(storeConfigPrompt, function(answers) {
+          if(!answers.default || answers.credentials) {
+            this.store = {
+              type: this.storeType,
+              host: answers.host || this.defaultHost,
+              port: answers.port || this.defualtPort,
+              secured: answers.secured || this.defualtSecured,
+              username: answers.username,
+              password: answers.password
+            }
+          } else {
+            this.store = this.storeType;
+          }
+          done();
+        }.bind(this));
+      }.bind(this));
+    }
   },
 
   writing: {
     writeConfig: function() {
       this.config = {
         appName: this.appname,
-        store: 'memory',
+        store: this.store,
         logger: 'helium',
         port: 8090
       };
