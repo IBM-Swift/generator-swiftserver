@@ -160,8 +160,8 @@ module.exports = generators.Base.extend({
         }
 
         this.defaultHost = 'localhost';
-        this.defualtPort = 5984;
-        this.defualtSecured = false;
+        this.defaultPort = 5984;
+        this.defaultSecured = false;
         var storeConfigPrompt = [
           {
             name: 'default',
@@ -178,7 +178,7 @@ module.exports = generators.Base.extend({
           {
             name: 'port',
             message: 'Enter the port number',
-            default: this.defualtPort,
+            default: this.defaultPort,
             when: (answers) => !answers.default,
             validate: (port) => validatePort(port),
             filter: (port) => parseInt(port)
@@ -187,7 +187,7 @@ module.exports = generators.Base.extend({
             name: 'secured',
             message: 'Is this secure?',
             type: 'confirm',
-            default: this.defualtSecured,
+            default: this.defaultSecured,
             when: (answers) => !answers.default
           },
           {
@@ -205,6 +205,7 @@ module.exports = generators.Base.extend({
           {
             name: 'password',
             message: 'Enter password',
+            type: 'password',
             when: (answers) => answers.credentials,
             validate: (password) => validateCredential(password)
           }
@@ -214,8 +215,8 @@ module.exports = generators.Base.extend({
             this.store = {
               type: this.storeType,
               host: answers.host || this.defaultHost,
-              port: answers.port || this.defualtPort,
-              secured: answers.secured || this.defualtSecured,
+              port: answers.port || this.defaultPort,
+              secured: answers.secured || this.defaultSecured,
               username: answers.username,
               password: answers.password
             }
