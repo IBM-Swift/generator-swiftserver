@@ -43,7 +43,7 @@ function deleteTempDir() {
   });
 }
 
-//If the test creates the driectory automatically then we have to go up one
+//If the test creates the directory automatically then we have to go up one
 //folder before trying to delete.
 function getTempDir() {
   var temp = process.cwd().split("/");
@@ -401,4 +401,142 @@ describe('swiftserver:app', function () {
     });
   });
 
+  describe('Configure the config.json with the prompts' +
+           ' to have cloudant as the data store.',
+           function () {
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode:  true })
+        .withPrompts({
+          name: 'notes',
+          dir:  'notes',
+          store: 'cloudant'
+        })
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+           this.inDir(path.join(tmpDir, 'testDir'));
+        })
+        .toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      getTempDir();
+      deleteTempDir();
+    });
+
+    it('created and changed into a folder according to dir value', function () {
+        assert.equal(path.basename(process.cwd()), 'notes');
+    });
+
+    it('generates the expected application files', function () {
+      assert.file(expected);
+    });
+
+    it('has the appname in the Package.swift file', function () {
+      assert.jsonFileContent('config.json', {store: 'cloudant'})
+    });
+  });
+
+  describe('Configure the config.json with the prompts' +
+           ' to have cloudant as the data store and' +
+           ' configure the connection properties.',
+           function () {
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode:  true })
+        .withPrompts({
+          name: 'notes',
+          dir:  'notes',
+          store: 'cloudant',
+          default: false,
+          host: 'cloudanthost',
+          port: 8080,
+          secured: true
+        })
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+           this.inDir(path.join(tmpDir, 'testDir'));
+        })
+        .toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      getTempDir();
+      deleteTempDir();
+    });
+
+    it('created and changed into a folder according to dir value', function () {
+        assert.equal(path.basename(process.cwd()), 'notes');
+    });
+
+    it('generates the expected application files', function () {
+      assert.file(expected);
+    });
+
+    it('has the appname in the Package.swift file', function () {
+      var storeConfig = {
+        type: 'cloudant',
+        host: 'cloudanthost',
+        port: 8080,
+        secured: true
+      }
+      assert.jsonFileContent('config.json', {store: storeConfig})
+    });
+  });
+  describe('Configure the config.json with the prompts' +
+           ' to have cloudant as the data store and' +
+           ' configure the credentials.',
+           function () {
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode:  true })
+        .withPrompts({
+          name: 'notes',
+          dir:  'notes',
+          store: 'cloudant',
+          credentials: true,
+          username: 'admin',
+          password: 'password123'
+        })
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+           this.inDir(path.join(tmpDir, 'testDir'));
+        })
+        .toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      getTempDir();
+      deleteTempDir();
+    });
+
+    it('created and changed into a folder according to dir value', function () {
+        assert.equal(path.basename(process.cwd()), 'notes');
+    });
+
+    it('generates the expected application files', function () {
+      assert.file(expected);
+    });
+
+    it('has the appname in the Package.swift file', function () {
+      var storeConfig = {
+        type: 'cloudant',
+        host: 'localhost',
+        port: 5984,
+        secured: false,
+        username: 'admin',
+        password: 'password123'
+      }
+      assert.jsonFileContent('config.json', {store: storeConfig})
+    });
+  });
 });
