@@ -28,8 +28,7 @@ module.exports = generators.Base.extend({
     var buildProcess = this.spawnCommand('swift', ['build']);
     buildProcess.on('close', function(err) {
       if(err) {
-        this.log(chalk.red('\nexiting: swift build command completed with errors'));
-        process.exit(1);
+        this.env.error(chalk.red('\nswift build command completed with errors'));
       }
 
       this.log('swift build command completed');
