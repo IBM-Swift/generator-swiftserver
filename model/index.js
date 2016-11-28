@@ -126,9 +126,9 @@ module.exports = generators.Base.extend({
 
       var modelFilename = this.destinationPath('models', `${this.name}.json`);
       if (this.fs.exists(modelFilename)) {
-        // TODO warn about name clash?
         debug('modifying the existing model: ', modelFilename);
-        this.log(chalk.red("Warning, modifying existing model"));
+        this.env.error(chalk.red(`\nAttempting to modify existing model '${this.name}'`,
+                           `\nUse the property generator to modify the '${this.name}' model`));
       }
       this.fs.extendJSON(modelFilename, model, null, 2);
 
