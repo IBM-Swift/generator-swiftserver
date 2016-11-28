@@ -39,8 +39,6 @@ module.exports = generators.Base.extend({
       required: false,
       type: String
     });
-    // Add support for --testmode flag
-    this.option('testmode');
   },
 
   initializing: {
