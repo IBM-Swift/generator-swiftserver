@@ -101,11 +101,6 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    writePackageSwift: function() {
-      let packageSwift = helpers.generatePackageSwift(this.config);
-      this.fs.write(this.destinationPath('Package.swift'), packageSwift);
-    },
-
     writeModel: function() {
 
       // Convert modelname to valid Swift name (if required)
