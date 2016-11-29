@@ -16,7 +16,7 @@
 
 'use strict';
 var generators = require('yeoman-generator');
-
+var chalk = require('chalk');
 var actions = require('../lib/actions');
 
 module.exports = generators.Base.extend({
@@ -26,8 +26,12 @@ module.exports = generators.Base.extend({
     // Build swift code
     var done = this.async();
     var buildProcess = this.spawnCommand('swift', ['build']);
-    buildProcess.on('close', function() {
-      this.log('swift build command is complete');
+    buildProcess.on('close', function(err) {
+      if(err) {
+        this.env.error(chalk.red('\nswift build command completed with errors'));
+      }
+
+      this.log('swift build command completed');
       done();
     }.bind(this));
   }
