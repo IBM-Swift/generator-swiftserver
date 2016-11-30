@@ -113,7 +113,7 @@ module.exports = generators.Base.extend({
         classname: this.classname,
         properties: {
           "id": {
-            "type": "number",
+            "type": "string",
             "id": true
           }
         }
