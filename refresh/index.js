@@ -42,7 +42,7 @@ module.exports = generators.Base.extend({
         'version': this.projectVersion,
         'title': this.projectName
       },
-    
+
       'schemes': ['http'],
       'basePath': '/api',
 
@@ -214,6 +214,17 @@ module.exports = generators.Base.extend({
                       '$ref': '#/definitions/' + modelName
                     }
                   }
+                }
+              },
+              'deprecated': false
+            },
+            'delete': {
+              'tags': [modelName],
+              'summary': 'Delete all instances of the model',
+              'operationId': modelName + '.deleteAll',
+              'responses': {
+                '200': {
+                  'description': 'Request was successful'
                 }
               },
               'deprecated': false
