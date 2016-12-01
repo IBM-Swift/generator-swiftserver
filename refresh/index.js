@@ -42,7 +42,7 @@ module.exports = generators.Base.extend({
         'version': this.projectVersion,
         'title': this.projectName
       },
-    
+
       'schemes': ['http'],
       'basePath': '/api',
 
@@ -118,6 +118,39 @@ module.exports = generators.Base.extend({
               'deprecated': false
             },
             'put': {
+              'tags': [modelName],
+              'summary': 'Put attributes for a model instance and persist it',
+              'operationId': modelName + '.replace',
+              'parameters': [
+                {
+                  'name': 'data',
+                  'in': 'body',
+                  'description': 'An object of model property name/value pairs',
+                  'required': false,
+                  'schema': {
+                    '$ref': '#/definitions/' + modelName
+                  }
+                },
+                {
+                  'name': 'id',
+                  'in': 'path',
+                  'description': 'Model id',
+                  'required': true,
+                  'type': 'string',
+                  'format': 'JSON'
+                }
+              ],
+              'responses': {
+                '200': {
+                  'description': 'Request was successful',
+                  'schema': {
+                    '$ref': '#/definitions/' + modelName
+                  }
+                }
+              },
+              'deprecated': false
+            },
+            'patch': {
               'tags': [modelName],
               'summary': 'Patch attributes for a model instance and persist it',
               'operationId': modelName + '.update',
