@@ -27,6 +27,7 @@ var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
+var actions = require('../lib/actions');
 
 module.exports = generators.Base.extend({
 
@@ -42,6 +43,9 @@ module.exports = generators.Base.extend({
   },
 
   initializing: {
+    ensureNotInProject: actions.ensureNotInProject,
+    ensureEmptyDirectory: actions.ensureEmptyDirectory,
+
     initAppName: function() {
       this.appname = null; // Discard yeoman default appname
       this.skipPromptingAppName = false;
