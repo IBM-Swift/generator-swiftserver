@@ -44,7 +44,6 @@ module.exports = generators.Base.extend({
 
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
-    ensureEmptyDirectory: actions.ensureEmptyDirectory,
 
     initAppName: function() {
       this.appname = null; // Discard yeoman default appname
@@ -81,7 +80,8 @@ module.exports = generators.Base.extend({
           this.appname = 'app';
         }
       }
-    }
+    },
+    ensureEmptyDirectory: actions.ensureEmptyDirectory
   },
 
   prompting: {
