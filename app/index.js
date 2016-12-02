@@ -28,6 +28,7 @@ var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
 var actions = require('../lib/actions');
+var ensureEmptyDirectory = actions.ensureEmptyDirectory;
 
 module.exports = generators.Base.extend({
 
@@ -80,8 +81,7 @@ module.exports = generators.Base.extend({
           this.appname = 'app';
         }
       }
-    },
-    ensureEmptyDirectory: actions.ensureEmptyDirectory
+    }
   },
 
   prompting: {
@@ -134,7 +134,7 @@ module.exports = generators.Base.extend({
         done();
       }.bind(this));
     },
-
+    ensureEmptyDirectory: actions.ensureEmptyDirectory,
     /*
      * Configure the data store, asking the user what type of data store they
      * are using and configuring the data store if needed. These answers will
