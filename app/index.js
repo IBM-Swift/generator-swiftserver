@@ -260,7 +260,7 @@ module.exports = generators.Base.extend({
     writeProjectMarker: function() {
       // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
       // directory
-      this.fs.write(".swiftservergenerator-project", "");
+      this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
     }
   },
 
