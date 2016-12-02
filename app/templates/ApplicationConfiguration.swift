@@ -64,7 +64,7 @@ public func readConfig(configURL: URL) throws -> Int {
 
     case "cloudant":
         let host = try extractValueFromJSON(fromKey: "host", ofType: .string, fromJSON: storeConfig, defaultingTo: "localhost")
-        let port = Int16(try extractValueFromJSON(fromKey: "port", ofType: .number, fromJSON: storeConfig, defaultingTo: 5984))
+        let port = try extractValueFromJSON(fromKey: "port", ofType: .number, fromJSON: storeConfig, defaultingTo: Int16(5984))
         let secured = try extractValueFromJSON(fromKey: "secured", ofType: .bool, fromJSON: storeConfig, defaultingTo: false)
         let username: String? = try extractValueFromJSON(fromKey: "username", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
         let password: String? = try extractValueFromJSON(fromKey: "password", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
@@ -93,7 +93,10 @@ func extractValueFromJSON<T>(fromKey key: String, ofType type: Type, fromJSON js
     guard value.type == type else {
         throw ConfigurationError.typeMismatch(name: key, expectedType: "\(type)", type: "\(value.type)")
     }
-
+    
+    if type == .number, let number = value.rawValue as? NSNumber {
+        return number.int16Value as! T
+    }
     return value.rawValue as! T
 }
 
