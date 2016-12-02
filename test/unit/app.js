@@ -549,16 +549,85 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .inTmpDir(function (tmpDir) {
           testingDir = tmpDir;
-          var tmpFile = path.join(testingDir, "non_empty.txt");    //Created to make the dir a kitura project
+          var tmpFile = path.join(testingDir, "non_empty.txt");    //Created to make the dir a non-empty
           fs.writeFileSync(tmpFile, "");
         })
         .toPromise()                        // Get a Promise back when the generator finishes\
         .catch(function(err) {
           success = true;
-          assert(err.message.match('is not an empty directory.*$'), 'Directory is non-empty and should have thrown an error');
+          assert(err.message.match('is not an empty directory.*$'), 'Current directory is non-empty and should have thrown an error');
         })
         .then(function(){
-          assert(success, 'Directory is non-empty and should have thrown an error');
+          assert(success, 'Current directory is non-empty and should have thrown an error');
+        });
+    });
+
+    after(function() {
+      deleteTempDir();
+    });
+
+    it('did not generate a project in the current directory', function () {
+      assert.noFile(expected);
+    })
+  });
+
+  describe('Attempt to create a project in a non-empty directory with prompt.', function () {
+
+    before(function () {
+      var success = false;
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators) // Stub subgenerators
+        .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+          fs.mkdirSync(path.join(testingDir, 'testingDir'));
+          var tmpFile = path.join(testingDir, 'testingDir', "non_empty.txt");    //Created to make the dir non-empty
+          fs.writeFileSync(tmpFile, "");
+        })
+        .withPrompts({
+          name: 'test',
+          dir: 'testingDir'
+        })
+        .toPromise()                        // Get a Promise back when the generator finishes\
+        .catch(function(err) {              // Should catch the expected error
+          success = true;
+          assert(err.message.match('is not an empty directory.*$'), 'Specified directory is non-empty and should have thrown an error');
+        })
+        .then(function(){
+          assert(success, 'Specified directory is non-empty and should have thrown an error');
+        });
+    });
+
+    after(function() {
+      deleteTempDir();
+    });
+
+    it('did not generate a project in the specified directory', function () {
+      assert.noFile(expected);
+    })
+  });
+
+  describe('Attempt to create a project in a pre-existing project.', function () {
+
+    before(function () {
+      var success = false;
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators) // Stub subgenerators
+        .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+          var tmpFile = path.join(testingDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
+          fs.writeFileSync(tmpFile, "");
+        })
+        .toPromise()                        // Get a Promise back when the generator finishes\
+        .catch(function(err) {
+          success = true;
+          assert(err.message.match('is already a Swift Server Generator project directory.*$'), 'Directory is already a project and should have thrown an error');
+        })
+        .then(function(){
+          assert(success, 'Directory is already a project and should have thrown an error');
         });
     });
 
@@ -567,7 +636,7 @@ describe('swiftserver:app', function () {
     });
 
     it('did not generate a project', function () {
-      assert.noFile(expected);
+      assert.noFile('Package.swift');
     })
   });
 });
