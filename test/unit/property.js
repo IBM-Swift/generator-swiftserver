@@ -27,7 +27,7 @@ var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:build']
 ];
 
-describe('kitura:property', function() {
+describe('swiftserver:property', function() {
 var testingDir;
   describe('Basic property test. ' +
             'Check if properties are added to a model', function() {
@@ -63,7 +63,7 @@ var testingDir;
             classame: "MyModel",
             properties: {
               id: {
-                type: "number",
+                type: "string",
                 id: "true"
               }
             }
