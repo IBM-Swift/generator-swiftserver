@@ -67,7 +67,7 @@ module.exports = generators.Base.extend({
           var modelNamePlural = model['plural'];
           var modelProperties = model['properties'];
           var collectivePath = `/${modelNamePlural}`;
-          var singlePath = `/${modelName}/{id}`;
+          var singlePath = `/${modelNamePlural}/{id}`;
 
           // tunniclm: Generate definitions
           var swaggerProperties = {};
