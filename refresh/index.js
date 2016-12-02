@@ -227,18 +227,18 @@ module.exports = generators.Base.extend({
       }.bind(this));
       if (modelFiles.length === 0){
         debug('no files in the model directory')
-      } else {
-        this.swagger = swagger;
       }
     } catch (_) {
       // No models directory
       debug(this.destinationPath('models'), 'directory does not exist')
     }
+    this.swagger = swagger;
   },
 
   writing: function() {
     if (this.swagger) {
       var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
+      this.conflicter.force = true;
       this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
     }
   },
