@@ -13,7 +13,10 @@ guard let projectRoot = Application.findProjectRoot() else {
 }
 
 do {
-    let port = try readConfig(configURL: projectRoot.appendingPathComponent("config.json"))
+    let configPort = try readConfig(configURL: projectRoot.appendingPathComponent("config.json"))
+    let environmentPort = ProcessInfo.processInfo.environment["PORT"].flatMap { Int($0) }
+    let port = environmentPort ?? configPort
+
     let application = Application(projectRoot: projectRoot)
     let router = application.router
 
