@@ -19,6 +19,7 @@ var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var rimraf = require('rimraf')
+var fs = require('fs');
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
@@ -356,8 +357,6 @@ describe('swiftserver:app', function () {
         assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid');
     });
 
-    console.log(path.dirname(process.cwd()));
-
     it('generates the expected application files', function () {
       assert.file(expected);
     });
@@ -538,5 +537,37 @@ describe('swiftserver:app', function () {
       }
       assert.jsonFileContent('config.json', {store: storeConfig})
     });
+  });
+
+  describe('Attempt to create a project in a non-empty directory.', function () {
+
+    before(function () {
+      var success = false;
+      // Mock the options, set up an output folder and run the generator
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators) // Stub subgenerators
+        .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .inTmpDir(function (tmpDir) {
+          testingDir = tmpDir;
+          var tmpFile = path.join(testingDir, "non_empty.txt");    //Created to make the dir a kitura project
+          fs.writeFileSync(tmpFile, "");
+        })
+        .toPromise()                        // Get a Promise back when the generator finishes\
+        .catch(function(err) {
+          success = true;
+          assert(err.message.match('is not an empty directory.*$'), 'Directory is non-empty and should have thrown an error');
+        })
+        .then(function(){
+          assert(success, 'Directory is non-empty and should have thrown an error');
+        });
+    });
+
+    after(function() {
+      deleteTempDir();
+    });
+
+    it('did not generate a project', function () {
+      assert.noFile(expected);
+    })
   });
 });
