@@ -55,7 +55,8 @@ module.exports = generators.Base.extend({
 
     try {
       debug('attempting to load files from', this.destinationPath('models'));
-      var modelFiles = fs.readdirSync(this.destinationPath('models'));
+      var modelFiles = fs.readdirSync(this.destinationPath('models'))
+                         .filter((name) => name.endsWith('.json'));
       modelFiles.forEach(function(modelFile) {
         try {
           debug('reading model json:', this.destinationPath('models', modelFile));
