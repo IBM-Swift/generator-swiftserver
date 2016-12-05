@@ -22,17 +22,24 @@ var actions = require('../lib/actions');
 module.exports = generators.Base.extend({
   initializing: actions.ensureInProject,
 
-  install: function() {
-    // Build swift code
-    var done = this.async();
-    var buildProcess = this.spawnCommand('swift', ['build']);
-    buildProcess.on('close', function(err) {
-      if(err) {
-        this.env.error(chalk.red('\nswift build command completed with errors'));
-      }
+  install: {
+    ensureRequiredSwiftInstalled: actions.ensureRequiredSwiftInstalled,
 
-      this.log('swift build command completed');
-      done();
-    }.bind(this));
+    buildSwift: function() {
+      // Build swift code
+      var done = this.async();
+      var buildProcess = this.spawnCommand('swift', ['build']);
+      buildProcess.on('error', function(err) {
+        this.env.error(chalk.red('Failed to launch build'));
+      });
+      buildProcess.on('close', function(err) {
+        if(err) {
+          this.env.error(chalk.red('\nswift build command completed with errors'));
+        }
+
+        this.log('swift build command completed');
+        done();
+      }.bind(this));
+    }
   }
 });
