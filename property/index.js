@@ -119,9 +119,7 @@ module.exports = generators.Base.extend({
         ];
         this.prompt(parameterPrompts, function(parameters) {
           this.properties[answers.name] = { type: parameters.type };
-          if (parameters.required) {
-            this.properties[answers.name].required = true
-          }
+          this.properties[answers.name].required = parameters.required ? true : undefined;
 
           var defaultPrompts = [
             {
