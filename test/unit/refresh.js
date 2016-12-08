@@ -77,6 +77,7 @@ describe('swiftserver:refresh', function () {
            'are written out correctly.', function () {
 
     var dirName;
+    var appName = 'testApp';
     var expected = [
       'definitions/%s-product.yaml',
       'definitions/%s.yaml'
@@ -87,9 +88,14 @@ describe('swiftserver:refresh', function () {
         return helpers.run(path.join( __dirname, '../../refresh'))
           .inTmpDir(function (tmpDir) {
             dirName = path.basename(tmpDir);
-            expected = expected.map((path) => format(path, dirName));
+            expected = expected.map((path) => format(path, appName));
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
             fs.writeFileSync(tmpFile, "");
+            var config = {
+              appName: appName
+            };
+            var configFile = path.join(tmpDir, "config.json");
+            fs.writeFileSync(configFile, JSON.stringify(config));
             fs.mkdirSync(path.join(tmpDir, "models"));
             var testModel = {
               name: "test",
@@ -111,16 +117,16 @@ describe('swiftserver:refresh', function () {
 
     it('the product file contains the expected content', function() {
       assert.fileContent([
-        [expected[0], 'name: ' + dirName],
-        [expected[0], 'title: ' + dirName]
+        [expected[0], 'name: ' + appName],
+        [expected[0], 'title: ' + appName]
       ]);
     });
 
     // This is only a starter set of checks, we need to add further check in.
     it('the swagger file contains the expected content', function() {
       assert.fileContent([
-        [expected[1], 'name: ' + dirName],
-        [expected[1], 'title: ' + dirName]
+        [expected[1], 'name: ' + appName],
+        [expected[1], 'title: ' + appName]
       ]);
     });
   });
