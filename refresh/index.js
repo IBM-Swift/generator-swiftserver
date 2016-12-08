@@ -28,9 +28,24 @@ module.exports = generators.Base.extend({
   initializing: {
     ensureInProject: actions.ensureInProject,
 
+    readConfig: function() {
+      debug('reading config json from: ', this.destinationPath('config.json'));
+      try {
+        this.config = this.fs.readJSON(this.destinationPath('config.json'));
+        if (!this.config) {
+          this.env.error(chalk.red('Config file config.json not found'));
+        }
+        if (!this.config.appName) {
+          this.env.error(chalk.red('Property appName missing from config file config.json'));
+        }
+      } catch (err) {
+        this.env.error(chalk.red(err));
+      }
+    },
+
     loadProjectInfo: function() {
       // TODO(tunniclm): Improve how we set these values
-      this.projectName = path.basename(this.destinationRoot()); // TODO(tunniclm): read from config.json?
+      this.projectName = this.config.appName
       this.projectVersion = '1.0.0';
     }
   },
