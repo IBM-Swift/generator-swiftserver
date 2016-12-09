@@ -1,3 +1,9 @@
+2016-12-09, Version 1.0.4
+=========================
+
+ * Add copyright notice to apic-node-wrapper.js (Mike Tunnicliffe)
+
+
 2016-12-08, Version 1.0.3
 =========================
 
