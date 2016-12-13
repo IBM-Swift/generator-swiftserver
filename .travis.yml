@@ -1,0 +1,28 @@
+language: node_js
+matrix:
+  include:
+   - os: linux
+     dist: trusty
+     sudo: required
+     node_js: '4'
+   - os: linux
+     dist: trust
+     sudo: required
+     node_js: '6'
+   - os: osx
+     osx_image: xcode_8.1
+     sudo: required
+     node_js: '4'
+   - os: osx
+     osx_image: xcode_8.1
+     sudo: required
+     node_js: '6'
+before_install:
+    - git clone https://github.com/rob-deans/Package-Builder.git
+script:
+  - ./Package-Builder/build-package.sh -projectDir $TRAVIS_BUILD_DIR -n
+
+env:
+  global:
+    - CXX=g++-4.8
+
