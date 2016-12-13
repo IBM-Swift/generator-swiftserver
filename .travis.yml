@@ -1,4 +1,7 @@
 language: node_js
+branches: 
+  only:
+    - master
 matrix:
   include:
    - os: linux
@@ -6,15 +9,15 @@ matrix:
      sudo: required
      node_js: '4'
    - os: linux
-     dist: trust
+     dist: trusty
      sudo: required
      node_js: '6'
    - os: osx
-     osx_image: xcode_8.1
+     osx_image: xcode8.1
      sudo: required
      node_js: '4'
    - os: osx
-     osx_image: xcode_8.1
+     osx_image: xcode8.1
      sudo: required
      node_js: '6'
 before_install:
