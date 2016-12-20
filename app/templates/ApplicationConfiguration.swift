@@ -1,3 +1,19 @@
+/*
+ * Copyright IBM Corporation 2016
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import Foundation
 import SwiftyJSON
 import GeneratedSwiftServer
@@ -48,7 +64,7 @@ public func readConfig(configURL: URL) throws -> Int {
 
     case "cloudant":
         let host = try extractValueFromJSON(fromKey: "host", ofType: .string, fromJSON: storeConfig, defaultingTo: "localhost")
-        let port = Int16(try extractValueFromJSON(fromKey: "port", ofType: .number, fromJSON: storeConfig, defaultingTo: 5984))
+        let port = try extractValueFromJSON(fromKey: "port", ofType: .number, fromJSON: storeConfig, defaultingTo: Int16(5984))
         let secured = try extractValueFromJSON(fromKey: "secured", ofType: .bool, fromJSON: storeConfig, defaultingTo: false)
         let username: String? = try extractValueFromJSON(fromKey: "username", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
         let password: String? = try extractValueFromJSON(fromKey: "password", ofType: .string, fromJSON: storeConfig, defaultingTo: nil)
@@ -77,7 +93,10 @@ func extractValueFromJSON<T>(fromKey key: String, ofType type: Type, fromJSON js
     guard value.type == type else {
         throw ConfigurationError.typeMismatch(name: key, expectedType: "\(type)", type: "\(value.type)")
     }
-
+    
+    if type == .number, let number = value.rawValue as? NSNumber {
+        return number.int16Value as! T
+    }
     return value.rawValue as! T
 }
 

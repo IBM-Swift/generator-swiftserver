@@ -138,6 +138,7 @@ module.exports = generators.Base.extend({
       this.log('Enter an empty property name when done.');
       this.composeWith('swiftserver:property', {
         options: {
+          apic: this.options.apic,
           repeatMultiple: true,
           modelName: this.name
         },
