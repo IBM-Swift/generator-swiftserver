@@ -1,0 +1,34 @@
+language: node_js
+branches: 
+  only:
+    - master
+matrix:
+  include:
+   - os: linux
+     dist: trusty
+     sudo: required
+     node_js: '4'
+   - os: linux
+     dist: trusty
+     sudo: required
+     node_js: '6'
+   - os: osx
+     osx_image: xcode8.1
+     sudo: required
+     node_js: '4'
+   - os: osx
+     osx_image: xcode8.1
+     sudo: required
+     node_js: '6'
+before_install:
+    - git clone https://github.com/IBM-Swift/Package-Builder.git
+before_script:
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gpg2 --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && rvm get head; fi   
+script:
+  - source ./Package-Builder/install-swift.sh `pwd` 
+  - npm test && npm run testint
+
+env:
+  global:
+    - CXX=g++-4.8
+
