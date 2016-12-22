@@ -620,7 +620,6 @@ describe('swiftserver:app', function () {
           testingDir = tmpDir;
           var tmpFile = path.join(testingDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
           fs.writeFileSync(tmpFile, "");
-          console.log(testingDir);
         })
         .toPromise()                        // Get a Promise back when the generator finishes\
         .catch(function(err) {
@@ -633,7 +632,7 @@ describe('swiftserver:app', function () {
     });
 
     after(function() {
-      this.cleanTestDirectory;
+      deleteTempDir();
     });
 
     it('did not generate a project', function () {
