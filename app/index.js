@@ -242,7 +242,7 @@ module.exports = generators.Base.extend({
     },
 
     writeGeneratorConfig: function() {
-      this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
+      this.fs.writeJSON(this.destinationPath('.yo_rc.json'), {});
     },
 
     writePackageSwift: function() {
@@ -258,6 +258,19 @@ module.exports = generators.Base.extend({
     writeAppConfigSwift: function() {
       this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
                    this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
+    },
+
+    writeManifest: function() {
+      this.cloud = `applications:\n` +
+                   `- name: ${this.appname}\n` +
+                   `  memory: 128M\n` +
+                   `  instances: 1\n` +
+                   `  random-route: true\n` +
+                   `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
+
+      this.fs.write(this.destinationPath('manifest.yml'), this.cloud); 
+      this.fs.copy(this.templatePath('.cfignore'),
+                 this.destinationPath('.cfignore'));
     },
 
     writeProjectMarker: function() {
