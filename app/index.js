@@ -266,6 +266,7 @@ module.exports = generators.Base.extend({
                       `  memory: 128M\n` +
                       `  instances: 1\n` +
                       `  random-route: true\n` +
+                      `  buildpack: swift_buildpack\n` +
                       `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
 
       this.fs.write(this.destinationPath('manifest.yml'), this.manifest); 

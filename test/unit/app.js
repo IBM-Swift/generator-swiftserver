@@ -30,7 +30,8 @@ var dependentGenerators = [
 // Files which we assert are created each time the app generator is run.
 var expected = [
   'Package.swift',
-  '.swiftservergenerator-project'
+  '.swiftservergenerator-project',
+  'manifest.yml'
 ];
 
 var testingDir;
@@ -540,7 +541,6 @@ describe('swiftserver:app', function () {
   });
 
   describe('Attempt to create a project in a non-empty directory.', function () {
-
     before(function () {
       var success = false;
       // Mock the options, set up an output folder and run the generator
