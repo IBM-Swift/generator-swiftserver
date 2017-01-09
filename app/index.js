@@ -260,6 +260,20 @@ module.exports = generators.Base.extend({
                    this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
     },
 
+    writeManifest: function() {
+      this.manifest = `applications:\n` +
+                      `- name: ${this.appname}\n` +
+                      `  memory: 128M\n` +
+                      `  instances: 1\n` +
+                      `  random-route: true\n` +
+                      `  buildpack: swift_buildpack\n` +
+                      `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
+
+      this.fs.write(this.destinationPath('manifest.yml'), this.manifest); 
+      this.fs.copy(this.templatePath('.cfignore'),
+                 this.destinationPath('.cfignore'));
+    },
+
     writeProjectMarker: function() {
       // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
       // directory
