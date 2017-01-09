@@ -13,7 +13,7 @@ dist: trusty
 osx_image: xcode8
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi   
-    - git clone https://github.com/rob-deans/Package-Builder.git
+    - git clone https://github.com/IBM-Swift/Package-Builder.git
 script:
   - source ./Package-Builder/install-swift.sh `pwd` 
   - npm test && npm run testint
