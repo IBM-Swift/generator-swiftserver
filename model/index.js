@@ -101,7 +101,7 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    writeModel: function() {
+    writeModelMetadata: function() {
 
       // Convert modelname to valid Swift name (if required)
       this.classname = convertModelNametoSwiftClassname(this.name);
@@ -119,18 +119,13 @@ module.exports = generators.Base.extend({
         }
       }
 
-      var modelFilename = this.destinationPath('models', `${this.name}.json`);
-      if (this.fs.exists(modelFilename)) {
-        debug('modifying the existing model: ', modelFilename);
+      var modelMetadataFilename = this.destinationPath('models', `${this.name}.json`);
+      if (this.fs.exists(modelMetadataFilename)) {
+        debug('modifying the existing model: ', modelMetadataFilename);
         this.env.error(chalk.red(`\nAttempting to modify existing model '${this.name}'`,
                            `\nUse the property generator to modify the '${this.name}' model`));
       }
-      this.fs.extendJSON(modelFilename, model, null, 2);
-
-      // Create the stub model swift file
-      var stubFilename = this.destinationPath('Sources', 'Generated', `${this.classname}.swift`);
-      var stubModelSwift = `import GeneratedSwiftServer\n\nclass ${this.classname}: Model {\n}`;
-      this.fs.write(stubFilename, stubModelSwift);
+      this.fs.extendJSON(modelMetadataFilename, model, null, 2);
     },
 
     property: function() {

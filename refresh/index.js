@@ -22,6 +22,7 @@ var chalk = require('chalk');
 var YAML = require('js-yaml');
 var debug = require('debug')('generator-swiftserver:refresh');
 
+var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
 
 module.exports = generators.Base.extend({
@@ -44,6 +45,31 @@ module.exports = generators.Base.extend({
         }
       } catch (err) {
         this.env.error(chalk.red(err));
+      }
+    },
+
+    readModels: function() {
+      this.models = [];
+      try {
+        var modelFiles = fs.readdirSync(this.destinationPath('models'))
+                           .filter((name) => name.endsWith('.json'));
+        modelFiles.forEach(function(modelFile) {
+          try {
+            debug('reading model json:', this.destinationPath('models', modelFile));
+            var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
+            var model = JSON.parse(modelJSON);
+            this.models.push(model);
+          } catch (_) {
+            // Failed to read model file
+            this.log(`Failed to process model file ${modelFile}`);
+          }
+        }.bind(this));
+        if (modelFiles.length === 0){
+          debug('no files in the model directory')
+        }
+      } catch (_) {
+        // No models directory
+        debug(this.destinationPath('models'), 'directory does not exist')
       }
     },
 
@@ -154,233 +180,259 @@ module.exports = generators.Base.extend({
       };
     }
 
-    try {
-      debug('attempting to load files from', this.destinationPath('models'));
-      var modelFiles = fs.readdirSync(this.destinationPath('models'))
-                         .filter((name) => name.endsWith('.json'));
-      modelFiles.forEach(function(modelFile) {
-        try {
-          debug('reading model json:', this.destinationPath('models', modelFile));
-          var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
-          var model = JSON.parse(modelJSON);
+    this.models.forEach(function(model) {
+      var modelName = model['name'];
+      var modelNamePlural = model['plural'];
+      var modelProperties = model['properties'];
+      var collectivePath = `/${modelNamePlural}`;
+      var singlePath = `/${modelNamePlural}/{id}`;
 
-          var modelName = model['name'];
-          var modelNamePlural = model['plural'];
-          var modelProperties = model['properties'];
-          var collectivePath = `/${modelNamePlural}`;
-          var singlePath = `/${modelNamePlural}/{id}`;
-
-          // tunniclm: Generate definitions
-          var swaggerProperties = {};
-          var requiredProperties = [];
-          for (var propName in model['properties']) {
-              swaggerProperties[propName] = {
-                'type': model['properties'][propName]['type']
-              };
-              if (typeof model['properties'][propName]['format'] !== 'undefined')
-              {
-                swaggerProperties[propName]['format'] = model['properties'][propName]['format'];
-              }
-              if (model['properties'][propName]['required'] === true) {
-                requiredProperties.push(propName);
-              }
-          }
-          swagger['definitions'][modelName] = {
-            'properties': swaggerProperties,
-            'additionalProperties': false
-          }
-          if (requiredProperties.length > 0) {
-            swagger['definitions'][modelName]['required'] = requiredProperties;
-          }
-
-          // tunniclm: Generate paths
-          swagger['paths'][singlePath] = {
-            'get': {
-              'tags': [modelName],
-              'summary': 'Find a model instance by {{id}}',
-              'operationId': modelName + '.findOne',
-              'parameters': [
-                {
-                  'name': 'id',
-                  'in': 'path',
-                  'description': 'Model id',
-                  'required': true,
-                  'type': 'string',
-                  'format': 'JSON',
-                }
-              ],
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                }
-              },
-              'deprecated': false
-            },
-            'put': {
-              'tags': [modelName],
-              'summary': 'Put attributes for a model instance and persist it',
-              'operationId': modelName + '.replace',
-              'parameters': [
-                {
-                  'name': 'data',
-                  'in': 'body',
-                  'description': 'An object of model property name/value pairs',
-                  'required': false,
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                },
-                {
-                  'name': 'id',
-                  'in': 'path',
-                  'description': 'Model id',
-                  'required': true,
-                  'type': 'string',
-                  'format': 'JSON'
-                }
-              ],
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                }
-              },
-              'deprecated': false
-            },
-            'patch': {
-              'tags': [modelName],
-              'summary': 'Patch attributes for a model instance and persist it',
-              'operationId': modelName + '.update',
-              'parameters': [
-                {
-                  'name': 'data',
-                  'in': 'body',
-                  'description': 'An object of model property name/value pairs',
-                  'required': false,
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                },
-                {
-                  'name': 'id',
-                  'in': 'path',
-                  'description': 'Model id',
-                  'required': true,
-                  'type': 'string',
-                  'format': 'JSON'
-                }
-              ],
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                }
-              },
-              'deprecated': false
-            },
-            'delete': {
-              'tags': [modelName],
-              'summary': 'Delete a model instance by {{id}}',
-              'operationId': modelName + '.delete',
-              'parameters': [
-                {
-                  'name': 'id',
-                  'in': 'path',
-                  'description': 'Model id',
-                  'required': true,
-                  'type': 'string',
-                  'format': 'JSON'
-                }
-              ],
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    'type': 'object'
-                  }
-                }
-              },
-              'deprecated': false
-            }
-          };
-          swagger['paths'][collectivePath] = {
-            'post': {
-              'tags': [modelName],
-              'summary': 'Create a new instance of the model and persist it',
-              'operationId': modelName + '.create',
-              'parameters': [
-                {
-                  'name': 'data',
-                  'in': 'body',
-                  'description': 'Model instance data',
-                  'required': false,
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                }
-              ],
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    '$ref': '#/definitions/' + modelName
-                  }
-                }
-              },
-              'deprecated': false
-            },
-            'get': {
-              'tags': [modelName],
-              'summary': 'Find all instances of the model',
-              'operationId': modelName + '.findAll',
-              'responses': {
-                '200': {
-                  'description': 'Request was successful',
-                  'schema': {
-                    'type': 'array',
-                    'items': {
-                      '$ref': '#/definitions/' + modelName
-                    }
-                  }
-                }
-              },
-              'deprecated': false
-            },
-            'delete': {
-              'tags': [modelName],
-              'summary': 'Delete all instances of the model',
-              'operationId': modelName + '.deleteAll',
-              'responses': {
-                '200': {
-                  'description': 'Request was successful'
-                }
-              },
-              'deprecated': false
-            }
-          };
-        } catch (_) {
-          // Failed to read model file
-          this.log(`Failed to process model file ${modelFile}`);
+      // tunniclm: Generate definitions
+      var swaggerProperties = {};
+      var requiredProperties = [];
+      for (var propName in model['properties']) {
+        swaggerProperties[propName] = {
+          'type': model['properties'][propName]['type']
+        };
+        if (typeof model['properties'][propName]['format'] !== 'undefined')
+        {
+          swaggerProperties[propName]['format'] = model['properties'][propName]['format'];
         }
-      }.bind(this));
-      if (modelFiles.length === 0){
-        debug('no files in the model directory')
+        if (model['properties'][propName]['required'] === true) {
+          requiredProperties.push(propName);
+        }
       }
-    } catch (_) {
-      // No models directory
-      debug(this.destinationPath('models'), 'directory does not exist')
-    }
+      swagger['definitions'][modelName] = {
+        'properties': swaggerProperties,
+        'additionalProperties': false
+      }
+      if (requiredProperties.length > 0) {
+        swagger['definitions'][modelName]['required'] = requiredProperties;
+      }
+
+      // tunniclm: Generate paths
+      swagger['paths'][singlePath] = {
+        'get': {
+          'tags': [modelName],
+          'summary': 'Find a model instance by {{id}}',
+          'operationId': modelName + '.findOne',
+          'parameters': [
+            {
+              'name': 'id',
+              'in': 'path',
+              'description': 'Model id',
+              'required': true,
+              'type': 'string',
+              'format': 'JSON',
+            }
+          ],
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            }
+          },
+          'deprecated': false
+        },
+        'put': {
+          'tags': [modelName],
+          'summary': 'Put attributes for a model instance and persist it',
+          'operationId': modelName + '.replace',
+          'parameters': [
+            {
+              'name': 'data',
+              'in': 'body',
+              'description': 'An object of model property name/value pairs',
+              'required': false,
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            },
+            {
+              'name': 'id',
+              'in': 'path',
+              'description': 'Model id',
+              'required': true,
+              'type': 'string',
+              'format': 'JSON'
+            }
+          ],
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            }
+          },
+          'deprecated': false
+        },
+        'patch': {
+          'tags': [modelName],
+          'summary': 'Patch attributes for a model instance and persist it',
+          'operationId': modelName + '.update',
+          'parameters': [
+            {
+              'name': 'data',
+              'in': 'body',
+              'description': 'An object of model property name/value pairs',
+              'required': false,
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            },
+            {
+              'name': 'id',
+              'in': 'path',
+              'description': 'Model id',
+              'required': true,
+              'type': 'string',
+              'format': 'JSON'
+            }
+          ],
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            }
+          },
+          'deprecated': false
+        },
+        'delete': {
+          'tags': [modelName],
+          'summary': 'Delete a model instance by {{id}}',
+          'operationId': modelName + '.delete',
+          'parameters': [
+            {
+              'name': 'id',
+              'in': 'path',
+              'description': 'Model id',
+              'required': true,
+              'type': 'string',
+              'format': 'JSON'
+            }
+          ],
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                'type': 'object'
+              }
+            }
+          },
+          'deprecated': false
+        }
+      };
+      swagger['paths'][collectivePath] = {
+        'post': {
+          'tags': [modelName],
+          'summary': 'Create a new instance of the model and persist it',
+          'operationId': modelName + '.create',
+          'parameters': [
+            {
+              'name': 'data',
+              'in': 'body',
+              'description': 'Model instance data',
+              'required': false,
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            }
+          ],
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                '$ref': '#/definitions/' + modelName
+              }
+            }
+          },
+          'deprecated': false
+        },
+        'get': {
+          'tags': [modelName],
+          'summary': 'Find all instances of the model',
+          'operationId': modelName + '.findAll',
+          'responses': {
+            '200': {
+              'description': 'Request was successful',
+              'schema': {
+                'type': 'array',
+                'items': {
+                  '$ref': '#/definitions/' + modelName
+                }
+              }
+            }
+          },
+          'deprecated': false
+        },
+        'delete': {
+          'tags': [modelName],
+          'summary': 'Delete all instances of the model',
+          'operationId': modelName + '.deleteAll',
+          'responses': {
+            '200': {
+              'description': 'Request was successful'
+            }
+          },
+          'deprecated': false
+        }
+      };
+    });
     this.swagger = swagger;
   },
 
   writing: function() {
+    this.fs.copyTpl(
+      this.templatePath('GeneratedApplication.swift'),
+      this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
+      { models: this.models }
+    );
+    this.fs.copyTpl(
+      this.templatePath('AdapterFactory.swift'),
+      this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
+      { models: this.models }
+    );
+    this.models.forEach(function(model) {
+      this.fs.copyTpl(
+        this.templatePath('Resource.swift'),
+        this.destinationPath('Sources', 'Generated', `${model.classname}Resource.swift`),
+        { model: model }
+      );
+      this.fs.copyTpl(
+        this.templatePath('Adapter.swift'),
+        this.destinationPath('Sources', 'Generated', `${model.classname}Adapter.swift`),
+        { model: model }
+      );
+      this.fs.copyTpl(
+        this.templatePath('MemoryAdapter.swift'),
+        this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
+        { model: model }
+      );
+      function optional(propertyName) {
+        var required = (model.properties[propertyName].required === true);
+        var identifier = (model.properties[propertyName].id === true);
+        return !required || identifier;
+      }
+      var propertyInfos = Object.keys(model.properties).map(
+        (propertyName) => ({
+            name: propertyName,
+            jsType: model.properties[propertyName].type,
+            swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
+                                                    optional(propertyName)),
+            optional: optional(propertyName)
+        })
+      );
+      this.fs.copyTpl(
+        this.templatePath('Model.swift'),
+        this.destinationPath('Sources', 'Generated', `${model.classname}.swift`),
+        { model: model, propertyInfos: propertyInfos }
+      );
+    }.bind(this));
     if (this.product) {
       var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`);
       var productFilename = this.destinationPath(productRelativeFilename);

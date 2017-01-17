@@ -33,7 +33,7 @@ do {
     let environmentPort = ProcessInfo.processInfo.environment["PORT"].flatMap { Int($0) }
     let port = environmentPort ?? configPort
 
-    let application = Application(projectRoot: projectRoot)
+    let application = GeneratedApplication()
     let router = application.router
 
     Kitura.addHTTPServer(onPort: port, with: router)
