@@ -16,7 +16,7 @@ public class <%- model.classname %>Resource {
 
         router.get(path, handler: handleIndex)
         router.post(path, handler: handleCreate)
-        //router.delete(path, handler: handleDeleteAll)
+        router.delete(path, handler: handleDeleteAll)
 
         //router.get(pathWithId, handler: handleRead)
         //router.put(pathWithId, handler: handleReplace)
@@ -71,6 +71,19 @@ public class <%- model.classname %>Resource {
         } catch {
             Log.error("InternalServerError during handleCreate: \(error)")
             response.status(.internalServerError)
+            next()
+        }
+    }
+
+    private func handleDeleteAll(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+        Log.debug("DELETE \(path)")
+        adapter.deleteAll() { error in
+            if let _ = error {
+                response.status(.internalServerError)
+            } else {
+                let result = JSON([])
+                response.send(json: result)
+            }
             next()
         }
     }

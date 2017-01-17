@@ -14,4 +14,9 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         items[id] = storedModel
         onCompletion(storedModel, nil)
     }
+
+    public func deleteAll(onCompletion: (Error?) -> Void) {
+        items.removeAll()
+        onCompletion(nil)
+    }
 }
