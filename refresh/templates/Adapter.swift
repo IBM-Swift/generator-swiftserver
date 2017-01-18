@@ -4,4 +4,5 @@ public protocol <%- model.classname %>Adapter {
     func deleteAll(onCompletion: (Error?) -> Void)
 
     func findOne(_ maybeID: String?, onCompletion: (<%- model.classname %>?, Error?) -> Void)
+    func delete(_ maybeID: String?, onCompletion: (<%- model.classname %>?, Error?) -> Void)
 }

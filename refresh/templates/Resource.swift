@@ -21,7 +21,7 @@ public class <%- model.classname %>Resource {
         router.get(pathWithID, handler: handleRead)
         //router.put(pathWithID, handler: handleReplace)
         //router.patch(pathWithID, handler: handleUpdate)
-        //router.delete(pathWithID, handler: handleDelete)
+        router.delete(pathWithID, handler: handleDelete)
     }
 
     private func handleIndex(request: RouterRequest, response: RouterResponse, next: () -> Void) {
@@ -100,6 +100,23 @@ public class <%- model.classname %>Resource {
                 }
             } else {
                 response.send(json: model!.toJSON())
+            }
+            next()
+        }
+    }
+
+    private func handleDelete(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+        Log.debug("DELETE \(pathWithID)")
+        adapter.delete(request.parameters["id"]) { model, error in
+            if let error = error {
+                switch error {
+                case AdapterError.notFound:
+                    response.send(json: JSON([ "count": 0 ]))
+                default:
+                    response.status(.internalServerError)
+                }
+            } else {
+                response.send(json: JSON([ "count": 1] ))
             }
             next()
         }

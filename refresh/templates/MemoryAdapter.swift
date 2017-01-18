@@ -35,4 +35,15 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         }
         onCompletion(result, nil)
     }
+
+    public func delete(_ maybeID: String?, onCompletion: (<%- model.classname %>?, Error?) -> Void) {
+        guard let id = maybeID else {
+            return onCompletion(nil, AdapterError.invalidId(maybeID))
+        }
+        guard let result = items[id] else {
+            return onCompletion(nil, AdapterError.notFound(id))
+        }
+        items.removeValue(forKey: id);
+        onCompletion(result, nil)
+    }
 }
