@@ -18,10 +18,10 @@ public class <%- model.classname %>Resource {
         router.post(path, handler: handleCreate)
         router.delete(path, handler: handleDeleteAll)
 
-        //router.get(pathWithId, handler: handleRead)
-        //router.put(pathWithId, handler: handleReplace)
-        //router.patch(pathWithId, handler: handleUpdate)
-        //router.delete(pathWithId, handler: handleDelete)
+        router.get(pathWithID, handler: handleRead)
+        //router.put(pathWithID, handler: handleReplace)
+        //router.patch(pathWithID, handler: handleUpdate)
+        //router.delete(pathWithID, handler: handleDelete)
     }
 
     private func handleIndex(request: RouterRequest, response: RouterResponse, next: () -> Void) {
@@ -60,7 +60,7 @@ public class <%- model.classname %>Resource {
                     Log.error("InternalServerError during handleCreate: \(error)")
                     response.status(.internalServerError)
                 } else {
-                    response.send(json: storedModel.toJSON())
+                    response.send(json: storedModel!.toJSON())
                 }
                 next()
             }
@@ -83,6 +83,23 @@ public class <%- model.classname %>Resource {
             } else {
                 let result = JSON([])
                 response.send(json: result)
+            }
+            next()
+        }
+    }
+
+    private func handleRead(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+        Log.debug("GET \(pathWithID)")
+        adapter.findOne(request.parameters["id"]) { model, error in
+            if let error = error {
+                switch error {
+                case AdapterError.notFound:
+                    response.status(.notFound)
+                default:
+                    response.status(.internalServerError)
+                }
+            } else {
+                response.send(json: model!.toJSON())
             }
             next()
         }
