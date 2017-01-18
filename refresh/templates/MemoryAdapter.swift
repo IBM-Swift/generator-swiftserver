@@ -1,11 +1,5 @@
 import Foundation
 
-public enum AdapterError: Error {
-    case invalidId(String?)
-    case notFound(String)
-    case unavailable(String)
-}
-
 public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter {
     var items: [String:<%- model.classname %>] = [:]
 
@@ -16,7 +10,7 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
     public func create(_ model: <%- model.classname %>, onCompletion: (<%- model.classname %>?, Error?) -> Void) {
         let id = model.id ?? UUID().uuidString
         // TODO: Don't overwrite if id already exists
-        let storedModel = model.settingId(id)
+        let storedModel = model.settingID(id)
         items[id] = storedModel
         onCompletion(storedModel, nil)
     }
@@ -30,20 +24,34 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
-        guard let result = items[id] else {
+        guard let retrievedModel = items[id] else {
             return onCompletion(nil, AdapterError.notFound(id))
         }
-        onCompletion(result, nil)
+        onCompletion(retrievedModel, nil)
+    }
+
+    public func update(_ maybeID: String?, with model: <%- model.classname %>, onCompletion: (<%- model.classname %>?, Error?) -> Void) {
+        delete(maybeID) { _, error in
+            if let error = error {
+                onCompletion(nil, error)
+            } else {
+                // NOTE: delete() guarantees maybeID non-nil if error is nil
+                let id = maybeID!
+                let model = (model.id == nil) ? model.settingID(id) : model
+                create(model) { storedModel, error in
+                    onCompletion(storedModel, error)
+                }
+            }
+        }
     }
 
     public func delete(_ maybeID: String?, onCompletion: (<%- model.classname %>?, Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
-        guard let result = items[id] else {
+        guard let removedModel = items.removeValue(forKey: id) else {
             return onCompletion(nil, AdapterError.notFound(id))
         }
-        items.removeValue(forKey: id);
-        onCompletion(result, nil)
+        onCompletion(removedModel, nil)
     }
 }

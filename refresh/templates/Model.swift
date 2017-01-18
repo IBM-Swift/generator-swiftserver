@@ -55,7 +55,7 @@ public struct <%- model.classname %> {
         <% }); %>
     }
 
-    public func settingId(_ newId: String?) -> <%- model.classname %> {
+    public func settingID(_ newId: String?) -> <%- model.classname %> {
         return <%- model.classname %>(id: newId, <%- propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`).join(', ') %>)
     }
 
