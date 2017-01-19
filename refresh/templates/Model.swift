@@ -59,6 +59,21 @@ public struct <%- model.classname %> {
         return <%- model.classname %>(id: newId, <%- propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`).join(', ') %>)
     }
 
+    public func updatingWith(json: JSON) throws -> <%- model.classname %> {
+        <% propertyInfos.forEach(function(info) {
+      %>if json["<%- info.name %>"].exists() &&
+           json["<%- info.name %>"].type != .<%- info.jsType %> {
+            throw ModelError.propertyTypeMismatch(name: "<%- info.name %>", type: "<%- info.jsType %>", value: json["<%- info.name %>"].description, valueType: String(describing: json["<%- info.name %>"].type))
+        }
+        <% if (info.jsType === 'number') {
+      %>let <%- info.name %> = json["<%- info.name %>"].number.map { Double($0) } ?? self.<%- info.name %>
+        <% } else {
+      %>let <%- info.name %> = json["<%- info.name %>"].<%- info.jsType %> ?? self.<%- info.name %>
+        <% } %>
+        <% }); %>
+        return <%- model.classname %>(<%- propertyInfos.map((info) => `${info.name}: ${info.name}`).join(', ') %>)
+    }
+
     public func toJSON() -> JSON {
         var result = JSON([
             <% propertyInfos.filter((info) => !info.optional).forEach(function(info) {

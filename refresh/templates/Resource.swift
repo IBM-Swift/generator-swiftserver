@@ -20,7 +20,7 @@ public class <%- model.classname %>Resource {
 
         router.get(pathWithID, handler: handleRead)
         router.put(pathWithID, handler: handleReplace)
-        //router.patch(pathWithID, handler: handleUpdate)
+        router.patch(pathWithID, handler: handleUpdate)
         router.delete(pathWithID, handler: handleDelete)
     }
 
@@ -145,6 +145,60 @@ public class <%- model.classname %>Resource {
             Log.error("InternalServerError during handleReplace: \(error)")
             response.status(.internalServerError)
             next()
+        }
+    }
+
+    private func handleUpdate(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+        Log.info("PATCH \(pathWithID)")
+        guard let contentType = request.headers["Content-Type"],
+              contentType.hasPrefix("application/json") else {
+            response.status(.unsupportedMediaType)
+            response.send(json: JSON([ "error": "Request Content-Type must be application/json" ]))
+            return next()
+        }
+        guard case .json(let json)? = request.body else {
+            response.status(.badRequest)
+            response.send(json: JSON([ "error": "Request body could not be parsed as JSON" ]))
+            return next()
+        }
+        adapter.findOne(request.parameters["id"]) { model, error in
+            if let error = error {
+                switch error {
+                case AdapterError.notFound:
+                    response.status(.notFound)
+                default:
+                    response.status(.internalServerError)
+                }
+                return next()
+            }
+            do {
+                let updatedModel = try model!.updatingWith(json: json)
+                adapter.update(request.parameters["id"], with: updatedModel) { storedModel, error in
+                    if let error = error {
+                        switch error {
+                        case AdapterError.notFound:
+                            response.status(.notFound)
+                        case AdapterError.idConflict(let id):
+                            response.status(.conflict)
+                            response.send(json: JSON([ "error": "Cannot update id to a value that already exists (\(id))" ]))
+                        default:
+                            Log.error("InternalServerError during handleUpdate: \(error)")
+                            response.status(.internalServerError)
+                        }
+                    } else {
+                        response.send(json: storedModel!.toJSON())
+                    }
+                    next()
+                }
+            } catch let error as ModelError {
+                response.status(.unprocessableEntity)
+                response.send(json: JSON([ "error": error.defaultMessage() ]))
+                next()
+            } catch {
+                Log.error("InternalServerError during handleUpdate: \(error)")
+                response.status(.internalServerError)
+                next()
+            }
         }
     }
 
