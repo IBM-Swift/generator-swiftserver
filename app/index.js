@@ -129,6 +129,7 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.dir !== '.') {
           this.destinationRoot(answers.dir);
+          this.appdir = answers.dir;
         }
         done();
       }.bind(this));
@@ -234,57 +235,13 @@ module.exports = generators.Base.extend({
     writeConfig: function() {
       this.config = {
         appName: this.appname,
+        appDir: this.appdir,
         store: this.store,
         logger: 'helium',
         port: 8090
       };
       this.fs.writeJSON(this.destinationPath('config.json'), this.config);
     },
-
-    writeGeneratorConfig: function() {
-      this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
-    },
-
-    writePackageSwift: function() {
-      let packageSwift = helpers.generatePackageSwift(this.config);
-      this.fs.write(this.destinationPath('Package.swift'), packageSwift);
-    },
-
-    writeMainSwift: function() {
-      this.fs.copy(this.templatePath('main.swift'),
-                   this.destinationPath('Sources', this.appname, 'main.swift'));
-    },
-
-    writeManifest: function() {
-      this.manifest = `applications:\n` +
-                      `- name: ${this.appname}\n` +
-                      `  memory: 128M\n` +
-                      `  instances: 1\n` +
-                      `  random-route: true\n` +
-                      `  buildpack: swift_buildpack\n` +
-                      `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
-
-      this.fs.write(this.destinationPath('manifest.yml'), this.manifest); 
-      this.fs.copy(this.templatePath('.cfignore'),
-                 this.destinationPath('.cfignore'));
-    },
-
-    writeProjectMarker: function() {
-      // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
-      // directory
-      this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
-    },
-
-    writeModelsDirectory: function() {
-      this.fs.write(this.destinationPath('models', '.keep'), '');
-    },
-
-    writeNodeWrapper: function() {
-      if (this.options.apic) {
-        this.fs.copy(this.templatePath('apic-node-wrapper.js'),
-                     this.destinationPath('index.js'));
-      }
-    }
   },
 
   install: {
@@ -302,7 +259,8 @@ module.exports = generators.Base.extend({
       this.composeWith('swiftserver:refresh', {
              // Pass in the option to refresh to decided whether or not we create the *-product.yml
              options: {
-               apic: this.options.apic
+               apic: this.options.apic,
+               config: this.config
              }
            },
            this.options.testmode ? null : { local: require.resolve('../refresh')});

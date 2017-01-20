@@ -21,6 +21,7 @@ var path = require('path');
 var chalk = require('chalk');
 var YAML = require('js-yaml');
 var debug = require('debug')('generator-swiftserver:refresh');
+var rimraf = require('rimraf');
 
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
@@ -30,10 +31,76 @@ module.exports = generators.Base.extend({
     generators.Base.apply(this, arguments);
   },
 
+  constructor: function() {
+    generators.Base.apply(this,arguments);
+
+    // Allow the user to specify where the specification file is
+    this.option('specfile', {
+      desc: 'The location of the specification file.',
+      required: false,
+      hide: true,
+      type: String
+    })
+
+    this.option('spec', {
+      desc: 'The specification in a JSON format.',
+      required: false,
+      hide: true,
+      type: String
+    })
+  },
+
   initializing: {
-    ensureInProject: actions.ensureInProject,
+    // ensureInProject: actions.ensureInProject,
+
+    readSpec: function() {
+      if(this.options.specfile) {
+        debug('attempting to read the spec from file')
+
+        try {
+          this.spec = this.fs.readJSON(this.options.specfile);
+        } catch (err) {
+          this.env.error(chalk.red(err));
+        }
+      }
+
+      if(this.options.spec) {
+        debug('attempting to read the spec from cli')
+        try {
+          this.spec = JSON.parse(this.options.spec);
+        } catch (err) {
+          this.env.error(chalk.red(err));
+        }
+      }
+    },
+
+    setDestinationRootFromSpec: function() {
+      if (this.spec) {
+        // Check if we have a directory specified, else use the default one
+        this.destinationRoot(this.spec.appDir || 'swiftserver')
+      }
+    },
 
     readConfig: function() {
+      // If we have passed in the config from a previous generator - use it
+      if(this.options.config) {
+        debug('reading the config that was passed in');
+        this.config = this.options.config;
+        return;
+      }
+
+      // If we have passed a specification file with the config in
+      if(this.spec) {
+        // Check if we have specified the config in the file
+        if(this.spec.config) {
+          debug('reading the config in the specification file');
+          this.config = this.spec.config;
+          // Write the spec config to disk
+          this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+          return;
+        }
+      }
+
       debug('reading config json from: ', this.destinationPath('config.json'));
       try {
         this.config = this.fs.readJSON(this.destinationPath('config.json'));
@@ -48,7 +115,115 @@ module.exports = generators.Base.extend({
       }
     },
 
+    createBasicProject: function() {
+      // Check if there is a yo-rc, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('.yo-rc.json'))) {
+        this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
+      }
+
+      // Check if there is a Package.swift, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
+        let packageSwift = helpers.generatePackageSwift(this.config);
+        this.fs.write(this.destinationPath('Package.swift'), packageSwift);
+      }
+
+      //TODO: decide what to do with the app name, e.g if the user changes the
+      //      name in the config.json file
+      // Check if there is a main.swift, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Sources', this.config.appName, 'main.swift'))) {
+          this.fs.copy(this.templatePath('main.swift'),
+                       this.destinationPath('Sources', this.config.appName, 'main.swift'));
+      }
+
+      // Check if there is a ApplicationConfiguration.swift, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))) {
+        this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
+                     this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
+      }
+
+      // Check if there is a .swiftservergenerator-project, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
+        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
+        // directory
+        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
+      }
+
+      // Check if there is a manifest.yml, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
+        var manifest = `applications:\n` +
+                       `- name: ${this.appname}\n` +
+                       `  memory: 128M\n` +
+                       `  instances: 1\n` +
+                       `  random-route: true\n` +
+                       `  buildpack: swift_buildpack\n` +
+                       `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
+
+        this.fs.write(this.destinationPath('manifest.yml'), manifest);
+      }
+
+      // Check if there is a .cfignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
+        this.fs.copy(this.templatePath('.cfignore'),
+                     this.destinationPath('.cfignore'));
+      }
+
+      // Check if there is a models folder, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
+        this.fs.write(this.destinationPath('models', '.keep'), '');
+      }
+
+      // Check if there is a index.js, create one if there isn't
+      if (this.options.apic) {
+        if(!this.fs.exists(this.destinationPath('index.js'))) {
+          this.fs.copy(this.templatePath('apic-node-wrapper.js'),
+                       this.destinationPath('index.js'));
+        }
+      }
+    },
+
+    createModels: function() {
+      var done = this.async();
+
+      // Get the models from the generators
+      if(this.options.model) {
+        var modelList = [this.options.model];
+      }
+
+      // Check for a specification
+      if(this.spec) {
+        // Check if there are any models defined
+        if(this.spec.models) {
+          var modelList = this.spec.models;
+        } else {
+          done();
+          return;
+        }
+      }
+
+      // No models have been passed in and therefore nothing has to be written to disk
+      if(!modelList) {
+        done();
+        return;
+      }
+
+      modelList.forEach(function(model) {
+        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
+        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
+      }.bind(this));
+
+      this.fs.commit(function() {
+        done();
+      });
+    },
+
     readModels: function() {
+      // If we already have the models, don't bother reading from disk
+      // This will only create the files for the new models
+      // if(this.modelList) {
+      //   debug('reading from the modellist');
+      //   this.models = this.modelList;
+      //   return;
+      // }
       this.models = [];
       try {
         var modelFiles = fs.readdirSync(this.destinationPath('models'))
