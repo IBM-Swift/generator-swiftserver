@@ -129,8 +129,59 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
     }
 
     public func update(_ maybeID: String?, with model: <%- model.classname %>, onCompletion: @escaping (<%- model.classname %>?, Swift.Error?) -> Void) {
-        // TODO dummy
-        onCompletion(nil, AdapterError.internalError("Not implemented"))
+        guard let id = maybeID else {
+            return onCompletion(nil, AdapterError.invalidId(maybeID))
+        }
+        database.retrieve(id) { maybeDocument, error in
+            if let error = error {
+                switch error.code {
+                case HTTPStatusCode.notFound.rawValue:
+                    onCompletion(nil, AdapterError.notFound(id))
+                case Database.InternalError:
+                    onCompletion(nil, AdapterError.unavailable(error.localizedDescription))
+                default:
+                    onCompletion(nil, AdapterError.internalError(error.localizedDescription))
+                }
+                return
+            }
+
+            guard let document = maybeDocument else {
+                onCompletion(nil, AdapterError.internalError("No data in response from Kitura-CouchDB"))
+                return
+            }
+
+            guard let docid = document["_id"].string else {
+                let message = (document["_id"].exists() ? "Unexpected type for" : "Missing")
+                onCompletion(nil, AdapterError.internalError("\(message) docid in document"))
+                return
+            }
+
+            guard let rev = document["_rev"].string else {
+                let message = (document["_rev"].exists() ? "Unexpected type for" : "Missing")
+                onCompletion(nil, AdapterError.internalError("\(message) rev in document"))
+                return
+            }
+
+            let json = model.settingID(nil).toJSON()
+            self.database.update(docid, rev: rev, document: json) { _, _, error in //updatedRev, maybeDocument, error in
+                if let error = error {
+                    switch error.code {
+                    case HTTPStatusCode.notFound.rawValue:
+                        onCompletion(nil, AdapterError.notFound(id))
+                    case HTTPStatusCode.conflict.rawValue:
+                        // TODO Check for stale revision
+                        onCompletion(nil, AdapterError.idConflict(id))
+                    case Database.InternalError:
+                        onCompletion(nil, AdapterError.unavailable(error.localizedDescription))
+                    default:
+                        onCompletion(nil, AdapterError.internalError(error.localizedDescription))
+                    }
+                    return
+                }
+
+                onCompletion(model.settingID(docid), nil)
+            }
+        }
     }
 
     public func delete(_ maybeID: String?, onCompletion: @escaping (<%- model.classname %>?, Swift.Error?) -> Void) {
