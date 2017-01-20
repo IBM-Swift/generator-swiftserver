@@ -23,6 +23,7 @@ var debug = require('debug')('generator-swiftserver:model');
 var actions = require('../lib/actions');
 var helpers = require('../lib/helpers');
 var validateRequiredName = helpers.validateRequiredName;
+var validateNewModel = helpers.validateNewModel;
 var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname;
 
 module.exports = generators.Base.extend({
@@ -100,44 +101,30 @@ module.exports = generators.Base.extend({
     }
   },
 
-  writing: {
-    writeModelMetadata: function() {
+  property: function() {
+    this.classname = convertModelNametoSwiftClassname(this.name);
 
-      // Convert modelname to valid Swift name (if required)
-      this.classname = convertModelNametoSwiftClassname(this.name);
-
-      // Create JSON file with model information
-      var model = {
-        name: this.name,
-        plural: this.plural,
-        classname: this.classname,
-        properties: {
-          "id": {
-            "type": "string",
-            "id": true
-          }
+    // Create JSON file with model information
+    var model = {
+      name: this.name,
+      plural: this.plural,
+      classname: this.classname,
+      properties: {
+        "id": {
+          "type": "string",
+          "id": true
         }
       }
+    }
 
-      var modelMetadataFilename = this.destinationPath('models', `${this.name}.json`);
-      if (this.fs.exists(modelMetadataFilename)) {
-        debug('modifying the existing model: ', modelMetadataFilename);
-        this.env.error(chalk.red(`\nAttempting to modify existing model '${this.name}'`,
-                           `\nUse the property generator to modify the '${this.name}' model`));
+    this.log('Let\'s add some ' + this.name + ' properties now.\n');
+    this.log('Enter an empty property name when done.');
+    this.composeWith('swiftserver:property', {
+      options: {
+        apic: this.options.apic,
+        repeatMultiple: true,
+        model: model
       }
-      this.fs.extendJSON(modelMetadataFilename, model, null, 2);
-    },
-
-    property: function() {
-      this.log('Let\'s add some ' + this.name + ' properties now.\n');
-      this.log('Enter an empty property name when done.');
-      this.composeWith('swiftserver:property', {
-        options: {
-          apic: this.options.apic,
-          repeatMultiple: true,
-          modelName: this.name
-        },
-      });
-    },
+    });
   },
 });

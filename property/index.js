@@ -41,7 +41,7 @@ module.exports = generators.Base.extend({
     promptModel: function() {
       // If we get here by being composed with the model generator, then we should
       // have been passed a model name and can skip selecting a model.
-      this.modelName = this.options.modelName;
+      this.modelName = this.options.model.name;
       if (this.modelName) return;
 
       // We need to get a list of models that are available to choose from.
@@ -154,12 +154,13 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    writeModelFile: function() {
-      var modelFilename = this.destinationPath('models',`${this.modelName}.json`);
-      var modification = {
-        properties: this.properties
-      };
-      this.fs.extendJSON(modelFilename, modification);
+    updateModel: function() {
+      // var modelFilename = this.destinationPath('models',`${this.modelName}.json`);
+      // var modification = {
+      //   properties: this.properties
+      // };
+      // this.fs.extendJSON(modelFilename, modification);
+      this.options.model.properties = this.properties;
     },
   },
 
@@ -168,7 +169,8 @@ module.exports = generators.Base.extend({
       this.composeWith('swiftserver:refresh', {
         // Pass in the option to refresh to decided whether or not we create the *-product.yml
         options: {
-          apic: this.options.apic
+          apic: this.options.apic,
+          model: this.options.model
         }
       });
     },
