@@ -24,8 +24,8 @@ public class <%- model.classname %>Resource {
         router.delete(pathWithID, handler: handleDelete)
     }
 
-    private func handleIndex(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        Log.info("GET \(path)")
+    private func handleIndex(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+        Log.debug("GET \(path)")
         // TODO: offset and limit
         adapter.findAll() { models, error in
             if let _ = error {
@@ -39,8 +39,8 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleCreate(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        Log.info("POST \(path)")
+    private func handleCreate(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+        Log.debug("POST \(path)")
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
@@ -75,7 +75,7 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleDeleteAll(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    private func handleDeleteAll(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         Log.debug("DELETE \(path)")
         adapter.deleteAll() { error in
             if let _ = error {
@@ -88,7 +88,7 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleRead(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    private func handleRead(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         Log.debug("GET \(pathWithID)")
         adapter.findOne(request.parameters["id"]) { model, error in
             if let error = error {
@@ -105,8 +105,8 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleReplace(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        Log.info("PUT \(pathWithID)")
+    private func handleReplace(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+        Log.debug("PUT \(pathWithID)")
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
@@ -148,8 +148,8 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleUpdate(request: RouterRequest, response: RouterResponse, next: () -> Void) {
-        Log.info("PATCH \(pathWithID)")
+    private func handleUpdate(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
+        Log.debug("PATCH \(pathWithID)")
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
@@ -173,7 +173,7 @@ public class <%- model.classname %>Resource {
             }
             do {
                 let updatedModel = try model!.updatingWith(json: json)
-                adapter.update(request.parameters["id"], with: updatedModel) { storedModel, error in
+                self.adapter.update(request.parameters["id"], with: updatedModel) { storedModel, error in
                     if let error = error {
                         switch error {
                         case AdapterError.notFound:
@@ -202,7 +202,7 @@ public class <%- model.classname %>Resource {
         }
     }
 
-    private func handleDelete(request: RouterRequest, response: RouterResponse, next: () -> Void) {
+    private func handleDelete(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         Log.debug("DELETE \(pathWithID)")
         adapter.delete(request.parameters["id"]) { model, error in
             if let error = error {
