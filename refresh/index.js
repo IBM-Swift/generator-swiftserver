@@ -413,6 +413,11 @@ module.exports = generators.Base.extend({
         this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
         { model: model }
       );
+      this.fs.copyTpl(
+        this.templatePath('CloudantAdapter.swift'),
+        this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
+        { model: model }
+      );
       function optional(propertyName) {
         var required = (model.properties[propertyName].required === true);
         var identifier = (model.properties[propertyName].id === true);
