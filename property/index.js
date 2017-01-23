@@ -42,11 +42,7 @@ module.exports = generators.Base.extend({
       // If we get here by being composed with the model generator, then we should
       // have been passed a model name and can skip selecting a model.
       // TODO: update the property generator
-      if(this.options.model) {
-          this.modelName = this.options.model.name;
-      } else if (this.options.modelName) {
-        this.modelName = this.options.modelName;
-      }
+      this.model = this.options.model;
       if (this.model) return;
 
       // We need to get a list of models that are available to choose from.
@@ -82,7 +78,7 @@ module.exports = generators.Base.extend({
           }
         ];
         this.prompt(prompts, function(answers) {
-            this.modelName = answers.model;
+            this.model = this.fs.readJSON(this.destinationPath('models', `${answers.model}.json`));
             done();
         }.bind(this));
       } else {
@@ -123,8 +119,8 @@ module.exports = generators.Base.extend({
           }
         ];
         this.prompt(parameterPrompts, function(parameters) {
-          this.properties[answers.name] = { type: parameters.type };
-          this.properties[answers.name].required = parameters.required ? true : undefined;
+          this.model.properties[answers.name] = { type: parameters.type };
+          this.model.properties[answers.name].required = parameters.required ? true : undefined;
 
           var defaultPrompts = [
             {
@@ -146,7 +142,7 @@ module.exports = generators.Base.extend({
           }
           this.prompt(defaultPrompts, function(defaultAnswers) {
             if (defaultAnswers.default) {
-              this.properties[answers.name].default = convertDefaultValue(parameters.type, defaultAnswers.defaultValue);
+              this.model.properties[answers.name].default = convertDefaultValue(parameters.type, defaultAnswers.defaultValue);
             }
             if (this.options.repeatMultiple) {
               this.env.runLoop.add('prompting', this.prompting.promptProperty.bind(this));
@@ -158,24 +154,13 @@ module.exports = generators.Base.extend({
     }
   },
 
-  writing: {
-    updateModel: function() {
-      // var modelFilename = this.destinationPath('models',`${this.modelName}.json`);
-      // var modification = {
-      //   properties: this.properties
-      // };
-      // this.fs.extendJSON(modelFilename, modification);
-      this.options.model.properties = this.properties;
-    },
-  },
-
   install: {
     buildDefinitions: function() {
       this.composeWith('swiftserver:refresh', {
         // Pass in the option to refresh to decided whether or not we create the *-product.yml
         options: {
           apic: this.options.apic,
-          model: this.options.model
+          model: this.model
         }
       });
     },
