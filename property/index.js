@@ -41,8 +41,13 @@ module.exports = generators.Base.extend({
     promptModel: function() {
       // If we get here by being composed with the model generator, then we should
       // have been passed a model name and can skip selecting a model.
-      this.modelName = this.options.model.name;
-      if (this.modelName) return;
+      // TODO: update the property generator
+      if(this.options.model) {
+          this.modelName = this.options.model.name;
+      } else if (this.options.modelName) {
+        this.modelName = this.options.modelName;
+      }
+      if (this.model) return;
 
       // We need to get a list of models that are available to choose from.
       // We cannot use the yeoman memfs to query which model files exist because

@@ -75,7 +75,7 @@ module.exports = generators.Base.extend({
           name: 'name',
           message: 'Enter the model name:',
           default: this.name,
-          validate: validateRequiredName
+          validate: validateNewModel
         }
       ];
       this.prompt(prompts, function(props) {

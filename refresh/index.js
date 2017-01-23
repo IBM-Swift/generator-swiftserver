@@ -51,12 +51,11 @@ module.exports = generators.Base.extend({
   },
 
   initializing: {
-    // ensureInProject: actions.ensureInProject,
 
     readSpec: function() {
+
       if(this.options.specfile) {
         debug('attempting to read the spec from file')
-
         try {
           this.spec = this.fs.readJSON(this.options.specfile);
         } catch (err) {
@@ -130,16 +129,10 @@ module.exports = generators.Base.extend({
       //TODO: decide what to do with the app name, e.g if the user changes the
       //      name in the config.json file
       // Check if there is a main.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Sources', this.config.appName, 'main.swift'))) {
-          this.fs.copy(this.templatePath('main.swift'),
-                       this.destinationPath('Sources', this.config.appName, 'main.swift'));
-      }
-
-      // Check if there is a ApplicationConfiguration.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))) {
-        this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-                     this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
-      }
+      // if(!this.fs.exists(this.destinationPath('Sources', this.config.appName, 'main.swift'))) {
+      //   this.fs.copy(this.templatePath('main.swift'),
+      //                this.destinationPath('Sources', this.config.appName, 'main.swift'));
+      // }
 
       // Check if there is a .swiftservergenerator-project, create one if there isn't
       if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
@@ -559,6 +552,54 @@ module.exports = generators.Base.extend({
       };
     });
     this.swagger = swagger;
+  },
+
+  cleanGeneratedDirectory: function() {
+    var done = this.async();
+
+    // Delete all the previous generated swift files
+    // (Deletes the application configuration though...)
+    rimraf(this.destinationPath('Sources', 'Generated'), function() {
+      // Add the ApplicationConfiguration to the Generated folder again
+      this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
+                   this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
+      this.fs.commit(function() {
+        done();
+        return;
+      });
+    }.bind(this));
+  },
+
+  cleanMainDirectory: function() {
+    var done = this.async();
+    // Find a main.swift
+    const FILE = "main.swift";
+
+    // Read all the folders in the Sources directory
+    var folders = fs.readdirSync(this.destinationPath('Sources'));
+    // Read all the files in each folder
+    folders.forEach(function(folder) {
+      var files = fs.readdirSync(this.destinationPath('Sources', folder));
+      // If the file contains the main.swift then we delete the folder and
+      //replace with the new one
+      if(files.indexOf(FILE) != -1) {
+          rimraf(this.destinationPath('Sources', folder), function() {
+            this.fs.copy(this.templatePath('main.swift'),
+                         this.destinationPath('Sources', this.config.appName, 'main.swift'));
+            this.fs.commit(function() {
+              done();
+              return;
+            });
+          }.bind(this));
+      }
+    }.bind(this));
+    // If there is no main.swift anywhere we copy anyway
+    this.fs.copy(this.templatePath('main.swift'),
+                 this.destinationPath('Sources', this.config.appName, 'main.swift'));
+   this.fs.commit(function() {
+     done();
+     return;
+   });
   },
 
   writing: function() {
