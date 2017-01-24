@@ -71,22 +71,23 @@ module.exports = generators.Base.extend({
           this.env.error(chalk.red(err));
         }
       }
+
+      // Getting an object from the generators
+      if(this.options.specObj) {
+        this.spec = this.options.specObj;
+      }
     },
 
     setDestinationRootFromSpec: function() {
-      if (this.spec) {
-        // Check if we have a directory specified, else use the default one
-        this.destinationRoot(this.spec.appDir || 'swiftserver')
+      if(!this.options.destinationSet) {
+        if (this.spec) {
+          // Check if we have a directory specified, else use the default one
+          this.destinationRoot(this.spec.appDir || 'swiftserver')
+        }
       }
     },
 
     readConfig: function() {
-      // If we have passed in the config from a previous generator - use it
-      if(this.options.config) {
-        debug('reading the config that was passed in');
-        this.config = this.options.config;
-        return;
-      }
 
       // If we have passed a specification file with the config in
       if(this.spec) {
@@ -94,12 +95,16 @@ module.exports = generators.Base.extend({
         if(this.spec.config) {
           debug('reading the config in the specification file');
           this.config = this.spec.config;
+          if(!this.config.appName) {
+              this.env.error(chalk.red('Property appName missing from config file config.json'));
+          }
           // Write the spec config to disk
           this.fs.writeJSON(this.destinationPath('config.json'), this.config);
           return;
         }
       }
 
+      // If we are running refresh generator on its own
       debug('reading config json from: ', this.destinationPath('config.json'));
       try {
         this.config = this.fs.readJSON(this.destinationPath('config.json'));
@@ -125,14 +130,6 @@ module.exports = generators.Base.extend({
         let packageSwift = helpers.generatePackageSwift(this.config);
         this.fs.write(this.destinationPath('Package.swift'), packageSwift);
       }
-
-      //TODO: decide what to do with the app name, e.g if the user changes the
-      //      name in the config.json file
-      // Check if there is a main.swift, create one if there isn't
-      // if(!this.fs.exists(this.destinationPath('Sources', this.config.appName, 'main.swift'))) {
-      //   this.fs.copy(this.templatePath('main.swift'),
-      //                this.destinationPath('Sources', this.config.appName, 'main.swift'));
-      // }
 
       // Check if there is a .swiftservergenerator-project, create one if there isn't
       if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
@@ -177,11 +174,6 @@ module.exports = generators.Base.extend({
     createModels: function() {
       var done = this.async();
 
-      // Get the models from the generators
-      if(this.options.model) {
-        var modelList = [this.options.model];
-      }
-
       // Check for a specification
       if(this.spec) {
         // Check if there are any models defined
@@ -210,13 +202,6 @@ module.exports = generators.Base.extend({
     },
 
     readModels: function() {
-      // If we already have the models, don't bother reading from disk
-      // This will only create the files for the new models
-      // if(this.modelList) {
-      //   debug('reading from the modellist');
-      //   this.models = this.modelList;
-      //   return;
-      // }
       this.models = [];
       try {
         var modelFiles = fs.readdirSync(this.destinationPath('models'))
@@ -554,125 +539,126 @@ module.exports = generators.Base.extend({
     this.swagger = swagger;
   },
 
-  cleanGeneratedDirectory: function() {
-    var done = this.async();
+  writing: {
+    cleanGeneratedDirectory: function() {
+      var done = this.async();
 
-    // Delete all the previous generated swift files
-    // (Deletes the application configuration though...)
-    rimraf(this.destinationPath('Sources', 'Generated'), function() {
-      // Add the ApplicationConfiguration to the Generated folder again
-      this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-                   this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
-      this.fs.commit(function() {
-        done();
-        return;
-      });
-    }.bind(this));
-  },
+      // Delete all the previous generated swift files
+      // (Deletes the application configuration though...)
+      rimraf(this.destinationPath('Sources', 'Generated'), function() {
+        // Add the ApplicationConfiguration to the Generated folder again
+        this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
+                     this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
+        this.fs.commit(function() {
+          done();
+          return;
+        });
+      }.bind(this));
+    },
 
-  cleanMainDirectory: function() {
-    var done = this.async();
-    // Find a main.swift
-    const FILE = "main.swift";
+    cleanMainDirectory: function() {
+      var done = this.async();
+      // Find a main.swift
+      const FILE = "main.swift";
 
-    // Read all the folders in the Sources directory
-    var folders = fs.readdirSync(this.destinationPath('Sources'));
-    // Read all the files in each folder
-    folders.forEach(function(folder) {
-      var files = fs.readdirSync(this.destinationPath('Sources', folder));
-      // If the file contains the main.swift then we delete the folder and
-      //replace with the new one
-      if(files.indexOf(FILE) != -1) {
-          rimraf(this.destinationPath('Sources', folder), function() {
-            this.fs.copy(this.templatePath('main.swift'),
-                         this.destinationPath('Sources', this.config.appName, 'main.swift'));
-            this.fs.commit(function() {
-              done();
-              return;
-            });
-          }.bind(this));
+      // Read all the folders in the Sources directory
+      var folders = fs.readdirSync(this.destinationPath('Sources'));
+      // Read all the files in each folder
+      folders.forEach(function(folder) {
+        var files = fs.readdirSync(this.destinationPath('Sources', folder));
+        // If the file contains the main.swift then we delete the folder and
+        //replace with the new one
+        if(files.indexOf(FILE) != -1) {
+            rimraf(this.destinationPath('Sources', folder), function() {
+              this.fs.copy(this.templatePath('main.swift'),
+                           this.destinationPath('Sources', this.config.appName, 'main.swift'));
+              this.fs.commit(function() {
+                done();
+                return;
+              });
+            }.bind(this));
+        }
+      }.bind(this));
+      // If there is no main.swift anywhere we copy anyway
+      this.fs.copy(this.templatePath('main.swift'),
+                   this.destinationPath('Sources', this.config.appName, 'main.swift'));
+     this.fs.commit(function() {
+       done();
+     });
+   },
+
+   writeSwiftFiles: function() {
+      this.fs.copyTpl(
+        this.templatePath('GeneratedApplication.swift'),
+        this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
+        { models: this.models }
+      );
+      this.fs.copyTpl(
+        this.templatePath('ApplicationConfiguration.swift'),
+        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
+        { store: this.config.store }
+      );
+      this.fs.copyTpl(
+        this.templatePath('AdapterFactory.swift'),
+        this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
+        { models: this.models }
+      );
+      this.models.forEach(function(model) {
+        this.fs.copyTpl(
+          this.templatePath('Resource.swift'),
+          this.destinationPath('Sources', 'Generated', `${model.classname}Resource.swift`),
+          { model: model }
+        );
+        this.fs.copyTpl(
+          this.templatePath('Adapter.swift'),
+          this.destinationPath('Sources', 'Generated', `${model.classname}Adapter.swift`),
+          { model: model }
+        );
+        this.fs.copyTpl(
+          this.templatePath('MemoryAdapter.swift'),
+          this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
+          { model: model }
+        );
+        this.fs.copyTpl(
+          this.templatePath('CloudantAdapter.swift'),
+          this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
+          { model: model }
+        );
+        function optional(propertyName) {
+          var required = (model.properties[propertyName].required === true);
+          var identifier = (model.properties[propertyName].id === true);
+          return !required || identifier;
+        }
+        var propertyInfos = Object.keys(model.properties).map(
+          (propertyName) => ({
+              name: propertyName,
+              jsType: model.properties[propertyName].type,
+              swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
+                                                      optional(propertyName)),
+              optional: optional(propertyName)
+          })
+        );
+        this.fs.copyTpl(
+          this.templatePath('Model.swift'),
+          this.destinationPath('Sources', 'Generated', `${model.classname}.swift`),
+          { model: model, propertyInfos: propertyInfos }
+        );
+      }.bind(this));
+      if (this.product) {
+        var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`);
+        var productFilename = this.destinationPath(productRelativeFilename);
+        if (this.fs.exists(productFilename)) {
+          // Do not overwrite this file if it already exists
+          this.log(chalk.red('exists, not modifying ') + productRelativeFilename);
+        } else {
+          this.fs.write(productFilename, YAML.safeDump(this.product));
+        }
       }
-    }.bind(this));
-    // If there is no main.swift anywhere we copy anyway
-    this.fs.copy(this.templatePath('main.swift'),
-                 this.destinationPath('Sources', this.config.appName, 'main.swift'));
-   this.fs.commit(function() {
-     done();
-     return;
-   });
-  },
-
-  writing: function() {
-    this.fs.copyTpl(
-      this.templatePath('GeneratedApplication.swift'),
-      this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
-      { models: this.models }
-    );
-    this.fs.copyTpl(
-      this.templatePath('ApplicationConfiguration.swift'),
-      this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
-      { store: this.config.store }
-    );
-    this.fs.copyTpl(
-      this.templatePath('AdapterFactory.swift'),
-      this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
-      { models: this.models }
-    );
-    this.models.forEach(function(model) {
-      this.fs.copyTpl(
-        this.templatePath('Resource.swift'),
-        this.destinationPath('Sources', 'Generated', `${model.classname}Resource.swift`),
-        { model: model }
-      );
-      this.fs.copyTpl(
-        this.templatePath('Adapter.swift'),
-        this.destinationPath('Sources', 'Generated', `${model.classname}Adapter.swift`),
-        { model: model }
-      );
-      this.fs.copyTpl(
-        this.templatePath('MemoryAdapter.swift'),
-        this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
-        { model: model }
-      );
-      this.fs.copyTpl(
-        this.templatePath('CloudantAdapter.swift'),
-        this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
-        { model: model }
-      );
-      function optional(propertyName) {
-        var required = (model.properties[propertyName].required === true);
-        var identifier = (model.properties[propertyName].id === true);
-        return !required || identifier;
+      if (this.swagger) {
+        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
+        this.conflicter.force = true;
+        this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
       }
-      var propertyInfos = Object.keys(model.properties).map(
-        (propertyName) => ({
-            name: propertyName,
-            jsType: model.properties[propertyName].type,
-            swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
-                                                    optional(propertyName)),
-            optional: optional(propertyName)
-        })
-      );
-      this.fs.copyTpl(
-        this.templatePath('Model.swift'),
-        this.destinationPath('Sources', 'Generated', `${model.classname}.swift`),
-        { model: model, propertyInfos: propertyInfos }
-      );
-    }.bind(this));
-    if (this.product) {
-      var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`);
-      var productFilename = this.destinationPath(productRelativeFilename);
-      if (this.fs.exists(productFilename)) {
-        // Do not overwrite this file if it already exists
-        this.log(chalk.red('exists, not modifying ') + productRelativeFilename);
-      } else {
-        this.fs.write(productFilename, YAML.safeDump(this.product));
-      }
-    }
-    if (this.swagger) {
-      var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-      this.conflicter.force = true;
-      this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
     }
   },
 });

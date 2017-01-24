@@ -129,7 +129,6 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.dir !== '.') {
           this.destinationRoot(answers.dir);
-          this.appdir = answers.dir;
         }
         done();
       }.bind(this));
@@ -231,20 +230,20 @@ module.exports = generators.Base.extend({
     }
   },
 
-  writing: {
-    writeConfig: function() {
+  install: {
+
+    createSpecFromConfig: function() {
       this.config = {
         appName: this.appname,
-        appDir: this.appdir,
         store: this.store,
         logger: 'helium',
         port: 8090
       };
-      this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+      this.spec = {
+        config: this.config
+      }
     },
-  },
 
-  install: {
     buildDefinitions: function() {
 
       // this.composeWith with just the subgenerator name doesn't work with the
@@ -260,7 +259,8 @@ module.exports = generators.Base.extend({
              // Pass in the option to refresh to decided whether or not we create the *-product.yml
              options: {
                apic: this.options.apic,
-               config: this.config
+               specObj: this.spec,
+               destinationSet: true
              }
            },
            this.options.testmode ? null : { local: require.resolve('../refresh')});
