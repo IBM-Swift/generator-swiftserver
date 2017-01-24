@@ -155,12 +155,22 @@ module.exports = generators.Base.extend({
   },
 
   install: {
+
+    updateSpec: function() {
+      this.spec = {
+        models: [this.model]
+      }
+    },
+
     buildDefinitions: function() {
+
+
       this.composeWith('swiftserver:refresh', {
         // Pass in the option to refresh to decided whether or not we create the *-product.yml
         options: {
           apic: this.options.apic,
-          model: this.model
+          specObj: this.spec,
+          destinationSet: true
         }
       });
     },
