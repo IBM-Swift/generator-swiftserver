@@ -255,11 +255,6 @@ module.exports = generators.Base.extend({
                    this.destinationPath('Sources', this.appname, 'main.swift'));
     },
 
-    writeAppConfigSwift: function() {
-      this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-                   this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
-    },
-
     writeManifest: function() {
       this.manifest = `applications:\n` +
                       `- name: ${this.appname}\n` +

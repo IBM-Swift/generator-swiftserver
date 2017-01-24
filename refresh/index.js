@@ -393,6 +393,11 @@ module.exports = generators.Base.extend({
       { models: this.models }
     );
     this.fs.copyTpl(
+      this.templatePath('ApplicationConfiguration.swift'),
+      this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
+      { store: this.config.store }
+    );
+    this.fs.copyTpl(
       this.templatePath('AdapterFactory.swift'),
       this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
       { models: this.models }
