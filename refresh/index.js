@@ -87,6 +87,12 @@ module.exports = generators.Base.extend({
       }
     },
 
+    ensureInProject: function() {
+      if(!this.spec) {
+        actions.ensureInProject.call(this);
+      }
+    },
+
     readConfig: function() {
 
       // If we have passed a specification file with the config in
