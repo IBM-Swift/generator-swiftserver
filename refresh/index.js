@@ -94,7 +94,6 @@ module.exports = generators.Base.extend({
     },
 
     readConfig: function() {
-
       // If we have passed a specification file with the config in
       if(this.spec) {
         // Check if we have specified the config in the file
@@ -125,55 +124,11 @@ module.exports = generators.Base.extend({
       }
     },
 
-    createBasicProject: function() {
-      // Check if there is a yo-rc, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('.yo-rc.json'))) {
-        this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
-      }
 
-      // Check if there is a Package.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
-        let packageSwift = helpers.generatePackageSwift(this.config);
-        this.fs.write(this.destinationPath('Package.swift'), packageSwift);
-      }
-
-      // Check if there is a .swiftservergenerator-project, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
-        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
-        // directory
-        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
-      }
-
-      // Check if there is a manifest.yml, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
-        var manifest = `applications:\n` +
-                       `- name: ${this.appname}\n` +
-                       `  memory: 128M\n` +
-                       `  instances: 1\n` +
-                       `  random-route: true\n` +
-                       `  buildpack: swift_buildpack\n` +
-                       `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
-
-        this.fs.write(this.destinationPath('manifest.yml'), manifest);
-      }
-
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('.cfignore'),
-                     this.destinationPath('.cfignore'));
-      }
-
+    createModelFolder: function() {
       // Check if there is a models folder, create one if there isn't
       if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
         this.fs.write(this.destinationPath('models', '.keep'), '');
-      }
-
-      // Check if there is a index.js, create one if there isn't
-      if (this.options.apic) {
-        if(!this.fs.exists(this.destinationPath('index.js'))) {
-          this.fs.copy(this.templatePath('apic-node-wrapper.js'),
-                       this.destinationPath('index.js'));
-        }
       }
     },
 
@@ -546,54 +501,86 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    cleanGeneratedDirectory: function() {
-      var done = this.async();
+    createBasicProject: function() {
+      // Root directory
 
-      // Delete all the previous generated swift files
-      // (Deletes the application configuration though...)
-      rimraf(this.destinationPath('Sources', 'Generated'), function() {
-        // Add the ApplicationConfiguration to the Generated folder again
-        this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-                     this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
-        this.fs.commit(function() {
-          done();
-          return;
-        });
-      }.bind(this));
+      // Check if there is a .swiftservergenerator-project, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
+        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
+        // directory
+        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
+      }
+
+      // Check if there is a manifest.yml, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
+        var manifest = `applications:\n` +
+                       `- name: ${this.appname}\n` +
+                       `  memory: 128M\n` +
+                       `  instances: 1\n` +
+                       `  random-route: true\n` +
+                       `  buildpack: swift_buildpack\n` +
+                       `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
+
+        this.fs.write(this.destinationPath('manifest.yml'), manifest);
+      }
+
+      // Check if there is a .cfignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
+        this.fs.copy(this.templatePath('.cfignore'),
+                     this.destinationPath('.cfignore'));
+      }
+
+      // Check if there is a yo-rc, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('.yo-rc.json'))) {
+        this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
+      }
+
+      // Check if there is a Package.swift, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
+        let packageSwift = helpers.generatePackageSwift(this.config);
+        this.fs.write(this.destinationPath('Package.swift'), packageSwift);
+      }
+
+      // Check if there is a index.js, create one if there isn't
+      if (this.options.apic) {
+        if(!this.fs.exists(this.destinationPath('index.js'))) {
+          this.fs.copy(this.templatePath('apic-node-wrapper.js'),
+                       this.destinationPath('index.js'));
+        }
+      }
+
+      // Sources directory
+
+      // Adding the main.swift file by searching for it in the folders
+      // and adding it if it is not there.
+      var foundMainSwift = false;
+      if(fs.existsSync(this.destinationPath('Sources'))) {
+        // Read all the folders in the Sources directory
+        var folders = fs.readdirSync(this.destinationPath('Sources'));
+        // Read all the files in each folder
+        folders.forEach(function(folder) {
+          var files = fs.readdirSync(this.destinationPath('Sources', folder));
+          if(files.indexOf("main.swift") != -1) {
+            foundMainSwift = true;
+          }
+        }.bind(this));
+      }
+
+      if(!foundMainSwift) {
+        this.fs.copy(this.templatePath('main.swift'),
+                     this.destinationPath('Sources', this.config.appName, 'main.swift'));
+      }
+
+
+      // Check if we have ApplicationConfiguration, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Sources',
+       'Generated', 'ApplicationConfiguration.swift'))) {
+         this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
+          this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))
+      }
     },
 
-    cleanMainDirectory: function() {
-      var done = this.async();
-      // Find a main.swift
-      const FILE = "main.swift";
-
-      // Read all the folders in the Sources directory
-      var folders = fs.readdirSync(this.destinationPath('Sources'));
-      // Read all the files in each folder
-      folders.forEach(function(folder) {
-        var files = fs.readdirSync(this.destinationPath('Sources', folder));
-        // If the file contains the main.swift then we delete the folder and
-        //replace with the new one
-        if(files.indexOf(FILE) != -1) {
-            rimraf(this.destinationPath('Sources', folder), function() {
-              this.fs.copy(this.templatePath('main.swift'),
-                           this.destinationPath('Sources', this.config.appName, 'main.swift'));
-              this.fs.commit(function() {
-                done();
-                return;
-              });
-            }.bind(this));
-        }
-      }.bind(this));
-      // If there is no main.swift anywhere we copy anyway
-      this.fs.copy(this.templatePath('main.swift'),
-                   this.destinationPath('Sources', this.config.appName, 'main.swift'));
-     this.fs.commit(function() {
-       done();
-     });
-   },
-
-   writeSwiftFiles: function() {
+    writeSwiftFiles: function() {
       this.fs.copyTpl(
         this.templatePath('GeneratedApplication.swift'),
         this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
