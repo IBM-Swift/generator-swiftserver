@@ -562,10 +562,10 @@ module.exports = generators.Base.extend({
 
       // models directory
 
-      //   // Check if there is a models folder, create one if there isn't
-      //   if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
-      //     this.fs.write(this.destinationPath('models', '.keep'), '');
-      //   }
+      // Check if there is a models folder, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
+        this.fs.write(this.destinationPath('models', '.keep'), '');
+      }
 
       this.models.forEach(function(model) {
         var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
@@ -642,7 +642,7 @@ module.exports = generators.Base.extend({
       }
       if (this.swagger) {
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-        // this.conflicter.force = true;
+        this.conflicter.force = true;
         this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
       }
     }
