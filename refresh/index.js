@@ -623,10 +623,14 @@ module.exports = generators.Base.extend({
           var identifier = (model.properties[propertyName].id === true);
           return !required || identifier;
         }
+        function convertJSTypeToSwiftyJSONType(jsType) {
+          return jsType === 'boolean' ? 'bool' : jsType;
+        }
         var propertyInfos = Object.keys(model.properties).map(
           (propertyName) => ({
               name: propertyName,
               jsType: model.properties[propertyName].type,
+              swiftyJSONType: convertJSTypeToSwiftyJSONType(model.properties[propertyName].type),
               swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
                                                       optional(propertyName)),
               optional: optional(propertyName)
