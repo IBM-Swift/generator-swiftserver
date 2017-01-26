@@ -600,6 +600,10 @@ module.exports = generators.Base.extend({
           this.destinationPath('Sources', 'Generated', `${model.classname}Adapter.swift`),
           { model: model }
         );
+        this.fs.copy(
+          this.templatePath('AdapterError.swift'),
+          this.destinationPath('Sources', 'Generated', 'AdapterError.swift')
+        );
         this.fs.copyTpl(
           this.templatePath('MemoryAdapter.swift'),
           this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
@@ -609,6 +613,10 @@ module.exports = generators.Base.extend({
           this.templatePath('CloudantAdapter.swift'),
           this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
           { model: model }
+        );
+        this.fs.copy(
+          this.templatePath('ModelError.swift'),
+          this.destinationPath('Sources', 'Generated', 'ModelError.swift')
         );
         function optional(propertyName) {
           var required = (model.properties[propertyName].required === true);

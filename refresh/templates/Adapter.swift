@@ -1,11 +1,3 @@
-public enum AdapterError: Error {
-    case invalidId(String?)
-    case notFound(String)
-    case idConflict(String)
-    case unavailable(String)
-    case internalError(String)
-}
-
 public protocol <%- model.classname %>Adapter {
     func findAll(onCompletion: @escaping ([<%- model.classname %>], Error?) -> Void)
     func create(_ model: <%- model.classname %>, onCompletion: @escaping (<%- model.classname %>?, Error?) -> Void)
