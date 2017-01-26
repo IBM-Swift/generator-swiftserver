@@ -490,12 +490,12 @@ module.exports = generators.Base.extend({
       // Check if there is a manifest.yml, create one if there isn't
       if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
         var manifest = `applications:\n` +
-                       `- name: ${this.appname}\n` +
+                       `- name: ${this.config.appName}\n` +
                        `  memory: 128M\n` +
                        `  instances: 1\n` +
                        `  random-route: true\n` +
                        `  buildpack: swift_buildpack\n` +
-                       `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
+                       `  command: ${this.config.appName} --bind 0.0.0.0:$PORT\n`;
 
         this.fs.write(this.destinationPath('manifest.yml'), manifest);
       }
