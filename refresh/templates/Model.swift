@@ -41,7 +41,8 @@ public struct <%- model.classname %> {
     }
 
     public func settingID(_ newId: String?) -> <%- model.classname %> {
-        return <%- model.classname %>(id: newId, <%- propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`).join(', ') %>)
+        <% var args = (['id: newId'].concat(propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`))).join(', ') %>
+        return <%- model.classname %>(<%- args %>)
     }
 
     public func updatingWith(json: JSON) throws -> <%- model.classname %> {
