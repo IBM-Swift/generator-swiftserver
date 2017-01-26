@@ -103,8 +103,6 @@ module.exports = generators.Base.extend({
           if(!this.config.appName) {
               this.env.error(chalk.red('Property appName missing from config file config.json'));
           }
-          // Write the spec config to disk
-          this.fs.writeJSON(this.destinationPath('config.json'), this.config);
           return;
         }
       }
@@ -124,46 +122,21 @@ module.exports = generators.Base.extend({
       }
     },
 
-
-    createModelFolder: function() {
-      // Check if there is a models folder, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
-        this.fs.write(this.destinationPath('models', '.keep'), '');
-      }
-    },
-
-    createModels: function() {
-      var done = this.async();
-
-      // Check for a specification
+    readModels: function() {
+      this.modelList = [];
       if(this.spec) {
         // Check if there are any models defined
         if(this.spec.models) {
-          var modelList = this.spec.models;
-        } else {
-          done();
-          return;
+          this.modelList = this.spec.models;
         }
       }
 
-      // No models have been passed in and therefore nothing has to be written to disk
-      if(!modelList) {
-        done();
-        return;
-      }
-
-      modelList.forEach(function(model) {
-        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
-        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
+      this.models = this.modelList || [];
+      this.modelNames = [];
+      this.modelList.forEach(function(model) {
+        this.modelNames.push(model.name);
       }.bind(this));
 
-      this.fs.commit(function() {
-        done();
-      });
-    },
-
-    readModels: function() {
-      this.models = [];
       try {
         var modelFiles = fs.readdirSync(this.destinationPath('models'))
                            .filter((name) => name.endsWith('.json'));
@@ -172,7 +145,10 @@ module.exports = generators.Base.extend({
             debug('reading model json:', this.destinationPath('models', modelFile));
             var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
             var model = JSON.parse(modelJSON);
-            this.models.push(model);
+            // Only add models if they aren't being modified/added
+            if(this.modelNames.indexOf(model.name) == -1) {
+              this.models.push(model);
+            }
           } catch (_) {
             // Failed to read model file
             this.log(`Failed to process model file ${modelFile}`);
@@ -541,6 +517,11 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('Package.swift'), packageSwift);
       }
 
+      if(!this.fs.exists(this.destinationPath('config.json'))) {
+        // Write the spec config to disk
+        this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+      }
+
       // Check if there is a index.js, create one if there isn't
       if (this.options.apic) {
         if(!this.fs.exists(this.destinationPath('index.js'))) {
@@ -578,6 +559,18 @@ module.exports = generators.Base.extend({
          this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
           this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))
       }
+
+      // models directory
+
+      //   // Check if there is a models folder, create one if there isn't
+      //   if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
+      //     this.fs.write(this.destinationPath('models', '.keep'), '');
+      //   }
+
+      this.models.forEach(function(model) {
+        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
+        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
+      }.bind(this));
     },
 
     writeSwiftFiles: function() {
@@ -649,7 +642,7 @@ module.exports = generators.Base.extend({
       }
       if (this.swagger) {
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-        this.conflicter.force = true;
+        // this.conflicter.force = true;
         this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
       }
     }
