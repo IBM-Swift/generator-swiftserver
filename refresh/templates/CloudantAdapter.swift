@@ -32,7 +32,7 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
             }
 
             do {
-                let models = try documents.map { _, document -> Book in
+                let models = try documents.map { _, document -> <%- model.classname %> in
                     guard let docid = document["id"].string else {
                         let message = (document["id"].exists() ? "Unexpected type for" : "Missing")
                         throw AdapterError.internalError("\(message) docid in document")
