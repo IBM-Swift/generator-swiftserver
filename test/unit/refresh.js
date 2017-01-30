@@ -220,5 +220,60 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate the config file from the spec', function () {
+
+    var runContext;
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'web',
+          bluemixconfig: {
+            bluemix: true,
+            datastores: ['cloudant', 'redis']
+          },
+          config: {
+            appName: appName,
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          },
+          models: [{
+                    name: modelName,
+                    plural: modelPlural,
+                    classname: className,
+                    properties: {
+                      title: {
+                        type: "string"
+                      }
+                    }
+                  }]
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+    it('generates a todo model metadata file and the todo swift files', function() {
+      var expectedWebModelFiles = [`Sources/${appName}/models/${modelName}.swift`]
+      assert.file(expectedWebModelFiles);
+    });
+
+    it('generates the extensions and the controller', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`, `Sources/${appName}/Extensions/RedisExtension.swift`,
+                                    `Sources/${appName}/Controller.swift`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
 
 });

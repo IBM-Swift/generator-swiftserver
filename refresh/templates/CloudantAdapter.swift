@@ -239,7 +239,7 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
                 } catch {
                     onCompletion(nil, AdapterError.internalError(String(describing: error)))
                 }
-            } 
+            }
         }
     }
 }
