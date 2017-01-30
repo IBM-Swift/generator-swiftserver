@@ -35,16 +35,17 @@ var expected = [
 var modelJsonPath = 'models/MyModel.json'
 
 describe('swiftserver:model', function () {
-var testingDir;
+
   describe('Basic model test. '+
-           'Check the generated folders and the files are made', function () {
+           'Check the spec object is correct.', function () {
+
+    var runContext;
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
-        return helpers.run(path.join( __dirname, '../../model'))
+        runContext = helpers.run(path.join( __dirname, '../../model'))
           .withGenerators(dependentGenerators) // Stub subgenerators
           .inTmpDir(function (tmpDir) {
-            testingDir = tmpDir;
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
             fs.writeFileSync(tmpFile, "");
             var config = {
@@ -61,33 +62,24 @@ var testingDir;
           .withPrompts({                       // Mock the prompt answers
             name: 'MyModel',
             plural: 'MyModels'
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+          });
+          return runContext.toPromise();      // Get a Promise back when the generator finishes
     });
 
-    after(function() {
-      //rm -rf the temporary directory that we made
-      rimraf(testingDir, function(err) {
-        if(err) {
-          console.log('Error: ', err);
+    it('generates the expected spec object', function () {
+      var model = runContext.generator.model;
+      var modelObject = {
+        name: 'MyModel',
+        plural: 'MyModels',
+        classname: 'MyModel',
+        properties: {
+          "id": {
+            "type": "string",
+            "id": true
+          }
         }
-      });
-    });
-
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the model name in the generated json file', function() {
-      assert.jsonFileContent(modelJsonPath, {name: "MyModel"})
-    });
-
-    it('has the model plural name in the generated json file', function() {
-      assert.jsonFileContent(modelJsonPath, {plural: "MyModels"})
-    });
-
-    it('has the class name in the generated json file', function() {
-      assert.jsonFileContent(modelJsonPath, {classname: "MyModel"})
+      }
+      assert.objectContent(model, modelObject)
     });
   });
 });

@@ -104,8 +104,8 @@ module.exports = generators.Base.extend({
   property: function() {
     this.classname = convertModelNametoSwiftClassname(this.name);
 
-    // Create JSON file with model information
-    var model = {
+    // Create a model object
+    this.model = {
       name: this.name,
       plural: this.plural,
       classname: this.classname,
@@ -123,7 +123,7 @@ module.exports = generators.Base.extend({
       options: {
         apic: this.options.apic,
         repeatMultiple: true,
-        model: model
+        model: this.model
       }
     });
   },
