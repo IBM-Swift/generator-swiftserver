@@ -3,7 +3,7 @@ import SwiftyJSON
 public struct <%- model.classname %> {
     <% propertyInfos.forEach(function(info) {
       %>public let <%- info.name %>: <%- info.swiftType %>
-    <% }); %>
+    <% }); -%>
 
     public init(<%- propertyInfos.map((info) => `${info.name}: ${info.swiftType}`).join(', ') %>) {
         <% propertyInfos.forEach(function(info) {
@@ -36,13 +36,13 @@ public struct <%- model.classname %> {
       %>self.<%- info.name %> = json["<%- info.name %>"].number.map { Double($0) }
         <% } else {
       %>self.<%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONType %>
-        <% } %>
+        <% } -%>
         <% }); %>
     }
 
     public func settingID(_ newId: String?) -> <%- model.classname %> {
-        <% var args = (['id: newId'].concat(propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`))).join(', ') %>
-        return <%- model.classname %>(<%- args %>)
+      <% var args = (['id: newId'].concat(propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`))).join(', ')
+      %>return <%- model.classname %>(<%- args %>)
     }
 
     public func updatingWith(json: JSON) throws -> <%- model.classname %> {
@@ -55,7 +55,7 @@ public struct <%- model.classname %> {
       %>let <%- info.name %> = json["<%- info.name %>"].number.map { Double($0) } ?? self.<%- info.name %>
         <% } else {
       %>let <%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONType %> ?? self.<%- info.name %>
-        <% } %>
+      <% } -%>
         <% }); %>
         return <%- model.classname %>(<%- propertyInfos.map((info) => `${info.name}: ${info.name}`).join(', ') %>)
     }
@@ -66,11 +66,12 @@ public struct <%- model.classname %> {
               %>"<%- info.name %>": JSON(<%- info.name %>),
             <% }); %>
         ])
-        <% propertyInfos.filter((info) => info.optional).forEach(function(info) {
+
+      <% propertyInfos.filter((info) => info.optional).forEach(function(info) {
           %>if let <%- info.name %> = <%- info.name %> {
-                result["<%- info.name %>"] = JSON(<%- info.name %>)
-            }
-        <% }); %>
+              result["<%- info.name %>"] = JSON(<%- info.name %>)
+        }
+    <% }); %>
         return result
     }
 }

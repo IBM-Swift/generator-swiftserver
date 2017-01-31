@@ -89,6 +89,10 @@ module.exports = generators.Base.extend({
           this.datastores = this.spec.bluemixconfig.datastores;
         }
       }
+
+      if(this.spec) {
+        this.metrics = this.spec.metrics || false;
+      }
     },
 
     setDestinationRootFromSpec: function() {
@@ -529,7 +533,7 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('Package.swift'),
           this.destinationPath('Package.swift'),
-          { applicationName: this.projectName, bluemix: this.bluemix, datastores: this.datastores }
+          { applicationName: this.projectName, bluemix: this.bluemix, datastores: this.datastores, metrics: this.metrics }
         )
       }
 
@@ -564,16 +568,12 @@ module.exports = generators.Base.extend({
       }
 
       if(!foundMainSwift) {
-        this.fs.copy(this.templatePath('main.swift'),
-                     this.destinationPath('Sources', this.config.appName, 'main.swift'));
-      }
-
-
-      // Check if we have ApplicationConfiguration, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Sources',
-       'Generated', 'ApplicationConfiguration.swift'))) {
-         this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-          this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))
+        var serverFolder = this.appType ? `${this.projectName}Server` : this.projectName;
+        this.fs.copyTpl(
+          this.templatePath('main.swift'),
+          this.destinationPath('Sources', serverFolder, 'main.swift'),
+          { appName: this.projectName }
+        );
       }
 
       // models directory
@@ -590,21 +590,21 @@ module.exports = generators.Base.extend({
     },
 
     writeSwiftFiles: function() {
-      var modelFolder = this.appType ? `${this.projectName}/models` : 'Generated';
-      var routesFolder = this.appType ? `${this.projectName}/routes` : 'Generated';
+      var modelFolder = this.appType ? `${this.projectName}/Models` : 'Generated';
+      var routesFolder = this.appType ? `${this.projectName}/Routes` : 'Generated';
+      var appFolder = this.appType ? `${this.projectName}` : 'Generated';
       this.fs.copyTpl(
         this.templatePath('GeneratedApplication.swift'),
-        this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
+        this.destinationPath('Sources', appFolder, 'GeneratedApplication.swift'),
         { models: this.models }
       );
-      this.fs.copyTpl(
+      this.fs.copy(
         this.templatePath('ApplicationConfiguration.swift'),
-        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
-        { store: this.config.store }
+        this.destinationPath('Sources', appFolder, 'ApplicationConfiguration.swift')
       );
       this.fs.copyTpl(
         this.templatePath('AdapterFactory.swift'),
-        this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
+        this.destinationPath('Sources', appFolder, 'AdapterFactory.swift'),
         { models: this.models }
       );
       this.models.forEach(function(model) {
@@ -615,26 +615,26 @@ module.exports = generators.Base.extend({
         );
         this.fs.copyTpl(
           this.templatePath('Adapter.swift'),
-          this.destinationPath('Sources', modelFolder, `${model.classname}Adapter.swift`),
+          this.destinationPath('Sources', appFolder, `${model.classname}Adapter.swift`),
           { model: model }
         );
         this.fs.copy(
           this.templatePath('AdapterError.swift'),
-          this.destinationPath('Sources', 'Generated', 'AdapterError.swift')
+          this.destinationPath('Sources', appFolder, 'AdapterError.swift')
         );
         this.fs.copyTpl(
           this.templatePath('MemoryAdapter.swift'),
-          this.destinationPath('Sources', modelFolder, `${model.classname}MemoryAdapter.swift`),
+          this.destinationPath('Sources', appFolder, `${model.classname}MemoryAdapter.swift`),
           { model: model }
         );
         this.fs.copyTpl(
           this.templatePath('CloudantAdapter.swift'),
-          this.destinationPath('Sources', modelFolder, `${model.classname}CloudantAdapter.swift`),
+          this.destinationPath('Sources', appFolder, `${model.classname}CloudantAdapter.swift`),
           { model: model }
         );
         this.fs.copy(
           this.templatePath('ModelError.swift'),
-          this.destinationPath('Sources', 'Generated', 'ModelError.swift')
+          this.destinationPath('Sources', appFolder, 'ModelError.swift')
         );
         function optional(propertyName) {
           var required = (model.properties[propertyName].required === true);
@@ -717,10 +717,20 @@ module.exports = generators.Base.extend({
 
         this.fs.copyTpl(
           this.templatePath('Controller.swift'),
-          this.destinationPath('Sources', this.config.appName, 'Controller.swift'),
+          this.destinationPath('Sources', this.projectName, 'Controller.swift'),
           { bluemix: this.bluemix, datastores: this.datastores,
-             cloudant_service_name: "something", appType: this.appType }
+            cloudant_service_name: "something", appType: this.appType,
+            metrics: this.metrics }
         );
+
+        if(this.appType === 'web') {
+          //Create the public folder
+          this.fs.write(
+            this.destinationPath('public'),
+            '.keep',
+            ''
+          )
+        }
       }
     }
   },
