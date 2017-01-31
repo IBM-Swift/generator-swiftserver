@@ -19,7 +19,7 @@ import HeliumLogger
 import GeneratedSwiftServer
 import Foundation
 import LoggerAPI
-import Generated
+import <%= appName %>
 
 HeliumLogger.use()
 
