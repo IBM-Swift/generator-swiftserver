@@ -16,7 +16,7 @@ let package = Package(
 <% if(bluemix) { -%>
         .Package(url: "https://github.ibm.com/IBM-Swift/bluemix-config.git",      majorVersion: 0),
 <% } else { -%>
-        .Package(url: "https://github.ibm.com/IBM-Swift/swift-configuration.git", majorVersion: 0),
+        .Package(url: "https://github.ibm.com/IBM-Swift/Configuration.git", majorVersion: 0),
 <% } -%>
 <% datastores.forEach(function(store) { -%>
 <% if(store === 'cloudant') { -%>

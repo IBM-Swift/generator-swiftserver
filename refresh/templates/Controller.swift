@@ -84,7 +84,7 @@ public class Controller {
 <% if (bluemix) { -%>
         let cloudantService = try manager.getCloudantService(name: "<%- cloudant_service_name -%>")
         let dbClient = CouchDBClient(service: cloudantService)
-<% } else if (!bluemix) { -%>
+<% } else { -%>
         let couchDBConnProps = ConnectionProperties(host: "127.0.0.1", port: 5984, secured: false)
         let dbClient = CouchDBClient(connectionProperties: couchDBConnProps)
 <% } -%>
@@ -113,7 +113,7 @@ public class Controller {
 <% if (bluemix) { -%>
         let mySQLService = try manager.getMySQLService(name: "MySQL-Service")
         self.mysql = try Database(service: mySQLService)
-<% } else if (!bluemix) { -%>
+<% } else { -%>
         self.mysql = try Database(host: "127.0.0.1", user: "root", password: "", database: "databasename")
 <% } -%>
         self.connection = try self.mysql.makeConnection()

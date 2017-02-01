@@ -176,8 +176,7 @@ describe('swiftserver:refresh', function () {
 
   });
 
-  describe('Generate a swiftserver with models from a spec', function () {
-
+  describe('Generate a CRUD application from a spec', function () {
 
     var runContext;
     before(function () {
@@ -189,16 +188,22 @@ describe('swiftserver:refresh', function () {
             logger: 'helium',
             port: 8090
           },
-          models: [{
-                    name: modelName,
-                    plural: modelPlural,
-                    classname: className,
-                    properties: {
-                      title: {
-                        type: "string"
-                      }
-                    }
-                  }]
+          "models": [
+            {
+              "name": modelName,
+              "plural": modelPlural,
+              "classname": className,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "id": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
         };
         return helpers.run(path.join( __dirname, '../../refresh'))
           .withOptions({
@@ -220,7 +225,7 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate basic/web for bluemix with models', function () {
+  describe('Generate web application for bluemix', function () {
 
     var runContext;
     before(function () {
@@ -236,17 +241,7 @@ describe('swiftserver:refresh', function () {
             store: 'memory',
             logger: 'helium',
             port: 8090
-          },
-          models: [{
-                    name: modelName,
-                    plural: modelPlural,
-                    classname: className,
-                    properties: {
-                      title: {
-                        type: "string"
-                      }
-                    }
-                  }]
+          }
         };
         return helpers.run(path.join( __dirname, '../../refresh'))
           .withOptions({
@@ -260,15 +255,92 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the generic swift source files', function() {
-      assert.file(expectedSourceFiles);
+      assert.file('Sources/todoServer/main.swift');
     });
 
-    it('generates a todo model metadata file and the todo swift files', function() {
-      var expectedWebModelFiles = [`Sources/${appName}/models/${modelName}.swift`]
-      assert.file(expectedWebModelFiles);
+    it('generates bluemix web only files and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
+                                    `Sources/${appName}/Extensions/RedisExtension.swift`,
+                                    `Sources/${appName}/Controller.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
+  describe('Generate web without bluemix', function () {
+
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          bluemixconfig: {
+            bluemix: false,
+            datastores: ['cloudant', 'redis']
+          },
+          config: {
+            appName: appName,
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('generates the extensions and the controller', function() {
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates web only file and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
+  describe('Generate basic application for bluemix', function () {
+
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'basic',
+          bluemixconfig: {
+            bluemix: true,
+            datastores: ['cloudant', 'redis']
+          },
+          config: {
+            appName: appName,
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates bluemix web only files and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
                                     `Sources/${appName}/Extensions/RedisExtension.swift`,
                                     `Sources/${appName}/Controller.swift`];
@@ -276,29 +348,23 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate basic/web without bluemix and with models', function () {
+  describe('Generate basic without bluemix', function () {
 
     var runContext;
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'basic',
+          bluemixconfig: {
+            bluemix: false,
+            datastores: ['cloudant', 'redis']
+          },
           config: {
             appName: appName,
             store: 'memory',
             logger: 'helium',
             port: 8090
-          },
-          models: [{
-                    name: modelName,
-                    plural: modelPlural,
-                    classname: className,
-                    properties: {
-                      title: {
-                        type: "string"
-                      }
-                    }
-                  }]
+          }
         };
         return helpers.run(path.join( __dirname, '../../refresh'))
           .withOptions({
@@ -312,19 +378,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the generic swift source files', function() {
-      assert.file(expectedSourceFiles);
+      assert.file('Sources/todoServer/main.swift');
     });
 
-    it('generates a todo model metadata file and the todo swift files', function() {
-      var expectedWebModelFiles = [`Sources/${appName}/models/${modelName}.swift`]
-      assert.file(expectedWebModelFiles);
-    });
-
-    it('generates the extensions and the controller', function() {
+    it('generates web only file and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`];
       assert.file(expectedExtensionFiles);
     });
   });
-
-
 });
