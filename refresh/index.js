@@ -77,23 +77,44 @@ module.exports = generators.Base.extend({
         this.spec = this.options.specObj;
       }
 
-      if(this.spec) {
-        this.appType = this.spec.appType || 'crud';
-      } else {
-        this.appType = 'crud';
+      // If we haven't receieved some sort of spec we attempt to read the spec.json
+      if(!this.spec) {
+        try {
+          this.spec = this.fs.readJSON(this.destinationPath('spec.json'));
+        } catch (err) {
+          this.env.error(chalk.red('Cannot read the spec.json: ', err))
+        }
       }
 
+      // Default values
       this.bluemix = false;
       this.datastores = ['cloudant'];
+
       if(this.spec) {
+        if(this.spec.appType) {
+          this.appType = this.spec.appType;
+        } else {
+          this.env.error(chalk.red('App type is missing'));
+        }
+        if(this.spec.appName) {
+            this.projectName = this.spec.appName;
+        } else {
+            this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
+        }
+        // Bluemix configuration
         if(this.spec.bluemixconfig) {
           this.bluemix = this.spec.bluemixconfig.bluemix;
           this.datastores = this.spec.bluemixconfig.datastores;
         }
-      }
-
-      if(this.spec) {
+        // Monitoring
         this.metrics = this.spec.metrics || false;
+
+        // Runtime Configuration
+        if(this.spec.config) {
+          this.config = this.spec.config;
+          // TODO: Decide whether we still want the config in the spec.json
+          // delete this.spec.config;
+        }
       }
     },
 
@@ -107,43 +128,32 @@ module.exports = generators.Base.extend({
     },
 
     ensureInProject: function() {
-      if(this.spec) {
-        actions.ensureEmptyDirectory.call(this);
-      } else {
+      if(!this.spec) {
+        // actions.ensureEmptyDirectory.call(this);
+      // } else {
         actions.ensureInProject.call(this);
       }
     },
 
     readConfig: function() {
-      // If we have passed a specification file with the config in
-      if(this.spec) {
-        // Check if we have specified the config in the file
-        if(this.spec.config) {
-          debug('reading the config in the specification file');
-          this.config = this.spec.config;
-          if(!this.config.appName) {
-              this.env.error(chalk.red('Property appName missing from config file config.json'));
-          }
-          return;
-        }
-      }
 
       // If we are running refresh generator on its own
-      debug('reading config json from: ', this.destinationPath('config.json'));
-      try {
-        this.config = this.fs.readJSON(this.destinationPath('config.json'));
-        if (!this.config) {
-          this.env.error(chalk.red('Config file config.json not found'));
-        }
-        if (!this.config.appName) {
-          this.env.error(chalk.red('Property appName missing from config file config.json'));
-        }
-      } catch (err) {
-        this.env.error(chalk.red(err));
-      }
+      // debug('reading config json from: ', this.destinationPath('config.json'));
+      // try {
+      //   this.config = this.fs.readJSON(this.destinationPath('config.json'));
+      //   if (!this.config) {
+      //     this.env.error(chalk.red('Config file config.json not found'));
+      //   }
+      //   if (!this.projectName) {
+      //     this.env.error(chalk.red('Property appName missing from config file config.json'));
+      //   }
+      // } catch (err) {
+      //   this.env.error(chalk.red(err));
+      // }
     },
 
     readModels: function() {
+      if(!this.appType == 'crud') return;
       this.modelList = [];
       if(this.spec) {
         // Check if there are any models defined
@@ -182,11 +192,16 @@ module.exports = generators.Base.extend({
         // No models directory
         debug(this.destinationPath('models'), 'directory does not exist')
       }
+      if(this.spec) {
+        if(this.spec.models) {
+          this.spec.models = this.models;
+        }
+      }
     },
 
     loadProjectInfo: function() {
       // TODO(tunniclm): Improve how we set these values
-      this.projectName = this.config.appName
+      // this.projectName = this.projectName
       this.projectVersion = '1.0.0';
     }
   },
@@ -509,17 +524,17 @@ module.exports = generators.Base.extend({
       }
 
       // Check if there is a manifest.yml, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
-        var manifest = `applications:\n` +
-                       `- name: ${this.config.appName}\n` +
-                       `  memory: 128M\n` +
-                       `  instances: 1\n` +
-                       `  random-route: true\n` +
-                       `  buildpack: swift_buildpack\n` +
-                       `  command: ${this.config.appName} --bind 0.0.0.0:$PORT\n`;
-
-        this.fs.write(this.destinationPath('manifest.yml'), manifest);
-      }
+      // if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
+      //   var manifest = `applications:\n` +
+      //                  `- name: ${this.projectName}\n` +
+      //                  `  memory: 128M\n` +
+      //                  `  instances: 1\n` +
+      //                  `  random-route: true\n` +
+      //                  `  buildpack: swift_buildpack\n` +
+      //                  `  command: ${this.projectName} --bind 0.0.0.0:$PORT\n`;
+      //
+      //   this.fs.write(this.destinationPath('manifest.yml'), manifest);
+      // }
 
       // Check if there is a .cfignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.cfignore'))) {
@@ -541,9 +556,18 @@ module.exports = generators.Base.extend({
         )
       }
 
+      // Check if there is a config.json, create one if there isn't
       if(!this.fs.exists(this.destinationPath('config.json'))) {
-        // Write the spec config to disk
-        this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+        if(this.config) {
+          this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+        }
+      }
+
+      // Check if there is a spec.json, if there isn't create one
+      if(!this.fs.exists(this.destinationPath('spec.json'))) {
+        if(this.spec) {
+          this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
+        }
       }
 
       // Check if there is a index.js, create one if there isn't
@@ -602,7 +626,7 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    writeSwiftFiles: function() {
+    createCRUD: function() {
       if(this.appType != "crud") return;
       this.fs.copyTpl(
         this.templatePath('GeneratedApplication.swift'),
@@ -689,56 +713,69 @@ module.exports = generators.Base.extend({
     },
 
     createBasicWeb: function() {
-      if(this.appType == 'web' || this.appType == 'basic') {
-        // Add the datastores if we are using bluemix
-        if(this.bluemix) {
-          this.datastores.forEach(function(store) {
-            if(store === 'cloudant') {
-              this.fs.copy(
-                this.templatePath('CouchDBExtension.swift'),
-                this.destinationPath('Sources', this.config.appName, 'Extensions', 'CouchDBExtension.swift')
-              );
-            }
-            if(store === 'mongo') {
-              this.fs.copy(
-                this.templatePath('MongoDBExtension.swift'),
-                this.destinationPath('Sources', this.config.appName, 'Extensions', 'MongoDBExtension.swift')
-              );
-            }
-            if(store === 'mysql') {
-              this.fs.copy(
-                this.templatePath('MySQLExtension.swift'),
-                this.destinationPath('Sources', this.config.appName, 'Extensions', 'MySQLExtension.swift')
-              );
-            }
-            if(store === 'postgres') {
-              this.fs.copy(
-                this.templatePath('PostgreSQLExtension.swift'),
-                this.destinationPath('Sources', this.config.appName, 'Extensions', 'PostgreSQLExtension.swift')
-              );
-            }
-            if(store === 'redis') {
-              this.fs.copy(
-                this.templatePath('RedisExtension.swift'),
-                this.destinationPath('Sources', this.config.appName, 'Extensions', 'RedisExtension.swift')
-              );
-            }
-          }.bind(this));
-        }
+      // Exit if we are not generating web or basic
+      if(!(this.appType == 'web' || this.appType == 'basic')) return;
+      // Add the datastores if we are using bluemix
+      if(this.bluemix) {
+        this.datastores.forEach(function(store) {
+          if(store === 'cloudant') {
+            this.fs.copy(
+              this.templatePath('CouchDBExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'CouchDBExtension.swift')
+            );
+          }
+          if(store === 'mongo') {
+            this.fs.copy(
+              this.templatePath('MongoDBExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'MongoDBExtension.swift')
+            );
+          }
+          if(store === 'mysql') {
+            this.fs.copy(
+              this.templatePath('MySQLExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'MySQLExtension.swift')
+            );
+          }
+          if(store === 'postgres') {
+            this.fs.copy(
+              this.templatePath('PostgreSQLExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'PostgreSQLExtension.swift')
+            );
+          }
+          if(store === 'redis') {
+            this.fs.copy(
+              this.templatePath('RedisExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'RedisExtension.swift')
+            );
+          }
+        }.bind(this));
+      }
 
-        this.fs.copyTpl(
-          this.templatePath('Controller.swift'),
-          this.destinationPath('Sources', this.projectName, 'Controller.swift'),
-          { bluemix: this.bluemix, datastores: this.datastores,
-            cloudant_service_name: "something", appType: this.appType,
-            metrics: this.metrics }
-        );
+      this.fs.copyTpl(
+        this.templatePath('Controller.swift'),
+        this.destinationPath('Sources', this.projectName, 'Controller.swift'),
+        { bluemix: this.bluemix, datastores: this.datastores,
+          cloudant_service_name: "something", appType: this.appType,
+          metrics: this.metrics }
+      );
 
-        if(this.appType === 'web') {
-          //Create the public folder
-          this.fs.write(
-            this.destinationPath('public','.keep'), '');
-        }
+      this.fs.copyTpl(
+        this.templatePath('manifest.yml'),
+        this.destinationPath('manifest.yml'),
+        { appName: this.projectName }
+      )
+
+      this.fs.copy(this.templatePath('README.md'), this.destinationPath('README.md'));
+
+      this.fs.copyTpl(
+        this.templatePath('pipeline.yml'),
+        this.destinationPath('.bluemix', 'pipeline.yml'),
+        { appName: this.projectName }
+      );
+
+      if(this.appType === 'web') {
+        //Create the public folder
+        this.fs.write(this.destinationPath('public','.keep'), '');
       }
     }
   },
