@@ -2,6 +2,7 @@ import Foundation
 import LoggerAPI
 import SwiftyJSON
 import CouchDB
+import Configuration
 
 public enum AdapterConfiguration: CustomStringConvertible {
     case memory
@@ -25,69 +26,53 @@ public struct ApplicationConfiguration {
     public var port: Int
     public var adapterConfig: AdapterConfiguration
 
-    public init(configURL: URL) throws {
-        try self.init(json: JSON(data: try Data(contentsOf: configURL)))
-    }
+    public let manager = ConfigurationManager()
 
-    public init(json: JSON?) throws {
-        guard let json = json else {
-            port = ApplicationConfiguration.defaultPort
-            adapterConfig = .memory
-            return
-        }
-        port = json["port"].int ?? ApplicationConfiguration.defaultPort
-
-        let storeName = json["store"].string ??
-                        json["store"].dictionary?["type"]?.string ??
-                        "memory"
-        switch storeName {
-        case "memory":
-            adapterConfig = .memory
-        case "cloudant":
-            adapterConfig = .cloudant(ConnectionProperties(
-                host:     try extract(["store","host"],     from: json, defaultingTo: "localhost"),
-                port:     try extract(["store","port"],     from: json, defaultingTo: 5984),
-                secured:  try extract(["store","secured"],  from: json, defaultingTo: false),
-                username: try extract(["store","username"], from: json, defaultingTo: nil),
-                password: try extract(["store","password"], from: json, defaultingTo: nil)
-            ))
-        default:
-            // TODO Throw ConfigurationError?
-            adapterConfig = .memory
-        }
-    }
-
-}
-
-fileprivate func extract<T>(_ path: [String], from json: JSON?, defaultingTo defaultValue: T) throws -> T {
-    guard let json = json, json[path].type != .null else {
-        Log.debug("Using default value '\(defaultValue)' for '\(path.joined(separator: "."))'")
-        return defaultValue
-    }
-
-    guard let value = T.self is Int16.Type  ? json[path].int16  as? T :
-                      T.self is Int.Type    ? json[path].int    as? T :
-                      T.self is Float.Type  ? json[path].float  as? T :
-                      T.self is Double.Type ? json[path].double as? T :
-                      json[path].rawValue as? T
-                      else {
-        throw ConfigurationError.typeMismatch(
-            name: path.joined(separator: "."),
-            expectedType: "\(T.self)",
-            actualType: "\(json[path].type)"
-        )
+    public init() {
+        port = ApplicationConfiguration.defaultPort
+        adapterConfig = .memory
     }
     
-    return value
+    public init(configURL: URL) throws {
+       
+       do {
+         try manager.load(url: configURL) 
+       } catch {
+          throw ConfigurationError.urlNotFound(url: configURL.absoluteString);
+       }
+
+       port = manager["port"] as? Int ?? ApplicationConfiguration.defaultPort
+
+       let store1 = manager["store"] as? String
+       let store2 = manager["store:type"] as? String
+       let storeName = store1 ?? store2 ?? "memory"
+ 
+       switch storeName {
+       case "memory":
+         adapterConfig = .memory
+       case "cloudant":
+         adapterConfig = .cloudant(ConnectionProperties(
+            host:     ((manager["store:host"] as? String) ?? "localhost"),
+            port:     ((manager["store:port"] as? Int16) ?? 5984),
+            secured:  ((manager["store:secured"] as? Bool) ?? false),
+            username: ((manager["store:username"] as? String) ?? nil),
+            password: ((manager["store:password"] as? String) ?? nil)
+         ))
+         // TODO: Need to add type mismatch checks
+       default:
+         // TODO throw ConfigurationError?
+         adapterConfig = .memory
+       }
+  }
 }
 
 public enum ConfigurationError: Error {
-    case typeMismatch(name: String, expectedType: String, actualType: String)
+    case urlNotFound(url: String)
 
     public func defaultMessage() -> String {
         switch self {
-        case let .typeMismatch(name, expectedType, actualType):
-            return "Type mismatch for JSON property '\(name)'. Wanted \(expectedType), got \(actualType)."
+        case let .urlNotFound(url):
+            return "URL not found '\(url)'"
         }
     }
 }
