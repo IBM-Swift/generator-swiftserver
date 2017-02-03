@@ -19,7 +19,7 @@ stages:
   - name: Deploy
     type: deployer
     target:
-      region_id: ${CF_REGION_ID}
+      region_id: ${BLUEMIX_REGION_ID}
       organization_guid: ${CF_ORGANIZATION_ID}
       space_guid: ${CF_SPACE_ID}
       application: ${CF_APP}
