@@ -46,7 +46,25 @@ module.exports = generators.Base.extend({
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
+    initHeadlessBluemix: function() {
+      if (this.options.bluemix) {
+        try {
+          var bluemix = JSON.parse(this.options.bluemix);
+          // TODO Do some validation of the bluemix object?
+          if (!bluemix.server) {
+            this.env.error('Bluemix object does not contain a server property');
+          }
+          this.spec = bluemix.server;
+          this.skipToInstall = true;
+          this.skipBuild = true;
+        } catch (err) {
+          this.env.error(chalk.red(err));
+        }
+      }
+    },
+
     initAppName: function() {
+      if (this.skipToInstall) return;
       this.appname = null; // Discard yeoman default appname
       this.skipPromptingAppName = false;
       if (this.name) {
@@ -85,6 +103,7 @@ module.exports = generators.Base.extend({
 
   prompting: {
     promptAppName: function() {
+      if (this.skipToInstall) return;
       if (this.skipPromptingAppName) { return; }
 
       var done = this.async();
@@ -109,6 +128,7 @@ module.exports = generators.Base.extend({
      * to point to the directory where we want to generate code.
      */
     promptAppDir: function() {
+      if (this.skipToInstall) return;
       if (this.appname === path.basename(this.destinationRoot())) {
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
@@ -128,18 +148,23 @@ module.exports = generators.Base.extend({
       ];
       this.prompt(prompts, function(answers) {
         if (answers.dir !== '.') {
+          this.destinationSet = true;
           this.destinationRoot(answers.dir);
         }
         done();
       }.bind(this));
     },
-    ensureEmptyDirectory: actions.ensureEmptyDirectory,
+    ensureEmptyDirectory: function() { 
+      if (this.skipToInstall) return;
+      actions.ensureEmptyDirectory.call(this);
+    },
     /*
      * Configure the data store, asking the user what type of data store they
      * are using and configuring the data store if needed. These answers will
      * be the basis for the config.json.
      */
     promptDataStore: function() {
+      if (this.skipToInstall) return;
       var done = this.async();
       var prompts = [
         {
@@ -233,14 +258,15 @@ module.exports = generators.Base.extend({
   install: {
 
     createSpecFromConfig: function() {
-      this.config = {
-        appName: this.appname,
-        store: this.store,
-        logger: 'helium',
-        port: 8090
-      };
-      this.spec = {
-        config: this.config
+      if (!this.spec) {
+        this.spec = {
+          config: {
+            appName: this.appname,
+            store: this.store,
+            logger: 'helium',
+            port: 8090
+          }
+        }
       }
     },
 
@@ -260,13 +286,14 @@ module.exports = generators.Base.extend({
              options: {
                apic: this.options.apic,
                specObj: this.spec,
-               destinationSet: true
+               destinationSet: (this.destinationSet === true)
              }
            },
            this.options.testmode ? null : { local: require.resolve('../refresh')});
     },
 
     buildApp: function() {
+      if (this.skipBuild) return;
 
       this.composeWith('swiftserver:build',
            {},
