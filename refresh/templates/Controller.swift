@@ -70,9 +70,9 @@ public class Controller {
     let metrics: SwiftMetrics!
 <% } %>
 
-    //public var port: Int {
-    //    return manager.applicationPort
-    //}
+    public var port: Int {
+        return (manager["port"] as? Int) ?? 8090
+    }
 
     public init() throws {
 

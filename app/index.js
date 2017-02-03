@@ -233,14 +233,14 @@ module.exports = generators.Base.extend({
   install: {
 
     createSpecFromConfig: function() {
-      this.config = {
-        appName: this.appname,
-        store: this.store,
-        logger: 'helium',
-        port: 8090
-      };
       this.spec = {
-        config: this.config
+        appType: 'crud',
+        appName: this.appname,
+        config: {
+          store: this.store,
+          logger: 'helium',
+          port: 8090
+        }
       }
     },
 

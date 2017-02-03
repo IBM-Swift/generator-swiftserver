@@ -1,15 +1,9 @@
-
 import PackageDescription
 
-let applicationName = "<%- applicationName %>"
-
-let applicationServerName =  "<%- applicationName %>Server"
-
 let package = Package(
-    name: applicationName,
+    name: "<%- executableModule %>",
     targets: [
-      Target(name: applicationName, dependencies: []),
-      Target(name: applicationServerName, dependencies: [ .Target(name: applicationName) ])
+      Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ])
     ],
     dependencies: [
 
@@ -43,8 +37,7 @@ let package = Package(
 <% } -%>
 
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",                  majorVersion: 1),
-        .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",            majorVersion: 1),
-        .Package(url: "https://github.com/IBM-Swift/GeneratedSwiftServer.git",    majorVersion: 0, minor: 4)
+        .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",            majorVersion: 1)
     ],
     exclude: []
 )
