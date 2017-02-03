@@ -71,7 +71,11 @@ public class Controller {
 <% } %>
 
     public var port: Int {
+<% if (bluemix) { -%>
+        return manager.applicationPort
+<% } else { %>
         return (manager["port"] as? Int) ?? 8090
+<% } %>
     }
 
     public init() throws {
