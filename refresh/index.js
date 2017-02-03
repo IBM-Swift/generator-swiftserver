@@ -520,7 +520,7 @@ module.exports = generators.Base.extend({
       // Check if there is a config.json, create one if there isn't
       if(!this.fs.exists(this.destinationPath('config.json'))) {
         if(this.config) {
-          this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+          this.fs.writeJSON(this.destinationPath('config.json'), this.spec.config);
         }
       }
 
@@ -705,14 +705,15 @@ module.exports = generators.Base.extend({
         this.templatePath('Controller.swift'),
         this.destinationPath('Sources', this.projectName, 'Controller.swift'),
         { bluemix: this.bluemix, datastores: this.datastores,
-          cloudant_service_name: "something", appType: this.appType,
-          metrics: this.metrics }
+          cloudant_service_name: `${this.projectName}CloudantService`,
+          appType: this.appType, metrics: this.metrics }
       );
 
       this.fs.copyTpl(
         this.templatePath('manifest.yml'),
         this.destinationPath('manifest.yml'),
-        { appName: this.projectName }
+        { appName: this.projectName,
+          executableName: this.executableModule }
       )
 
       this.fs.copy(this.templatePath('README.md'), this.destinationPath('README.md'));
