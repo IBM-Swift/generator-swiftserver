@@ -8,7 +8,7 @@ applications:
   instances: 1
   random-route: true
   buildpack: swift_buildpack
-  command: swiftCloudant --bind 0.0.0.0:$PORT
+  command: <%-executableName%> --bind 0.0.0.0:$PORT
   env:
     OPENSPEC_API: "/explorer/swagger.yml"
   services:
