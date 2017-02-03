@@ -739,6 +739,8 @@ module.exports = generators.Base.extend({
         var folders = fs.readdirSync(this.destinationPath('Sources'));
         // Read all the files in each folder
         folders.forEach(function(folder) {
+          if(folder.startsWith('.')) return;
+          if(!fs.statSync(this.destinationPath('Sources', folder)).isDirectory()) return;
           var files = fs.readdirSync(this.destinationPath('Sources', folder));
           if(files.indexOf("main.swift") != -1) {
             foundMainSwift = true;
