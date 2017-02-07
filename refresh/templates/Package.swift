@@ -8,7 +8,7 @@ let package = Package(
     dependencies: [
 
 <% if(bluemix) { -%>
-        .Package(url: "https://github.ibm.com/IBM-Swift/bluemix-config.git",      majorVersion: 0),
+        .Package(url: "https://github.ibm.com/IBM-Swift/SwiftConfiguration.git",      majorVersion: 0),
 <% } else { -%>
         .Package(url: "https://github.ibm.com/IBM-Swift/Configuration.git", majorVersion: 0),
 <% } -%>
