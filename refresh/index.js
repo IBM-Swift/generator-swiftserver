@@ -639,7 +639,7 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('Model.swift'),
           this.destinationPath('Sources', 'Generated', `${model.classname}.swift`),
-          { model: model, propertyInfos: propertyInfos }
+          { model: model, propertyInfos: propertyInfos, helpers: helpers }
         );
       }.bind(this));
       if (this.product) {
