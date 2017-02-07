@@ -13,22 +13,22 @@ let package = Package(
         .Package(url: "https://github.ibm.com/IBM-Swift/Configuration.git", majorVersion: 0),
 <% } -%>
 <% datastores.forEach(function(store) { -%>
-<% if(store === 'cloudant') { -%>
+<% if(store.name === 'cloudant') { -%>
         .Package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",          majorVersion: 1),
 <% } -%>
-<% if(store === 'mongo') { -%>
+<% if(store.name === 'mongo') { -%>
         .Package(url: "https://github.com/tfrank64/MongoKitten.git",              majorVersion: 3),
 <% } -%>
-<% if(store === 'redis') { -%>
+<% if(store.name === 'redis') { -%>
         .Package(url: "https://github.com/IBM-Swift/Kitura-redis.git",            majorVersion: 1),
 <% } -%>
-<% if(store === 'postgres') { -%>
+<% if(store.name === 'postgres') { -%>
         .Package(url: "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL.git",  majorVersion: 0),
 <% } -%>
-<% if(store === 'mysql') { -%>
+<% if(store.name === 'mysql') { -%>
         .Package(url: "https://github.com/vapor/mysql",                           majorVersion: 1),
 <% } -%>
-<% if(store === 'db2') { -%>
+<% if(store.name === 'db2') { -%>
         .Package(url: "https://github.com/IBM-DTeam/swift-for-db2",               majorVersion: 1),
 <% } -%>
 <% }); -%>

@@ -13,24 +13,24 @@ import SwiftMetrics
 import SwiftMetricsKitura
 <% } -%>
 <% datastores.forEach(function(store) { %>
-<% if (store === 'cloudant') { -%>
+<% if (store.name === 'cloudant') { -%>
 import CouchDB
 <% } -%>
-<% if (store === 'redis') { -%>
+<% if (store.name === 'redis') { -%>
 import SwiftRedis
 <% } -%>
-<% if (store === 'postgres') { -%>
+<% if (store.name === 'postgres') { -%>
 import SwiftKuery
 import SwiftKueryPostgreSQL
 <% } -%>
-<% if (store === 'mongo') { -%>
+<% if (store.name === 'mongo') { -%>
 import MongoKitten
 import SSLService
 <% } -%>
-<% if (store === 'mysql') { -%>
+<% if (store.name === 'mysql') { -%>
 import MySql
 <% } -%>
-<% if (store === 'db2') { -%>
+<% if (store.name === 'db2') { -%>
 import IBMDB
 <% } -%>
 <% }); -%>
@@ -41,27 +41,27 @@ public class Controller {
 
     public let manager: ConfigurationManager
 <% datastores.forEach(function(store) { %>
-    // Set up <%= store %>
-<% if (store === 'cloudant') { -%>
+    // Set up <%= store.name %>
+<% if (store.name === 'cloudant') { -%>
     internal let database: Database
 <% } -%>
-<% if (store === 'redis') { -%>
+<% if (store.name === 'redis') { -%>
     let redis: Redis
     <% if (bluemix) { -%>
         let redisService: RedisService
     <% } -%>
 <% } -%>
-<% if (store === 'postgres') { -%>
+<% if (store.name === 'postgres') { -%>
     let connection: Connection
 <% } -%>
-<% if (store === 'mongo') { -%>
+<% if (store.name === 'mongo') { -%>
     let server: MongoKitten.Server
 <% } -%>
-<% if (store === 'mysql') { -%>
+<% if (store.name === 'mysql') { -%>
     let mysql: MySQL.Database
     let connection: Connection
 <% } -%>
-<% if (store === 'db2') { -%>
+<% if (store.name === 'db2') { -%>
     let db = IBMDB()
     let connString: String
 <% } -%>
@@ -75,16 +75,20 @@ public class Controller {
         return manager.applicationPort
 <% } else { %>
         return (manager["port"] as? Int) ?? 8090
-<% } %>
+<% } -%>
     }
 
     public init() throws {
 
         manager = ConfigurationManager()
+<% if(bluemix) { -%>
+        try manager.load(.environmentVariables)
+<% } else { -%>
         try manager.load(.environmentVariables).load(file: "../../config.json")
+<% } -%>
 <% datastores.forEach(function(store) { %>
-        // Configuring <%= store %>
-<% if (store === 'cloudant') {  -%>
+        // Configuring <%= store.name %>
+<% if (store.name === 'cloudant') {  -%>
 <% if (bluemix) { -%>
         let cloudantService = try manager.getCloudantService(name: "<%- cloudant_service_name -%>")
         let dbClient = CouchDBClient(service: cloudantService)
@@ -94,26 +98,26 @@ public class Controller {
 <% } -%>
         self.database = dbClient.database("databaseName")
 <% } -%>
-<% if (store === 'redis') { -%>
+<% if (store.name === 'redis') { -%>
         self.redis = Redis()
 <% } -%>
-<% if (store === 'redis' && bluemix) { -%>
+<% if (store.name === 'redis' && bluemix) { -%>
         self.redisService = try manager.getRedisService(name: "todolist-redis")
 <% } -%>
-<% if (store === 'postgres') { -%>
+<% if (store.name === 'postgres') { -%>
         self.connection = PostgreSQLConnection(host: "localhost", port: Int32(5432), options: [.databaseName("databasename")])
 <% } -%>
-<% if (store === 'postgres' && bluemix) { -%>
+<% if (store.name === 'postgres' && bluemix) { -%>
         let postgreSQLService = try manager.getPostgreSQLService(name: "PostgreSQL-Service")
         self.connection = PostgreSQLConnection(service: postgreSQLService)
 <% } -%>
-<% if (store === 'mongo') { -%>
+<% if (store.name === 'mongo') { -%>
         self.server = try Server(mongoURL: "mongodb://username:password@127.0.0.1:27017")
 <% } -%>
-<% if (store === 'mongo' && bluemix) { -%>
+<% if (store.name === 'mongo' && bluemix) { -%>
         let mongoDBService = try manager.getMongoDBService(name: "MongoDB-Service")
 <% } -%>
-<% if (store === 'mysql') {  -%>
+<% if (store.name === 'mysql') {  -%>
 <% if (bluemix) { -%>
         let mySQLService = try manager.getMySQLService(name: "MySQL-Service")
         self.mysql = try Database(service: mySQLService)
@@ -122,7 +126,7 @@ public class Controller {
 <% } -%>
         self.connection = try self.mysql.makeConnection()
 <% } -%>
-<% if (store === 'db2' && bluemix) { -%>
+<% if (store.name === 'db2' && bluemix) { -%>
         let db2Service = try manager.getDB2Service(name: "DB2-Analytics-Service")
         self.connString = "DRIVER={DB2};DATABASE=\(db2Service.database);HOSTNAME=\(db2Service.host);PORT=\(db2Service.port);UID=\(db2Service.uid);PWD=\(db2Service.pwd)"
 <% } -%>

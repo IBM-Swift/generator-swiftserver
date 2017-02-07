@@ -247,7 +247,23 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemixconfig: {
             bluemix: true,
-            datastores: ['cloudant', 'redis']
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
           },
           config: {
             store: 'memory',
@@ -289,7 +305,23 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemixconfig: {
             bluemix: false,
-            datastores: ['cloudant', 'redis']
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
           },
           config: {
             store: 'memory',
@@ -305,7 +337,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
+      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
+                           '.cfignore', '.yo-rc.json'];
+      assert.file(files);
     });
 
     it('generates the generic swift source files', function() {
@@ -329,7 +363,23 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemixconfig: {
             bluemix: true,
-            datastores: ['cloudant', 'redis']
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
           },
           config: {
             store: 'memory',
@@ -370,7 +420,23 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemixconfig: {
             bluemix: false,
-            datastores: ['cloudant', 'redis']
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
           },
           config: {
             store: 'memory',
@@ -386,7 +452,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
+      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
+                           '.cfignore', '.yo-rc.json'];
+      assert.file(files);
     });
 
     it('generates the generic swift source files', function() {

@@ -88,7 +88,15 @@ module.exports = generators.Base.extend({
 
       // Default values
       this.bluemix = false;
-      this.datastores = ['cloudant'];
+      this.datastores = [{
+          "name": "cloudant",
+          "type": "cloudantNoSQLDB",
+          "host": "",
+          "url": "",
+          "username": "",
+          "password": "",
+          "port": 8080
+        }];
 
       if(this.spec) {
         if(this.spec.appType) {
@@ -512,6 +520,12 @@ module.exports = generators.Base.extend({
                      this.destinationPath('.cfignore'));
       }
 
+      // Check if there is a .gitignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.gitignore'))) {
+        this.fs.copy(this.templatePath('.gitignore'),
+                     this.destinationPath('.gitignore'));
+      }
+
       // Check if there is a yo-rc, create one if there isn't
       if(!this.fs.exists(this.destinationPath('.yo-rc.json'))) {
         this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
@@ -519,8 +533,16 @@ module.exports = generators.Base.extend({
 
       // Check if there is a config.json, create one if there isn't
       if(!this.fs.exists(this.destinationPath('config.json'))) {
-        if(this.config) {
-          this.fs.writeJSON(this.destinationPath('config.json'), this.spec.config);
+        if(this.bluemix) {
+          this.fs.copyTpl(
+            this.templatePath('config.bluemix.json'),
+            this.destinationPath('config.json'),
+            { appName: this.projectName, datastores: this.datastores }
+          );
+        } else {
+          if(this.config) {
+            this.fs.writeJSON(this.destinationPath('config.json'), this.spec.config);
+          }
         }
       }
 
@@ -537,6 +559,11 @@ module.exports = generators.Base.extend({
           this.fs.copy(this.templatePath('apic-node-wrapper.js'),
                        this.destinationPath('index.js'));
         }
+      }
+
+      if(!this.fs.exists(this.destinationPath('.swift-version'))) {
+        this.fs.copy(this.templatePath('.swift-version'),
+                     this.destinationPath('.swift-version'));
       }
 
       // models directory
@@ -660,45 +687,64 @@ module.exports = generators.Base.extend({
     createBasicWeb: function() {
       // Exit if we are not generating web or basic
       if(!(this.appType == 'web' || this.appType == 'basic')) return;
-      
+
       // TODO: Consolidate with crud app type
       this.executableModule = this.projectName + 'Server';
       this.applicationModule = this.projectName;
-      
+
       // Add the datastores if we are using bluemix
       if(this.bluemix) {
         this.datastores.forEach(function(store) {
-          if(store === 'cloudant') {
+          var storeName = store.name;
+          if(storeName === 'cloudant') {
             this.fs.copy(
               this.templatePath('CouchDBExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'CouchDBExtension.swift')
             );
           }
-          if(store === 'mongo') {
+          if(storeName === 'mongo') {
             this.fs.copy(
               this.templatePath('MongoDBExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'MongoDBExtension.swift')
             );
           }
-          if(store === 'mysql') {
+          if(storeName === 'mysql') {
             this.fs.copy(
               this.templatePath('MySQLExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'MySQLExtension.swift')
             );
           }
-          if(store === 'postgres') {
+          if(storeName === 'postgres') {
             this.fs.copy(
               this.templatePath('PostgreSQLExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'PostgreSQLExtension.swift')
             );
           }
-          if(store === 'redis') {
+          if(storeName === 'redis') {
             this.fs.copy(
               this.templatePath('RedisExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'RedisExtension.swift')
             );
           }
         }.bind(this));
+
+        this.fs.copyTpl(
+          this.templatePath('manifest.yml'),
+          this.destinationPath('manifest.yml'),
+          { appName: this.projectName,
+            executableName: this.executableModule }
+        );
+
+        this.fs.copy(
+          this.templatePath('README.md'),
+          this.destinationPath('README.md')
+         );
+
+        this.fs.copyTpl(
+          this.templatePath('pipeline.yml'),
+          this.destinationPath('.bluemix', 'pipeline.yml'),
+          { appName: this.projectName }
+        );
       }
 
       this.fs.copyTpl(
@@ -707,21 +753,6 @@ module.exports = generators.Base.extend({
         { bluemix: this.bluemix, datastores: this.datastores,
           cloudant_service_name: `${this.projectName}CloudantService`,
           appType: this.appType, metrics: this.metrics }
-      );
-
-      this.fs.copyTpl(
-        this.templatePath('manifest.yml'),
-        this.destinationPath('manifest.yml'),
-        { appName: this.projectName,
-          executableName: this.executableModule }
-      )
-
-      this.fs.copy(this.templatePath('README.md'), this.destinationPath('README.md'));
-
-      this.fs.copyTpl(
-        this.templatePath('pipeline.yml'),
-        this.destinationPath('.bluemix', 'pipeline.yml'),
-        { appName: this.projectName }
       );
 
       if(this.appType === 'web') {

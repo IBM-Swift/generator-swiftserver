@@ -1,0 +1,21 @@
+{
+    "VCAP_SERVICES": {
+<% datastores.forEach(function(store) { -%>
+        "<%=store.type%>": [
+            {
+                "name": "<%=appName%><%=store.name%>Service",
+                "label": "<%=store.type%>",
+                "tags": [],
+                "plan": "Lite",
+                "credentials": {
+                    "host": "<%=store.host%>",
+                    "url": "<%=store.url%>",
+                    "username": "<%=store.username%>",
+                    "password": "<%=store.password%>",
+                    "port": <%=store.port%>
+                }
+            }
+        ]
+<% }); -%>
+    }
+}
