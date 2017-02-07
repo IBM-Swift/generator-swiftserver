@@ -1,0 +1,16 @@
+declared-services:
+  <%-appName%>CloudantService:
+    label: cloudantNoSQLDB
+    plan: Lite
+applications:
+- name: <%-appName%>
+  memory: 128M
+  instances: 1
+  random-route: true
+  buildpack: swift_buildpack
+  command: <%-executableName%> --bind 0.0.0.0:$PORT
+  env:
+    OPENSPEC_API: "/explorer/swagger.yml"
+  services:
+  - <%-appName%>CloudantService
+  timeout: 180

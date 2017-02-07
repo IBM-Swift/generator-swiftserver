@@ -158,6 +158,8 @@ module.exports = generators.Base.extend({
 
     updateSpec: function() {
       this.spec = {
+        appName: 'todo',
+        appType: 'crud',
         models: [this.model]
       }
     },

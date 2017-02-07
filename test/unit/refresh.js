@@ -43,35 +43,40 @@ describe('swiftserver:refresh', function () {
            'is written out correctly.', function () {
 
     var dirName;
-    var appName = 'testApp';
+    // var appName = 'testApp';
     var expected = [
-      'definitions/%s.yaml'
+      `definitions/${appName}.yaml`
     ];
 
     before(function () {
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          config: {
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          },
+          "models": [
+            {
+              "name": modelName,
+              "plural": modelPlural,
+              "classname": className,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "id": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
         // Mock the options, set up an output folder and run the generator
         return helpers.run(path.join( __dirname, '../../refresh'))
-          .inTmpDir(function (tmpDir) {
-            dirName = path.basename(tmpDir);
-            expected = expected.map((path) => format(path, appName));
-            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
-            fs.writeFileSync(tmpFile, "");
-            var config = {
-              appName: appName
-            };
-            var configFile = path.join(tmpDir, "config.json");
-            fs.writeFileSync(configFile, JSON.stringify(config));
-            fs.mkdirSync(path.join(tmpDir, "models"));
-            var testModel = {
-              name: "test",
-              plural: "tests",
-              classname: "Test",
-              properties: {
-                id: { type: "number", id: true }
-              }
-            };
-            fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
-          })
+          .withOptions({ specObj: spec })
           .toPromise();                        // Get a Promise back when the generator finishes
     });
 
@@ -83,7 +88,7 @@ describe('swiftserver:refresh', function () {
     it('the swagger file contains the expected content', function() {
       assert.fileContent([
         [expected[0], 'title: ' + appName],
-        [expected[0], 'test:']
+        [expected[0], `${modelName}:`]
       ]);
     });
   });
@@ -95,35 +100,39 @@ describe('swiftserver:refresh', function () {
     var dirName;
     var appName = 'testApp';
     var expected = [
-      'definitions/%s-product.yaml',
-      'definitions/%s.yaml'
+      `definitions/${appName}-product.yaml`,
+      `definitions/${appName}.yaml`
     ];
 
     before(function () {
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        config: {
+          store: 'memory',
+          logger: 'helium',
+          port: 8090
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
         // Mock the options, set up an output folder and run the generator
         return helpers.run(path.join( __dirname, '../../refresh'))
-          .inTmpDir(function (tmpDir) {
-            dirName = path.basename(tmpDir);
-            expected = expected.map((path) => format(path, appName));
-            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
-            fs.writeFileSync(tmpFile, "");
-            var config = {
-              appName: appName
-            };
-            var configFile = path.join(tmpDir, "config.json");
-            fs.writeFileSync(configFile, JSON.stringify(config));
-            fs.mkdirSync(path.join(tmpDir, "models"));
-            var testModel = {
-              name: "test",
-              plural: "tests",
-              classname: "Test",
-              properties: {
-                id: { type: "number", id: true }
-              }
-            };
-            fs.writeFileSync(path.join(tmpDir, "models", "test.json"), JSON.stringify(testModel));
-          })
-          .withOptions({ apic: true })
+          .withOptions({ apic: true , specObj: spec })
           .toPromise();                        // Get a Promise back when the generator finishes
     });
 
@@ -142,7 +151,8 @@ describe('swiftserver:refresh', function () {
     it('the swagger file contains the expected content', function() {
       assert.fileContent([
         [expected[1], 'name: ' + appName],
-        [expected[1], 'title: ' + appName]
+        [expected[1], 'title: ' + appName],
+        [expected[1], `${modelName}:`]
       ]);
     });
   });
@@ -152,8 +162,9 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Mock the options, set up an output folder and run the generator
         var spec = {
+          appType: 'crud',
+          appName: appName,
           config: {
-            appName: appName,
             store: 'memory',
             logger: 'helium',
             port: 8090
@@ -176,29 +187,35 @@ describe('swiftserver:refresh', function () {
 
   });
 
-  describe('Generate the config file from the spec', function () {
-
+  describe('Generate a CRUD application from a spec', function () {
 
     var runContext;
     before(function () {
-        // Mock the options, set up an output folder and run the generator
+        // Set up the spec file which should create all the necessary files for a server
         var spec = {
+          appType: 'crud',
+          appName: appName,
           config: {
-            appName: appName,
             store: 'memory',
             logger: 'helium',
             port: 8090
           },
-          models: [{
-                    name: modelName,
-                    plural: modelPlural,
-                    classname: className,
-                    properties: {
-                      title: {
-                        type: "string"
-                      }
-                    }
-                  }]
+          "models": [
+            {
+              "name": modelName,
+              "plural": modelPlural,
+              "classname": className,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "id": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
         };
         return helpers.run(path.join( __dirname, '../../refresh'))
           .withOptions({
@@ -220,5 +237,233 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate web application for bluemix', function () {
 
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemixconfig: {
+            bluemix: true,
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
+          },
+          config: {
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates bluemix web only files and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
+                                    `Sources/${appName}/Extensions/RedisExtension.swift`,
+                                    `Sources/${appName}/Controller.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
+  describe('Generate web without bluemix', function () {
+
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemixconfig: {
+            bluemix: false,
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
+          },
+          config: {
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
+                           '.cfignore', '.yo-rc.json'];
+      assert.file(files);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates web only file and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
+  describe('Generate basic application for bluemix', function () {
+
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'basic',
+          appName: appName,
+          bluemixconfig: {
+            bluemix: true,
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
+          },
+          config: {
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates bluemix web only files and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
+                                    `Sources/${appName}/Extensions/RedisExtension.swift`,
+                                    `Sources/${appName}/Controller.swift`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
+
+  describe('Generate basic without bluemix', function () {
+
+    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'basic',
+          appName: appName,
+          bluemixconfig: {
+            bluemix: false,
+            datastores: [{
+              "name": "cloudant",
+              "type": "cloudantNoSQLDB",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }, {
+              "name": "redis",
+              "type": "Redis",
+              "host": "",
+              "url": "",
+              "username": "",
+              "password": "",
+              "port": 8080
+            }]
+          },
+          config: {
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
+                           '.cfignore', '.yo-rc.json'];
+      assert.file(files);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    it('generates web only file and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`];
+      assert.file(expectedExtensionFiles);
+    });
+  });
 });

@@ -76,6 +76,54 @@ module.exports = generators.Base.extend({
       if(this.options.specObj) {
         this.spec = this.options.specObj;
       }
+
+      // If we haven't receieved some sort of spec we attempt to read the spec.json
+      if(!this.spec) {
+        try {
+          this.spec = this.fs.readJSON(this.destinationPath('spec.json'));
+        } catch (err) {
+          this.env.error(chalk.red('Cannot read the spec.json: ', err))
+        }
+      }
+
+      // Default values
+      this.bluemix = false;
+      this.datastores = [{
+          "name": "cloudant",
+          "type": "cloudantNoSQLDB",
+          "host": "localhost",
+          "url": "",
+          "username": "",
+          "password": "",
+          "port": 5984
+        }];
+
+      if(this.spec) {
+        if(this.spec.appType) {
+          this.appType = this.spec.appType;
+        } else {
+          this.env.error(chalk.red('App type is missing'));
+        }
+        if(this.spec.appName) {
+            this.projectName = this.spec.appName;
+        } else {
+            this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
+        }
+        // Bluemix configuration
+        if(this.spec.bluemixconfig) {
+          this.bluemix = this.spec.bluemixconfig.bluemix;
+          this.datastores = this.spec.bluemixconfig.datastores;
+        }
+        // Monitoring
+        this.metrics = this.spec.metrics || false;
+
+        // Runtime Configuration
+        if(this.spec.config) {
+          this.config = this.spec.config;
+          // TODO: Decide whether we still want the config in the spec.json
+          // delete this.spec.config;
+        }
+      }
     },
 
     setDestinationRootFromSpec: function() {
@@ -89,40 +137,14 @@ module.exports = generators.Base.extend({
 
     ensureInProject: function() {
       if(!this.spec) {
+        // actions.ensureEmptyDirectory.call(this);
+      // } else {
         actions.ensureInProject.call(this);
       }
     },
 
-    readConfig: function() {
-      // If we have passed a specification file with the config in
-      if(this.spec) {
-        // Check if we have specified the config in the file
-        if(this.spec.config) {
-          debug('reading the config in the specification file');
-          this.config = this.spec.config;
-          if(!this.config.appName) {
-              this.env.error(chalk.red('Property appName missing from config file config.json'));
-          }
-          return;
-        }
-      }
-
-      // If we are running refresh generator on its own
-      debug('reading config json from: ', this.destinationPath('config.json'));
-      try {
-        this.config = this.fs.readJSON(this.destinationPath('config.json'));
-        if (!this.config) {
-          this.env.error(chalk.red('Config file config.json not found'));
-        }
-        if (!this.config.appName) {
-          this.env.error(chalk.red('Property appName missing from config file config.json'));
-        }
-      } catch (err) {
-        this.env.error(chalk.red(err));
-      }
-    },
-
     readModels: function() {
+      if(!this.appType == 'crud') return;
       this.modelList = [];
       if(this.spec) {
         // Check if there are any models defined
@@ -161,11 +183,16 @@ module.exports = generators.Base.extend({
         // No models directory
         debug(this.destinationPath('models'), 'directory does not exist')
       }
+      if(this.spec) {
+        if(this.spec.models) {
+          this.spec.models = this.models;
+        }
+      }
     },
 
     loadProjectInfo: function() {
       // TODO(tunniclm): Improve how we set these values
-      this.projectName = this.config.appName
+      // this.projectName = this.projectName
       this.projectVersion = '1.0.0';
     }
   },
@@ -487,23 +514,16 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
       }
 
-      // Check if there is a manifest.yml, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
-        var manifest = `applications:\n` +
-                       `- name: ${this.config.appName}\n` +
-                       `  memory: 128M\n` +
-                       `  instances: 1\n` +
-                       `  random-route: true\n` +
-                       `  buildpack: swift_buildpack\n` +
-                       `  command: ${this.config.appName} --bind 0.0.0.0:$PORT\n`;
-
-        this.fs.write(this.destinationPath('manifest.yml'), manifest);
-      }
-
       // Check if there is a .cfignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('.cfignore'),
+        this.fs.copy(this.templatePath('cfignore'),
                      this.destinationPath('.cfignore'));
+      }
+
+      // Check if there is a .gitignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.gitignore'))) {
+        this.fs.copy(this.templatePath('gitignore'),
+                     this.destinationPath('.gitignore'));
       }
 
       // Check if there is a yo-rc, create one if there isn't
@@ -511,15 +531,26 @@ module.exports = generators.Base.extend({
         this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
       }
 
-      // Check if there is a Package.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
-        let packageSwift = helpers.generatePackageSwift(this.config);
-        this.fs.write(this.destinationPath('Package.swift'), packageSwift);
+      // Check if there is a config.json, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('config.json'))) {
+        if(this.bluemix) {
+          this.fs.copyTpl(
+            this.templatePath('config.bluemix.json'),
+            this.destinationPath('config.json'),
+            { appName: this.projectName, datastores: this.datastores }
+          );
+        } else {
+          if(this.config) {
+            this.fs.writeJSON(this.destinationPath('config.json'), this.spec.config);
+          }
+        }
       }
 
-      if(!this.fs.exists(this.destinationPath('config.json'))) {
-        // Write the spec config to disk
-        this.fs.writeJSON(this.destinationPath('config.json'), this.config);
+      // Check if there is a spec.json, if there isn't create one
+      if(!this.fs.exists(this.destinationPath('spec.json'))) {
+        if(this.spec) {
+          this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
+        }
       }
 
       // Check if there is a index.js, create one if there isn't
@@ -530,38 +561,14 @@ module.exports = generators.Base.extend({
         }
       }
 
-      // Sources directory
-
-      // Adding the main.swift file by searching for it in the folders
-      // and adding it if it is not there.
-      var foundMainSwift = false;
-      if(fs.existsSync(this.destinationPath('Sources'))) {
-        // Read all the folders in the Sources directory
-        var folders = fs.readdirSync(this.destinationPath('Sources'));
-        // Read all the files in each folder
-        folders.forEach(function(folder) {
-          var files = fs.readdirSync(this.destinationPath('Sources', folder));
-          if(files.indexOf("main.swift") != -1) {
-            foundMainSwift = true;
-          }
-        }.bind(this));
-      }
-
-      if(!foundMainSwift) {
-        this.fs.copy(this.templatePath('main.swift'),
-                     this.destinationPath('Sources', this.config.appName, 'main.swift'));
-      }
-
-
-      // Check if we have ApplicationConfiguration, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Sources',
-       'Generated', 'ApplicationConfiguration.swift'))) {
-         this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-          this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'))
+      if(!this.fs.exists(this.destinationPath('.swift-version'))) {
+        this.fs.copy(this.templatePath('swift-version'),
+                     this.destinationPath('.swift-version'));
       }
 
       // models directory
-
+      // Don't write out the models if an apptype has been specified
+      if(this.appType != "crud") return;
       // Check if there is a models folder, create one if there isn't
       if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
         this.fs.write(this.destinationPath('models', '.keep'), '');
@@ -573,16 +580,34 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    writeSwiftFiles: function() {
+    createCRUD: function() {
+      if(this.appType != "crud") return;
+
+      // TODO: Consolidate with web/basic app type
+      this.executableModule = this.projectName;
+      this.applicationModule = 'Generated';
+
+      // Check if there is a manifest.yml, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
+        var manifest = `applications:\n` +
+                       `- name: ${this.projectName}\n` +
+                       `  memory: 128M\n` +
+                       `  instances: 1\n` +
+                       `  random-route: true\n` +
+                       `  buildpack: swift_buildpack\n` +
+                       `  command: ${this.projectName} --bind 0.0.0.0:$PORT\n`;
+
+        this.fs.write(this.destinationPath('manifest.yml'), manifest);
+      }
+
       this.fs.copyTpl(
         this.templatePath('GeneratedApplication.swift'),
         this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
         { models: this.models }
       );
-      this.fs.copyTpl(
+      this.fs.copy(
         this.templatePath('ApplicationConfiguration.swift'),
-        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
-        { store: this.config.store }
+        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift')
       );
       this.fs.copyTpl(
         this.templatePath('AdapterFactory.swift'),
@@ -656,6 +681,134 @@ module.exports = generators.Base.extend({
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
         this.conflicter.force = true;
         this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
+      }
+    },
+
+    createBasicWeb: function() {
+      // Exit if we are not generating web or basic
+      if(!(this.appType == 'web' || this.appType == 'basic')) return;
+
+      // TODO: Consolidate with crud app type
+      this.executableModule = this.projectName + 'Server';
+      this.applicationModule = this.projectName;
+
+      // Add the datastores if we are using bluemix
+      if(this.bluemix) {
+        this.datastores.forEach(function(store) {
+          var storeName = store.name;
+          if(storeName === 'cloudant') {
+            this.fs.copy(
+              this.templatePath('CouchDBExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'CouchDBExtension.swift')
+            );
+          }
+          if(storeName === 'mongo') {
+            this.fs.copy(
+              this.templatePath('MongoDBExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'MongoDBExtension.swift')
+            );
+          }
+          if(storeName === 'mysql') {
+            this.fs.copy(
+              this.templatePath('MySQLExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'MySQLExtension.swift')
+            );
+          }
+          if(storeName === 'postgres') {
+            this.fs.copy(
+              this.templatePath('PostgreSQLExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'PostgreSQLExtension.swift')
+            );
+          }
+          if(storeName === 'redis') {
+            this.fs.copy(
+              this.templatePath('RedisExtension.swift'),
+              this.destinationPath('Sources', this.projectName, 'Extensions', 'RedisExtension.swift')
+            );
+          }
+        }.bind(this));
+
+        this.fs.copyTpl(
+          this.templatePath('manifest.yml'),
+          this.destinationPath('manifest.yml'),
+          { appName: this.projectName,
+            executableName: this.executableModule }
+        );
+
+        this.fs.copy(
+          this.templatePath('README.md'),
+          this.destinationPath('README.md')
+         );
+
+        this.fs.copyTpl(
+          this.templatePath('pipeline.yml'),
+          this.destinationPath('.bluemix', 'pipeline.yml'),
+          { appName: this.projectName }
+        );
+      }
+
+      this.fs.copyTpl(
+        this.templatePath('Controller.swift'),
+        this.destinationPath('Sources', this.projectName, 'Controller.swift'),
+        { bluemix: this.bluemix, datastores: this.datastores,
+          cloudant_service_name: `${this.projectName}CloudantService`,
+          appType: this.appType, metrics: this.metrics }
+      );
+
+      if(this.appType === 'web') {
+        //Create the public folder
+        this.fs.write(this.destinationPath('public','.keep'), '');
+      }
+    },
+
+    writeMainSwift: function() {
+      // Adding the main.swift file by searching for it in the folders
+      // and adding it if it is not there.
+      var foundMainSwift = false;
+      if(fs.existsSync(this.destinationPath('Sources'))) {
+        // Read all the folders in the Sources directory
+        var folders = fs.readdirSync(this.destinationPath('Sources'));
+        // Read all the files in each folder
+        folders.forEach(function(folder) {
+          if(folder.startsWith('.')) return;
+          if(!fs.statSync(this.destinationPath('Sources', folder)).isDirectory()) return;
+          var files = fs.readdirSync(this.destinationPath('Sources', folder));
+          if(files.indexOf("main.swift") != -1) {
+            foundMainSwift = true;
+          }
+        }.bind(this));
+      }
+
+      if(!foundMainSwift) {
+        if(this.appType == 'crud') {
+          this.fs.copy(
+            this.templatePath('main.crud.swift'),
+            this.destinationPath('Sources', this.executableModule, 'main.swift')
+          );
+        } else {
+          this.fs.copyTpl(
+            this.templatePath('main.basicweb.swift'),
+            this.destinationPath('Sources', this.executableModule, 'main.swift'),
+            { applicationModule: this.applicationModule }
+          );
+        }
+      }
+    },
+
+    writePackageSwift: function() {
+      // Check if there is a Package.swift, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
+        this.fs.copyTpl(
+          this.templatePath('Package.swift'),
+          this.destinationPath('Package.swift'),
+          {
+            executableModule: this.executableModule,
+            applicationModule: this.applicationModule,
+            bluemix: this.bluemix,
+            datastores: this.datastores,
+            metrics: this.metrics
+          }
+        )
       }
     }
   },
