@@ -1,6 +1,6 @@
 import Foundation
 import MySQL
-import BluemixConfig
+import SwiftConfiguration
 import LoggerAPI
 
 extension Database {

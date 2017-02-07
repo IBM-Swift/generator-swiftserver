@@ -1,7 +1,7 @@
 import Foundation
 import MongoKitten
 import SSLService
-import BluemixConfig
+import SwiftConfiguration
 import LoggerAPI
 
 extension Server {

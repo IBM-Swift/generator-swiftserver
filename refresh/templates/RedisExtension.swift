@@ -1,6 +1,6 @@
 import Foundation
 import SwiftRedis
-import BluemixConfig
+import SwiftConfiguration
 import LoggerAPI
 
 extension Redis {

@@ -516,13 +516,13 @@ module.exports = generators.Base.extend({
 
       // Check if there is a .cfignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('.cfignore'),
+        this.fs.copy(this.templatePath('cfignore'),
                      this.destinationPath('.cfignore'));
       }
 
       // Check if there is a .gitignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.gitignore'))) {
-        this.fs.copy(this.templatePath('.gitignore'),
+        this.fs.copy(this.templatePath('gitignore'),
                      this.destinationPath('.gitignore'));
       }
 
@@ -562,7 +562,7 @@ module.exports = generators.Base.extend({
       }
 
       if(!this.fs.exists(this.destinationPath('.swift-version'))) {
-        this.fs.copy(this.templatePath('.swift-version'),
+        this.fs.copy(this.templatePath('swift-version'),
                      this.destinationPath('.swift-version'));
       }
 

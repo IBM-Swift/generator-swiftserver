@@ -1,6 +1,6 @@
 import Foundation
 import CouchDB
-import BluemixConfig
+import SwiftConfiguration
 
 extension CouchDBClient {
 

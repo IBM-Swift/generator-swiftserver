@@ -1,7 +1,7 @@
 import Foundation
 import SwiftKuery
 import SwiftKueryPostgreSQL
-import BluemixConfig
+import SwiftConfiguration
 
 extension PostgreSQLConnection {
 
