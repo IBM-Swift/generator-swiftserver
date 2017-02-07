@@ -91,11 +91,11 @@ module.exports = generators.Base.extend({
       this.datastores = [{
           "name": "cloudant",
           "type": "cloudantNoSQLDB",
-          "host": "",
+          "host": "localhost",
           "url": "",
           "username": "",
           "password": "",
-          "port": 8080
+          "port": 5984
         }];
 
       if(this.spec) {
