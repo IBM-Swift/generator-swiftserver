@@ -1,7 +1,7 @@
 import Foundation
 import MongoKitten
 import SSLService
-import CloudConfiguration
+import CloudFoundryConfig
 import LoggerAPI
 
 extension Server {

@@ -1,6 +1,6 @@
 import Foundation
 import CouchDB
-import CloudConfiguration
+import CloudFoundryConfig
 
 extension CouchDBClient {
 

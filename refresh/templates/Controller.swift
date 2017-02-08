@@ -6,11 +6,11 @@ import LoggerAPI
 import Configuration
 
 <% if (bluemix) { -%>
-import CloudConfiguration
+import CloudFoundryConfig
 <% } -%>
 <% if (metrics) { %>
 import SwiftMetrics
-import SwiftMetricsKitura
+import SwiftMetricsDash
 <% } -%>
 <% datastores.forEach(function(store) { %>
 <% if (store.name === 'cloudant') { -%>
@@ -133,9 +133,8 @@ public class Controller {
 <% }); -%>
 
 <% if (metrics) { -%>
-        metrics = try SwiftMetrics()
-        SwiftMetricsKitura(swiftMetricsInstance: metrics)
-        let monitoring = metrics.monitor()
+    let sm = try SwiftMetrics()
+    let _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)
 <% } -%>
 
 <% if(appType === 'web') { -%>

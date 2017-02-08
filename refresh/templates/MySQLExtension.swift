@@ -1,6 +1,6 @@
 import Foundation
 import MySQL
-import CloudConfiguration
+import CloudFoundryConfig
 import LoggerAPI
 
 extension Database {

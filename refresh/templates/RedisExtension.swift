@@ -1,6 +1,6 @@
 import Foundation
 import SwiftRedis
-import CloudConfiguration
+import CloudFoundryConfig
 import LoggerAPI
 
 extension Redis {
