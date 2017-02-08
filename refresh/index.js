@@ -624,13 +624,26 @@ module.exports = generators.Base.extend({
           return !required || identifier;
         }
         function convertJSTypeToSwiftyJSONType(jsType) {
-          return jsType === 'boolean' ? 'bool' : jsType;
+          switch (jsType) {
+            case 'boolean': return 'bool';
+            case 'object':  return 'dictionary';
+            default:        return jsType;
+          }
+        }
+        function convertJSTypeToSwiftyJSONProperty(jsType) {
+          switch (jsType) {
+            case 'boolean': return 'bool';
+            case 'array':   return 'arrayObject';
+            case 'object':  return 'dictionaryObject';
+            default:        return jsType;
+          }
         }
         var propertyInfos = Object.keys(model.properties).map(
           (propertyName) => ({
               name: propertyName,
               jsType: model.properties[propertyName].type,
               swiftyJSONType: convertJSTypeToSwiftyJSONType(model.properties[propertyName].type),
+              swiftyJSONProperty: convertJSTypeToSwiftyJSONProperty(model.properties[propertyName].type),
               swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
                                                       optional(propertyName)),
               optional: optional(propertyName)

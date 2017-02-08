@@ -41,7 +41,7 @@ public struct <%- model.classname %> {
             <%_ if (info.jsType === 'number') { _%>
                 self.<%- info.name %> = json["<%- info.name %>"].number.map { Double($0) }<%- defaultValueClause %>
             <%_ } else { _%>
-                self.<%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONType %><%- defaultValueClause %>
+                self.<%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONProperty %><%- defaultValueClause %>
             <%_ } _%>
         <%_ }); _%>
     }
@@ -60,7 +60,7 @@ public struct <%- model.classname %> {
             <%_ if (info.jsType === 'number') { _%>
                 let <%- info.name %> = json["<%- info.name %>"].number.map { Double($0) } ?? self.<%- info.name %>
             <%_ } else { _%>
-                let <%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONType %> ?? self.<%- info.name %>
+                let <%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONProperty %> ?? self.<%- info.name %>
             <%_ } _%>
         <%_ }); _%>
         return <%- model.classname %>(<%- propertyInfos.map((info) => `${info.name}: ${info.name}`).join(', ') %>)
