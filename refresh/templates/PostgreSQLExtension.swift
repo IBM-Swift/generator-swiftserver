@@ -1,7 +1,7 @@
 import Foundation
 import SwiftKuery
 import SwiftKueryPostgreSQL
-import SwiftConfiguration
+import CloudConfiguration
 
 extension PostgreSQLConnection {
 

@@ -1,7 +1,7 @@
 import Foundation
 import MongoKitten
 import SSLService
-import SwiftConfiguration
+import CloudConfiguration
 import LoggerAPI
 
 extension Server {

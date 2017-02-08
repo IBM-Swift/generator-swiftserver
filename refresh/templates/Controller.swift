@@ -6,7 +6,7 @@ import LoggerAPI
 import Configuration
 
 <% if (bluemix) { -%>
-import SwiftConfiguration
+import CloudConfiguration
 <% } -%>
 <% if (metrics) { %>
 import SwiftMetrics
@@ -92,7 +92,6 @@ public class Controller {
 <% if (bluemix) { -%>
         let cloudantService = try manager.getCloudantService(name: "<%- cloudant_service_name -%>")
         let dbClient = CouchDBClient(service: cloudantService)
-        dbClient.createDB("coffestore") { _, _ in }
 <% } else { -%>
         let couchDBConnProps = ConnectionProperties(host: "127.0.0.1", port: 5984, secured: false)
         let dbClient = CouchDBClient(connectionProperties: couchDBConnProps)

@@ -1,6 +1,6 @@
 import Foundation
 import MySQL
-import SwiftConfiguration
+import CloudConfiguration
 import LoggerAPI
 
 extension Database {

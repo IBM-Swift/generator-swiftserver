@@ -1,6 +1,6 @@
 import Foundation
 import CouchDB
-import SwiftConfiguration
+import CloudConfiguration
 
 extension CouchDBClient {
 
