@@ -10,7 +10,7 @@ applications:
   buildpack: swift_buildpack
   command: <%-executableName%> --bind 0.0.0.0:$PORT
   env:
-    OPENSPEC_API: "/explorer/swagger.yml"
+    OPENAPI_SPEC: "/explorer/swagger.yml"
   services:
   - <%-appName%>CloudantService
   timeout: 180
