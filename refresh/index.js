@@ -91,11 +91,7 @@ module.exports = generators.Base.extend({
       this.datastores = [{
           "name": "cloudant",
           "type": "cloudantNoSQLDB",
-          "host": "localhost",
-          "url": "",
-          "username": "",
-          "password": "",
-          "port": 5984
+          "plan": "Lite"
         }];
 
       if(this.spec) {
@@ -695,32 +691,32 @@ module.exports = generators.Base.extend({
       // Add the datastores if we are using bluemix
       if(this.bluemix) {
         this.datastores.forEach(function(store) {
-          var storeName = store.name;
-          if(storeName === 'cloudant') {
+          var storeType = store.type;
+          if(storeType === 'cloudantNoSQLDB') {
             this.fs.copy(
               this.templatePath('CouchDBExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'CouchDBExtension.swift')
             );
           }
-          if(storeName === 'mongo') {
+          if(storeType === 'compose-for-mongodb') {
             this.fs.copy(
               this.templatePath('MongoDBExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'MongoDBExtension.swift')
             );
           }
-          if(storeName === 'mysql') {
+          if(storeType === 'compose-for-mysql') {
             this.fs.copy(
               this.templatePath('MySQLExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'MySQLExtension.swift')
             );
           }
-          if(storeName === 'postgres') {
+          if(storeType === 'compose-for-postgresql') {
             this.fs.copy(
               this.templatePath('PostgreSQLExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'PostgreSQLExtension.swift')
             );
           }
-          if(storeName === 'redis') {
+          if(storeType === 'compose-for-redis') {
             this.fs.copy(
               this.templatePath('RedisExtension.swift'),
               this.destinationPath('Sources', this.projectName, 'Extensions', 'RedisExtension.swift')
@@ -732,7 +728,8 @@ module.exports = generators.Base.extend({
           this.templatePath('manifest.yml'),
           this.destinationPath('manifest.yml'),
           { appName: this.projectName,
-            executableName: this.executableModule }
+            executableName: this.executableModule,
+            datastores: this.datastores }
         );
 
         this.fs.copy(
@@ -743,7 +740,7 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('pipeline.yml'),
           this.destinationPath('.bluemix', 'pipeline.yml'),
-          { appName: this.projectName }
+          { appName: this.projectName, datastores: this.datastores }
         );
       }
 

@@ -1,7 +1,9 @@
 declared-services:
-  <%-appName%>CloudantService:
-    label: cloudantNoSQLDB
-    plan: Lite
+<% datastores.forEach(function(store) { -%>
+  <%-store.name%>:
+    label: <%-store.type%>
+    plan: <%-store.plan || 'Lite'%>
+<% }); -%>
 applications:
 - name: <%-appName%>
   memory: 128M
@@ -12,5 +14,7 @@ applications:
   env:
     OPENAPI_SPEC: "/explorer/swagger.yml"
   services:
-  - <%-appName%>CloudantService
+<% datastores.forEach(function(store) { -%>
+  - <%-store.name%>
+<% }); -%>
   timeout: 180

@@ -13,25 +13,22 @@ import SwiftMetrics
 import SwiftMetricsDash
 <% } -%>
 <% datastores.forEach(function(store) { %>
-<% if (store.name === 'cloudant') { -%>
+<% if (store.type === 'cloudantNoSQLDB') { -%>
 import CouchDB
 <% } -%>
-<% if (store.name === 'redis') { -%>
+<% if (store.type === 'compose-for-redis') { -%>
 import SwiftRedis
 <% } -%>
-<% if (store.name === 'postgres') { -%>
+<% if (store.type === 'compose-for-postgresql') { -%>
 import SwiftKuery
 import SwiftKueryPostgreSQL
 <% } -%>
-<% if (store.name === 'mongo') { -%>
+<% if (store.type === 'compose-for-mongodb') { -%>
 import MongoKitten
 import SSLService
 <% } -%>
-<% if (store.name === 'mysql') { -%>
+<% if (store.type === 'compose-for-mysql') { -%>
 import MySql
-<% } -%>
-<% if (store.name === 'db2') { -%>
-import IBMDB
 <% } -%>
 <% }); -%>
 
@@ -41,34 +38,27 @@ public class Controller {
 
     public let manager: ConfigurationManager
 <% datastores.forEach(function(store) { %>
-    // Set up <%= store.name %>
-<% if (store.name === 'cloudant') { -%>
+    // Set up <%= store.type %>
+<% if (store.type === 'cloudantNoSQLDB') { -%>
     internal let database: Database
 <% } -%>
-<% if (store.name === 'redis') { -%>
+<% if (store.type === 'compose-for-redis') { -%>
     let redis: Redis
-    <% if (bluemix) { -%>
-        let redisService: RedisService
-    <% } -%>
+<% if (bluemix) { -%>
+    let redisService: RedisService
 <% } -%>
-<% if (store.name === 'postgres') { -%>
+<% } -%>
+<% if (store.type === 'compose-for-postgresql') { -%>
     let connection: Connection
 <% } -%>
-<% if (store.name === 'mongo') { -%>
+<% if (store.type === 'compose-for-mongodb') { -%>
     let server: MongoKitten.Server
 <% } -%>
-<% if (store.name === 'mysql') { -%>
+<% if (store.type === 'compose-for-mysql') { -%>
     let mysql: MySQL.Database
     let connection: Connection
 <% } -%>
-<% if (store.name === 'db2') { -%>
-    let db = IBMDB()
-    let connString: String
-<% } -%>
 <% }); %>
-<% if (metrics) { -%>
-    let metrics: SwiftMetrics!
-<% } %>
 
     public var port: Int {
 <% if (bluemix) { -%>
@@ -87,10 +77,10 @@ public class Controller {
         try manager.load(.environmentVariables).load(file: "../../config.json")
 <% } -%>
 <% datastores.forEach(function(store) { %>
-        // Configuring <%= store.name %>
-<% if (store.name === 'cloudant') {  -%>
+        // Configuring <%= store.type %>
+<% if (store.type === 'cloudantNoSQLDB') {  -%>
 <% if (bluemix) { -%>
-        let cloudantService = try manager.getCloudantService(name: "<%- cloudant_service_name -%>")
+        let cloudantService = try manager.getCloudantService(name: "<%- store.name -%>")
         let dbClient = CouchDBClient(service: cloudantService)
 <% } else { -%>
         let couchDBConnProps = ConnectionProperties(host: "127.0.0.1", port: 5984, secured: false)
@@ -98,37 +88,33 @@ public class Controller {
 <% } -%>
         self.database = dbClient.database("databaseName")
 <% } -%>
-<% if (store.name === 'redis') { -%>
+<% if (store.type === 'compose-for-redis') { -%>
         self.redis = Redis()
 <% } -%>
-<% if (store.name === 'redis' && bluemix) { -%>
-        self.redisService = try manager.getRedisService(name: "todolist-redis")
+<% if (store.type === 'compose-for-redis' && bluemix) { -%>
+        self.redisService = try manager.getRedisService(name: "<%- store.name -%>")
 <% } -%>
-<% if (store.name === 'postgres') { -%>
+<% if (store.type === 'compose-for-postgresql') { -%>
         self.connection = PostgreSQLConnection(host: "localhost", port: Int32(5432), options: [.databaseName("databasename")])
 <% } -%>
-<% if (store.name === 'postgres' && bluemix) { -%>
-        let postgreSQLService = try manager.getPostgreSQLService(name: "PostgreSQL-Service")
+<% if (store.type === 'compose-for-postgresql' && bluemix) { -%>
+        let postgreSQLService = try manager.getPostgreSQLService(name: "<%- store.name -%>")
         self.connection = PostgreSQLConnection(service: postgreSQLService)
 <% } -%>
-<% if (store.name === 'mongo') { -%>
+<% if (store.type === 'compose-for-mongodb') { -%>
         self.server = try Server(mongoURL: "mongodb://username:password@127.0.0.1:27017")
 <% } -%>
-<% if (store.name === 'mongo' && bluemix) { -%>
-        let mongoDBService = try manager.getMongoDBService(name: "MongoDB-Service")
+<% if (store.type === 'compose-for-mongodb' && bluemix) { -%>
+        let mongoDBService = try manager.getMongoDBService(name: "<%- store.name -%>")
 <% } -%>
-<% if (store.name === 'mysql') {  -%>
+<% if (store.type === 'compose-for-mysql') {  -%>
 <% if (bluemix) { -%>
-        let mySQLService = try manager.getMySQLService(name: "MySQL-Service")
+        let mySQLService = try manager.getMySQLService(name: "<%- store.name -%>")
         self.mysql = try Database(service: mySQLService)
 <% } else { -%>
         self.mysql = try Database(host: "127.0.0.1", user: "root", password: "", database: "databasename")
 <% } -%>
         self.connection = try self.mysql.makeConnection()
-<% } -%>
-<% if (store.name === 'db2' && bluemix) { -%>
-        let db2Service = try manager.getDB2Service(name: "DB2-Analytics-Service")
-        self.connString = "DRIVER={DB2};DATABASE=\(db2Service.database);HOSTNAME=\(db2Service.host);PORT=\(db2Service.port);UID=\(db2Service.uid);PWD=\(db2Service.pwd)"
 <% } -%>
 <% }); -%>
 

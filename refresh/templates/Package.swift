@@ -8,28 +8,25 @@ let package = Package(
     dependencies: [
 
 <% if(bluemix) { -%>
-        .Package(url: "https://github.com/IBM-Swift/CloudConfiguration.git",  majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/CloudConfiguration.git",      majorVersion: 0),
 <% } else { -%>
-        .Package(url: "https://github.com/IBM-Swift/Configuration.git",       majorVersion: 0),
+        .Package(url: "https://github.com/IBM-Swift/Configuration.git",           majorVersion: 0),
 <% } -%>
 <% datastores.forEach(function(store) { -%>
-<% if(store.name === 'cloudant') { -%>
+<% if(store.type === 'cloudantNoSQLDB') { -%>
         .Package(url: "https://github.com/IBM-Swift/Kitura-CouchDB.git",          majorVersion: 1),
 <% } -%>
-<% if(store.name === 'mongo') { -%>
+<% if(store.type === 'compose-for-mongodb') { -%>
         .Package(url: "https://github.com/tfrank64/MongoKitten.git",              majorVersion: 3),
 <% } -%>
-<% if(store.name === 'redis') { -%>
+<% if(store.type === 'compose-for-redis') { -%>
         .Package(url: "https://github.com/IBM-Swift/Kitura-redis.git",            majorVersion: 1),
 <% } -%>
-<% if(store.name === 'postgres') { -%>
+<% if(store.type === 'compose-for-postgresql') { -%>
         .Package(url: "https://github.com/IBM-Swift/Swift-Kuery-PostgreSQL.git",  majorVersion: 0),
 <% } -%>
-<% if(store.name === 'mysql') { -%>
+<% if(store.type === 'compose-for-mysql') { -%>
         .Package(url: "https://github.com/vapor/mysql",                           majorVersion: 1),
-<% } -%>
-<% if(store.name === 'db2') { -%>
-        .Package(url: "https://github.com/IBM-DTeam/swift-for-db2",               majorVersion: 1),
 <% } -%>
 <% }); -%>
 <% if (metrics)  { %>

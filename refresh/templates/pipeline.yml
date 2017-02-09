@@ -25,6 +25,8 @@ stages:
       application: ${CF_APP}
     script: |-
       #!/bin/bash
-      cf create-service cloudantNoSQLDB Lite <%-appName%>CloudantService
+<% datastores.forEach(function(store) { -%>
+      cf create-service <%-store.type%> <%-store.plan || 'Lite'%> <%-store.name%>
+<% }) -%>
       cf push "${CF_APP}"
       # cf logs "${CF_APP}" --recent

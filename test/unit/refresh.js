@@ -248,21 +248,8 @@ describe('swiftserver:refresh', function () {
           bluemixconfig: {
             bluemix: true,
             datastores: [{
-              "name": "cloudant",
-              "type": "cloudantNoSQLDB",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
-            }, {
-              "name": "redis",
-              "type": "Redis",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
+              "name": "todoCloudantService",
+              "type": "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -288,7 +275,6 @@ describe('swiftserver:refresh', function () {
 
     it('generates bluemix web only files and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Extensions/RedisExtension.swift`,
                                     `Sources/${appName}/Controller.swift`,
                                     `public/.keep`];
       assert.file(expectedExtensionFiles);
@@ -306,21 +292,8 @@ describe('swiftserver:refresh', function () {
           bluemixconfig: {
             bluemix: false,
             datastores: [{
-              "name": "cloudant",
-              "type": "cloudantNoSQLDB",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
-            }, {
-              "name": "redis",
-              "type": "Redis",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
+              "name": "todoCloudantService",
+              "type": "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -364,21 +337,8 @@ describe('swiftserver:refresh', function () {
           bluemixconfig: {
             bluemix: true,
             datastores: [{
-              "name": "cloudant",
-              "type": "cloudantNoSQLDB",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
-            }, {
-              "name": "redis",
-              "type": "Redis",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
+              "name": "todoCloudantService",
+              "type": "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -404,7 +364,6 @@ describe('swiftserver:refresh', function () {
 
     it('generates bluemix web only files and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Extensions/RedisExtension.swift`,
                                     `Sources/${appName}/Controller.swift`];
       assert.file(expectedExtensionFiles);
     });
@@ -421,21 +380,8 @@ describe('swiftserver:refresh', function () {
           bluemixconfig: {
             bluemix: false,
             datastores: [{
-              "name": "cloudant",
-              "type": "cloudantNoSQLDB",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
-            }, {
-              "name": "redis",
-              "type": "Redis",
-              "host": "",
-              "url": "",
-              "username": "",
-              "password": "",
-              "port": 8080
+              "name": "todoCloudantService",
+              "type": "cloudantNoSQLDB"
             }]
           },
           config: {

@@ -3,19 +3,19 @@
 <% datastores.forEach(function(store) { -%>
         "<%=store.type%>": [
             {
-                "name": "<%=appName%><%=store.name%>Service",
+                "name": "<%=store.name%>",
                 "label": "<%=store.type%>",
                 "tags": [],
-                "plan": "Lite",
+                "plan": "<%=store.plan%>",
                 "credentials": {
-                    "host": "<%=store.host%>",
+                    "host": "localhost",
                     "url": "<%=store.url%>",
                     "username": "<%=store.username%>",
                     "password": "<%=store.password%>",
-                    "port": <%=store.port%>
+                    "port": 5984
                 }
             }
-        ]
+        ],
 <% }); -%>
     }
 }
