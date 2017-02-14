@@ -34,119 +34,102 @@ var expected = [
   'manifest.yml'
 ];
 
-var testingDir;
-//Deletes the temporary directory and the contents
-//(should be called after test has completed).
-function deleteTempDir() {
-  rimraf(testingDir, function(err) {
-    if(err) {
-      console.log('Error: ', err);
-    }
-  });
-}
-
-//If the test creates the directory automatically then we have to go up one
-//folder before trying to delete.
-function getTempDir() {
-  var temp = process.cwd().split("/");
-  temp.pop();
-  testingDir = temp.join("/");
-}
-
 describe('swiftserver:app', function () {
 
   describe('Application name and directory name are the same', function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .withPrompts({                       // Mock the prompt answers
           name: 'notes',
           dir:  'notes'
-        })
-        .toPromise();                        // Get a Promise back when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+        });
+        return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-      getTempDir();
       assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "notes"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
   describe('Application name and directory names are not the same', function () {
 
+  var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
                 name: 'applicationName',
                 dir:  'directoryName'
-              })
-        .toPromise();       // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+              });
+        return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-      getTempDir();
       assert.equal(path.basename(process.cwd()), 'directoryName');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'applicationName',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
 
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "applicationName"');
-    });
   });
 
   describe('Application name only is supplied (via the prompt)', function () {
 
+  var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
                 name: 'appNameOnly'
-              })
-        .toPromise();       // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+              });
+        return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-        getTempDir();
         assert.equal(path.basename(process.cwd()), 'appNameOnly');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "appNameOnly"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'appNameOnly',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -154,37 +137,36 @@ describe('swiftserver:app', function () {
   // We should default to this for the application and directory values.
   describe('Create an application directory and change into it. Supply no arguments via the prompt. ' +
            'The app and dir prompt values should default to application directory.', function () {
-
+  var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'appDir'));
         })
-        .withPrompts({ })   // Mock the prompt answers
-        .toPromise()        // Get a Promise back for when the generator finishes
+        .withPrompts({ });   // Mock the prompt answers
+        return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'appDir');
       });
-    });
-
-    after(function() {
-      deleteTempDir();
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'appDir');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "appDir"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'appDir',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -192,69 +174,68 @@ describe('swiftserver:app', function () {
   // name as . (this should work)
   describe('Create an application directory and change into it. Supply dir prompt as .', function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'currentDir'));
         })
         .withPrompts({
                       name: 'differentAppName',
                       dir:  '.'
                     })
-        .toPromise()        // Get a Promise back for when the generator finishes
+        return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'currentDir');
       });
-    });
-
-    after(function() {
-      deleteTempDir();
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'currentDir');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "differentAppName"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'differentAppName',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
-
   describe('Application name is supplied via the command line options (not prompt)', function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['nameOnCommandLine'])
-        .toPromise();       // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+        return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-        getTempDir();
         assert.equal(path.basename(process.cwd()), 'nameOnCommandLine');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "nameOnCommandLine"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'nameOnCommandLine',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -262,36 +243,36 @@ describe('swiftserver:app', function () {
            'Check that we fall back to using the current directory.',
             function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'validDir'));
         })
-        .toPromise()        // Get a Promise back for when the generator finishes
+        return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'validDir');
       });
-    });
-
-    after(function() {
-      deleteTempDir();
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'validDir');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "validDir"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'validDir',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -301,33 +282,33 @@ describe('swiftserver:app', function () {
            'Ensure that we fall back to the default name of "app".',
             function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'inva&%*lid'));
         })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'app');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "app"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'app',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -336,34 +317,34 @@ describe('swiftserver:app', function () {
            'The current directory is also an invalid application name format. ' +
            'Check that the current directory name can be sanitized and then used.',
            function () {
-
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['ext&%*ra'])
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
+
            this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'));
         })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "inv-l-l-l-l-lid"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'inv-l-l-l-l-lid',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -371,33 +352,33 @@ describe('swiftserver:app', function () {
            'Enter the application name as the same name, we should use the directory ' +
            'which already existed, not create a new one of the same name.',
            function () {
-
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
-           this.inDir(path.join(tmpDir, 'testDir'));
-        })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      deleteTempDir();
+          tmpDir = tmpDir;
+          this.inDir(path.join(tmpDir, 'testDir'));
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'testDir');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "testDir"');
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'testDir',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -405,9 +386,10 @@ describe('swiftserver:app', function () {
            ' to have cloudant as the data store.',
            function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
@@ -416,27 +398,26 @@ describe('swiftserver:app', function () {
           store: 'cloudant'
         })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'testDir'));
-        })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      getTempDir();
-      deleteTempDir();
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.jsonFileContent('config.json', {store: 'cloudant'})
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: 'cloudant',
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -445,9 +426,10 @@ describe('swiftserver:app', function () {
            ' configure the connection properties.',
            function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
@@ -460,43 +442,43 @@ describe('swiftserver:app', function () {
           secured: true
         })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'testDir'));
-        })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      getTempDir();
-      deleteTempDir();
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      var storeConfig = {
-        type: 'cloudant',
-        host: 'cloudanthost',
-        port: 8080,
-        secured: true
-      }
-      assert.jsonFileContent('config.json', {store: storeConfig})
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: {
+            type: 'cloudant',
+            host: 'cloudanthost',
+            port: 8080,
+            secured: true
+          },
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
+
   describe('Configure the config.json with the prompts' +
            ' to have cloudant as the data store and' +
            ' configure the credentials.',
            function () {
 
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
@@ -508,51 +490,50 @@ describe('swiftserver:app', function () {
           password: 'password123'
         })
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
            this.inDir(path.join(tmpDir, 'testDir'));
-        })
-        .toPromise();        // Get a Promise back for when the generator finishes
-    });
-
-    after(function() {
-      getTempDir();
-      deleteTempDir();
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      var storeConfig = {
-        type: 'cloudant',
-        host: 'localhost',
-        port: 5984,
-        secured: false,
-        username: 'admin',
-        password: 'password123'
-      }
-      assert.jsonFileContent('config.json', {store: storeConfig})
+    it('create a spec object containing the config', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: {
+            type: 'cloudant',
+            host: 'localhost',
+            port: 5984,
+            secured: false,
+            username: 'admin',
+            password: 'password123'
+          },
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
   describe('Attempt to create a project in a non-empty directory.', function () {
+
+    var runContext;
     before(function () {
       var success = false;
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
-          var tmpFile = path.join(testingDir, "non_empty.txt");    //Created to make the dir a non-empty
+          var tmpFile = path.join(tmpDir, "non_empty.txt");    //Created to make the dir a non-empty
           fs.writeFileSync(tmpFile, "");
-        })
-        .toPromise()                        // Get a Promise back when the generator finishes\
+        });
+        return runContext.toPromise()                        // Get a Promise back when the generator finishes\
         .catch(function(err) {
           success = true;
           assert(err.message.match('is not an empty directory.*$'), 'Current directory is non-empty and should have thrown an error');
@@ -562,34 +543,31 @@ describe('swiftserver:app', function () {
         });
     });
 
-    after(function() {
-      deleteTempDir();
-    });
-
     it('did not generate a project in the current directory', function () {
-      assert.noFile(expected);
+      var spec = runContext.generator.spec;
+      assert.objectContent(spec, {});
     })
   });
 
   describe('Attempt to create a project in a non-empty directory with prompt.', function () {
 
+    var runContext;
     before(function () {
       var success = false;
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
-          fs.mkdirSync(path.join(testingDir, 'testingDir'));
-          var tmpFile = path.join(testingDir, 'testingDir', "non_empty.txt");    //Created to make the dir non-empty
+          fs.mkdirSync(path.join(tmpDir, 'tmpDir'));
+          var tmpFile = path.join(tmpDir, 'tmpDir', "non_empty.txt");    //Created to make the dir non-empty
           fs.writeFileSync(tmpFile, "");
         })
         .withPrompts({
           name: 'test',
-          dir: 'testingDir'
-        })
-        .toPromise()                        // Get a Promise back when the generator finishes\
+          dir: 'tmpDir'
+        });
+        return runContext.toPromise()                        // Get a Promise back when the generator finishes\
         .catch(function(err) {              // Should catch the expected error
           success = true;
           assert(err.message.match('is not an empty directory.*$'), 'Specified directory is non-empty and should have thrown an error');
@@ -599,29 +577,26 @@ describe('swiftserver:app', function () {
         });
     });
 
-    after(function() {
-      deleteTempDir();
-    });
-
     it('did not generate a project in the specified directory', function () {
-      assert.noFile(expected);
+      var spec = runContext.generator.spec;
+      assert.objectContent(spec, {});
     })
   });
 
   describe('Attempt to create a project in a pre-existing project.', function () {
 
+    var runContext;
     before(function () {
       var success = false;
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .inTmpDir(function (tmpDir) {
-          testingDir = tmpDir;
-          var tmpFile = path.join(testingDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
+          var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
           fs.writeFileSync(tmpFile, "");
         })
-        .toPromise()                        // Get a Promise back when the generator finishes\
+        return runContext.toPromise()                        // Get a Promise back when the generator finishes\
         .catch(function(err) {
           success = true;
           assert(err.message.match('is already a Swift Server Generator project directory.*$'), 'Directory is already a project and should have thrown an error');
@@ -630,13 +605,9 @@ describe('swiftserver:app', function () {
           assert(success, 'Directory is already a project and should have thrown an error');
         });
     });
-
-    after(function() {
-      deleteTempDir();
-    });
-
     it('did not generate a project', function () {
-      assert.noFile('Package.swift');
+      var spec = runContext.generator.spec;
+      assert.objectContent(spec, {});
     })
   });
 });

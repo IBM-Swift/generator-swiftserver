@@ -21,6 +21,22 @@ var helpers = require('yeoman-test');
 var fs = require('fs');
 var format = require('util').format;
 
+var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
+                     'manifest.yml', '.cfignore', '.yo-rc.json'];
+
+var appName = 'todo';
+var modelName = 'todo';
+var modelPlural = 'todos';
+var className = 'Todo';
+var genDir = 'Sources/Generated/'
+var modelDir = 'models/'
+
+var expectedSourceFiles = [`Sources/${appName}/main.swift`];
+
+var expectedModelFiles = [`${modelDir}${modelName}.json`, `${genDir}${className}.swift`,
+    `${genDir}${className}Adapter.swift`, `${genDir}${className}Resource.swift`,
+    `${genDir}${className}MemoryAdapter.swift`];
+
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
@@ -130,4 +146,79 @@ describe('swiftserver:refresh', function () {
       ]);
     });
   });
+
+  describe('Generate the config file from the spec', function () {
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          config: {
+            appName: appName,
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the swift files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+  });
+
+  describe('Generate the config file from the spec', function () {
+
+
+    var runContext;
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          config: {
+            appName: appName,
+            store: 'memory',
+            logger: 'helium',
+            port: 8090
+          },
+          models: [{
+                    name: modelName,
+                    plural: modelPlural,
+                    classname: className,
+                    properties: {
+                      title: {
+                        type: "string"
+                      }
+                    }
+                  }]
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+    it('generates a todo model metadata file and the todo swift files', function() {
+      assert.file(expectedModelFiles);
+    });
+  });
+
+
 });
