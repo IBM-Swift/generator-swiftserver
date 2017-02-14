@@ -44,6 +44,16 @@ public struct <%- model.classname %> {
                 self.<%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONProperty %><%- defaultValueClause %>
             <%_ } _%>
         <%_ }); _%>
+
+        // Check for extraneous properties
+        if let jsonProperties = json.dictionary?.keys {
+            let properties: [String] = [<%- propertyInfos.map((info) => `"${info.name}"`).join(', ') %>]
+            for jsonPropertyName in jsonProperties {
+                if !properties.contains(where: { $0 == jsonPropertyName }) {
+                    throw ModelError.extraneousProperty(name: jsonPropertyName)
+                }
+            }
+        }
     }
 
     public func settingID(_ newId: String?) -> <%- model.classname %> {
