@@ -57,13 +57,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'notes',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -87,13 +89,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'applicationName',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'applicationName',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
 
   });
@@ -117,13 +121,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'appNameOnly',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'appNameOnly',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -152,13 +158,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'appDir',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'appDir',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -190,13 +198,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'differentAppName',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'differentAppName',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -217,13 +227,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'nameOnCommandLine',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'nameOnCommandLine',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -252,13 +264,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'validDir',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'validDir',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -286,13 +300,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'app',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'app',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -320,13 +336,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'inv-l-l-l-l-lid',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'inv-l-l-l-l-lid',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -352,13 +370,15 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'testDir',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'testDir',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -388,14 +408,16 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'notes',
-        store: 'cloudant',
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: 'cloudant',
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -430,19 +452,21 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'notes',
-        store: {
-          type: 'cloudant',
-          host: 'cloudanthost',
-          port: 8080,
-          secured: true
-        },
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: {
+            type: 'cloudant',
+            host: 'cloudanthost',
+            port: 8080,
+            secured: true
+          },
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -476,21 +500,23 @@ describe('swiftserver:app', function () {
     });
 
     it('create a spec object containing the config', function() {
-      var config = runContext.generator.config;
-      var expectedConfig = {
-        appName: 'notes',
-        store: {
-          type: 'cloudant',
-          host: 'localhost',
-          port: 5984,
-          secured: false,
-          username: 'admin',
-          password: 'password123'
-        },
-        logger: 'helium',
-        port: 8090
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        config: {
+          appName: 'notes',
+          store: {
+            type: 'cloudant',
+            host: 'localhost',
+            port: 5984,
+            secured: false,
+            username: 'admin',
+            password: 'password123'
+          },
+          logger: 'helium',
+          port: 8090
+        }
       };
-      assert.objectContent(config, expectedConfig);
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
