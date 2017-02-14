@@ -2,6 +2,7 @@ import Foundation
 import CouchDB
 import KituraNet
 import SwiftyJSON
+import CloudFoundryConfig // Not needed unless on bluemix
 
 public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapter {
     let client: CouchDBClient
@@ -13,6 +14,10 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
 
     public init(_ connectionProperties: ConnectionProperties) {
         client = CouchDBClient(connectionProperties: connectionProperties)
+    }
+
+    public init(_ service: CloudantService) {
+        client = CouchDBClient(service: service)
     }
 
     public func findAll(onCompletion: @escaping ([<%- model.classname %>], Swift.Error?) -> Void) {
