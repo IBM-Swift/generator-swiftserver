@@ -1,0 +1,9 @@
+"name": "<%-service.name-%>",
+        "store": {
+            "type": "<%-type%>",
+            "host": "<%- service.host || 'localhost' %>",
+            "secured": "<%- service.secured%>",
+            "port": <%- service.port || 5984 %>,
+            "username": "<%-service.username%>",
+            "password": "<%-service.password%>"
+        }
