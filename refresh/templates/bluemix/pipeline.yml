@@ -25,8 +25,10 @@ stages:
       application: ${CF_APP}
     script: |-
       #!/bin/bash
-<% datastores.forEach(function(store) { -%>
-      cf create-service <%-store.type%> <%-store.plan || 'Lite'%> <%-store.name%>
-<% }) -%>
+<% Object.keys(services).forEach(function(serviceType) { -%>
+<% services[serviceType].forEach(function(serviceDef) { -%>
+      cf create-service <%-serviceDef.type%> <%-serviceDef.plan || 'Lite'%> <%-serviceDef.name%>
+<% }); -%>
+<% }); -%>
       cf push "${CF_APP}"
       # cf logs "${CF_APP}" --recent
