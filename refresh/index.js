@@ -529,16 +529,15 @@ module.exports = generators.Base.extend({
 
       // Check if there is a config.json, create one if there isn't
       if(!this.fs.exists(this.destinationPath('config.json'))) {
-        var configPath = this.bluemix ? 'config.cloud.json' : 'config.local.json';
-        this.fs.copyTpl(
-          this.templatePath('basicproject', configPath),
+        var configToWrite;
+        if(this.bluemix) {
+          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services);
+        } else {
+          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services);
+        }
+        this.fs.writeJSON(
           this.destinationPath('config.json'),
-          {
-            appName: this.projectName,
-            services: this.services,
-            config: this.spec.config,
-            helpers: helpers
-          }
+          configToWrite
         );
       }
 
