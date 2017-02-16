@@ -1,8 +1,10 @@
 declared-services:
-<% datastores.forEach(function(store) { -%>
-  <%-store.name%>:
-    label: <%-store.type%>
-    plan: <%-store.plan || 'Lite'%>
+<% Object.keys(services).forEach(function(serviceType) { -%>
+<% services[serviceType].forEach(function(serviceDef) { -%>
+  <%-serviceDef.name%>:
+    label: <%-serviceDef.type%>
+    plan: <%-serviceDef.plan || 'Lite'%>
+<% }); -%>
 <% }); -%>
 applications:
 - name: <%-appName%>
@@ -14,7 +16,9 @@ applications:
   env:
     OPENAPI_SPEC: "/explorer/swagger.yml"
   services:
-<% datastores.forEach(function(store) { -%>
-  - <%-store.name%>
+<% Object.keys(services).forEach(function(serviceType) { -%>
+<% services[serviceType].forEach(function(serviceDef) { -%>
+  - <%-serviceDef.name%>
+<% }); -%>
 <% }); -%>
   timeout: 180
