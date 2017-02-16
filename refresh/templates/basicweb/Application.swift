@@ -12,8 +12,8 @@ import CloudFoundryConfig
 import SwiftMetrics
 import SwiftMetricsDash
 <% } -%>
-<% datastores.forEach(function(store) { %>
-<% if (serviceType === 'cloudantNoSQLDB') { -%>
+<% Object.keys(services).forEach(function(serviceType) { %>
+<% if (serviceType === 'cloudant') { -%>
 import CouchDB
 <% } -%>
 <% if (serviceType === 'redis') { -%>
@@ -81,7 +81,7 @@ public func initialize() throws {
     let cloudantService = try manager.getCloudantService(name: "<%- serviceDef.name -%>")
     let dbClient = CouchDBClient(service: cloudantService)
 <% } else { -%>
-    let couchDBConnProps = ConnectionProperties(host: "<%- serviceDef.host || localhost", port: <%- serviceDef.port || 5984 %>, secured: <% serviceDef.secured || false)
+    let couchDBConnProps = ConnectionProperties(host: "<%- serviceDef.host || localhost %>", port: <%- serviceDef.port || 5984 %>, secured: <% serviceDef.secured || false %>)
     let dbClient = CouchDBClient(connectionProperties: couchDBConnProps)
 <% } -%>
 <% } -%>
@@ -109,7 +109,7 @@ public func initialize() throws {
     let mySQLService = try manager.getMySQLService(name: "<%- serviceDef.name -%>")
     mysql = try Database(service: mySQLService)
 <% } else { -%>
-    mysql = try Database(host: "<%serviceDef.host || localhost%>", user: "<%serviceDef.username || root", password: "", database: "<%- serviceDef.name %>DB")
+    mysql = try Database(host: "<%serviceDef.host || localhost%>", user: "<%serviceDef.username || root%>", password: "", database: "<%- serviceDef.name %>DB")
 <% } -%>
     connection = try mysql.makeConnection()
 <% } -%>

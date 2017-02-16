@@ -787,7 +787,7 @@ module.exports = generators.Base.extend({
           );
         } else {
           this.fs.copyTpl(
-            this.templatePath('basicweb', 'main.swift'),
+            this.templatePath('basicweb', 'main.basicweb.swift'),
             this.destinationPath('Sources', this.executableModule, 'main.swift'),
             { applicationModule: this.applicationModule }
           );
