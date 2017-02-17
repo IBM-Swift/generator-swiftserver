@@ -6,6 +6,11 @@ declared-services:
     plan: <%-serviceDef.plan || 'Lite'%>
 <% }); -%>
 <% }); -%>
+<% if (autoscale) { -%>
+  <%-autoscale%>:
+    label: Auto-scaling
+    plan: free
+<% } -%>
 applications:
 - name: <%-appName%>
   memory: 128M
@@ -21,4 +26,7 @@ applications:
   - <%-serviceDef.name%>
 <% }); -%>
 <% }); -%>
+<% if (autoscale) { -%>
+  - <%-autoscale%>
+<% } -%>
   timeout: 180
