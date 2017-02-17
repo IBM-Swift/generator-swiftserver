@@ -59,8 +59,9 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
         config: {
-          appName: 'notes',
           logger: 'helium',
           port: 8090
         }
@@ -78,9 +79,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
-                name: 'applicationName',
-                dir:  'directoryName'
-              });
+          name: 'applicationName',
+          dir:  'directoryName'
+        });
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
@@ -91,8 +92,9 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'applicationName',
         config: {
-          appName: 'applicationName',
           logger: 'helium',
           port: 8090
         }
@@ -111,8 +113,8 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
-                name: 'appNameOnly'
-              });
+          name: 'appNameOnly'
+        });
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
@@ -123,8 +125,9 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'appNameOnly',
         config: {
-          appName: 'appNameOnly',
           logger: 'helium',
           port: 8090
         }
@@ -150,7 +153,7 @@ describe('swiftserver:app', function () {
         return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'appDir');
-      });
+        });
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -160,8 +163,9 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'appDir',
         config: {
-          appName: 'appDir',
           logger: 'helium',
           port: 8090
         }
@@ -181,27 +185,28 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .inTmpDir(function (tmpDir) {
-           this.inDir(path.join(tmpDir, 'currentDir'));
+          this.inDir(path.join(tmpDir, 'currentDir'));
         })
         .withPrompts({
-                      name: 'differentAppName',
-                      dir:  '.'
-                    })
+          name: 'differentAppName',
+          dir:  '.'
+        });
         return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'currentDir');
-      });
+        });
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'currentDir');
+      assert.equal(path.basename(process.cwd()), 'currentDir');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'differentAppName',
         config: {
-          appName: 'differentAppName',
           logger: 'helium',
           port: 8090
         }
@@ -229,8 +234,9 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'nameOnCommandLine',
         config: {
-          appName: 'nameOnCommandLine',
           logger: 'helium',
           port: 8090
         }
@@ -251,23 +257,24 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
         .inTmpDir(function (tmpDir) {
-           this.inDir(path.join(tmpDir, 'validDir'));
+          this.inDir(path.join(tmpDir, 'validDir'));
         })
         return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'validDir');
-      });
+        });
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'validDir');
+      assert.equal(path.basename(process.cwd()), 'validDir');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'validDir',
         config: {
-          appName: 'validDir',
           logger: 'helium',
           port: 8090
         }
@@ -290,20 +297,21 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
         .inTmpDir(function (tmpDir) {
-           this.inDir(path.join(tmpDir, 'inva&%*lid'));
+          this.inDir(path.join(tmpDir, 'inva&%*lid'));
         })
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'app');
+      assert.equal(path.basename(process.cwd()), 'app');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'app',
         config: {
-          appName: 'app',
           logger: 'helium',
           port: 8090
         }
@@ -325,21 +333,21 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })
         .withArguments(['ext&%*ra'])
         .inTmpDir(function (tmpDir) {
-
-           this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'));
+          this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'));
         })
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid');
+      assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'inv-l-l-l-l-lid',
         config: {
-          appName: 'inv-l-l-l-l-lid',
           logger: 'helium',
           port: 8090
         }
@@ -366,14 +374,15 @@ describe('swiftserver:app', function () {
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'testDir');
+      assert.equal(path.basename(process.cwd()), 'testDir');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'testDir',
         config: {
-          appName: 'testDir',
           logger: 'helium',
           port: 8090
         }
@@ -398,21 +407,29 @@ describe('swiftserver:app', function () {
           store: 'cloudant'
         })
         .inTmpDir(function (tmpDir) {
-           this.inDir(path.join(tmpDir, 'testDir'));
+          this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'notes');
+      assert.equal(path.basename(process.cwd()), 'notes');
     });
 
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        services: {
+          cloudant: [{
+            type: 'cloudant',
+            host: 'localhost',
+            port: 5984,
+            secured: false
+          }]
+        },
         config: {
-          appName: 'notes',
-          store: 'cloudant',
           logger: 'helium',
           port: 8090
         }
@@ -454,14 +471,17 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
-        config: {
-          appName: 'notes',
-          store: {
+        appType: 'crud',
+        appName: 'notes',
+        services: {
+          cloudant: [{
             type: 'cloudant',
             host: 'cloudanthost',
             port: 8080,
             secured: true
-          },
+          }]
+        },
+        config: {
           logger: 'helium',
           port: 8090
         }
@@ -502,16 +522,19 @@ describe('swiftserver:app', function () {
     it('create a spec object containing the config', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
-        config: {
-          appName: 'notes',
-          store: {
+        appType: 'crud',
+        appName: 'notes',
+        services: {
+          cloudant: [{
             type: 'cloudant',
             host: 'localhost',
             port: 5984,
             secured: false,
             username: 'admin',
             password: 'password123'
-          },
+          }]
+        },
+        config: {
           logger: 'helium',
           port: 8090
         }

@@ -77,8 +77,8 @@ describe('swiftserver:property', function() {
     });
 
     it('added a property to a model', function() {
-      var model = runContext.generator.spec.models;
-      var expectedModel = [{
+      var model = runContext.generator.model;
+      var expectedModel = {
         name: 'MyModel',
         plural: 'MyModels',
         classname: 'MyModel',
@@ -91,7 +91,7 @@ describe('swiftserver:property', function() {
             "type": "boolean"
           }
         }
-      }];
+      };
       assert.objectContent(model, expectedModel);
     });
   });

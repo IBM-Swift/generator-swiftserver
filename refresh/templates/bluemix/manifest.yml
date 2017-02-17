@@ -1,0 +1,24 @@
+declared-services:
+<% Object.keys(services).forEach(function(serviceType) { -%>
+<% services[serviceType].forEach(function(serviceDef) { -%>
+  <%-serviceDef.name%>:
+    label: <%-helpers.getBluemixServiceLabel(serviceType)%>
+    plan: <%-serviceDef.plan || 'Lite'%>
+<% }); -%>
+<% }); -%>
+applications:
+- name: <%-appName%>
+  memory: 128M
+  instances: 1
+  random-route: true
+  buildpack: swift_buildpack
+  command: <%-executableName%> --bind 0.0.0.0:$PORT
+  env:
+    OPENAPI_SPEC: "/explorer/swagger.yml"
+  services:
+<% Object.keys(services).forEach(function(serviceType) { -%>
+<% services[serviceType].forEach(function(serviceDef) { -%>
+  - <%-serviceDef.name%>
+<% }); -%>
+<% }); -%>
+  timeout: 180

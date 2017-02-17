@@ -7,8 +7,8 @@ public class <%- model.classname %>Resource {
     private let path = "/api/<%- model.plural %>"
     private let pathWithID = "/api/<%- model.plural %>/:id"
 
-    init(factory: AdapterFactory) {
-        adapter = factory.get<%- model.classname %>Adapter()
+    init(factory: AdapterFactory) throws {
+        adapter = try factory.get<%- model.classname %>Adapter()
     }
 
     func setupRoutes(router: Router) {
