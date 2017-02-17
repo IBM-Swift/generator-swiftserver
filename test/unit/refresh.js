@@ -245,11 +245,11 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'web',
           appName: appName,
-          bluemixconfig: {
-            bluemix: true,
-            datastores: [{
-              "name": "todoCloudantService",
-              "type": "cloudantNoSQLDB"
+          bluemix: true,
+          services: {
+            cloudant: [{
+              name: "todoCloudantService",
+              type: "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -275,7 +275,7 @@ describe('swiftserver:refresh', function () {
 
     it('generates bluemix web only files and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Controller.swift`,
+                                    `Sources/${appName}/Application.swift`,
                                     `public/.keep`];
       assert.file(expectedExtensionFiles);
     });
@@ -289,11 +289,11 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'web',
           appName: appName,
-          bluemixconfig: {
-            bluemix: false,
-            datastores: [{
-              "name": "todoCloudantService",
-              "type": "cloudantNoSQLDB"
+          bluemix: false,
+          services: {
+            cloudant: [{
+              name: "todoCloudantService",
+              type: "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -320,7 +320,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates web only file and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`,
+      var expectedExtensionFiles = [`Sources/${appName}/Application.swift`,
                                     `public/.keep`];
       assert.file(expectedExtensionFiles);
     });
@@ -334,11 +334,11 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'basic',
           appName: appName,
-          bluemixconfig: {
-            bluemix: true,
-            datastores: [{
-              "name": "todoCloudantService",
-              "type": "cloudantNoSQLDB"
+          bluemix: true,
+          services: {
+            cloudant: [{
+              name: "todoCloudantService",
+              type: "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -364,7 +364,7 @@ describe('swiftserver:refresh', function () {
 
     it('generates bluemix web only files and folders', function() {
       var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Controller.swift`];
+                                    `Sources/${appName}/Application.swift`];
       assert.file(expectedExtensionFiles);
     });
   });
@@ -377,11 +377,11 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'basic',
           appName: appName,
-          bluemixconfig: {
-            bluemix: false,
-            datastores: [{
-              "name": "todoCloudantService",
-              "type": "cloudantNoSQLDB"
+          bluemix: false,
+          services: {
+            cloudant: [{
+              name: "todoCloudantService",
+              type: "cloudantNoSQLDB"
             }]
           },
           config: {
@@ -408,7 +408,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates web only file and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Controller.swift`];
+      var expectedExtensionFiles = [`Sources/${appName}/Application.swift`];
       assert.file(expectedExtensionFiles);
     });
   });
