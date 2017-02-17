@@ -1,15 +1,23 @@
 import Foundation
 import Kitura
+import Configuration
 
 public class GeneratedApplication {
     public let router: Router
     private let factory: AdapterFactory
 
-    public init(config: ApplicationConfiguration) {
+    public init(configURL: URL) throws {
         router = Router()
-        factory = AdapterFactory(config: config)
+        let manager = ConfigurationManager()
+        do {
+          try manager.load(.environmentVariables)
+                     .load(url: configURL)
+        } catch {
+           throw ConfigurationError.urlNotFound(url: configURL.absoluteString);
+        }
+        factory = AdapterFactory(manager: manager)
         <% models.forEach(function(model) { %>
-        <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
+        try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
         <% }); %>
     }
 }

@@ -100,6 +100,8 @@ module.exports = generators.Base.extend({
 
         // Bluemix configuration
         this.bluemix = this.spec.bluemix || false
+
+        // Service configuration
         this.services = this.spec.services || {};
 
         // Monitoring
@@ -574,6 +576,31 @@ module.exports = generators.Base.extend({
       this.executableModule = this.projectName;
       this.applicationModule = 'Generated';
 
+      // Get the CRUD service for persistence
+      function getService(services, serviceName) {
+        var serviceDef = null;
+        Object.keys(services).forEach(function(serviceType) {
+          if(serviceDef) return;
+          services[serviceType].forEach(function(service) {
+            if (service.name && (service.name === serviceName)) {
+              serviceDef = {
+                service: service,
+                type: serviceType
+              }
+              return;
+            }
+          });
+        });
+        return serviceDef;
+      }
+
+      var crudService;
+      if (this.spec.crudservice) {
+        crudService = getService(this.services, this.spec.crudservice);
+      } else {
+        crudService = { type: '__memory__' };
+      }
+
       // Check if there is a manifest.yml, create one if there isn't
       if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
         var manifest = `applications:\n` +
@@ -592,14 +619,15 @@ module.exports = generators.Base.extend({
         this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
         { models: this.models }
       );
-      this.fs.copy(
+      this.fs.copyTpl(
         this.templatePath('crud', 'ApplicationConfiguration.swift'),
-        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift')
+        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
+        { crudService: crudService }
       );
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
-        { models: this.models }
+        { models: this.models, crudService: crudService, bluemix: this.bluemix }
       );
       this.models.forEach(function(model) {
         this.fs.copyTpl(
