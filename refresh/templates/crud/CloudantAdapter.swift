@@ -40,7 +40,10 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
                     guard document["doc"].exists() else {
                         throw AdapterError.internalError("Missing document content")
                     }
-                    let model = try <%- model.classname %>(json: document["doc"])
+                    var modelJSON = document["doc"]
+                    _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
+                    _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
+                    let model = try <%- model.classname %>(json: modelJSON)
                     return model.settingID(docid)
                 }
                 onCompletion(models, nil)
@@ -120,7 +123,10 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
             }
 
             do {
-                let model = try <%- model.classname %>(json: document)
+                var modelJSON = document
+                _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
+                _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
+                let model = try <%- model.classname %>(json: modelJSON)
                 onCompletion(model.settingID(docid), nil)
             } catch {
                 onCompletion(nil, AdapterError.internalError(String(describing: error)))
@@ -234,7 +240,10 @@ public class <%- model.classname %>CloudantAdapter: <%- model.classname %>Adapte
                     return
                 }
                 do {
-                    let model = try <%- model.classname %>(json: document)
+                    var modelJSON = document
+                    _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
+                    _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
+                    let model = try <%- model.classname %>(json: modelJSON)
                     onCompletion(model.settingID(docid), nil)
                 } catch {
                     onCompletion(nil, AdapterError.internalError(String(describing: error)))
