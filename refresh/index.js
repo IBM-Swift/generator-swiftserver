@@ -53,11 +53,13 @@ module.exports = generators.Base.extend({
   initializing: {
 
     readSpec: function() {
+      this.existingProject = false;
 
       if(this.options.specfile) {
         debug('attempting to read the spec from file')
         try {
           this.spec = this.fs.readJSON(this.options.specfile);
+          this.existingProject = false;
         } catch (err) {
           this.env.error(chalk.red(err));
         }
@@ -81,74 +83,75 @@ module.exports = generators.Base.extend({
       if(!this.spec) {
         try {
           this.spec = this.fs.readJSON(this.destinationPath('spec.json'));
+          this.existingProject = true;
         } catch (err) {
           this.env.error(chalk.red('Cannot read the spec.json: ', err))
         }
       }
 
-      if(this.spec) {
-        if(this.spec.appType) {
-          this.appType = this.spec.appType;
-        } else {
-          this.env.error(chalk.red('App type is missing'));
-        }
-        if(this.spec.appName) {
-            this.projectName = this.spec.appName;
-        } else {
-            this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
-        }
+      if (!this.spec) {
+        this.env.error(chalk.red('No specification for this project'));
+      }
 
-        // Bluemix configuration
-        this.bluemix = this.spec.bluemix || false
+      if(this.spec.appType) {
+        this.appType = this.spec.appType;
+      } else {
+        this.env.error(chalk.red('App type is missing'));
+      }
+      if(this.spec.appName) {
+          this.projectName = this.spec.appName;
+      } else {
+          this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
+      }
 
-        // Service configuration
-        this.services = this.spec.services || {};
+      // Bluemix configuration
+      this.bluemix = this.spec.bluemix || false
 
-        // Monitoring
-        this.metrics = this.spec.metrics || false;
+      // Service configuration
+      this.services = this.spec.services || {};
 
-        // Runtime Configuration
-        if(this.spec.config) {
-          this.config = this.spec.config;
-          // TODO: Decide whether we still want the config in the spec.json
-          // delete this.spec.config;
-        }
+      // Monitoring
+      this.metrics = this.spec.metrics || false;
+
+      // Runtime Configuration
+      if(this.spec.config) {
+        this.config = this.spec.config;
+        // TODO: Decide whether we still want the config in the spec.json
+        // delete this.spec.config;
       }
     },
 
     setDestinationRootFromSpec: function() {
-      if(!this.options.destinationSet) {
-        if (this.spec) {
-          // Check if we have a directory specified, else use the default one
-          this.destinationRoot(this.spec.appDir || 'swiftserver')
-        }
+      if(!this.options.destinationSet && !this.existingProject) {
+        // Check if we have a directory specified, else use the default one
+        this.destinationRoot(this.spec.appDir || 'swiftserver')
       }
     },
 
     ensureInProject: function() {
-      if(!this.spec) {
-        // actions.ensureEmptyDirectory.call(this);
-      // } else {
+      if (this.existingProject) {
         actions.ensureInProject.call(this);
+      } else {
+        actions.ensureEmptyDirectory.call(this);
       }
     },
 
     readModels: function() {
       if(!this.appType == 'crud') return;
-      this.modelList = [];
-      if(this.spec) {
-        // Check if there are any models defined
-        if(this.spec.models) {
-          this.modelList = this.spec.models;
-        }
+
+      // Start with the models from the spec
+      var modelMap = {};
+      if (this.spec.models) {
+        this.spec.models.forEach((model) => {
+          if (model.name) {
+            modelMap[model.name] = model;
+          } else {
+            this.log('Failed to process model in spec: model name missing');
+          }
+        });
       }
 
-      this.models = this.modelList || [];
-      this.modelNames = [];
-      this.modelList.forEach(function(model) {
-        this.modelNames.push(model.name);
-      }.bind(this));
-
+      // Update the spec with any changes from the model .json files
       try {
         var modelFiles = fs.readdirSync(this.destinationPath('models'))
                            .filter((name) => name.endsWith('.json'));
@@ -158,8 +161,10 @@ module.exports = generators.Base.extend({
             var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
             var model = JSON.parse(modelJSON);
             // Only add models if they aren't being modified/added
-            if(this.modelNames.indexOf(model.name) == -1) {
-              this.models.push(model);
+            if (model.name) {
+              modelMap[model.name] = model;
+            } else {
+              this.log(`Failed to process model file ${modelFile}: model name missing`);
             }
           } catch (_) {
             // Failed to read model file
@@ -173,11 +178,17 @@ module.exports = generators.Base.extend({
         // No models directory
         debug(this.destinationPath('models'), 'directory does not exist')
       }
-      if(this.spec) {
-        if(this.spec.models) {
-          this.spec.models = this.models;
+
+      // Add any models we need to update
+      if (this.options.model) {
+        if (this.options.model.name) {
+          modelMap[this.options.model.name] = this.options.model;
+        } else {
+          this.env.error(chalk.red('Failed to update model: name missing'));
         }
       }
+
+      this.models = Object.keys(modelMap).map((modelName) => modelMap[modelName]);
     },
 
     loadProjectInfo: function() {
@@ -644,16 +655,22 @@ module.exports = generators.Base.extend({
           this.templatePath('crud', 'AdapterError.swift'),
           this.destinationPath('Sources', 'Generated', 'AdapterError.swift')
         );
-        this.fs.copyTpl(
-          this.templatePath('crud', 'MemoryAdapter.swift'),
-          this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
-          { model: model }
-        );
-        this.fs.copyTpl(
-          this.templatePath('crud', 'CloudantAdapter.swift'),
-          this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
-          { model: model }
-        );
+        switch (crudService.type) {
+        case 'cloudant':
+          this.fs.copyTpl(
+            this.templatePath('crud', 'CloudantAdapter.swift'),
+            this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
+            { model: model }
+          );
+          break;
+        case '__memory__':
+          this.fs.copyTpl(
+            this.templatePath('crud', 'MemoryAdapter.swift'),
+            this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
+            { model: model }
+          );
+          break;
+        }
         this.fs.copy(
           this.templatePath('crud', 'ModelError.swift'),
           this.destinationPath('Sources', 'Generated', 'ModelError.swift')
