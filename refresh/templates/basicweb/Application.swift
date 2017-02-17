@@ -11,6 +11,9 @@ import CloudFoundryConfig
 <% if (metrics) { %>
 import SwiftMetrics
 import SwiftMetricsDash
+<% if (autoscale) { -%>
+import SwiftMetricsBluemix
+<% } -%>
 <% } -%>
 <% Object.keys(services).forEach(function(serviceType) { %>
 <% if (serviceType === 'cloudant') { -%>
@@ -71,6 +74,9 @@ public func initialize() throws {
     // Set up monitoring
     let sm = try SwiftMetrics()
     let _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)
+<% if (autoscale) { -%>
+    let _ = AutoScalar(swiftMetricsInstance: sm)
+<% } -%>
 <% } -%>
 
 <% Object.keys(services).forEach(function(serviceType) { %>

@@ -105,13 +105,25 @@ module.exports = generators.Base.extend({
       }
 
       // Bluemix configuration
-      this.bluemix = this.spec.bluemix || false
+      this.bluemix = (this.spec.bluemix === true);
 
       // Service configuration
       this.services = this.spec.services || {};
 
       // Monitoring
-      this.metrics = this.spec.metrics || false;
+      this.metrics = (this.spec.metrics === true);
+
+      // Autoscaling
+      if (this.spec.autoscale === true) {
+        this.autoscale = `${this.projectName}ScalingService`;
+      } else if (typeof(this.spec.autoscale) === 'string') {
+        this.autoscale = this.spec.autoscale;
+      }
+      // Autoscaling implies monitoring and Bluemix
+      if (this.autoscale) {
+        this.bluemix = true;
+        this.metrics = true;
+      }
 
       // Runtime Configuration
       if(this.spec.config) {
@@ -765,6 +777,7 @@ module.exports = generators.Base.extend({
           { appName: this.projectName,
             executableName: this.executableModule,
             services: this.services,
+            autoscale: this.autoscale,
             helpers: helpers }
         );
 
@@ -776,7 +789,10 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('bluemix', 'pipeline.yml'),
           this.destinationPath('.bluemix', 'pipeline.yml'),
-          { appName: this.projectName, services: this.services, helpers: helpers }
+          { appName: this.projectName,
+            services: this.services,
+            autoscale: this.autoscale,
+            helpers: helpers }
         );
 
         this.fs.copyTpl(
@@ -794,9 +810,12 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('basicweb', 'Application.swift'),
         this.destinationPath('Sources', this.projectName, 'Application.swift'),
-        { bluemix: this.bluemix, services: this.services,
+        { bluemix: this.bluemix,
+          services: this.services,
           cloudant_service_name: `${this.projectName}CloudantService`, // TODO: Change this
-          appType: this.appType, metrics: this.metrics }
+          appType: this.appType,
+          metrics: this.metrics,
+          autoscale: this.autoscale }
       );
 
       this.fs.copy(
