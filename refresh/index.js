@@ -727,7 +727,8 @@ module.exports = generators.Base.extend({
           this.destinationPath('manifest.yml'),
           { appName: this.projectName,
             executableName: this.executableModule,
-            services: this.services }
+            services: this.services,
+            helpers: helpers }
         );
 
         this.fs.copy(
@@ -738,7 +739,7 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('bluemix', 'pipeline.yml'),
           this.destinationPath('.bluemix', 'pipeline.yml'),
-          { appName: this.projectName, services: this.services }
+          { appName: this.projectName, services: this.services, helpers: helpers }
         );
       }
 

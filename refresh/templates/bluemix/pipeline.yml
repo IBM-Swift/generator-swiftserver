@@ -27,7 +27,7 @@ stages:
       #!/bin/bash
 <% Object.keys(services).forEach(function(serviceType) { -%>
 <% services[serviceType].forEach(function(serviceDef) { -%>
-      cf create-service <%-serviceDef.type%> <%-serviceDef.plan || 'Lite'%> <%-serviceDef.name%>
+      cf create-service <%-helpers.getBluemixServiceLabel(serviceType)%> <%-serviceDef.plan || 'Lite'%> <%-serviceDef.name%>
 <% }); -%>
 <% }); -%>
       cf push "${CF_APP}"
