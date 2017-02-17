@@ -2,7 +2,7 @@ declared-services:
 <% Object.keys(services).forEach(function(serviceType) { -%>
 <% services[serviceType].forEach(function(serviceDef) { -%>
   <%-serviceDef.name%>:
-    label: <%-serviceDef.type%>
+    label: <%-helpers.getBluemixServiceLabel(serviceType)%>
     plan: <%-serviceDef.plan || 'Lite'%>
 <% }); -%>
 <% }); -%>
