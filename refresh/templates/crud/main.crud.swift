@@ -57,8 +57,8 @@ do {
         config.port = environmentPort
     }
 
-    let application = GeneratedApplication(config: config)
-    Log.info("Using store type \(config.adapterConfig)")
+    let application = try GeneratedApplication(configURL: projectRoot.appendingPathComponent("config.json"))
+    // Log.info("Using store type \(config.adapterConfig)")
     let router = application.router
 
     Kitura.addHTTPServer(onPort: config.port, with: router)
