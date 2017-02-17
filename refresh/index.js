@@ -741,6 +741,17 @@ module.exports = generators.Base.extend({
           this.destinationPath('.bluemix', 'pipeline.yml'),
           { appName: this.projectName, services: this.services, helpers: helpers }
         );
+
+        this.fs.copyTpl(
+          this.templatePath('bluemix', 'toolchain.yml'),
+          this.destinationPath('.bluemix', 'toolchain.yml'),
+          { appName: this.projectName }
+        );
+
+        this.fs.copy(
+          this.templatePath('bluemix', 'deploy.json'),
+          this.destinationPath('.bluemix', 'deploy.json')
+        );
       }
 
       this.fs.copyTpl(
