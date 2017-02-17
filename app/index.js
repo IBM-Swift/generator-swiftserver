@@ -176,13 +176,11 @@ module.exports = generators.Base.extend({
         }
       ];
       this.prompt(prompts, function(answer) {
+        this.storeType = answer.store;
         if(answer.store === 'memory') {
           //No need to ask for anything else
-          this.store = answer.store;
           done();
           return;
-        } else {
-          this.storeType = answer.store;
         }
 
         this.defaultHost = 'localhost';
@@ -237,17 +235,13 @@ module.exports = generators.Base.extend({
           }
         ];
         this.prompt(storeConfigPrompt, function(answers) {
-          if(!answers.default || answers.credentials) {
-            this.store = {
-              type: this.storeType,
-              host: answers.host || this.defaultHost,
-              port: answers.port || this.defaultPort,
-              secured: answers.secured || this.defaultSecured,
-              username: answers.username,
-              password: answers.password
-            }
-          } else {
-            this.store = this.storeType;
+          this.store = {
+            type: this.storeType,
+            host: answers.host || this.defaultHost,
+            port: answers.port || this.defaultPort,
+            secured: answers.secured || this.defaultSecured,
+            username: answers.username,
+            password: answers.password
           }
           done();
         }.bind(this));
@@ -267,6 +261,11 @@ module.exports = generators.Base.extend({
             logger: 'helium',
             port: 8090
           }
+        }
+        if (this.storeType === 'cloudant') {
+          this.store.name = 'cloudantCrudService';
+          this.spec.services['cloudant'] = [this.store];
+          this.spec.crudservice = this.store.name;
         }
       }
     },

@@ -1,8 +1,10 @@
 import Foundation
-import CouchDB
 import Configuration
 <% if(bluemix) {-%>
 import CloudFoundryConfig
+<% } -%>
+<% if (crudService.type === 'cloudant') { -%>
+import CouchDB
 <% } -%>
 
 public class AdapterFactory {
@@ -43,12 +45,14 @@ public class AdapterFactory {
     }
 <% }); -%>
 
-  struct ConfigError: Error {}
-  func getCloudantConfig(name: String) throws -> [String: Any] {
-    let cloudantServices = manager["services:cloudant"] as? [[String:Any]] ?? []
-    guard let result = cloudantServices.first(where: { $0["name"] as? String == name }) else {
-      throw ConfigError()
+<% if (crudService.type === 'cloudant' && !bluemix) { -%>
+    struct ConfigError: Error {}
+    func getCloudantConfig(name: String) throws -> [String: Any] {
+      let cloudantServices = manager["services:cloudant"] as? [[String:Any]] ?? []
+      guard let result = cloudantServices.first(where: { $0["name"] as? String == name }) else {
+        throw ConfigError()
+      }
+      return result
     }
-    return result
-  }
+<% } -%>
 }

@@ -155,24 +155,12 @@ module.exports = generators.Base.extend({
   },
 
   install: {
-
-    updateSpec: function() {
-      this.spec = {
-        appName: 'todo',
-        appType: 'crud',
-        models: [this.model]
-      }
-    },
-
     buildDefinitions: function() {
-
-
       this.composeWith('swiftserver:refresh', {
         // Pass in the option to refresh to decided whether or not we create the *-product.yml
         options: {
           apic: this.options.apic,
-          specObj: this.spec,
-          destinationSet: true
+          model: this.model
         }
       });
     },
