@@ -86,14 +86,6 @@ module.exports = generators.Base.extend({
         }
       }
 
-      // Default values
-      this.bluemix = false;
-      this.services = [{
-          "name": "cloudant",
-          "type": "cloudantNoSQLDB",
-          "plan": "Lite"
-        }];
-
       if(this.spec) {
         if(this.spec.appType) {
           this.appType = this.spec.appType;
@@ -105,11 +97,11 @@ module.exports = generators.Base.extend({
         } else {
             this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
         }
+
         // Bluemix configuration
-        if(this.spec.bluemixconfig) {
-          this.bluemix = this.spec.bluemixconfig.bluemix
-          this.services = this.spec.services;
-        }
+        this.bluemix = this.spec.bluemix || false
+        this.services = this.spec.services || {};
+
         // Monitoring
         this.metrics = this.spec.metrics || false;
 
