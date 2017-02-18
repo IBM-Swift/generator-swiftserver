@@ -16,8 +16,9 @@ public class GeneratedApplication {
            throw ConfigurationError.urlNotFound(url: configURL.absoluteString);
         }
         factory = AdapterFactory(manager: manager)
-        <% models.forEach(function(model) { %>
+
+        <%_ models.forEach(function(model) { _%>
         try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
-        <% }); %>
+        <%_ }); _%>
     }
 }
