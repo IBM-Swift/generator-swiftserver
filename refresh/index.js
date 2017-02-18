@@ -612,19 +612,6 @@ module.exports = generators.Base.extend({
         crudService = { type: '__memory__' };
       }
 
-      // Check if there is a manifest.yml, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('manifest.yml'))) {
-        var manifest = `applications:\n` +
-                       `- name: ${this.projectName}\n` +
-                       `  memory: 128M\n` +
-                       `  instances: 1\n` +
-                       `  random-route: true\n` +
-                       `  buildpack: swift_buildpack\n` +
-                       `  command: ${this.projectName} --bind 0.0.0.0:$PORT\n`;
-
-        this.fs.write(this.destinationPath('manifest.yml'), manifest);
-      }
-
       this.fs.copyTpl(
         this.templatePath('crud', 'GeneratedApplication.swift'),
         this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
@@ -771,37 +758,6 @@ module.exports = generators.Base.extend({
             );
           }
         }.bind(this));
-
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'manifest.yml'),
-          this.destinationPath('manifest.yml'),
-          { appName: this.projectName,
-            executableName: this.executableModule,
-            services: this.services,
-            helpers: helpers }
-        );
-
-        this.fs.copy(
-          this.templatePath('bluemix', 'README.md'),
-          this.destinationPath('README.md')
-         );
-
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'pipeline.yml'),
-          this.destinationPath('.bluemix', 'pipeline.yml'),
-          { appName: this.projectName, services: this.services, helpers: helpers }
-        );
-
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'toolchain.yml'),
-          this.destinationPath('.bluemix', 'toolchain.yml'),
-          { appName: this.projectName }
-        );
-
-        this.fs.copy(
-          this.templatePath('bluemix', 'deploy.json'),
-          this.destinationPath('.bluemix', 'deploy.json')
-        );
       }
 
       this.fs.copyTpl(
@@ -855,6 +811,41 @@ module.exports = generators.Base.extend({
           );
         }
       }
+    },
+
+    writeBluemixDeploymentFiles: function() {
+      if (!this.bluemix) return;
+
+      this.fs.copyTpl(
+        this.templatePath('bluemix', 'manifest.yml'),
+        this.destinationPath('manifest.yml'),
+        { appName: this.projectName,
+          executableName: this.executableModule,
+          services: this.services,
+          helpers: helpers }
+      );
+
+      this.fs.copy(
+        this.templatePath('bluemix', 'README.md'),
+        this.destinationPath('README.md')
+       );
+
+      this.fs.copyTpl(
+        this.templatePath('bluemix', 'pipeline.yml'),
+        this.destinationPath('.bluemix', 'pipeline.yml'),
+        { appName: this.projectName, services: this.services, helpers: helpers }
+      );
+
+      this.fs.copyTpl(
+        this.templatePath('bluemix', 'toolchain.yml'),
+        this.destinationPath('.bluemix', 'toolchain.yml'),
+        { appName: this.projectName }
+      );
+
+      this.fs.copy(
+        this.templatePath('bluemix', 'deploy.json'),
+        this.destinationPath('.bluemix', 'deploy.json')
+      );
     },
 
     writePackageSwift: function() {
