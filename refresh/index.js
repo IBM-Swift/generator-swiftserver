@@ -627,7 +627,9 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('crud', 'GeneratedApplication.swift'),
         this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
-        { models: this.models }
+        { models: this.models,
+          metrics: this.metrics,
+          autoscale: this.autoscale }
       );
       this.fs.copyTpl(
         this.templatePath('crud', 'ApplicationConfiguration.swift'),
