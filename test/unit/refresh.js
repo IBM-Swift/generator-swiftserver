@@ -164,6 +164,7 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'crud',
           appName: appName,
+          bluemix: true,
           config: {
             store: 'memory',
             logger: 'helium',
@@ -195,6 +196,7 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'crud',
           appName: appName,
+          bluemix: true,
           config: {
             store: 'memory',
             logger: 'helium',
