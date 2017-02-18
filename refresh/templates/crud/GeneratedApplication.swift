@@ -4,17 +4,14 @@ import Configuration
 
 public class GeneratedApplication {
     public let router: Router
+    private let manager: ConfigurationManager
     private let factory: AdapterFactory
 
     public init(configURL: URL) throws {
         router = Router()
-        let manager = ConfigurationManager()
-        do {
-          try manager.load(.environmentVariables)
-                     .load(url: configURL)
-        } catch {
-           throw ConfigurationError.urlNotFound(url: configURL.absoluteString);
-        }
+        manager = try ConfigurationManager()
+                          .load(.environmentVariables)
+                          .load(url: configURL)
         factory = AdapterFactory(manager: manager)
 
         <%_ models.forEach(function(model) { _%>
