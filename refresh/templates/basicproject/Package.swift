@@ -29,7 +29,7 @@ let package = Package(
         .Package(url: "https://github.com/vapor/mysql",                          majorVersion: 1),
 <% } -%>
 <% if(serviceType === 'objectstorage') { -%>
-        .Package(url: "https://github.com/ibm-bluemix-mobile-services/bluemix    -objectstorage-serversdk-swift.git", majorVersion: 0),
+        .Package(url: "https://github.com/ibm-bluemix-mobile-services/bluemix-objectstorage-serversdk-swift.git", majorVersion: 0),
 <% } -%>
 <% }); -%>
 <% if (metrics)  { %>
