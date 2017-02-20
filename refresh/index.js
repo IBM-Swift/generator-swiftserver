@@ -107,6 +107,9 @@ module.exports = generators.Base.extend({
       // Bluemix configuration
       this.bluemix = (this.spec.bluemix === true);
 
+      // Docker configuration
+      this.docker = (this.spec.docker === true);
+
       // Service configuration
       this.services = this.spec.services || {};
 
@@ -829,6 +832,27 @@ module.exports = generators.Base.extend({
           );
         }
       }
+    },
+
+    writeDockerFiles: function() {
+      if (!this.docker) return;
+
+      this.fs.copy(
+        this.templatePath('docker', 'dockerignore'),
+        this.destinationPath('.dockerignore')
+      );
+      this.fs.copy(
+        this.templatePath('docker', 'Dockerfile-tools'),
+        this.destinationPath('Dockerfile-tools')
+      );
+      this.fs.copy(
+        this.templatePath('docker', 'Dockerfile'),
+        this.destinationPath('Dockerfile')
+      );
+      this.fs.copy(
+        this.templatePath('docker', 'cli-config.yml'),
+        this.destinationPath('cli-config.yml')
+      );
     },
 
     writeBluemixDeploymentFiles: function() {
