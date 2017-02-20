@@ -119,6 +119,13 @@ public func initialize() throws {
 <% } -%>
     connection = try mysql.makeConnection()
 <% } -%>
+<% if (serviceType === 'objectstorage') {  -%>
+<% if (bluemix) { -%>
+    let objectStorageService = try manager.getObjectStorageService(name: "<%- serviceDef.name -%>")
+    let objectStorage = ObjectStorage(service: objectStorageService)
+    try objectStorage.connectSync(service: objectStorageService)
+<% } -%>
+<% } -%>
 <% }); -%>
 <% }); -%>
 
