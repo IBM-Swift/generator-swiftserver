@@ -265,6 +265,52 @@ module.exports = generators.Base.extend({
           done();
         }.bind(this));
       }.bind(this));
+    },
+
+    promptMetrics: function() {
+      if (this.skipToInstall) return;
+      var done = this.async();
+      var prompts = [
+        {
+          name: 'metrics',
+          message: 'Application monitoring/metrics?',
+          type: 'confirm',
+          default: true
+        }
+      ];
+      this.prompt(prompts, function(answer) {
+        this.metrics = (answer.metrics === true);
+        done();
+      }.bind(this));
+    },
+
+    promptCloud: function() {
+      if (this.skipToInstall) return;
+      var done = this.async();
+      var prompts = [
+        {
+          name: 'cloud',
+          message: 'Cloud support?',
+          type: 'list',
+          choices: ['None', 'Bluemix']
+        },
+        {
+          name: 'autoscale',
+          message: 'Bluemix autoscaling?',
+          type: 'confirm',
+          default: true,
+          when: (answers) => (answers.cloud === 'Bluemix')
+        }
+      ];
+      this.prompt(prompts, function(answers) {
+        switch (answers.cloud) {
+          case 'Bluemix':
+            this.bluemix = true;
+            this.autoscale = answers.autoscale || undefined;
+            break;
+        }
+        done();
+      }.bind(this));
     }
   },
 
@@ -275,6 +321,9 @@ module.exports = generators.Base.extend({
         this.spec = {
           appType: 'crud',
           appName: this.appname,
+          metrics: this.metrics,
+          autoscale: this.autoscale,
+          bluemix: this.bluemix,
           services: {},
           config: {
             logger: 'helium',
