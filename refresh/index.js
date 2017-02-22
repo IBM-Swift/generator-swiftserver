@@ -110,17 +110,20 @@ module.exports = generators.Base.extend({
       // Service configuration
       this.services = this.spec.services || {};
 
+      // Capability configuration
+      this.capabilities = this.spec.capabilities || {};
+
       // Monitoring
       this.metrics = (this.spec.metrics === true);
 
       // Autoscaling
-      if (this.spec.autoscale === true) {
-        this.autoscale = `${this.projectName}ScalingService`;
-      } else if (typeof(this.spec.autoscale) === 'string') {
-        this.autoscale = this.spec.autoscale;
+      if (this.capabilities.autoscale === true) {
+        this.capabilities.autoscale = `${this.projectName}ScalingService`;
+      } else if (typeof(this.capabilities.autoscale) === 'string') {
+        this.capabilities.autoscale = this.spec.autoscale;
       }
       // Autoscaling implies monitoring and Bluemix
-      if (this.autoscale) {
+      if (this.capabilities.autoscale) {
         this.bluemix = true;
         this.metrics = true;
       }
@@ -625,13 +628,16 @@ module.exports = generators.Base.extend({
       }
 
       this.fs.copyTpl(
-        this.templatePath('crud', 'GeneratedApplication.swift'),
-        this.destinationPath('Sources', 'Generated', 'GeneratedApplication.swift'),
-        { appName: this.projectName,
+        this.templatePath('basicproject', 'Application.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+        { appType: this.appType,
+          appName: this.projectName,
           models: this.models,
-          metrics: this.metrics,
-          autoscale: this.autoscale }
+          services: this.services,
+          bluemix: this.bluemix,
+          capabilities: this.capabilities}
       );
+
       this.fs.copyTpl(
         this.templatePath('crud', 'ApplicationConfiguration.swift'),
         this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
@@ -731,64 +737,63 @@ module.exports = generators.Base.extend({
       }
     },
 
+    createExtensionFiles: function() {
+      // TODO: Consolidate with crud app type
+      this.executableModule = this.projectName + 'Server';
+      this.applicationModule = this.projectName;
+      // Create all the extension files
+      Object.keys(this.services).forEach(function(serviceType) {
+        if(serviceType === 'cloudant') {
+          this.fs.copy(
+            this.templatePath('extensions', 'CouchDBExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift')
+          );
+        }
+        if(serviceType === 'mongodb') {
+          this.fs.copy(
+            this.templatePath('extensions', 'MongoDBExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'MongoDBExtension.swift')
+          );
+        }
+        if(serviceType === 'mysql') {
+          this.fs.copy(
+            this.templatePath('extensions', 'MySQLExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'MySQLExtension.swift')
+          );
+        }
+        if(serviceType === 'postgresql') {
+          this.fs.copy(
+            this.templatePath('extensions', 'PostgreSQLExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'PostgreSQLExtension.swift')
+          );
+        }
+        if(serviceType === 'redis') {
+          this.fs.copy(
+            this.templatePath('extensions', 'RedisExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift')
+          );
+        }
+      }.bind(this));
+    },
+
     createBasicWeb: function() {
       // Exit if we are not generating web or basic
       if(!(this.appType == 'web' || this.appType == 'basic')) return;
 
-      // TODO: Consolidate with crud app type
-      this.executableModule = this.projectName + 'Server';
-      this.applicationModule = this.projectName;
-
-      // Add the datastores if we are using bluemix
-      if(this.bluemix) {
-        Object.keys(this.services).forEach(function(serviceType) {
-          if(serviceType === 'cloudant') {
-            this.fs.copy(
-              this.templatePath('basicweb', 'extensions', 'CouchDBExtension.swift'),
-              this.destinationPath('Sources', this.projectName, 'Extensions', 'CouchDBExtension.swift')
-            );
-          }
-          if(serviceType === 'mongodb') {
-            this.fs.copy(
-              this.templatePath('basicweb', 'extensions', 'MongoDBExtension.swift'),
-              this.destinationPath('Sources', this.projectName, 'Extensions', 'MongoDBExtension.swift')
-            );
-          }
-          if(serviceType === 'mysql') {
-            this.fs.copy(
-              this.templatePath('basicweb', 'extensions', 'MySQLExtension.swift'),
-              this.destinationPath('Sources', this.projectName, 'Extensions', 'MySQLExtension.swift')
-            );
-          }
-          if(serviceType === 'postgresql') {
-            this.fs.copy(
-              this.templatePath('basicweb', 'extensions', 'PostgreSQLExtension.swift'),
-              this.destinationPath('Sources', this.projectName, 'Extensions', 'PostgreSQLExtension.swift')
-            );
-          }
-          if(serviceType === 'redis') {
-            this.fs.copy(
-              this.templatePath('basicweb', 'extensions', 'RedisExtension.swift'),
-              this.destinationPath('Sources', this.projectName, 'Extensions', 'RedisExtension.swift')
-            );
-          }
-        }.bind(this));
-      }
-
       this.fs.copyTpl(
-        this.templatePath('basicweb', 'Application.swift'),
-        this.destinationPath('Sources', this.projectName, 'Application.swift'),
-        { bluemix: this.bluemix,
+        this.templatePath('basicproject', 'Application.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+        { appType: this.appType,
+          appName: this.projectName,
+          models: this.models,
           services: this.services,
-          cloudant_service_name: `${this.projectName}CloudantService`, // TODO: Change this
-          appType: this.appType,
-          metrics: this.metrics,
-          autoscale: this.autoscale }
+          capabilities: this.capabilities,
+          bluemix: this.bluemix }
       );
 
       this.fs.copy(
         this.templatePath('basicweb', 'IndexRouter.swift'),
-        this.destinationPath('Sources', this.projectName, 'Routes', 'IndexRouter.swift')
+        this.destinationPath('Sources', this.applicationModule, 'Routes', 'IndexRouter.swift')
       )
 
       if(this.appType === 'web') {
@@ -816,18 +821,11 @@ module.exports = generators.Base.extend({
       }
 
       if(!foundMainSwift) {
-        if(this.appType == 'crud') {
-          this.fs.copy(
-            this.templatePath('crud', 'main.crud.swift'),
-            this.destinationPath('Sources', this.executableModule, 'main.swift')
-          );
-        } else {
-          this.fs.copyTpl(
-            this.templatePath('basicweb', 'main.basicweb.swift'),
-            this.destinationPath('Sources', this.executableModule, 'main.swift'),
-            { applicationModule: this.applicationModule }
-          );
-        }
+        this.fs.copyTpl(
+          this.templatePath('basicproject', 'main.swift'),
+          this.destinationPath('Sources', this.executableModule, 'main.swift'),
+          { applicationModule: this.applicationModule }
+        );
       }
     },
 
@@ -840,7 +838,7 @@ module.exports = generators.Base.extend({
         { appName: this.projectName,
           executableName: this.executableModule,
           services: this.services,
-          autoscale: this.autoscale,
+          capabilities: this.capabilities,
           helpers: helpers }
       );
 
@@ -854,7 +852,7 @@ module.exports = generators.Base.extend({
         this.destinationPath('.bluemix', 'pipeline.yml'),
         { appName: this.projectName,
           services: this.services,
-          autoscale: this.autoscale,
+          capabilities: this.capabilities,
           helpers: helpers }
       );
 
@@ -881,7 +879,7 @@ module.exports = generators.Base.extend({
             applicationModule: this.applicationModule,
             bluemix: this.bluemix,
             services: this.services,
-            metrics: this.metrics
+            capabilities: this.capabilities,
           }
         )
       }

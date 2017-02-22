@@ -1,0 +1,16 @@
+let factory = AdapterFactory(manager: manager)
+
+// Host swagger definition
+router.get("/explorer/swagger.yml") { request, response, next in
+    // TODO(tunniclm): Should probably just pass the root into init()
+    let swaggerFileURL = projectRoot.appendingPathComponent("definitions/<%- appName %>.yaml")
+    do {
+        try response.send(fileName: swaggerFileURL.path).end()
+    } catch {
+        Log.error("Failed to serve OpenAPI Swagger definition from \(swaggerFileURL.path)")
+    }
+}
+
+<%_ models.forEach(function(model) { _%>
+try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
+<%_ }); _%>
