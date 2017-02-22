@@ -520,7 +520,7 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    createBasicProject: function() {
+    createCommonFiles: function() {
       // Root directory
 
       // Check if there is a .swiftservergenerator-project, create one if there isn't
@@ -532,13 +532,13 @@ module.exports = generators.Base.extend({
 
       // Check if there is a .cfignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('basicproject', 'cfignore'),
+        this.fs.copy(this.templatePath('common', 'cfignore'),
                      this.destinationPath('.cfignore'));
       }
 
       // Check if there is a .gitignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.gitignore'))) {
-        this.fs.copy(this.templatePath('basicproject', 'gitignore'),
+        this.fs.copy(this.templatePath('common', 'gitignore'),
                      this.destinationPath('.gitignore'));
       }
 
@@ -571,13 +571,13 @@ module.exports = generators.Base.extend({
       // Check if there is a index.js, create one if there isn't
       if (this.options.apic) {
         if(!this.fs.exists(this.destinationPath('index.js'))) {
-          this.fs.copy(this.templatePath('basicproject', 'apic-node-wrapper.js'),
+          this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
                        this.destinationPath('index.js'));
         }
       }
 
       if(!this.fs.exists(this.destinationPath('.swift-version'))) {
-        this.fs.copy(this.templatePath('basicproject','swift-version'),
+        this.fs.copy(this.templatePath('common','swift-version'),
                      this.destinationPath('.swift-version'));
       }
 
@@ -628,7 +628,7 @@ module.exports = generators.Base.extend({
       }
 
       this.fs.copyTpl(
-        this.templatePath('basicproject', 'Application.swift'),
+        this.templatePath('common', 'Application.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
         { appType: this.appType,
           appName: this.projectName,
@@ -780,17 +780,6 @@ module.exports = generators.Base.extend({
       // Exit if we are not generating web or basic
       if(!(this.appType == 'web' || this.appType == 'basic')) return;
 
-      this.fs.copyTpl(
-        this.templatePath('basicproject', 'Application.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-        { appType: this.appType,
-          appName: this.projectName,
-          models: this.models,
-          services: this.services,
-          capabilities: this.capabilities,
-          bluemix: this.bluemix }
-      );
-
       this.fs.copy(
         this.templatePath('basicweb', 'IndexRouter.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Routes', 'IndexRouter.swift')
@@ -822,7 +811,7 @@ module.exports = generators.Base.extend({
 
       if(!foundMainSwift) {
         this.fs.copyTpl(
-          this.templatePath('basicproject', 'main.swift'),
+          this.templatePath('common', 'main.swift'),
           this.destinationPath('Sources', this.executableModule, 'main.swift'),
           { applicationModule: this.applicationModule }
         );
@@ -872,7 +861,7 @@ module.exports = generators.Base.extend({
       // Check if there is a Package.swift, create one if there isn't
       if(!this.fs.exists(this.destinationPath('Package.swift'))) {
         this.fs.copyTpl(
-          this.templatePath('basicproject', 'Package.swift'),
+          this.templatePath('common', 'Package.swift'),
           this.destinationPath('Package.swift'),
           {
             executableModule: this.executableModule,
