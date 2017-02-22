@@ -113,19 +113,15 @@ module.exports = generators.Base.extend({
       // Capability configuration
       this.capabilities = this.spec.capabilities || {};
 
-      // Monitoring
-      this.metrics = (this.spec.metrics === true);
-
       // Autoscaling
       if (this.capabilities.autoscale === true) {
         this.capabilities.autoscale = `${this.projectName}ScalingService`;
-      } else if (typeof(this.capabilities.autoscale) === 'string') {
-        this.capabilities.autoscale = this.spec.autoscale;
       }
+
       // Autoscaling implies monitoring and Bluemix
       if (this.capabilities.autoscale) {
         this.bluemix = true;
-        this.metrics = true;
+        this.capabilities.metrics = true;
       }
 
       // Runtime Configuration
@@ -133,6 +129,16 @@ module.exports = generators.Base.extend({
         this.config = this.spec.config;
         // TODO: Decide whether we still want the config in the spec.json
         // delete this.spec.config;
+      }
+
+      // TODO: Consolidate the folder names
+      // Set the names of the folders
+      if(this.appType == 'crud') {
+        this.executableModule = this.projectName;
+        this.applicationModule = 'Generated';
+      } else {
+        this.executableModule = this.projectName + 'Server';
+        this.applicationModule = this.projectName;
       }
     },
 
@@ -581,6 +587,17 @@ module.exports = generators.Base.extend({
                      this.destinationPath('.swift-version'));
       }
 
+      this.fs.copyTpl(
+        this.templatePath('common', 'Application.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+        { appType: this.appType,
+          appName: this.projectName,
+          models: this.models,
+          services: this.services,
+          bluemix: this.bluemix,
+          capabilities: this.capabilities}
+      );
+
       // models directory
       // Don't write out the models if an apptype has been specified
       if(this.appType != "crud") return;
@@ -597,10 +614,6 @@ module.exports = generators.Base.extend({
 
     createCRUD: function() {
       if(this.appType != "crud") return;
-
-      // TODO: Consolidate with web/basic app type
-      this.executableModule = this.projectName;
-      this.applicationModule = 'Generated';
 
       // Get the CRUD service for persistence
       function getService(services, serviceName) {
@@ -626,17 +639,6 @@ module.exports = generators.Base.extend({
       } else {
         crudService = { type: '__memory__' };
       }
-
-      this.fs.copyTpl(
-        this.templatePath('common', 'Application.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-        { appType: this.appType,
-          appName: this.projectName,
-          models: this.models,
-          services: this.services,
-          bluemix: this.bluemix,
-          capabilities: this.capabilities}
-      );
 
       this.fs.copyTpl(
         this.templatePath('crud', 'ApplicationConfiguration.swift'),
@@ -738,9 +740,8 @@ module.exports = generators.Base.extend({
     },
 
     createExtensionFiles: function() {
-      // TODO: Consolidate with crud app type
-      this.executableModule = this.projectName + 'Server';
-      this.applicationModule = this.projectName;
+      if(!this.bluemix) return;
+
       // Create all the extension files
       Object.keys(this.services).forEach(function(serviceType) {
         if(serviceType === 'cloudant') {

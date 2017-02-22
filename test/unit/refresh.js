@@ -53,7 +53,6 @@ describe('swiftserver:refresh', function () {
           appType: 'crud',
           appName: appName,
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           },
@@ -166,7 +165,6 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemix: true,
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           }
@@ -185,7 +183,6 @@ describe('swiftserver:refresh', function () {
     it('generates the swift files', function() {
       assert.file(expectedSourceFiles);
     });
-
   });
 
   describe('Generate a CRUD application from a spec', function () {
@@ -198,7 +195,6 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           bluemix: true,
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           },
@@ -255,7 +251,6 @@ describe('swiftserver:refresh', function () {
             }]
           },
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           }
@@ -294,12 +289,10 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           services: {
             cloudant: [{
-              name: "todoCloudantService",
-              type: "cloudantNoSQLDB"
+              name: "todoCloudantService"
             }]
           },
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           }
@@ -339,12 +332,10 @@ describe('swiftserver:refresh', function () {
           bluemix: true,
           services: {
             cloudant: [{
-              name: "todoCloudantService",
-              type: "cloudantNoSQLDB"
+              name: "todoCloudantService"
             }]
           },
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           }
@@ -382,12 +373,10 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           services: {
             cloudant: [{
-              name: "todoCloudantService",
-              type: "cloudantNoSQLDB"
+              name: "todoCloudantService"
             }]
           },
           config: {
-            store: 'memory',
             logger: 'helium',
             port: 8090
           }
