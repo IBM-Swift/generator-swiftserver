@@ -6,8 +6,8 @@ declared-services:
     plan: <%-serviceDef.plan || 'Lite'%>
 <% }); -%>
 <% }); -%>
-<% if (autoscale) { -%>
-  <%-autoscale%>:
+<% if (capabilities.autoscale) { -%>
+  <%-capabilities.autoscale%>:
     label: Auto-scaling
     plan: free
 <% } -%>
@@ -26,7 +26,7 @@ applications:
   - <%-serviceDef.name%>
 <% }); -%>
 <% }); -%>
-<% if (autoscale) { -%>
-  - <%-autoscale%>
+<% if (capabilities.autoscale) { -%>
+  - <%-capabilities.autoscale%>
 <% } -%>
   timeout: 180
