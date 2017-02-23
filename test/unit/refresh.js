@@ -22,20 +22,23 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     'manifest.yml', '.cfignore', '.yo-rc.json'];
+                     '.cfignore', '.yo-rc.json'];
 
 var appName = 'todo';
 var modelName = 'todo';
 var modelPlural = 'todos';
 var className = 'Todo';
-var genDir = 'Sources/Generated/'
-var modelDir = 'models/'
+var genDir = 'Sources/Generated'
+var modelDir = 'models'
 
 var expectedSourceFiles = [`Sources/${appName}/main.swift`];
 
-var expectedModelFiles = [`${modelDir}${modelName}.json`, `${genDir}${className}.swift`,
-    `${genDir}${className}Adapter.swift`, `${genDir}${className}Resource.swift`,
-    `${genDir}${className}MemoryAdapter.swift`];
+var expectedModelFiles = [`${modelDir}/${modelName}.json`, `${genDir}/${className}.swift`,
+    `${genDir}/${className}Adapter.swift`, `${genDir}/${className}Resource.swift`,
+    `${genDir}/Application.swift`];
+
+var expectedBluemixFiles = ['manifest.yml', '.bluemix/pipeline.yml',
+                            '.bluemix/deploy.json', 'README.md']
 
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
@@ -43,7 +46,6 @@ describe('swiftserver:refresh', function () {
            'is written out correctly.', function () {
 
     var dirName;
-    // var appName = 'testApp';
     var expected = [
       `definitions/${appName}.yaml`
     ];
@@ -108,7 +110,6 @@ describe('swiftserver:refresh', function () {
         appType: 'crud',
         appName: appName,
         config: {
-          store: 'memory',
           logger: 'helium',
           port: 8090
         },
@@ -176,6 +177,10 @@ describe('swiftserver:refresh', function () {
           .toPromise();                        // Get a Promise back when the generator finishes
     });
 
+    if('generated the correct config file', function() {
+      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 8090}});
+    });
+
     it('generates the expected files in the root of the project', function () {
       assert.file(expectedFiles);
     });
@@ -185,9 +190,61 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a CRUD application from a spec', function () {
+  describe('Generate a skeleton CRUD application without bluemix', function () {
 
-    var runContext;
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          },
+          "models": [
+            {
+              "name": modelName,
+              "plural": modelPlural,
+              "classname": className,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "id": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+    it('generates a todo model metadata file and the todo swift files', function() {
+      assert.file(expectedModelFiles);
+    });
+
+    it('does not generate the bluemix files', function() {
+      assert.noFile(expectedBluemixFiles);
+    });
+  });
+
+  describe('Generate a skeleton CRUD application for bluemix', function () {
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -233,23 +290,247 @@ describe('swiftserver:refresh', function () {
     it('generates a todo model metadata file and the todo swift files', function() {
       assert.file(expectedModelFiles);
     });
+
+    it('generates the bluemix files', function() {
+      assert.file(expectedBluemixFiles);
+    });
   });
 
-  describe('Generate web application for bluemix', function () {
+  describe('Generated a CRUD application with cloudant for bluemix', function() {
 
-    var runContext;
+    before(function() {
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          cloudant: [{
+            name: "myCloudantService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        crudservice: "myCloudantService"
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the extensions required by bluemix', function() {
+      assert.file(`Sources/Generated/Extensions/CouchDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
+    });
+
+    it('initialises cloudant', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
+    });
+
+    it('creates the boilerplate to connect to cloudant', function() {
+      let expectedContent = 'let cloudantService = try manager.getCloudantService(name: "myCloudantService")\nlet dbClient = CouchDBClient(service: cloudantService)';
+      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
+    });
+
+    it('generates the correct adapter for the resource', function() {
+      assert.file(`${genDir}/${className}CloudantAdapter.swift`)
+    });
+
+  });
+
+  describe('Generated a CRUD application with cloudant without bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          cloudant: [{
+            name: "myCloudantService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        crudservice: "myCloudantService"
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.noFile(`Sources/Generated/Extensions/CouchDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
+    });
+
+    it('initialises cloudant', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
+    });
+
+    it('creates the boilerplate to connect to cloudant', function() {
+      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
+      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
+    });
+
+  });
+
+  describe('Generated a CRUD application with cloudant without bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          cloudant: [{
+            name: "myCloudantService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        crudservice: "myCloudantService"
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.noFile(`Sources/Generated/Extensions/CouchDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
+    });
+
+    it('initialises cloudant', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
+    });
+
+    it('creates the boilerplate to connect to cloudant', function() {
+      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
+      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
+    });
+
+  });
+
+  describe('Generate skeleton web application for bluemix', function () {
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
           appType: 'web',
           appName: appName,
           bluemix: true,
-          services: {
-            cloudant: [{
-              name: "todoCloudantService",
-              type: "cloudantNoSQLDB"
-            }]
-          },
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the main.swift in the correct directory', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    if('generates Application.swift', function() {
+      assert.file('Sources/todo/Application.swift')
+    });
+
+    it('generates web only files and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Routes/IndexRouter.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+
+    it('generates the bluemix files', function() {
+      assert.file(expectedBluemixFiles);
+    });
+  });
+
+  describe('Generate skeleton web application without bluemix', function () {
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemix: false,
           config: {
             logger: 'helium',
             port: 8090
@@ -270,48 +551,8 @@ describe('swiftserver:refresh', function () {
       assert.file('Sources/todoServer/main.swift');
     });
 
-    it('generates bluemix web only files and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Application.swift`,
-                                    `public/.keep`];
-      assert.file(expectedExtensionFiles);
-    });
-  });
-
-  describe('Generate web without bluemix', function () {
-
-    var runContext;
-    before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'web',
-          appName: appName,
-          bluemix: false,
-          services: {
-            cloudant: [{
-              name: "todoCloudantService"
-            }]
-          },
-          config: {
-            logger: 'helium',
-            port: 8090
-          }
-        };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
-    });
-
-    it('generates the expected files in the root of the project', function () {
-      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                           '.cfignore', '.yo-rc.json'];
-      assert.file(files);
-    });
-
-    it('generates the generic swift source files', function() {
-      assert.file('Sources/todoServer/main.swift');
+    if('generates Application.swift', function() {
+      assert.file('Sources/todo/Application.swift')
     });
 
     it('generates web only file and folders', function() {
@@ -319,88 +560,180 @@ describe('swiftserver:refresh', function () {
                                     `public/.keep`];
       assert.file(expectedExtensionFiles);
     });
-  });
 
-  describe('Generate basic application for bluemix', function () {
-
-    var runContext;
-    before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'basic',
-          appName: appName,
-          bluemix: true,
-          services: {
-            cloudant: [{
-              name: "todoCloudantService"
-            }]
-          },
-          config: {
-            logger: 'helium',
-            port: 8090
-          }
-        };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
-    });
-
-    it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
-    });
-
-    it('generates the generic swift source files', function() {
-      assert.file('Sources/todoServer/main.swift');
-    });
-
-    it('generates bluemix web only files and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Extensions/CouchDBExtension.swift`,
-                                    `Sources/${appName}/Application.swift`];
-      assert.file(expectedExtensionFiles);
+    it('does not generate the bluemix files', function() {
+      assert.noFile(expectedBluemixFiles);
     });
   });
 
-  describe('Generate basic without bluemix', function () {
+  describe('Generated a web application with cloudant for bluemix', function() {
 
-    var runContext;
-    before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'basic',
-          appName: appName,
-          bluemix: false,
-          services: {
-            cloudant: [{
-              name: "todoCloudantService"
-            }]
-          },
-          config: {
-            logger: 'helium',
-            port: 8090
-          }
-        };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          cloudant: [{
+            name: "myCloudantService"
+          }]
+        }
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('generates the expected files in the root of the project', function () {
-      var files = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                           '.cfignore', '.yo-rc.json'];
-      assert.file(files);
+    it('generates the cloudant extensions required by bluemix', function() {
+      assert.file(`Sources/${appName}/Extensions/CouchDBExtension.swift`)
     });
 
-    it('generates the generic swift source files', function() {
-      assert.file('Sources/todoServer/main.swift');
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'import CouchDB');
     });
 
-    it('generates web only file and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Application.swift`];
-      assert.file(expectedExtensionFiles);
+    it('initialises cloudant', function() {
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'internal var database: Database?');
     });
+
+    it('creates the boilerplate to connect to cloudant', function() {
+      let expectedContent = 'let cloudantService = try manager.getCloudantService(name: "myCloudantService")\nlet dbClient = CouchDBClient(service: cloudantService)';
+      assert.fileContent(`Sources/${appName}/Application.swift`, expectedContent);
+    });
+
+  });
+
+  describe('Generated a web application with cloudant without bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          cloudant: [{
+            name: "myCloudantService"
+          }]
+        }
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.noFile(`Sources/${appName}/Extensions/CouchDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'import CouchDB');
+    });
+
+    it('initialises cloudant', function() {
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'internal var database: Database?');
+    });
+
+    it('creates the boilerplate to connect to cloudant', function() {
+      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
+      assert.fileContent(`Sources/${appName}/Application.swift`, expectedContent);
+    });
+  });
+
+  describe('Generated a web application with redis for bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          redis: [{
+            name: "myRedisService"
+          }]
+        }
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates the extensions required by bluemix', function() {
+      assert.file(`Sources/todo/Extensions/RedisExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftRedis');
+    });
+
+    it('initialises redis', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'internal var redis: Redis?');
+    });
+
+    it('creates the boilerplate to connect to redis', function() {
+      let expectedContent = 'redis = Redis()\nlet redisService = manager.getRedisService("myRedisService")';
+      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+    });
+
+  });
+
+  describe('Generated a web application with redis without bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          redis: [{
+            name: "myRedisService"
+          }]
+        }
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.noFile(`Sources/todo/Extensions/RedisExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftRedis');
+    });
+
+    it('initialises redis', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'internal var redis: Redis?');
+    });
+
+    it('creates the boilerplate to connect to redis', function() {
+      let expectedContent = 'redis = Redis()';
+      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+    });
+
   });
 });

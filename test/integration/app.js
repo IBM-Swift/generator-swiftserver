@@ -53,16 +53,146 @@ describe('swiftserver:app integration test', function () {
       assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('generates the expected application files', function () {
-      assert.file(expected);
-    });
-
-    it('has the appname in the Package.swift file', function () {
-      assert.fileContent('Package.swift', 'name: "notes"');
-    });
-
     it('compiles the application', function () {
       assert.file(process.cwd()+'/.build/debug/notes');
     });
   });
+
+  describe('A CRUD application with a cloudant service is able to build', function () {
+
+    // Swift build is slow so we need to set a longer timeout for the test
+    this.timeout(150000);
+
+    var bluemixConfig = { server: {
+      appType: 'crud',
+      appName: 'todo',
+      bluemix: true,
+      config: {
+        logger: 'helium',
+        port: 8090
+      },
+      services: {
+        cloudant: [{
+          name: "myCloudantService"
+        }]
+      },
+      "models": [
+        {
+          "name": 'todo',
+          "plural": 'todos',
+          "classname": 'Todo',
+          "properties": {
+            "id": {
+              "type": "string",
+              "id": true
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      crudservice: "myCloudantService"
+    }};
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withOptions({
+          bluemix: JSON.stringify(bluemixConfig)
+        })
+        .toPromise()
+        .then(function(dir) {
+          return helpers.run(path.join(__dirname, '../../build'))
+                 .cd(dir+"/swiftserver")
+                 .toPromise()
+          });
+      });
+
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/todo');
+    });
+  });
+
+  describe('Web application with a cloudant service and is able to build', function () {
+
+    // Swift build is slow so we need to set a longer timeout for the test
+    this.timeout(150000);
+
+    var bluemixConfig = { server: {
+      appType: 'web',
+      appName: 'todo',
+      bluemix: true,
+      config: {
+        logger: 'helium',
+        port: 8090
+      },
+      services: {
+        cloudant: [{
+          name: "myCloudantService"
+        }]
+      }
+    }};
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withOptions({
+          bluemix: JSON.stringify(bluemixConfig)
+        })
+        .toPromise()
+        .then(function(dir) {
+          return helpers.run(path.join(__dirname, '../../build'))
+                 .cd(dir+"/swiftserver")
+                 .toPromise()
+          });
+      });
+
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/todoServer');
+    });
+  });
+
+  describe('Web application with a redis service and is able to build', function () {
+
+    // Swift build is slow so we need to set a longer timeout for the test
+    this.timeout(150000);
+
+    var bluemixConfig = { server: {
+      appType: 'web',
+      appName: 'todo',
+      bluemix: true,
+      config: {
+        logger: 'helium',
+        port: 8090
+      },
+      services: {
+        redis: [{
+          name: "myRedisService"
+        }]
+      }
+    }};
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withOptions({
+          bluemix: JSON.stringify(bluemixConfig)
+        })
+        .toPromise()
+        .then(function(dir) {
+          return helpers.run(path.join(__dirname, '../../build'))
+                 .cd(dir+"/swiftserver")
+                 .toPromise()
+          });
+      });
+
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/todoServer');
+    });
+  });
+
 });

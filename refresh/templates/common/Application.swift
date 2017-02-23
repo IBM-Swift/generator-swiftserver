@@ -19,7 +19,6 @@ public let router = Router()
 public let manager = ConfigurationManager()
 public var port: Int = 8080
 
-
 <% Object.keys(services).forEach(function(serviceType) { %>
 // Set up the <%- serviceType %>
 <%- include(`../services/${serviceType}/declareService.swift`) -%>
