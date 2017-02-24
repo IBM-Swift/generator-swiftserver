@@ -18,6 +18,7 @@
 var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var actions = require('../lib/actions');
+var os = require('os');
 
 module.exports = generators.Base.extend({
   initializing: actions.ensureInProject,
@@ -28,7 +29,11 @@ module.exports = generators.Base.extend({
     buildSwift: function() {
       // Build swift code
       var done = this.async();
-      var buildProcess = this.spawnCommand('swift', ['build']);
+      var opts = [];
+      if (os.platform() === 'darwin') {
+        opts = ['-Xlinker', '-lc++'];
+      }
+      var buildProcess = this.spawnCommand('swift', ['build'].concat(opts));
       buildProcess.on('error', function(err) {
         this.env.error(chalk.red('Failed to launch build'));
       });
