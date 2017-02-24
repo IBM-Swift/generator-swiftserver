@@ -641,11 +641,6 @@ module.exports = generators.Base.extend({
       }
 
       this.fs.copyTpl(
-        this.templatePath('crud', 'ApplicationConfiguration.swift'),
-        this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'),
-        { crudService: crudService }
-      );
-      this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
         { models: this.models, crudService: crudService, bluemix: this.bluemix }
