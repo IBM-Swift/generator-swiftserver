@@ -459,66 +459,6 @@ describe('swiftserver:refresh', function () {
 
   });
 
-  describe('Generated a CRUD application with cloudant without bluemix', function() {
-
-    before(function() {
-      var spec = {
-        appType: 'crud',
-        appName: appName,
-        bluemix: false,
-        config: {
-          logger: 'helium',
-          port: 8090
-        },
-        services: {
-          cloudant: [{
-            name: "myCloudantService"
-          }]
-        },
-        "models": [
-          {
-            "name": modelName,
-            "plural": modelPlural,
-            "classname": className,
-            "properties": {
-              "id": {
-                "type": "string",
-                "id": true
-              },
-              "title": {
-                "type": "string"
-              }
-            }
-          }
-        ],
-        crudservice: "myCloudantService"
-      };
-      return helpers.run(path.join( __dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-        .toPromise();                        // Get a Promise back when the generator finishes
-    });
-
-    it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/Generated/Extensions/CouchDBExtension.swift`)
-    });
-
-    it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
-    });
-
-    it('initialises cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
-    });
-
-    it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
-      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
-    });
-
-  });
-
   describe('Generate skeleton web application for bluemix', function () {
 
     before(function () {
@@ -806,5 +746,123 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('Sources/todo/Application.swift', expectedContent);
     });
 
+  });
+
+  describe('Generated a web application with mongo for bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          mongodb: [{
+            name: "myMongoDBService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.file(`Sources/todo/Extensions/MongoDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import MongoKitten');
+      assert.fileContent('Sources/todo/Application.swift', 'import SSLService');
+    });
+
+    it('initialises mongo server', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'internal var server: Server?');
+    });
+
+    it('creates the boilerplate to connect to mongo', function() {
+      let expectedContent = 'let mongoDBService = try manager.getMongoDBService(name: "myMongoDBService")\nserver = Server(service: mongoDBService)';
+      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+    });
+  });
+
+  describe('Generated a web application with mongo without bluemix', function() {
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          mongodb: [{
+            name: "myMongoDBService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      };
+      return helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+        .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.noFile(`Sources/todo/Extensions/MongoDBExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import MongoKitten');
+      assert.fileContent('Sources/todo/Application.swift', 'import SSLService');
+    });
+
+    it('initialises mongo server', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'internal var server: Server?');
+    });
+
+    it('creates the boilerplate to connect to mongo', function() {
+      let expectedContent = 'server = try (mongoURL: "mongodb://username:password@localhost")';
+      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+    });
   });
 });
