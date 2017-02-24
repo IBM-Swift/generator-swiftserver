@@ -60,7 +60,10 @@ module.exports = generators.Base.extend({
     initHeadlessBluemix: function() {
       if (this.options.bluemix) {
         try {
-          this.bluemixInfo = JSON.parse(this.options.bluemix);
+          this.bluemixInfo = this.options.bluemix;
+          if (typeof(this.bluemixInfo) === 'string') {
+            this.bluemixInfo = JSON.parse(this.bluemixInfo);
+          }
           // TODO Do some validation of the bluemix object?
           if (!this.spec) {
             this.env.error(chalk.red('Missing spec'));
