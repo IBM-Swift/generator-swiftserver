@@ -1,1 +1,1 @@
-.Package(url: "https://github.com/lgaches/MongoKitten.git", "3.1.0-beta3"),
+.Package(url: "https://github.com/tfrank64/MongoKitten.git", majorVersion: 3),
