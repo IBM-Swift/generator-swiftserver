@@ -37,8 +37,11 @@ var expectedModelFiles = [`${modelDir}/${modelName}.json`, `${genDir}/${classNam
     `${genDir}/${className}Adapter.swift`, `${genDir}/${className}Resource.swift`,
     `${genDir}/Application.swift`];
 
-var expectedBluemixFiles = ['manifest.yml', '.bluemix/pipeline.yml',
-                            '.bluemix/deploy.json', 'README.md']
+var expectedBluemixFiles = ['README.md',
+                            'manifest.yml',
+                            '.bluemix/pipeline.yml',
+                            '.bluemix/toolchain.yml',
+                            '.bluemix/deploy.json'];
 
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
