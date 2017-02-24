@@ -241,6 +241,13 @@ describe('swiftserver:refresh', function () {
     it('does not generate the bluemix files', function() {
       assert.noFile(expectedBluemixFiles);
     });
+
+    it('does not generate any capabilities', function() {
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.noFileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
+      assert.noFileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+    });
   });
 
   describe('Generate a skeleton CRUD application for bluemix', function () {
@@ -293,6 +300,38 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
+    });
+  });
+
+  describe('Generate a CRUD application with capabilities', function() {
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          },
+          capabilities: {
+            "metrics" : true,
+            "autoscale": "myAutoScalingService"
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates metrics and autoscale capabilities', function() {
+      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.fileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
+      assert.fileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
     });
   });
 
@@ -566,6 +605,38 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate a web application with capabilities', function() {
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          },
+          capabilities: {
+            "metrics" : true,
+            "autoscale": "myAutoScalingService"
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates metrics and autoscale capabilities', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.fileContent('Sources/todo/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
+      assert.fileContent('Sources/todo/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+    });
+  });
+
   describe('Generated a web application with cloudant for bluemix', function() {
 
     before(function() {
@@ -688,7 +759,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to redis', function() {
-      let expectedContent = 'redis = Redis()\nlet redisService = manager.getRedisService("myRedisService")';
+      let expectedContent = 'redis = Redis()\nlet redisService = try manager.getRedisService(name: "myRedisService")';
       assert.fileContent('Sources/todo/Application.swift', expectedContent);
     });
 

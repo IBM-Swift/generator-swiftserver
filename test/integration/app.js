@@ -115,6 +115,62 @@ describe('swiftserver:app integration test', function () {
     });
   });
 
+  describe('A CRUD application with metrics and autoscaling is able to build', function () {
+
+    // Swift build is slow so we need to set a longer timeout for the test
+    this.timeout(150000);
+
+    var bluemixConfig = { server: {
+      appType: 'crud',
+      appName: 'todo',
+      bluemix: true,
+      config: {
+        logger: 'helium',
+        port: 8090
+      },
+      capabilities: {
+        metrics: true,
+        autoscale: "myAutoScalingService"
+      },
+      "models": [
+        {
+          "name": 'todo',
+          "plural": 'todos',
+          "classname": 'Todo',
+          "properties": {
+            "id": {
+              "type": "string",
+              "id": true
+            },
+            "title": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      crudService: "myCloudantService"
+    }};
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+
+      return helpers.run(path.join( __dirname, '../../app'))
+        .withOptions({
+          bluemix: JSON.stringify(bluemixConfig)
+        })
+        .toPromise()
+        .then(function(dir) {
+          return helpers.run(path.join(__dirname, '../../build'))
+                 .cd(dir+"/swiftserver")
+                 .toPromise()
+          });
+      });
+
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/todo');
+    });
+  });
+
   describe('Web application with a cloudant service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
