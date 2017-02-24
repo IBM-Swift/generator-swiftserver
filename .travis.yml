@@ -3,6 +3,7 @@ sudo: required
 branches: 
   only:
     - master
+    - develop
 node_js:
   - '4'
   - '6'
@@ -17,7 +18,7 @@ before_install:
 script:
   - export projectFolder=`pwd`
   - source ./Package-Builder/install-swift.sh
-  - npm test && npm run testint
+  - npm run coverage
 
 env:
   global:
