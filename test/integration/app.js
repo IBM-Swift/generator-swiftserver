@@ -36,18 +36,21 @@ describe('swiftserver:app integration test', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+    var runContext;
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withPrompts({                       // Mock the prompt answers
           name: 'notes',
           dir:  'notes'
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+        return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
 
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'notes');
@@ -62,6 +65,8 @@ describe('swiftserver:app integration test', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+
+    var runContext;
 
     var bluemixConfig = { server: {
       appType: 'crud',
@@ -98,16 +103,21 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
           bluemix: JSON.stringify(bluemixConfig)
-        })
-        .toPromise()
-        .then(function(dir) {
-          return helpers.run(path.join(__dirname, '../../build'))
-                 .cd(dir+"/swiftserver")
-                 .toPromise()
-          });
+        });
+
+          return runContext.toPromise()
+                            .then(function(dir) {
+                              return helpers.run(path.join(__dirname, '../../build'))
+                                     .cd(dir+"/swiftserver")
+                                     .toPromise()
+                              });
+      });
+
+      after(function() {
+        runContext.cleanTestDirectory();
       });
 
     it('compiles the application', function () {
@@ -119,6 +129,8 @@ describe('swiftserver:app integration test', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+
+    var runContext;
 
     var bluemixConfig = { server: {
       appType: 'crud',
@@ -154,27 +166,34 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
           bluemix: JSON.stringify(bluemixConfig)
         })
-        .toPromise()
-        .then(function(dir) {
-          return helpers.run(path.join(__dirname, '../../build'))
-                 .cd(dir+"/swiftserver")
-                 .toPromise()
-          });
+
+          return runContext.toPromise()
+                            .then(function(dir) {
+                              return helpers.run(path.join(__dirname, '../../build'))
+                                     .cd(dir+"/swiftserver")
+                                     .toPromise()
+                              });
       });
 
-    it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/todo');
-    });
+      after(function() {
+        runContext.cleanTestDirectory();
+      });
+
+      it('compiles the application', function () {
+        assert.file(process.cwd()+'/.build/debug/todo');
+      });
   });
 
   describe('Web application with a cloudant service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+
+    var runContext;
 
     var bluemixConfig = { server: {
       appType: 'web',
@@ -194,27 +213,34 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
           bluemix: JSON.stringify(bluemixConfig)
         })
-        .toPromise()
-        .then(function(dir) {
-          return helpers.run(path.join(__dirname, '../../build'))
-                 .cd(dir+"/swiftserver")
-                 .toPromise()
-          });
+
+          return runContext.toPromise()
+                            .then(function(dir) {
+                              return helpers.run(path.join(__dirname, '../../build'))
+                                     .cd(dir+"/swiftserver")
+                                     .toPromise()
+                              });
       });
 
-    it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/todoServer');
-    });
+      after(function() {
+        runContext.cleanTestDirectory();
+      });
+
+      it('compiles the application', function () {
+        assert.file(process.cwd()+'/.build/debug/todoServer');
+      });
   });
 
   describe('Web application with a redis service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+
+    var runContext;
 
     var bluemixConfig = { server: {
       appType: 'web',
@@ -234,27 +260,34 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
           bluemix: JSON.stringify(bluemixConfig)
         })
-        .toPromise()
-        .then(function(dir) {
-          return helpers.run(path.join(__dirname, '../../build'))
-                 .cd(dir+"/swiftserver")
-                 .toPromise()
-          });
+
+          return runContext.toPromise()
+                            .then(function(dir) {
+                              return helpers.run(path.join(__dirname, '../../build'))
+                                     .cd(dir+"/swiftserver")
+                                     .toPromise()
+                              });
       });
 
-    it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/todoServer');
-    });
+      after(function() {
+        runContext.cleanTestDirectory();
+      });
+
+      it('compiles the application', function () {
+        assert.file(process.cwd()+'/.build/debug/todoServer');
+      });
   });
 
   describe('Web application with a mongo service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
+
+    var runContext;
 
     var bluemixConfig = { server: {
       appType: 'web',
@@ -274,21 +307,26 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      return helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
           bluemix: JSON.stringify(bluemixConfig)
         })
-        .toPromise()
-        .then(function(dir) {
-          return helpers.run(path.join(__dirname, '../../build'))
-                 .cd(dir+"/swiftserver")
-                 .toPromise()
-          });
+
+          return runContext.toPromise()
+                            .then(function(dir) {
+                              return helpers.run(path.join(__dirname, '../../build'))
+                                     .cd(dir+"/swiftserver")
+                                     .toPromise()
+                              });
       });
 
-    it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/todoServer');
-    });
+      after(function() {
+        runContext.cleanTestDirectory();
+      });
+
+      it('compiles the application', function () {
+        assert.file(process.cwd()+'/.build/debug/todoServer');
+      });
   });
 
 });
