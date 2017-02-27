@@ -285,7 +285,7 @@ describe('swiftserver:app integration test', function () {
   describe('Web application with a mongo service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(200000);
 
     var runContext;
 
