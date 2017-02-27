@@ -66,6 +66,10 @@ describe('swiftserver:model', function () {
           return runContext.toPromise();      // Get a Promise back when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('generates the expected spec object', function () {
       var model = runContext.generator.model;
       var modelObject = {
