@@ -577,6 +577,38 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate a web application with capabilities', function() {
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          },
+          capabilities: {
+            "metrics" : true,
+            "autoscale": false
+          }
+        };
+        return helpers.run(path.join( __dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+          .toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('generates metrics without autoscale capabilities', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.fileContent('Sources/todo/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.noFileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
+      assert.noFileContent('Sources/todo/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+    });
+  });
+
   describe('Generated a web application with cloudant for bluemix', function() {
 
     before(function() {
