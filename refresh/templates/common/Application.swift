@@ -8,7 +8,9 @@ import SwiftyJSON
 <% } -%>
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
+<% if(capabilities[capabilityType] !== false) { -%>
 <%- include(`../capabilities/${capabilityType}/importModule.swift`) -%>
+<% } -%>
 <% }); -%>
 
 <% Object.keys(services).forEach(function(serviceType) { -%>
@@ -59,7 +61,6 @@ public func initialize() throws {
                 .load(.environmentVariables)
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
-    // Set up and initialise <%- capabilityType %>
 <% if(capabilities[capabilityType]) { -%>
     <%- include(`../capabilities/${capabilityType}/declareCapability.swift`) %>
 <% } -%>

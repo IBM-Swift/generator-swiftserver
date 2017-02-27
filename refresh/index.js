@@ -116,6 +116,8 @@ module.exports = generators.Base.extend({
       // Autoscaling
       if (this.capabilities.autoscale === true) {
         this.capabilities.autoscale = `${this.projectName}ScalingService`;
+      } else if(typeof(this.capabilities.autoscale) !== 'string') {
+        this.capabilities.autoscale = false;
       }
 
       // Autoscaling implies monitoring and Bluemix
