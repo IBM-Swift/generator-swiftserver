@@ -76,7 +76,7 @@ describe('swiftserver:app', function () {
 
   describe('Application name and directory names are not the same', function () {
 
-  var runContext;
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
       runContext = helpers.run(path.join( __dirname, '../../app'))
@@ -114,7 +114,7 @@ describe('swiftserver:app', function () {
 
   describe('Application name only is supplied (via the prompt)', function () {
 
-  var runContext;
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
       runContext = helpers.run(path.join( __dirname, '../../app'))
@@ -152,7 +152,8 @@ describe('swiftserver:app', function () {
   // We should default to this for the application and directory values.
   describe('Create an application directory and change into it. Supply no arguments via the prompt. ' +
            'The app and dir prompt values should default to application directory.', function () {
-  var runContext;
+
+    var runContext;
     before(function () {
       // Mock the options, set up an output folder and run the generator
       runContext = helpers.run(path.join( __dirname, '../../app'))
@@ -431,8 +432,7 @@ describe('swiftserver:app', function () {
     });
   });
 
-  describe('Configure the config.json with the prompts' +
-           ' to have cloudant as the data store.',
+  describe('CRUD application using cloudant',
            function () {
 
     var runContext;
@@ -456,11 +456,11 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory();
     });
 
-    it('created and changed into a folder according to dir value', function () {
+    it('creates and changes into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('create a spec object containing the config', function() {
+    it('has the expected spec object', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
         appType: 'crud',
@@ -482,9 +482,8 @@ describe('swiftserver:app', function () {
     });
   });
 
-  describe('Configure the config.json with the prompts' +
-           ' to have cloudant as the data store and' +
-           ' configure the connection properties.',
+  describe('CRUD application using cloudant with non-default' +
+           ' connection details',
            function () {
 
     var runContext;
@@ -516,7 +515,7 @@ describe('swiftserver:app', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('create a spec object containing the config', function() {
+    it('has the expected spec object', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
         appType: 'crud',
@@ -538,9 +537,8 @@ describe('swiftserver:app', function () {
     });
   });
 
-  describe('Configure the config.json with the prompts' +
-           ' to have cloudant as the data store and' +
-           ' configure the credentials.',
+  describe('CRUD application using cloudant with non-default' +
+           ' connection details and credentials',
            function () {
 
     var runContext;
@@ -571,7 +569,7 @@ describe('swiftserver:app', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
 
-    it('create a spec object containing the config', function() {
+    it('has the expected spec object', function() {
       var spec = runContext.generator.spec;
       var expectedSpec = {
         appType: 'crud',
