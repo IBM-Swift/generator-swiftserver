@@ -52,6 +52,10 @@ describe('swiftserver:app', function () {
         return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'notes');
     });
@@ -85,6 +89,10 @@ describe('swiftserver:app', function () {
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'directoryName');
     });
@@ -116,6 +124,10 @@ describe('swiftserver:app', function () {
           name: 'appNameOnly'
         });
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -154,6 +166,10 @@ describe('swiftserver:app', function () {
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'appDir');
         });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -197,6 +213,10 @@ describe('swiftserver:app', function () {
         });
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'currentDir');
     });
@@ -225,6 +245,10 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })
         .withArguments(['nameOnCommandLine'])
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -265,6 +289,10 @@ describe('swiftserver:app', function () {
         });
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'validDir');
     });
@@ -300,6 +328,10 @@ describe('swiftserver:app', function () {
           this.inDir(path.join(tmpDir, 'inva&%*lid'));
         })
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -338,6 +370,10 @@ describe('swiftserver:app', function () {
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid');
     });
@@ -371,6 +407,10 @@ describe('swiftserver:app', function () {
           this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -410,6 +450,10 @@ describe('swiftserver:app', function () {
           this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -464,6 +508,10 @@ describe('swiftserver:app', function () {
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('created and changed into a folder according to dir value', function () {
         assert.equal(path.basename(process.cwd()), 'notes');
     });
@@ -513,6 +561,10 @@ describe('swiftserver:app', function () {
            this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('created and changed into a folder according to dir value', function () {
@@ -566,6 +618,10 @@ describe('swiftserver:app', function () {
         });
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('did not generate a project in the current directory', function () {
       var spec = runContext.generator.spec;
       assert.objectContent(spec, {});
@@ -600,6 +656,10 @@ describe('swiftserver:app', function () {
         });
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('did not generate a project in the specified directory', function () {
       var spec = runContext.generator.spec;
       assert.objectContent(spec, {});
@@ -628,6 +688,11 @@ describe('swiftserver:app', function () {
           assert(success, 'Directory is already a project and should have thrown an error');
         });
     });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+    
     it('did not generate a project', function () {
       var spec = runContext.generator.spec;
       assert.objectContent(spec, {});

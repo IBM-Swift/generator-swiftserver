@@ -76,6 +76,10 @@ describe('swiftserver:property', function() {
         return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
     it('added a property to a model', function() {
       var model = runContext.generator.model;
       var expectedModel = {

@@ -49,6 +49,7 @@ describe('swiftserver:refresh', function () {
     var expected = [
       `definitions/${appName}.yaml`
     ];
+    var runContext;
 
     before(function () {
         var spec = {
@@ -76,9 +77,15 @@ describe('swiftserver:refresh', function () {
           ]
         }
         // Mock the options, set up an output folder and run the generator
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({ specObj: spec })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files', function () {
@@ -104,6 +111,7 @@ describe('swiftserver:refresh', function () {
       `definitions/${appName}-product.yaml`,
       `definitions/${appName}.yaml`
     ];
+    var runContext;
 
     before(function () {
       var spec = {
@@ -130,10 +138,17 @@ describe('swiftserver:refresh', function () {
           }
         ]
       }
-        // Mock the options, set up an output folder and run the generator
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({ apic: true , specObj: spec })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      // Mock the options, set up an output folder and run the generator
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec,
+          apic: true
+        })
+        return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files', function () {
@@ -159,6 +174,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate the config file from the spec', function () {
 
+    var runContext;
+
     before(function () {
         // Mock the options, set up an output folder and run the generator
         var spec = {
@@ -170,11 +187,15 @@ describe('swiftserver:refresh', function () {
             port: 8090
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     if('generated the correct config file', function() {
@@ -191,6 +212,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generate a skeleton CRUD application without bluemix', function () {
+
+    var runContext;
 
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
@@ -219,11 +242,15 @@ describe('swiftserver:refresh', function () {
             }
           ]
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files in the root of the project', function () {
@@ -252,6 +279,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a skeleton CRUD application for bluemix', function () {
 
+    var runContext;
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -279,11 +308,15 @@ describe('swiftserver:refresh', function () {
             }
           ]
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files in the root of the project', function () {
@@ -305,6 +338,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a CRUD application with capabilities', function() {
 
+    var runContext;
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -320,11 +355,15 @@ describe('swiftserver:refresh', function () {
             "autoscale": "myAutoScalingService"
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates metrics and autoscale capabilities', function() {
@@ -336,6 +375,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generated a CRUD application with cloudant for bluemix', function() {
+
+    var runContext;
 
     before(function() {
       var spec = {
@@ -369,11 +410,15 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: "myCloudantService"
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext =  helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+        return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the extensions required by bluemix', function() {
@@ -401,6 +446,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a CRUD application with cloudant without bluemix', function() {
 
+    var runContext;
+
     before(function() {
       var spec = {
         appType: 'crud',
@@ -433,11 +480,15 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: "myCloudantService"
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('does not generate the extensions required by bluemix', function() {
@@ -461,6 +512,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate skeleton web application for bluemix', function () {
 
+    var runContext;
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -472,11 +525,15 @@ describe('swiftserver:refresh', function () {
             port: 8090
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files in the root of the project', function () {
@@ -504,6 +561,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate skeleton web application without bluemix', function () {
 
+    var runContext;
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -515,11 +574,15 @@ describe('swiftserver:refresh', function () {
             port: 8090
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the expected files in the root of the project', function () {
@@ -547,6 +610,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a web application with capabilities', function() {
 
+    var runContext;
+
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
@@ -562,11 +627,15 @@ describe('swiftserver:refresh', function () {
             "autoscale": "myAutoScalingService"
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          .toPromise();                        // Get a Promise back when the generator finishes
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates metrics and autoscale capabilities', function() {
@@ -578,6 +647,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generate a web application with capabilities', function() {
+
+    var runContext;
 
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
@@ -594,12 +665,16 @@ describe('swiftserver:refresh', function () {
             "autoscale": false
           }
         };
-        return helpers.run(path.join( __dirname, '../../refresh'))
+        runContext = helpers.run(path.join( __dirname, '../../refresh'))
           .withOptions({
             specObj: spec
           })
-          .toPromise();                        // Get a Promise back when the generator finishes
+          return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    })
 
     it('generates metrics without autoscale capabilities', function() {
       assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
@@ -610,6 +685,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generated a web application with cloudant for bluemix', function() {
+
+    var runContext;
 
     before(function() {
       var spec = {
@@ -626,11 +703,15 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the cloudant extensions required by bluemix', function() {
@@ -654,6 +735,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a web application with cloudant without bluemix', function() {
 
+    var runContext;
+
     before(function() {
       var spec = {
         appType: 'web',
@@ -669,11 +752,15 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('does not generate the extensions required by bluemix', function() {
@@ -696,6 +783,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a web application with redis for bluemix', function() {
 
+    var runContext;
+
     before(function() {
       var spec = {
         appType: 'web',
@@ -711,11 +800,15 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('generates the extensions required by bluemix', function() {
@@ -739,6 +832,8 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a web application with redis without bluemix', function() {
 
+    var runContext;
+
     before(function() {
       var spec = {
         appType: 'web',
@@ -754,11 +849,15 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('does not generate the extensions required by bluemix', function() {
@@ -781,6 +880,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generated a web application with mongo for bluemix', function() {
+
+    var runContext;
 
     before(function() {
       var spec = {
@@ -813,11 +914,15 @@ describe('swiftserver:refresh', function () {
           }
         ]
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('does not generate the extensions required by bluemix', function() {
@@ -840,6 +945,8 @@ describe('swiftserver:refresh', function () {
   });
 
   describe('Generated a web application with mongo without bluemix', function() {
+
+    var runContext;
 
     before(function() {
       var spec = {
@@ -872,11 +979,15 @@ describe('swiftserver:refresh', function () {
           }
         ]
       };
-      return helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
 
     it('does not generate the extensions required by bluemix', function() {
