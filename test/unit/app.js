@@ -432,6 +432,80 @@ describe('swiftserver:app', function () {
     });
   });
 
+  describe('CRUD application with bluemix',
+           function() {
+    var runContext;
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode:  true })
+        .withPrompts({
+          name: 'notes',
+          dir:  'notes',
+          store: 'memory',
+          metrics: false,
+          cloud: 'Bluemix',
+          autoscale: false
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('CRUD application with metrics',
+           function() {
+    var runContext;
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode:  true })
+        .withPrompts({
+          name: 'notes',
+          dir:  'notes',
+          store: 'memory',
+          metrics: true
+        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        metrics: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
   describe('CRUD application using cloudant',
            function () {
 
@@ -445,19 +519,12 @@ describe('swiftserver:app', function () {
           name: 'notes',
           dir:  'notes',
           store: 'cloudant'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     after(function() {
       runContext.cleanTestDirectory();
-    });
-
-    it('creates and changes into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'notes');
     });
 
     it('has the expected spec object', function() {
