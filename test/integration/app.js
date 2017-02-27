@@ -68,7 +68,7 @@ describe('swiftserver:app integration test', function () {
 
     var runContext;
 
-    var bluemixConfig = { server: {
+    var spec = {
       appType: 'crud',
       appName: 'todo',
       bluemix: true,
@@ -98,14 +98,14 @@ describe('swiftserver:app integration test', function () {
         }
       ],
       crudservice: "myCloudantService"
-    }};
+    };
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
-          bluemix: JSON.stringify(bluemixConfig)
+          spec: JSON.stringify(spec)
         });
 
           return runContext.toPromise()
@@ -132,7 +132,7 @@ describe('swiftserver:app integration test', function () {
 
     var runContext;
 
-    var bluemixConfig = { server: {
+    var spec = {
       appType: 'crud',
       appName: 'todo',
       bluemix: true,
@@ -161,14 +161,14 @@ describe('swiftserver:app integration test', function () {
         }
       ],
       crudService: "myCloudantService"
-    }};
+    };
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
-          bluemix: JSON.stringify(bluemixConfig)
+          spec: JSON.stringify(spec)
         })
 
           return runContext.toPromise()
@@ -195,7 +195,7 @@ describe('swiftserver:app integration test', function () {
 
     var runContext;
 
-    var bluemixConfig = { server: {
+    var spec = {
       appType: 'web',
       appName: 'todo',
       bluemix: true,
@@ -208,14 +208,14 @@ describe('swiftserver:app integration test', function () {
           name: "myCloudantService"
         }]
       }
-    }};
+    };
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
-          bluemix: JSON.stringify(bluemixConfig)
+          spec: JSON.stringify(spec)
         })
 
           return runContext.toPromise()
@@ -242,7 +242,7 @@ describe('swiftserver:app integration test', function () {
 
     var runContext;
 
-    var bluemixConfig = { server: {
+    var spec = {
       appType: 'web',
       appName: 'todo',
       bluemix: true,
@@ -255,14 +255,14 @@ describe('swiftserver:app integration test', function () {
           name: "myRedisService"
         }]
       }
-    }};
+    };
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
-          bluemix: JSON.stringify(bluemixConfig)
+          spec: JSON.stringify(spec)
         })
 
           return runContext.toPromise()
@@ -289,7 +289,7 @@ describe('swiftserver:app integration test', function () {
 
     var runContext;
 
-    var bluemixConfig = { server: {
+    var spec = {
       appType: 'web',
       appName: 'todo',
       bluemix: true,
@@ -302,14 +302,14 @@ describe('swiftserver:app integration test', function () {
           name: "myMongoDBService"
         }]
       }
-    }};
+    };
 
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withOptions({
-          bluemix: JSON.stringify(bluemixConfig)
+          spec: JSON.stringify(spec)
         })
 
           return runContext.toPromise()

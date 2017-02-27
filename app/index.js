@@ -46,16 +46,29 @@ module.exports = generators.Base.extend({
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
+    initSpec: function() {
+      if (this.options.spec) {
+        try {
+          this.spec = JSON.parse(this.options.spec);
+          this.skipPrompting = true;
+        } catch (err) {
+          this.env.error(chalk.red(err));
+        }
+      }
+    },
+
     initHeadlessBluemix: function() {
       if (this.options.bluemix) {
         try {
-          var bluemix = JSON.parse(this.options.bluemix);
-          // TODO Do some validation of the bluemix object?
-          if (!bluemix.server) {
-            this.env.error('Bluemix object does not contain a server property');
+          this.bluemixInfo = this.options.bluemix;
+          if (typeof(this.bluemixInfo) === 'string') {
+            this.bluemixInfo = JSON.parse(this.bluemixInfo);
           }
-          this.spec = bluemix.server;
-          this.skipToInstall = true;
+          // TODO Do some validation of the bluemix object?
+          if (!this.spec) {
+            this.env.error(chalk.red('Missing spec'));
+          }
+          this.skipPrompting = true;
           this.skipBuild = true;
         } catch (err) {
           this.env.error(chalk.red(err));
@@ -64,7 +77,7 @@ module.exports = generators.Base.extend({
     },
 
     initAppName: function() {
-      if (this.skipToInstall) return;
+      if (this.skipPrompting) return;
       this.appname = null; // Discard yeoman default appname
       this.skipPromptingAppName = false;
       if (this.name) {
@@ -103,7 +116,7 @@ module.exports = generators.Base.extend({
 
   prompting: {
     promptAppName: function() {
-      if (this.skipToInstall) return;
+      if (this.skipPrompting) return;
       if (this.skipPromptingAppName) { return; }
 
       var done = this.async();
@@ -128,7 +141,7 @@ module.exports = generators.Base.extend({
      * to point to the directory where we want to generate code.
      */
     promptAppDir: function() {
-      if (this.skipToInstall) return;
+      if (this.skipPrompting) return;
       if (this.appname === path.basename(this.destinationRoot())) {
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
@@ -155,7 +168,7 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
     ensureEmptyDirectory: function() { 
-      if (this.skipToInstall) return;
+      if (this.skipPrompting) return;
       actions.ensureEmptyDirectory.call(this);
     },
     /*
@@ -164,7 +177,7 @@ module.exports = generators.Base.extend({
      * be the basis for the config.json.
      */
     promptDataStore: function() {
-      if (this.skipToInstall) return;
+      if (this.skipPrompting) return;
       var done = this.async();
       var prompts = [
         {
@@ -251,7 +264,7 @@ module.exports = generators.Base.extend({
 
   install: {
 
-    createSpecFromConfig: function() {
+    createSpecFromAnswers: function() {
       if (!this.spec) {
         this.spec = {
           appType: 'crud',
