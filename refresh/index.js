@@ -113,11 +113,14 @@ module.exports = generators.Base.extend({
       // Capability configuration
       this.capabilities = this.spec.capabilities || {};
 
+      // Metrics
+      this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
+
       // Autoscaling
       if (this.capabilities.autoscale === true) {
         this.capabilities.autoscale = `${this.projectName}ScalingService`;
       } else if(typeof(this.capabilities.autoscale) !== 'string') {
-        this.capabilities.autoscale = false;
+        this.capabilities.autoscale = undefined;
       }
 
       // Autoscaling implies monitoring and Bluemix
