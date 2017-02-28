@@ -41,6 +41,12 @@ module.exports = generators.Base.extend({
       required: false,
       type: String
     });
+
+    this.option('skip-build', {
+      type: Boolean,
+      desc: 'Skip building the generated application',
+      defaults: false
+    });
   },
 
   initializing: {
@@ -306,7 +312,7 @@ module.exports = generators.Base.extend({
     },
 
     buildApp: function() {
-      if (this.skipBuild) return;
+      if (this.skipBuild || this.options['skip-build']) return;
 
       this.composeWith('swiftserver:build',
            {},
