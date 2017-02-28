@@ -928,7 +928,7 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('generates the extensions required by bluemix', function() {
       assert.file(`Sources/todo/Extensions/MongoDBExtension.swift`)
     });
 
