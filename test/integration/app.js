@@ -48,10 +48,6 @@ describe('swiftserver:app integration test', function () {
         return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
-
     it('created and changed into a folder according to dir value', function () {
       assert.equal(path.basename(process.cwd()), 'notes');
     });
@@ -116,10 +112,6 @@ describe('swiftserver:app integration test', function () {
                               });
       });
 
-      after(function() {
-        runContext.cleanTestDirectory();
-      });
-
     it('compiles the application', function () {
       assert.file(process.cwd()+'/.build/debug/todo');
     });
@@ -179,10 +171,6 @@ describe('swiftserver:app integration test', function () {
                               });
       });
 
-      after(function() {
-        runContext.cleanTestDirectory();
-      });
-
       it('compiles the application', function () {
         assert.file(process.cwd()+'/.build/debug/todo');
       });
@@ -224,10 +212,6 @@ describe('swiftserver:app integration test', function () {
                                      .cd(dir+"/swiftserver")
                                      .toPromise()
                               });
-      });
-
-      after(function() {
-        runContext.cleanTestDirectory();
       });
 
       it('compiles the application', function () {
@@ -273,10 +257,6 @@ describe('swiftserver:app integration test', function () {
                               });
       });
 
-      after(function() {
-        runContext.cleanTestDirectory();
-      });
-
       it('compiles the application', function () {
         assert.file(process.cwd()+'/.build/debug/todoServer');
       });
@@ -318,10 +298,6 @@ describe('swiftserver:app integration test', function () {
                                      .cd(dir+"/swiftserver")
                                      .toPromise()
                               });
-      });
-
-      after(function() {
-        runContext.cleanTestDirectory();
       });
 
       it('compiles the application', function () {
