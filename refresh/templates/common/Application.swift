@@ -57,7 +57,7 @@ public func initialize() throws {
         exit(1)
     }
 
-    manager.load(file: projectRoot.appendingPathComponent("config.json").path)
+    manager.load(url: projectRoot.appendingPathComponent("config.json"))
                 .load(.environmentVariables)
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
