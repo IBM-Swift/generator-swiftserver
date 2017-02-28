@@ -121,6 +121,30 @@ module.exports = generators.Base.extend({
   },
 
   prompting: {
+    promptAppType: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [
+        {
+          name: 'type',
+          message: 'Select the type of application',
+          type: 'list',
+          choices: ['Basic', 'Web', 'CRUD']
+        }
+      ];
+      this.prompt(prompts, function(answer) {
+        switch (answer.type) {
+        case 'Basic': this.appType = 'basic'; break;
+        case 'Web':   this.appType = 'web';   break;
+        case 'CRUD':  this.appType = 'crud';  break;
+        default:
+          this.env.error(chalk.red('Internal error: unknown application type'));
+        }
+        done();
+      }.bind(this));
+    },
+
     promptAppName: function() {
       if (this.skipPrompting) return;
       if (this.skipPromptingAppName) { return; }
@@ -319,7 +343,7 @@ module.exports = generators.Base.extend({
     createSpecFromAnswers: function() {
       if (!this.spec) {
         this.spec = {
-          appType: 'crud',
+          appType: this.appType,
           appName: this.appname,
           metrics: this.metrics,
           autoscale: this.autoscale,
