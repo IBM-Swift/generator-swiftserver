@@ -345,9 +345,11 @@ module.exports = generators.Base.extend({
         this.spec = {
           appType: this.appType,
           appName: this.appname,
-          metrics: this.metrics,
-          autoscale: this.autoscale,
           bluemix: this.bluemix,
+          capabilities: {
+            metrics: this.metrics,
+            autoscale: this.autoscale
+          },
           services: {},
           config: {
             logger: 'helium',
