@@ -8,7 +8,7 @@ LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu:late
 
 # We can replace this port with what the user wants
 # EXPOSE {{PORT}}
-EXPOSE 8080 9090
+EXPOSE 8080 1024
 
 # Linux OS utils
 RUN apt-get update
@@ -20,6 +20,9 @@ WORKDIR /root/project
 COPY . /root/project
 
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/tools-utils.sh /root/utils/tools-utils.sh
+RUN chmod +x /root/utils/tools-utils.sh
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/common-utils.sh /root/utils/common-utils.sh
+RUN chmod +x /root/utils/common-utils.sh
 
-ENTRYPOINT ["bash", "/root/utils/tools-utils.sh", "/root/project"]
+#ENTRYPOINT ["bash", "/root/utils/tools-utils.sh", "/root/project"]
+CMD [ "sh", "-c", "/root/utils/tools-utils.sh /root/project" ]
