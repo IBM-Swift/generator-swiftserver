@@ -773,7 +773,7 @@ module.exports = generators.Base.extend({
         }
         if(serviceType === 'objectstorage') {
           this.fs.copy(
-            this.templatePath('basicweb', 'extensions', 'ObjStorageExtension.swift'),
+            this.templatePath('extensions', 'ObjStorageExtension.swift'),
             this.destinationPath('Sources', this.projectName, 'Extensions', 'ObjStorageExtension.swift')
           );
         }
