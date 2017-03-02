@@ -1412,4 +1412,60 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"');
     });
   });
+
+  describe('Generated a web application with appid for bluemix', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          appid: [{
+            name: "myAppIDService"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/AppIDExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import Credentials');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixAppID');
+    });
+
+    it('initialises AppID credentials and credentialsplugin', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var kituraCredentials: Credentials?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin?');
+    });
+
+    it('creates the boilerplate to connect to appid', function() {
+
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getAppIDService(name: "myAppIDService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'WebAppKituraCredentialsPlugin(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials = Credentials()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials?.register(plugin: ');
+
+    });
+  });
+
 });
