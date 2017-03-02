@@ -1066,7 +1066,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('Sources/todo/Application.swift', 'import BluemixObjectStorage');
     });
 
-    it('initialises mongo server', function() {
+    it('initialises object storage', function() {
       assert.fileContent('Sources/todo/Application.swift', 'internal var objectStorage: ObjectStorage?');
     });
 
