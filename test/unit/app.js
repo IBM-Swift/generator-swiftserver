@@ -208,10 +208,7 @@ describe('swiftserver:app', function () {
           name: 'differentAppName',
           dir:  '.'
         });
-        return runContext.toPromise()        // Get a Promise back for when the generator finishes
-        .then(function (dir) {
-          assert.equal(path.basename(process.cwd()), 'currentDir');
-        });
+        return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
 
     after(function() {
@@ -404,7 +401,6 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .inTmpDir(function (tmpDir) {
-          tmpDir = tmpDir;
           this.inDir(path.join(tmpDir, 'testDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
@@ -414,21 +410,9 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory();
     });
 
-    it('created and changed into a folder according to dir value', function () {
+    it('used the empty directory for the project', function () {
       assert.equal(path.basename(process.cwd()), 'testDir');
-    });
-
-    it('create a spec object containing the config', function() {
-      var spec = runContext.generator.spec;
-      var expectedSpec = {
-        appType: 'crud',
-        appName: 'testDir',
-        config: {
-          logger: 'helium',
-          port: 8090
-        }
-      };
-      assert.objectContent(spec, expectedSpec);
+      assert(runContext.generator.destinationSet);
     });
   });
 

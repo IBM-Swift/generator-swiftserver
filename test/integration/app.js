@@ -32,7 +32,7 @@ var expected = [
 
 describe('swiftserver:app integration test', function () {
 
-  describe('Application name and directory name are the same', function () {
+  describe('Application name and directory name are the same, not the cwd', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(150000);
@@ -54,6 +54,32 @@ describe('swiftserver:app integration test', function () {
 
     it('compiles the application', function () {
       assert.file(process.cwd()+'/.build/debug/notes');
+    });
+  });
+
+  // For this test, don't run the build, we only need to check that the
+  // right files are generated
+  describe('Application name and directory name are the current (empty) directory', function () {
+    var runContext;
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+        .withPrompts({ name: 'notes' })
+        .withOptions({ 'skip-build': true })
+        .inTmpDir(function(tmpDir) {
+          this.inDir(path.join(tmpDir, 'notes'))
+        });
+        return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    after(function() {
+      //runContext.cleanTestDirectory();
+    });
+
+    it('used the empty directory for the project', function () {
+      assert.equal(path.basename(process.cwd()), 'notes');
+      assert.file(process.cwd()+'/.swiftservergenerator-project');
     });
   });
 
