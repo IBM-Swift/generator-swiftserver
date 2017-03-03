@@ -8,7 +8,7 @@ import SwiftyJSON
 <% } -%>
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<% if(capabilities[capabilityType] !== false) { -%>
+<% if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
 <%- include(`../capabilities/${capabilityType}/importModule.swift`) -%>
 <% } -%>
 <% }); -%>

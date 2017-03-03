@@ -16,7 +16,9 @@ let package = Package(
         <%- include(`../services/${serviceType}/importDependency.swift`) %>
 <% }); -%>
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
+<% if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
         <%- include(`../capabilities/${capabilityType}/importDependency.swift`) %>
+<% } -%>
 <% }); -%>
 
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",                 majorVersion: 1),
