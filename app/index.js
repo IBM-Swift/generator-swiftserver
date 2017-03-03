@@ -152,6 +152,7 @@ module.exports = generators.Base.extend({
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
         this.log('working directory is %s', path.basename(this.destinationRoot()));
+        this.destinationSet = true;
         return;
       }
 
