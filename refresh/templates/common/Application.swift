@@ -6,6 +6,9 @@ import Configuration
 import KituraNet
 import SwiftyJSON
 <% } -%>
+<% if(bluemix) { -%>
+import CloudFoundryConfig
+<% } -%>
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
 <% if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
@@ -59,6 +62,12 @@ public func initialize() throws {
 
     manager.load(url: projectRoot.appendingPathComponent("config.json"))
                 .load(.environmentVariables)
+
+<% if(bluemix) { -%>
+    port = manager.port
+<% } else { -%>
+    port = manager["port"] as? Int ?? port
+<% } -%>
 
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
 <% if(capabilities[capabilityType]) { -%>
