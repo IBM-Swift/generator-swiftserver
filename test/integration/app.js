@@ -146,7 +146,7 @@ describe('swiftserver:app integration test', function () {
   describe('A CRUD application with metrics and autoscaling is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(200000);
 
     var runContext;
 
