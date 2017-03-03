@@ -774,6 +774,12 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift')
           );
         }
+        if(serviceType === 'objectstorage') {
+          this.fs.copy(
+            this.templatePath('extensions', 'ObjStorageExtension.swift'),
+            this.destinationPath('Sources', this.projectName, 'Extensions', 'ObjStorageExtension.swift')
+          );
+        }
       }.bind(this));
     },
 

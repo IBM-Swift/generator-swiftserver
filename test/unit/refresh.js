@@ -1048,4 +1048,72 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('Sources/todo/Application.swift', expectedContent);
     });
   });
+
+  describe('Generated a web application with objectstorage for bluemix', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          objectstorage: [{
+            name: "myObjectStorageService"
+          }]
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.file(`Sources/todo/Extensions/ObjStorageExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'import BluemixObjectStorage');
+    });
+
+    it('initialises object storage', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'internal var objectStorage: ObjectStorage?');
+    });
+
+    it('creates the boilerplate to connect to object storage', function() {
+      let expectedContent = 'let objectStorageService = try manager.getObjectStorageService(name: "myObjectStorageService")\n' +
+                            'objectStorage = ObjectStorage(service: objectStorageService)\n' +
+                            'try objectStorage?.connectSync(service: objectStorageService)';
+      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+    });
+  });
+
+
 });
