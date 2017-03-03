@@ -377,6 +377,43 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate a CRUD application without metrics', function() {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          },
+          capabilities: {
+            "metrics" : false
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+  it('generates metrics and autoscale capabilities', function() {
+    assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+    assert.noFileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+    assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
+    assert.noFileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+  });
+});
+
   describe('Generated a CRUD application with cloudant for bluemix', function() {
 
     var runContext;
