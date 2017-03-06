@@ -843,9 +843,12 @@ module.exports = generators.Base.extend({
         this.templatePath('docker', 'Dockerfile'),
         this.destinationPath('Dockerfile')
       );
-      this.fs.copy(
+      this.fs.copyTpl(
         this.templatePath('docker', 'cli-config.yml'),
-        this.destinationPath('cli-config.yml')
+        this.destinationPath('cli-config.yml'),
+        {
+          executableName: this.executableModule,
+        }
       );
     },
 
