@@ -35,7 +35,7 @@ describe('swiftserver:app integration test', function () {
   describe('Application name and directory name are the same, not the cwd', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
     var runContext;
 
     before(function () {
@@ -86,7 +86,7 @@ describe('swiftserver:app integration test', function () {
   describe('A CRUD application with a cloudant service is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
 
     var runContext;
 
@@ -146,7 +146,7 @@ describe('swiftserver:app integration test', function () {
   describe('A CRUD application with metrics and autoscaling is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
 
     var runContext;
 
@@ -205,7 +205,7 @@ describe('swiftserver:app integration test', function () {
   describe('Web application with a cloudant service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
 
     var runContext;
 
@@ -248,7 +248,7 @@ describe('swiftserver:app integration test', function () {
   describe('Web application with a redis service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
 
     var runContext;
 
@@ -291,7 +291,7 @@ describe('swiftserver:app integration test', function () {
   describe('Web application with a mongo service and is able to build', function () {
 
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(200000);
+    this.timeout(300000);
 
     var runContext;
 
