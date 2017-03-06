@@ -51,6 +51,18 @@ module.exports = generators.Base.extend({
   },
 
   initializing: {
+    config: function() {
+      this.generatorVersion = require('../package.json').version;
+      this.config.defaults({ version: this.generatorVersion });
+
+      // Ensure generator major version match
+      // TODO Use node-semver? Strip leading non-digits?
+      var generatorMajorVersion = this.generatorVersion.split('.')[0];
+      var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
+      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) { 
+        this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
+      }
+    },
 
     readSpec: function() {
       this.existingProject = false;
@@ -129,16 +141,9 @@ module.exports = generators.Base.extend({
         this.capabilities.metrics = true;
       }
 
-      // Runtime Configuration
-      if(this.spec.config) {
-        this.config = this.spec.config;
-        // TODO: Decide whether we still want the config in the spec.json
-        // delete this.spec.config;
-      }
-
       // TODO: Consolidate the folder names
       // Set the names of the folders
-      if(this.appType == 'crud') {
+      if(this.appType === 'crud') {
         this.executableModule = this.projectName;
         this.applicationModule = 'Generated';
       } else {
@@ -533,6 +538,7 @@ module.exports = generators.Base.extend({
   writing: {
     createCommonFiles: function() {
       // Root directory
+      this.config.save();
 
       // Check if there is a .swiftservergenerator-project, create one if there isn't
       if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
@@ -551,11 +557,6 @@ module.exports = generators.Base.extend({
       if (!this.fs.exists(this.destinationPath('.gitignore'))) {
         this.fs.copy(this.templatePath('common', 'gitignore'),
                      this.destinationPath('.gitignore'));
-      }
-
-      // Check if there is a yo-rc, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('.yo-rc.json'))) {
-        this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
       }
 
       // Check if there is a config.json, create one if there isn't
