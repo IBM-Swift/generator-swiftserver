@@ -1,2 +1,2 @@
-let couchDBConnProps = ConnectionProperties(host: "<%- serviceDef.host || 'localhost' %>", port: <%- serviceDef.port || 5984 %>, secured: <%- serviceDef.secured || false %>)
+let couchDBConnProps = ConnectionProperties(host: "<%- service.credentials.host || 'localhost' %>", port: <%- service.credentials.port || 5984 %>, secured: <%- service.credentials.secured || false %>)
 let dbClient = CouchDBClient(connectionProperties: couchDBConnProps)

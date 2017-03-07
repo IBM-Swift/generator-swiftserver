@@ -451,10 +451,11 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         services: {
           cloudant: [{
-            type: 'cloudant',
-            host: 'localhost',
-            port: 5984,
-            secured: false
+            credentials: {
+              host: 'localhost',
+              port: 5984,
+              secured: false
+            }
           }]
         },
         config: {
@@ -506,10 +507,11 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         services: {
           cloudant: [{
-            type: 'cloudant',
-            host: 'cloudanthost',
-            port: 8080,
-            secured: true
+            credentials: {
+              host: 'cloudanthost',
+              port: 8080,
+              secured: true
+            }
           }]
         },
         config: {
@@ -560,12 +562,13 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         services: {
           cloudant: [{
-            type: 'cloudant',
-            host: 'localhost',
-            port: 5984,
-            secured: false,
-            username: 'admin',
-            password: 'password123'
+            credentials: {
+              host: 'localhost',
+              port: 5984,
+              secured: false,
+              username: 'admin',
+              password: 'password123'
+            }
           }]
         },
         config: {

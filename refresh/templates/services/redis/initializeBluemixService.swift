@@ -1,2 +1,2 @@
 redis = Redis()
-let redisService = try manager.getRedisService(name: "<%= serviceDef.name %>")
+let redisService = try manager.getRedisService(name: "<%- service.name %>")

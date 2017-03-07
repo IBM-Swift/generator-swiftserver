@@ -256,7 +256,6 @@ module.exports = generators.Base.extend({
         ];
         this.prompt(storeConfigPrompt, function(answers) {
           this.store = {
-            type: this.storeType,
             host: answers.host || this.defaultHost,
             port: answers.port || this.defaultPort,
             secured: answers.secured || this.defaultSecured,
@@ -283,8 +282,10 @@ module.exports = generators.Base.extend({
           }
         }
         if (this.storeType === 'cloudant') {
-          this.store.name = 'cloudantCrudService';
-          this.spec.services['cloudant'] = [this.store];
+          this.spec.services['cloudant'] = [{
+            name: 'cloudantCrudStore',
+            credentials: this.store
+          }];
           this.spec.crudservice = this.store.name;
         }
       }
