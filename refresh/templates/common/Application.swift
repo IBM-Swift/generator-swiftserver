@@ -77,20 +77,19 @@ public func initialize() throws {
 
 <% Object.keys(services).forEach(function(serviceType) { %>
     // Configuring <%= serviceType %>
-<% services[serviceType].forEach(function(serviceDef) { -%>
+<% services[serviceType].forEach(function(service) { -%>
 <% if(bluemix) { -%>
-    <%- include(`../services/${serviceType}/initializeBluemixService.swift`, { serviceDef: serviceDef }) %>
+    <%- include(`../services/${serviceType}/initializeBluemixService.swift`, { service: service }) %>
 <% } else { -%>
-    <%- include(`../services/${serviceType}/initializeService.swift`, { serviceDef: serviceDef }) %>
+    <%- include(`../services/${serviceType}/initializeService.swift`, { service: service}) %>
 <% } -%>
 <% }); -%>
 <% }); -%>
 
-<% if(appType == 'crud') { -%>
+<% if(appType === 'crud') { -%>
     <%- include('../fragments/_crud.swift.ejs', { models: models }) %>
-<% } -%>
-<% if(appType == 'web') { -%>
-    <%- include('../fragments/_basicweb.swift.ejs', { services: services }) %>
+<% } else { -%>
+    <%- include('../fragments/_basicweb.swift.ejs', { appType: appType }) %>
 <% } -%>
 }
 

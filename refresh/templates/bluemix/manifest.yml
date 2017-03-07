@@ -1,9 +1,9 @@
 declared-services:
 <% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(serviceDef) { -%>
-  <%-serviceDef.name%>:
-    label: <%-helpers.getBluemixServiceLabel(serviceType)%>
-    plan: <%-serviceDef.plan || 'Lite'%>
+<% services[serviceType].forEach(function(service) { -%>
+  <%-service.name%>:
+    label: <%-service.label || helpers.getBluemixServiceLabel(serviceType)%>
+    plan: <%-service.plan || 'Lite'%>
 <% }); -%>
 <% }); -%>
 <% if (capabilities.autoscale) { -%>
@@ -22,8 +22,8 @@ applications:
     OPENAPI_SPEC: "/explorer/swagger.yml"
   services:
 <% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(serviceDef) { -%>
-  - <%-serviceDef.name%>
+<% services[serviceType].forEach(function(service) { -%>
+  - <%-service.name%>
 <% }); -%>
 <% }); -%>
 <% if (capabilities.autoscale) { -%>

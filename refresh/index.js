@@ -112,6 +112,13 @@ module.exports = generators.Base.extend({
 
       // Service configuration
       this.services = this.spec.services || {};
+      // Ensure every service has a credentials object to
+      // make life easier for templates
+      Object.keys(this.services).forEach(function(serviceType) {
+        this.services[serviceType].forEach(function(service) {
+          service.credentials = service.credentials || {};
+        });
+      }.bind(this));
 
       // Capability configuration
       this.capabilities = this.spec.capabilities || {};

@@ -26,8 +26,8 @@ stages:
     script: |-
       #!/bin/bash
 <% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(serviceDef) { -%>
-      cf create-service <%-helpers.getBluemixServiceLabel(serviceType)%> <%-serviceDef.plan || 'Lite'%> <%-serviceDef.name%>
+<% services[serviceType].forEach(function(service) { -%>
+      cf create-service <%-service.label || helpers.getBluemixServiceLabel(serviceType)%> <%-service.plan || 'Lite'%> <%-service.name%>
 <% }); -%>
 <% }); -%>
 <% if (capabilities.autoscale) { -%>

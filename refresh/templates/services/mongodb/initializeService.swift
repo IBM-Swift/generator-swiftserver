@@ -1,1 +1,1 @@
-server = try (mongoURL: "mongodb://<%- serviceDef.username || 'username' %>:<%- serviceDef.password || 'password' %>@<%- serviceDef.host || 'localhost' %>")
+server = try (mongoURL: "mongodb://<%- service.credentials.username || 'username' %>:<%- service.credentials.password || 'password' %>@<%- service.credentials.host || 'localhost' %>")

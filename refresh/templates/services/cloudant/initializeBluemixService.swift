@@ -1,2 +1,2 @@
-let cloudantService = try manager.getCloudantService(name: "<%= serviceDef.name %>")
+let cloudantService = try manager.getCloudantService(name: "<%- service.name %>")
 let dbClient = CouchDBClient(service: cloudantService)
