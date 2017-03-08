@@ -127,9 +127,13 @@ module.exports = generators.Base.extend({
       // Ensure every service has a credentials object to
       // make life easier for templates
       Object.keys(this.services).forEach(function(serviceType) {
-        this.services[serviceType].forEach(function(service) {
+        this.services[serviceType].forEach(function(service, index) {
+          // TODO: Further checking that service name is valid?
+          if (!service.name) {
+            this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`));
+          }
           service.credentials = service.credentials || {};
-        });
+        }.bind(this));
       }.bind(this));
 
       // Capability configuration

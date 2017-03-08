@@ -936,23 +936,7 @@ describe('swiftserver:refresh', function () {
           mongodb: [{
             name: "myMongoDBService"
           }]
-        },
-        "models": [
-          {
-            "name": modelName,
-            "plural": modelPlural,
-            "classname": className,
-            "properties": {
-              "id": {
-                "type": "string",
-                "id": true
-              },
-              "title": {
-                "type": "string"
-              }
-            }
-          }
-        ]
+        }
       };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
@@ -1001,23 +985,7 @@ describe('swiftserver:refresh', function () {
           mongodb: [{
             name: "myMongoDBService"
           }]
-        },
-        "models": [
-          {
-            "name": modelName,
-            "plural": modelPlural,
-            "classname": className,
-            "properties": {
-              "id": {
-                "type": "string",
-                "id": true
-              },
-              "title": {
-                "type": "string"
-              }
-            }
-          }
-        ]
+        }
       };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
@@ -1066,23 +1034,7 @@ describe('swiftserver:refresh', function () {
           objectstorage: [{
             name: "myObjectStorageService"
           }]
-        },
-        "models": [
-          {
-            "name": modelName,
-            "plural": modelPlural,
-            "classname": className,
-            "properties": {
-              "id": {
-                "type": "string",
-                "id": true
-              },
-              "title": {
-                "type": "string"
-              }
-            }
-          }
-        ]
+        }
       };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
@@ -1165,5 +1117,41 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Rejected spec containing a service with no name', function() {
 
+    var runContext;
+    var error = null;
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          objectstorage: [{
+            label: "Object-Storage"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err;
+      });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('aborts the generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name');
+    });
+  });
 });
