@@ -1,3 +1,4 @@
+<% if (Object.keys(services).length > 0) { -%>
 declared-services:
 <% Object.keys(services).forEach(function(serviceType) { -%>
 <% services[serviceType].forEach(function(serviceDef) { -%>
@@ -6,6 +7,7 @@ declared-services:
     plan: <%-serviceDef.plan || 'Lite'%>
 <% }); -%>
 <% }); -%>
+<% } -%>
 <% if (capabilities.autoscale) { -%>
   <%-capabilities.autoscale%>:
     label: Auto-scaling
@@ -20,12 +22,14 @@ applications:
   command: <%-executableName%> --bind 0.0.0.0:$PORT
   env:
     OPENAPI_SPEC: "/explorer/swagger.yml"
+<% if (Object.keys(services).length > 0) { -%>
   services:
 <% Object.keys(services).forEach(function(serviceType) { -%>
 <% services[serviceType].forEach(function(serviceDef) { -%>
   - <%-serviceDef.name%>
 <% }); -%>
 <% }); -%>
+<% } -%>
 <% if (capabilities.autoscale) { -%>
   - <%-capabilities.autoscale%>
 <% } -%>
