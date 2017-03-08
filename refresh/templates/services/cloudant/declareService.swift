@@ -1,1 +1,1 @@
-internal var database: Database?
+internal var couchDBClient: CouchDBClient?
