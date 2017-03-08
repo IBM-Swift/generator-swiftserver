@@ -273,8 +273,10 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate any capabilities', function() {
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-      assert.noFileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics');
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsDash');
+      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
+      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
       assert.noFileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
     });
@@ -370,10 +372,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates metrics and autoscale capabilities', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-      assert.fileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetrics');
+      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetricsDash');
+      assert.fileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
+      assert.fileContent('Sources/Generated/Application.swift', 'try SwiftMetricsDash(');
       assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
-      assert.fileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.fileContent('Sources/Generated/Application.swift', 'AutoScalar(swiftMetricsInstance:');
     });
   });
 
@@ -406,13 +410,14 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory();
     });
 
-  it('generates metrics and autoscale capabilities', function() {
-    assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-    assert.noFileContent('Sources/Generated/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
-    assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
-    assert.noFileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+    it('generates metrics and autoscale capabilities', function() {
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
+      assert.noFileContent('Sources/Generated/Application.swift', 'try SwiftMetricsDash(');
+      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
+      assert.noFileContent('Sources/Generated/Application.swift', 'AutoScalar(swiftMetricsInstance:');
+    });
   });
-});
 
   describe('Generated a CRUD application with cloudant for bluemix', function() {
 
@@ -470,12 +475,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
+      assert.fileContent('Sources/Generated/Application.swift', ': CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = 'let cloudantService = try manager.getCloudantService(name: "myCloudantService")\nlet dbClient = CouchDBClient(service: cloudantService)';
-      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
+      assert.fileContent('Sources/Generated/Application.swift', 'manager.getCloudantService(name: "myCloudantService")');
+      assert.fileContent('Sources/Generated/Application.swift', 'CouchDBClient(service: cloudantService)');
     });
 
     it('generates the correct adapter for the resource', function() {
@@ -540,12 +545,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'internal var database: Database?');
+      assert.fileContent('Sources/Generated/Application.swift', ': CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
-      assert.fileContent('Sources/Generated/Application.swift', expectedContent);
+      assert.fileContent('Sources/Generated/Application.swift', 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent('Sources/Generated/Application.swift', 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
 
   });
@@ -679,10 +684,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates metrics and autoscale capabilities', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-      assert.fileContent('Sources/todo/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics');
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsDash');
+      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetrics()');
+      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
-      assert.fileContent('Sources/todo/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.fileContent('Sources/todo/Application.swift', 'AutoScalar(swiftMetricsInstance:');
     });
   });
 
@@ -717,10 +724,12 @@ describe('swiftserver:refresh', function () {
     })
 
     it('generates metrics without autoscale capabilities', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-      assert.fileContent('Sources/todo/Application.swift', 'let sm = try SwiftMetrics()\nlet _ = try SwiftMetricsDash(swiftMetricsInstance : sm, endpoint: router)');
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics');
+      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsDash');
+      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetrics()');
+      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
-      assert.noFileContent('Sources/todo/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.noFileContent('Sources/todo/Application.swift', 'AutoScalar(swiftMetricsInstance');
     });
   });
 
@@ -763,12 +772,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'internal var database: Database?');
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = 'let cloudantService = try manager.getCloudantService(name: "myCloudantService")\nlet dbClient = CouchDBClient(service: cloudantService)';
-      assert.fileContent(`Sources/${appName}/Application.swift`, expectedContent);
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'try manager.getCloudantService(name: "myCloudantService")');
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient(service: cloudantService)');
     });
 
   });
@@ -812,12 +821,13 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'internal var database: Database?');
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = 'let couchDBConnProps = ConnectionProperties(host: "localhost", port: 5984, secured: false)\nlet dbClient = CouchDBClient(connectionProperties: couchDBConnProps)';
-      assert.fileContent(`Sources/${appName}/Application.swift`, expectedContent);
+      let expectedContent = ['ConnectionProperties(host: "localhost", port: 5984, secured: false)','CouchDBClient(connectionProperties: couchDBConnProps)'];
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
   });
 
@@ -860,12 +870,11 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'internal var redis: Redis?');
+      assert.fileContent('Sources/todo/Application.swift', 'Redis?');
     });
 
     it('creates the boilerplate to connect to redis', function() {
-      let expectedContent = 'redis = Redis()\nlet redisService = try manager.getRedisService(name: "myRedisService")';
-      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+      assert.fileContent('Sources/todo/Application.swift', 'manager.getRedisService(name: "myRedisService")');
     });
 
   });
@@ -909,12 +918,11 @@ describe('swiftserver:refresh', function () {
     });
 
     it('initialises redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'internal var redis: Redis?');
+      assert.fileContent('Sources/todo/Application.swift', 'Redis?');
     });
 
     it('creates the boilerplate to connect to redis', function() {
-      let expectedContent = 'redis = Redis()';
-      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+      assert.fileContent('Sources/todo/Application.swift', 'Redis()');
     });
 
   });
@@ -963,8 +971,8 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to mongo', function() {
-      let expectedContent = 'let mongoDBService = try manager.getMongoDBService(name: "myMongoDBService")\nserver = Server(service: mongoDBService)';
-      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+      assert.fileContent('Sources/todo/Application.swift', 'manager.getMongoDBService(name: "myMongoDBService")');
+      assert.fileContent('Sources/todo/Application.swift', 'server = Server(service: mongoDBService)');
     });
   });
 
@@ -1060,10 +1068,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to object storage', function() {
-      let expectedContent = 'let objectStorageService = try manager.getObjectStorageService(name: "myObjectStorageService")\n' +
-                            'objectStorage = ObjectStorage(service: objectStorageService)\n' +
-                            'try objectStorage?.connectSync(service: objectStorageService)';
-      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+      assert.fileContent('Sources/todo/Application.swift', 'try manager.getObjectStorageService(name: "myObjectStorageService")');
+      assert.fileContent('Sources/todo/Application.swift', 'ObjectStorage(service: objectStorageService)');
+      assert.fileContent('Sources/todo/Application.swift', 'objectStorage?.connectSync(service: objectStorageService)');
     });
   });
 
