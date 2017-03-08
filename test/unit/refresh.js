@@ -1115,5 +1115,55 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generated a web application for bluemix without services', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'web',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('does not generate services in manifest.yml', function() {
+      assert.noFileContent('manifest.yml', 'services:');
+    });
+
+    it('does not generate declared-services in manifest.yml', function() {
+      assert.noFileContent('manifest.yml', 'declared-services:');
+    });
+  });
+
 
 });
