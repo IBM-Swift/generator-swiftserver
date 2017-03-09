@@ -7,7 +7,8 @@ applications:
   random-route: true
 <% } -%>
   memory: <%- bluemix.memory || '128M' %>
-  instances: 1
+  instances: <%- bluemix.instances || 1 %>
+  disk_quota: <%- bluemix.diskQuota || '128M' -%>
   buildpack: swift_buildpack
   command: <%-executableName%> --bind 0.0.0.0:$PORT
 <% if (hostSwagger) { -%>

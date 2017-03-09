@@ -579,7 +579,9 @@ describe('swiftserver:refresh', function () {
             "name": "test",
             "host": "myhost",
             "domain": "mydomain.net",
-            "memory": "512M"
+            "memory": "512M",
+            "diskQuota": "512M",
+            "instances": 3
           },
           config: {
             logger: 'helium',
@@ -632,6 +634,14 @@ describe('swiftserver:refresh', function () {
     it('produces the correct memory in the manifest', function () {
       assert.fileContent('manifest.yml', 'memory: 512M');
     });
+
+    it('produces the correct number of instances in the manifest', function () {
+      assert.fileContent('manifest.yml', 'instances: 3');
+    });
+
+    it('produces the correct disk quota in the manifest', function () {
+      assert.fileContent('manifest.yml', 'disk_quota: 512M');
+    });
   });
 
   describe('Generate skeleton web application for bluemix with incorrect custom options', function () {
@@ -675,6 +685,14 @@ describe('swiftserver:refresh', function () {
 
     it('produces the default memory amount in the manifest', function () {
       assert.fileContent('manifest.yml', 'memory: 128M');
+    });
+
+    it('produces the correct number of instances in the manifest', function () {
+      assert.fileContent('manifest.yml', 'instances: 1');
+    });
+
+    it('produces the correct disk quota in the manifest', function () {
+      assert.fileContent('manifest.yml', 'disk_quota: 128M');
     });
   });
 

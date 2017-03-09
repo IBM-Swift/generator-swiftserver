@@ -900,8 +900,6 @@ module.exports = generators.Base.extend({
     writeBluemixDeploymentFiles: function() {
       if (!this.bluemix) return;
 
-
-
       this.fs.copyTpl(
         this.templatePath('bluemix', 'manifest.yml'),
         this.destinationPath('manifest.yml'),
