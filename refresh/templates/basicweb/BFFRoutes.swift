@@ -1,27 +1,29 @@
+import Kitura
+
 func initializeBFFRoutes() {
 
-    router.get('/', function (req, res) {
+    router.get("/") {
         request, response, next in 
-        response.send('Hello World!')
+        response.send("Hello World!")
         next()
-    })
+    }
 
-    router.post('/', function (req, res) { 
+    router.post("/") { 
         request, response, next in 
-        response.send('POST request at /')
+        response.send("POST request at /")
         next()
-    })
+    }
 
-    router.put('/', function (req, res) { 
+    router.put("/") { 
         request, response, next in 
-        response.send('PUT request at /')
+        response.send("PUT request at /")
         next()
-    })
+    }
 
-    router.delete('/') { 
+    router.delete("/") { 
         request, response, next in 
-        response.send('DELETE request at /')
+        response.send("DELETE request at /")
         next()
-    })
+    }
 
 }
