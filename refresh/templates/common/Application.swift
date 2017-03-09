@@ -99,6 +99,9 @@ public func initialize() throws {
     try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
 <%   }); -%>
 <% } -%>
+<% if (appType === 'bff') { -%>
+    initializeBFFRoutes()
+<% } -%>
 }
 
 public func run() throws {

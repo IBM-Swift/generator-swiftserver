@@ -802,11 +802,16 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    createBasicWeb: function() {
+    createBasicWebBFF: function() {
       // Exit if we are not generating web or basic
-      if(!(this.appType == 'web' || this.appType == 'basic')) return;
+      if(!(this.appType === 'web' || this.appType === 'basic' || this.appType === 'bff')) return;
 
       this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
+
+      this.fs.copy(
+        this.templatePath('basicweb', 'BFFRoutes.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
+      )
 
       if(this.appType === 'web') {
         //Create the public folder
