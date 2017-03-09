@@ -59,7 +59,7 @@ module.exports = generators.Base.extend({
       // TODO Use node-semver? Strip leading non-digits?
       var generatorMajorVersion = this.generatorVersion.split('.')[0];
       var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
-      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) { 
+      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
         this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
       }
     },
@@ -117,7 +117,20 @@ module.exports = generators.Base.extend({
       }
 
       // Bluemix configuration
-      this.bluemix = (this.spec.bluemix === true);
+      this.bluemix = this.spec.bluemix || undefined;
+
+      if(typeof(this.bluemix) === 'object') {
+        // Validate the values
+        if((typeof(this.bluemix.host) !== 'string')) {
+            this.bluemix.host = undefined;
+        }
+        if((typeof(this.bluemix.domain) !== 'string')) {
+            this.bluemix.domain = undefined;
+        }
+        if(typeof(this.bluemix.memory) !== 'string') {
+            this.bluemix.memory = '128M';
+        }
+      }
 
       // Docker configuration
       this.docker = (this.spec.docker === true);
@@ -884,6 +897,8 @@ module.exports = generators.Base.extend({
     writeBluemixDeploymentFiles: function() {
       if (!this.bluemix) return;
 
+
+
       this.fs.copyTpl(
         this.templatePath('bluemix', 'manifest.yml'),
         this.destinationPath('manifest.yml'),
@@ -892,6 +907,7 @@ module.exports = generators.Base.extend({
           services: this.services,
           capabilities: this.capabilities,
           hostSwagger: this.hostSwagger,
+          bluemix: this.bluemix,
           helpers: helpers }
       );
 

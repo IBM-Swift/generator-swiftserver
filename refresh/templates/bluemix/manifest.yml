@@ -1,8 +1,13 @@
 applications:
-- name: <%-appName%>
-  memory: 128M
-  instances: 1
+- name: <%- bluemix.name || appName %>
+<% if(bluemix.host && bluemix.domain) { -%>
+  host: <%- bluemix.host %>
+  domain: <%- bluemix.domain %>
+<% } else { -%>
   random-route: true
+<% } -%>
+  memory: <%- bluemix.memory || '128M' %>
+  instances: 1
   buildpack: swift_buildpack
   command: <%-executableName%> --bind 0.0.0.0:$PORT
 <% if (hostSwagger) { -%>
