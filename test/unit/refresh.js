@@ -1161,4 +1161,61 @@ describe('swiftserver:refresh', function () {
       assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name');
     });
   });
+
+    describe('Generate BFF application for bluemix', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'bff',
+          appName: appName,
+          bluemix: true,
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the main.swift in the correct directory', function() {
+      assert.file('Sources/todoServer/main.swift');
+    });
+
+    if('generates Application.swift', function() {
+      assert.file('Sources/todo/Application.swift')
+    });
+
+    it('generates web only files and folders', function() {
+      var expectedExtensionFiles = [`Sources/${appName}/Routes/IndexRouter.swift`,
+                                    `public/.keep`];
+      assert.file(expectedExtensionFiles);
+    });
+
+    it('generates the bluemix files', function() {
+      assert.file(expectedBluemixFiles);
+    });
+
+    it('has BFF routes', function() {
+      var bffRoutesFile = 'Sources/${appName}/Routes/BFFRoutes.swift'
+      assert.file(bffRoutesFile)
+      assert.fileContents(bffRoutesFile, 'Hello World!')
+    });
+
+  });
+  
 });
