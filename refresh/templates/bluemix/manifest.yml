@@ -1,18 +1,3 @@
-<% if (Object.keys(services).length > 0) { -%>
-declared-services:
-<% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(service) { -%>
-  <%-service.name%>:
-    label: <%-service.label || helpers.getBluemixServiceLabel(serviceType)%>
-    plan: <%-service.plan || 'Lite'%>
-<% }); -%>
-<% }); -%>
-<% } -%>
-<% if (capabilities.autoscale) { -%>
-  <%-capabilities.autoscale%>:
-    label: Auto-scaling
-    plan: free
-<% } -%>
 applications:
 - name: <%-appName%>
   memory: 128M
