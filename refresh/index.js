@@ -639,7 +639,7 @@ module.exports = generators.Base.extend({
       function getService(services, serviceName) {
         var serviceDef = null;
         Object.keys(services).forEach(function(serviceType) {
-          if(serviceDef) return;
+          if (serviceDef) return;
           services[serviceType].forEach(function(service) {
             if (service.name && (service.name === serviceName)) {
               serviceDef = {
@@ -660,6 +660,10 @@ module.exports = generators.Base.extend({
         crudService = { type: '__memory__' };
       }
 
+      this.fs.copy(
+        this.templatePath('crud', 'SwaggerRoute.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Routes', 'Swagger.swift')
+      );
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
@@ -802,10 +806,7 @@ module.exports = generators.Base.extend({
       // Exit if we are not generating web or basic
       if(!(this.appType == 'web' || this.appType == 'basic')) return;
 
-      this.fs.copy(
-        this.templatePath('basicweb', 'IndexRouter.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Routes', 'IndexRouter.swift')
-      )
+      this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
 
       if(this.appType === 'web') {
         //Create the public folder

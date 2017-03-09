@@ -1,1 +1,1 @@
-let _ = AutoScalar(swiftMetricsInstance: sm)
+    let _ = AutoScalar(swiftMetricsInstance: sm)
