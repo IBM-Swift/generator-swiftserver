@@ -1200,22 +1200,17 @@ describe('swiftserver:refresh', function () {
       assert.file('Sources/todo/Application.swift')
     });
 
-    it('generates web only files and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Routes/IndexRouter.swift`,
-                                    `public/.keep`];
-      assert.file(expectedExtensionFiles);
-    });
-
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
     });
 
     it('has BFF routes', function() {
-      var bffRoutesFile = 'Sources/${appName}/Routes/BFFRoutes.swift'
+      var bffRoutesFile = 'Sources/' + appName + '/Routes/BFFRoutes.swift';
+      console.log(bffRoutesFile);
       assert.file(bffRoutesFile)
-      assert.fileContents(bffRoutesFile, 'Hello World!')
+      assert.fileContent(bffRoutesFile, 'Hello World!')
     });
 
   });
-  
+
 });
