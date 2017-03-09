@@ -1204,11 +1204,14 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedBluemixFiles);
     });
 
-    it('has BFF routes', function() {
+    it('defines BFF routes', function() {
       var bffRoutesFile = 'Sources/' + appName + '/Routes/BFFRoutes.swift';
-      console.log(bffRoutesFile);
-      assert.file(bffRoutesFile)
-      assert.fileContent(bffRoutesFile, 'Hello World!')
+      assert.file(bffRoutesFile);
+      assert.fileContent(bffRoutesFile, 'Hello World!');
+    });
+
+    it('init BFF routes', function() {
+      assert.fileContent('Sources/todo/Application.swift', 'initializeBFFRoutes()');
     });
 
   });
