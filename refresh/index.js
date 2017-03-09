@@ -121,6 +121,7 @@ module.exports = generators.Base.extend({
 
       if(typeof(this.bluemix) === 'object') {
         // Validate the values
+        // If the values are not valid remove them from the spec
         if(typeof(this.bluemix.name) !== 'string') {
           this.bluemix.name = undefined
         }
@@ -132,6 +133,12 @@ module.exports = generators.Base.extend({
         }
         if(typeof(this.bluemix.memory) !== 'string') {
             this.bluemix.memory = undefined;
+        }
+        if(typeof(this.bluemix.diskQuota) !== 'string') {
+          this.bluemix.diskQuota = undefined;
+        }
+        if(typeof(this.bluemix.instances) !== 'number') {
+          this.bluemix.instances = undefined;
         }
       }
 

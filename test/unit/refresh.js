@@ -657,7 +657,9 @@ describe('swiftserver:refresh', function () {
             "name": {},
             "host": {},
             "domain": true,
-            "memory": 512
+            "memory": 512,
+            "instances": "3",
+            "diskQuota": 512
           },
           config: {
             logger: 'helium',
