@@ -121,6 +121,9 @@ module.exports = generators.Base.extend({
 
       if(typeof(this.bluemix) === 'object') {
         // Validate the values
+        if(typeof(this.bluemix.name) !== 'string') {
+          this.bluemix.name = undefined
+        }
         if((typeof(this.bluemix.host) !== 'string')) {
             this.bluemix.host = undefined;
         }
@@ -128,7 +131,7 @@ module.exports = generators.Base.extend({
             this.bluemix.domain = undefined;
         }
         if(typeof(this.bluemix.memory) !== 'string') {
-            this.bluemix.memory = '128M';
+            this.bluemix.memory = undefined;
         }
       }
 
