@@ -594,9 +594,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates web only files and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Routes/IndexRouter.swift`,
-                                    `public/.keep`];
-      assert.file(expectedExtensionFiles);
+      var expectedWebFiles = [`Sources/${appName}/Routes/.keep`,
+                              `public/.keep`];
+      assert.file(expectedWebFiles);
     });
 
     it('generates the bluemix files', function() {

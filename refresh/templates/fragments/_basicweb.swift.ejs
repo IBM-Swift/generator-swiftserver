@@ -1,9 +1,0 @@
-<% if(appType === 'web') { -%>
-router.all("/", middleware: StaticFileServer())
-<% } -%>
-
-port = manager["port"] as? Int ?? port
-
-router.all("/*", middleware: BodyParser())
-
-initializeIndex()

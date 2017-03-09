@@ -2,33 +2,34 @@ import Foundation
 import Kitura
 import LoggerAPI
 import Configuration
-<% if(appType == 'crud') { -%>
+<% if(appType === 'crud') { -%>
 import KituraNet
 import SwiftyJSON
 <% } -%>
 <% if(bluemix) { -%>
 import CloudFoundryConfig
 <% } -%>
-
-<% Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<% if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
-<%- include(`../capabilities/${capabilityType}/importModule.swift`) -%>
+<% if (Object.keys(capabilities).length > 0) { -%>
+<%   Object.keys(capabilities).forEach(function(capabilityType) { -%>
+<%     if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
+<%-      include(`../capabilities/${capabilityType}/importModule.swift`) -%>
+<%     } -%>
+<%   }); -%>
 <% } -%>
-<% }); -%>
-
-<% Object.keys(services).forEach(function(serviceType) { -%>
-<%- include(`../services/${serviceType}/importModule.swift`) -%>
-<% }); -%>
-
+<% if (Object.keys(services).length > 0) { -%>
+<%   Object.keys(services).forEach(function(serviceType) { -%>
+<%-    include(`../services/${serviceType}/importModule.swift`) -%>
+<%   }); -%>
+<% } %>
 public let router = Router()
 public let manager = ConfigurationManager()
 public var port: Int = 8080
 
-<% Object.keys(services).forEach(function(serviceType) { %>
-// Set up the <%- serviceType %>
-<%- include(`../services/${serviceType}/declareService.swift`) -%>
-<% }); -%>
-
+<% if (Object.keys(services).length > 0) { -%>
+<%   Object.keys(services).forEach(function(serviceType) { -%>
+<%-    include(`../services/${serviceType}/declareService.swift`) -%>
+<%   }); %>
+<% } -%>
 public func initialize() throws {
 
     func executableURL() -> URL? {
@@ -61,7 +62,7 @@ public func initialize() throws {
     }
 
     manager.load(url: projectRoot.appendingPathComponent("config.json"))
-                .load(.environmentVariables)
+           .load(.environmentVariables)
 
 <% if(bluemix) { -%>
     port = manager.port
@@ -69,27 +70,34 @@ public func initialize() throws {
     port = manager["port"] as? Int ?? port
 <% } -%>
 
-<% Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<% if(capabilities[capabilityType]) { -%>
-    <%- include(`../capabilities/${capabilityType}/declareCapability.swift`) %>
+<% if (Object.keys(capabilities).length > 0) { -%>
+<%   Object.keys(capabilities).forEach(function(capabilityType) { -%>
+<%     if(capabilities[capabilityType]) { -%>
+<%-      include(`../capabilities/${capabilityType}/declareCapability.swift`) %>
+<%     } -%>
+<%   }); -%>
 <% } -%>
-<% }); -%>
-
-<% Object.keys(services).forEach(function(serviceType) { %>
-    // Configuring <%= serviceType %>
-<% services[serviceType].forEach(function(service) { -%>
-<% if(bluemix) { -%>
-    <%- include(`../services/${serviceType}/initializeBluemixService.swift`, { service: service }) %>
-<% } else { -%>
-    <%- include(`../services/${serviceType}/initializeService.swift`, { service: service}) %>
+<% if (Object.keys(services).length > 0) { -%>
+<%   Object.keys(services).forEach(function(serviceType) { -%>
+<%     services[serviceType].forEach(function(service) { -%>
+<%       if (bluemix) { -%>
+<%-        include(`../services/${serviceType}/initializeBluemixService.swift`, { service: service }) %>
+<%       } else { -%>
+<%-        include(`../services/${serviceType}/initializeService.swift`, { service: service}) %>
+<%       } -%>
+<%     }); -%>
+<%   }); -%>
 <% } -%>
-<% }); -%>
-<% }); -%>
-
-<% if(appType === 'crud') { -%>
-    <%- include('../fragments/_crud.swift.ejs', { models: models }) %>
-<% } else { -%>
-    <%- include('../fragments/_basicweb.swift.ejs', { appType: appType }) %>
+    router.all("/*", middleware: BodyParser())
+<% if (appType === 'web') { -%>
+    router.all("/", middleware: StaticFileServer())
+<% } -%>
+<% if (appType === 'crud') { %>
+    initializeSwaggerRoute(path: projectRoot.appendingPathComponent("definitions/<%- appName %>.yaml").path)
+    let factory = AdapterFactory(manager: manager)
+<%   models.forEach(function(model) { -%>
+    try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
+<%   }); -%>
 <% } -%>
 }
 
