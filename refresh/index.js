@@ -798,13 +798,18 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    createBasicWeb: function() {
+    createBasicWebBFF: function() {
       // Exit if we are not generating web or basic
-      if(!(this.appType == 'web' || this.appType == 'basic')) return;
+      if(!(this.appType === 'web' || this.appType === 'basic' || this.appType === 'bff')) return;
 
       this.fs.copy(
         this.templatePath('basicweb', 'IndexRouter.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Routes', 'IndexRouter.swift')
+      )
+
+      this.fs.copy(
+        this.templatePath('basicweb', 'BFFRoutes.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
       )
 
       if(this.appType === 'web') {

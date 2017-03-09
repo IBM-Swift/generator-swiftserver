@@ -91,6 +91,9 @@ public func initialize() throws {
 <% } else { -%>
     <%- include('../fragments/_basicweb.swift.ejs', { appType: appType }) %>
 <% } -%>
+<% if (appType === 'bff') { -%>
+    initializeBFFRoutes()
+<% } -%>
 }
 
 public func run() throws {
