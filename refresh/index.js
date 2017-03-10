@@ -812,7 +812,7 @@ module.exports = generators.Base.extend({
       if (this.appType !== 'bff') return;
 
       this.fs.copy(
-        this.templatePath('basicweb', 'BFFRoutes.swift'),
+        this.templatePath('bff', 'BFFRoutes.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
       )
     },
