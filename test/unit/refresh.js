@@ -1221,4 +1221,37 @@ describe('swiftserver:refresh', function () {
 
   });
 
+  describe('Generate application for bluemix with a service whose name contains spaces', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemix: true,
+          services: {
+            cloudant: [{ name: 'name with spaces' }]
+          },
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('pipeline.yml quotes service name', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"');
+    });
+  });
 });

@@ -26,12 +26,12 @@ stages:
     script: |-
       #!/bin/bash
 <% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(service) { -%>
-      cf create-service <%-service.label || helpers.getBluemixServiceLabel(serviceType)%> <%-service.plan || 'Lite'%> <%-service.name%>
-<% }); -%>
+<%   services[serviceType].forEach(function(service) { -%>
+      cf create-service "<%-service.label || helpers.getBluemixServiceLabel(serviceType)%>" "<%-service.plan || 'Lite'%>" "<%-service.name%>"
+<%   }); -%>
 <% }); -%>
 <% if (capabilities.autoscale) { -%>
-      cf create-service Auto-scaling free <%-capabilities.autoscale%>
+      cf create-service Auto-scaling free "<%-capabilities.autoscale%>"
 <% } -%>
       cf push "${CF_APP}"
       # cf logs "${CF_APP}" --recent
