@@ -599,6 +599,11 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedWebFiles);
     });
 
+    it('does not generate BFF content', function() {
+      assert.noFile(`Sources/${appName}/Routes/BFFRoutes.swift`);
+      assert.noFileContent(`Sources/${appName}/Application.swift`, 'initializeBFFRoutes()');
+    });
+
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
     });
@@ -1162,7 +1167,7 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-    describe('Generate BFF application for bluemix', function () {
+  describe('Generate BFF application for bluemix', function () {
 
     var runContext;
 
