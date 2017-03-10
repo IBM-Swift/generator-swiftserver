@@ -20,8 +20,10 @@ applications:
   random-route: true
   buildpack: swift_buildpack
   command: <%-executableName%> --bind 0.0.0.0:$PORT
+<% if (hostSwagger) { -%>
   env:
-    OPENAPI_SPEC: "/explorer/swagger.yml"
+    OPENAPI_SPEC: "/swagger/api"
+<% } -%>
 <% if (Object.keys(services).length > 0) { -%>
   services:
 <% Object.keys(services).forEach(function(serviceType) { -%>

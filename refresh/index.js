@@ -157,12 +157,16 @@ module.exports = generators.Base.extend({
 
       // TODO: Consolidate the folder names
       // Set the names of the folders
-      if(this.appType === 'crud') {
+      if (this.appType === 'crud') {
         this.executableModule = this.projectName;
         this.applicationModule = 'Generated';
       } else {
         this.executableModule = this.projectName + 'Server';
         this.applicationModule = this.projectName;
+      }
+
+      if (this.appType === 'crud' || this.appType === 'bff') {
+        this.hostSwagger = true;
       }
     },
 
@@ -615,8 +619,17 @@ module.exports = generators.Base.extend({
           models: this.models,
           services: this.services,
           bluemix: this.bluemix,
-          capabilities: this.capabilities}
+          capabilities: this.capabilities,
+          hostSwagger: this.hostSwagger
+        }
       );
+
+      if (this.hostSwagger) {
+        this.fs.copyTpl(
+          this.templatePath('common', 'SwaggerRoute.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+        );
+      }
 
       if (this.appType !== 'crud') {
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
@@ -660,10 +673,6 @@ module.exports = generators.Base.extend({
         crudService = { type: '__memory__' };
       }
 
-      this.fs.copy(
-        this.templatePath('crud', 'SwaggerRoute.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Routes', 'Swagger.swift')
-      );
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
@@ -814,7 +823,11 @@ module.exports = generators.Base.extend({
       this.fs.copy(
         this.templatePath('bff', 'BFFRoutes.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
-      )
+      );
+      this.fs.copy(
+        this.templatePath('bff', 'swagger.yaml'),
+        this.destinationPath('definitions', `${this.projectName}.yaml`)
+      );
     },
 
     writeMainSwift: function() {
@@ -878,6 +891,7 @@ module.exports = generators.Base.extend({
           executableName: this.executableModule,
           services: this.services,
           capabilities: this.capabilities,
+          hostSwagger: this.hostSwagger,
           helpers: helpers }
       );
 
