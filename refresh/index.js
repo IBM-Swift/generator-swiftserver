@@ -618,22 +618,22 @@ module.exports = generators.Base.extend({
           capabilities: this.capabilities}
       );
 
-      // models directory
-      // Don't write out the models if an apptype has been specified
-      if(this.appType != "crud") return;
-      // Check if there is a models folder, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
-        this.fs.write(this.destinationPath('models', '.keep'), '');
+      if (this.appType !== 'crud') {
+        this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
       }
-
-      this.models.forEach(function(model) {
-        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
-        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
-      }.bind(this));
     },
 
     createCRUD: function() {
       if(this.appType != "crud") return;
+
+      // Check if there is a models folder, create one if there isn't
+      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
+        this.fs.write(this.destinationPath('models', '.keep'), '');
+      }
+      this.models.forEach(function(model) {
+        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
+        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
+      }.bind(this));
 
       // Get the CRUD service for persistence
       function getService(services, serviceName) {
@@ -802,21 +802,19 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    createBasicWebBFF: function() {
-      // Exit if we are not generating web or basic
-      if(!(this.appType === 'web' || this.appType === 'basic' || this.appType === 'bff')) return;
+    createWebFiles: function() {
+      if (this.appType !== 'web') return;
 
-      this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
+      this.fs.write(this.destinationPath('public','.keep'), '');
+    },
+
+    createBFFFiles: function() {
+      if (this.appType !== 'bff') return;
 
       this.fs.copy(
         this.templatePath('basicweb', 'BFFRoutes.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
       )
-
-      if(this.appType === 'web') {
-        //Create the public folder
-        this.fs.write(this.destinationPath('public','.keep'), '');
-      }
     },
 
     writeMainSwift: function() {
