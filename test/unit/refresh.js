@@ -566,7 +566,7 @@ describe('swiftserver:refresh', function () {
 
   });
 
-  describe('Generate skeleton web application for bluemix', function () {
+  describe('Generate skeleton web application for bluemix with custom options', function () {
 
     var runContext;
 
@@ -575,7 +575,14 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'web',
           appName: appName,
-          bluemix: true,
+          bluemix: {
+            "name": "test",
+            "host": "myhost",
+            "domain": "mydomain.net",
+            "memory": "512M",
+            "diskQuota": "512M",
+            "instances": 3
+          },
           config: {
             logger: 'helium',
             port: 8090
@@ -592,16 +599,16 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
+    it('produces the correct name in the manifest', function () {
+      assert.fileContent('manifest.yml', 'name: test');
     });
 
-    it('generates the main.swift in the correct directory', function() {
-      assert.file('Sources/todoServer/main.swift');
+    it('produces the correct host in the manifest', function () {
+      assert.fileContent('manifest.yml', 'host: myhost');
     });
 
-    if('generates Application.swift', function() {
-      assert.file('Sources/todo/Application.swift')
+    it('produces the correct domain in the manifest', function () {
+      assert.fileContent('manifest.yml', 'domain: mydomain.net');
     });
 
     it('generates web only files and folders', function() {
@@ -624,8 +631,70 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent('manifest.yml', 'OPENAPI_SPEC');
     });
 
-    it('generates the bluemix files', function() {
-      assert.file(expectedBluemixFiles);
+    it('produces the correct memory in the manifest', function () {
+      assert.fileContent('manifest.yml', 'memory: 512M');
+    });
+
+    it('produces the correct number of instances in the manifest', function () {
+      assert.fileContent('manifest.yml', 'instances: 3');
+    });
+
+    it('produces the correct disk quota in the manifest', function () {
+      assert.fileContent('manifest.yml', 'disk_quota: 512M');
+    });
+  });
+
+  describe('Generate skeleton web application for bluemix with incorrect custom options', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'web',
+          appName: appName,
+          bluemix: {
+            "name": {},
+            "host": {},
+            "domain": true,
+            "memory": 512,
+            "instances": "3",
+            "diskQuota": 512
+          },
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('produces the correct name in the manifest based on the app name', function () {
+      assert.fileContent('manifest.yml', `name: ${appName}`);
+    });
+
+    it('produces sets random-route to true in the manifest', function () {
+      assert.fileContent('manifest.yml', 'random-route: true');
+    });
+
+    it('produces the default memory amount in the manifest', function () {
+      assert.fileContent('manifest.yml', 'memory: 128M');
+    });
+
+    it('produces the correct number of instances in the manifest', function () {
+      assert.fileContent('manifest.yml', 'instances: 1');
+    });
+
+    it('omits disk quota', function () {
+      assert.noFileContent('manifest.yml', 'disk_quota:');
     });
   });
 

@@ -1,38 +1,33 @@
-<% if (Object.keys(services).length > 0) { -%>
-declared-services:
-<% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(service) { -%>
-  <%-service.name%>:
-    label: <%-service.label || helpers.getBluemixServiceLabel(serviceType)%>
-    plan: <%-service.plan || 'Lite'%>
-<% }); -%>
-<% }); -%>
-<% } -%>
-<% if (capabilities.autoscale) { -%>
-  <%-capabilities.autoscale%>:
-    label: Auto-scaling
-    plan: free
-<% } -%>
 applications:
-- name: <%-appName%>
-  memory: 128M
-  instances: 1
+- name: <%- bluemix.name || appName %>
+<% if (bluemix.host) { -%>
+  host: <%- bluemix.host %>
+<% } else { -%>
   random-route: true
+<% } -%>
+<% if (bluemix.domain) { -%>
+  domain: <%- bluemix.domain %>
+<% } -%>
+  memory: <%- bluemix.memory || '128M' %>
+  instances: <%- bluemix.instances || 1 %>
+<% if (bluemix.diskQuota) { -%>
+  disk_quota: <%- bluemix.diskQuota %>
+<% } -%>
   buildpack: swift_buildpack
-  command: <%-executableName%> --bind 0.0.0.0:$PORT
+  command: <%- executableName %> --bind 0.0.0.0:$PORT
 <% if (hostSwagger) { -%>
   env:
     OPENAPI_SPEC: "/swagger/api"
 <% } -%>
 <% if (Object.keys(services).length > 0) { -%>
   services:
-<% Object.keys(services).forEach(function(serviceType) { -%>
-<% services[serviceType].forEach(function(service) { -%>
-  - <%-service.name%>
-<% }); -%>
-<% }); -%>
+<%   Object.keys(services).forEach(function(serviceType) { -%>
+<%     services[serviceType].forEach(function(service) { -%>
+  - <%- service.name %>
+<%     }); -%>
+<%   }); -%>
 <% } -%>
 <% if (capabilities.autoscale) { -%>
-  - <%-capabilities.autoscale%>
+  - <%- capabilities.autoscale %>
 <% } -%>
   timeout: 180

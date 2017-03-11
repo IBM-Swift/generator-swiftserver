@@ -59,7 +59,7 @@ module.exports = generators.Base.extend({
       // TODO Use node-semver? Strip leading non-digits?
       var generatorMajorVersion = this.generatorVersion.split('.')[0];
       var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
-      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) { 
+      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
         this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
       }
     },
@@ -105,19 +105,41 @@ module.exports = generators.Base.extend({
         this.env.error(chalk.red('No specification for this project'));
       }
 
-      if(this.spec.appType) {
+      if (this.spec.appType) {
         this.appType = this.spec.appType;
       } else {
         this.env.error(chalk.red('App type is missing'));
       }
-      if(this.spec.appName) {
+      if (this.spec.appName) {
           this.projectName = this.spec.appName;
       } else {
           this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
       }
 
       // Bluemix configuration
-      this.bluemix = (this.spec.bluemix === true);
+      if (this.spec.bluemix === true) {
+        this.bluemix = {};
+      } else if (typeof(this.spec.bluemix) === 'object') {
+        this.bluemix = {};
+        if (typeof(this.spec.bluemix.name) === 'string') {
+          this.bluemix.name = this.spec.bluemix.name;
+        }
+        if (typeof(this.spec.bluemix.host) === 'string') {
+          this.bluemix.host = this.spec.bluemix.host;
+        }
+        if (typeof(this.spec.bluemix.domain) === 'string') {
+          this.bluemix.domain = this.spec.bluemix.domain;
+        }
+        if (typeof(this.spec.bluemix.memory) === 'string') {
+          this.bluemix.memory = this.spec.bluemix.memory;
+        }
+        if (typeof(this.spec.bluemix.diskQuota) === 'string') {
+          this.bluemix.diskQuota = this.spec.bluemix.diskQuota;
+        }
+        if (typeof(this.spec.bluemix.instances) === 'number') {
+          this.bluemix.instances = this.spec.bluemix.instances;
+        }
+      }
 
       // Docker configuration
       this.docker = (this.spec.docker === true);
@@ -892,7 +914,7 @@ module.exports = generators.Base.extend({
           services: this.services,
           capabilities: this.capabilities,
           hostSwagger: this.hostSwagger,
-          helpers: helpers }
+          bluemix: this.bluemix }
       );
 
       this.fs.copy(
