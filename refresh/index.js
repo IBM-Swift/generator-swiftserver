@@ -105,40 +105,39 @@ module.exports = generators.Base.extend({
         this.env.error(chalk.red('No specification for this project'));
       }
 
-      if(this.spec.appType) {
+      if (this.spec.appType) {
         this.appType = this.spec.appType;
       } else {
         this.env.error(chalk.red('App type is missing'));
       }
-      if(this.spec.appName) {
+      if (this.spec.appName) {
           this.projectName = this.spec.appName;
       } else {
           this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
       }
 
       // Bluemix configuration
-      this.bluemix = this.spec.bluemix || undefined;
-
-      if(typeof(this.bluemix) === 'object') {
-        // Validate the values
-        // If the values are not valid remove them from the spec
-        if(typeof(this.bluemix.name) !== 'string') {
-          this.bluemix.name = undefined
+      if (this.spec.bluemix === true) {
+        this.bluemix = {};
+      } else if (typeof(this.spec.bluemix) === 'object') {
+        this.bluemix = {};
+        if (typeof(this.spec.bluemix.name) === 'string') {
+          this.bluemix.name = this.spec.bluemix.name;
         }
-        if((typeof(this.bluemix.host) !== 'string')) {
-            this.bluemix.host = undefined;
+        if (typeof(this.spec.bluemix.host) === 'string') {
+          this.bluemix.host = this.spec.bluemix.host;
         }
-        if((typeof(this.bluemix.domain) !== 'string')) {
-            this.bluemix.domain = undefined;
+        if (typeof(this.spec.bluemix.domain) === 'string') {
+          this.bluemix.domain = this.spec.bluemix.domain;
         }
-        if(typeof(this.bluemix.memory) !== 'string') {
-            this.bluemix.memory = undefined;
+        if (typeof(this.spec.bluemix.memory) === 'string') {
+          this.bluemix.memory = this.spec.bluemix.memory;
         }
-        if(typeof(this.bluemix.diskQuota) !== 'string') {
-          this.bluemix.diskQuota = undefined;
+        if (typeof(this.spec.bluemix.diskQuota) === 'string') {
+          this.bluemix.diskQuota = this.spec.bluemix.diskQuota;
         }
-        if(typeof(this.bluemix.instances) !== 'number') {
-          this.bluemix.instances = undefined;
+        if (typeof(this.spec.bluemix.instances) === 'number') {
+          this.bluemix.instances = this.spec.bluemix.instances;
         }
       }
 
@@ -915,8 +914,7 @@ module.exports = generators.Base.extend({
           services: this.services,
           capabilities: this.capabilities,
           hostSwagger: this.hostSwagger,
-          bluemix: this.bluemix,
-          helpers: helpers }
+          bluemix: this.bluemix }
       );
 
       this.fs.copy(

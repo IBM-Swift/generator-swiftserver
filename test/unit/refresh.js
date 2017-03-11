@@ -693,8 +693,8 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('manifest.yml', 'instances: 1');
     });
 
-    it('produces the correct disk quota in the manifest', function () {
-      assert.fileContent('manifest.yml', 'disk_quota: 128M');
+    it('omits disk quota', function () {
+      assert.noFileContent('manifest.yml', 'disk_quota:');
     });
   });
 
