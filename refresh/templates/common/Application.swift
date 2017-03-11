@@ -93,11 +93,13 @@ public func initialize() throws {
     router.all("/", middleware: StaticFileServer())
 <% } -%>
 <% if (appType === 'crud') { %>
-    initializeSwaggerRoute(path: projectRoot.appendingPathComponent("definitions/<%- appName %>.yaml").path)
     let factory = AdapterFactory(manager: manager)
 <%   models.forEach(function(model) { -%>
     try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
 <%   }); -%>
+<% } -%>
+<% if (hostSwagger) { -%>
+    initializeSwaggerRoute(path: projectRoot.appendingPathComponent("definitions/<%- appName %>.yaml").path)
 <% } -%>
 <% if (appType === 'bff') { -%>
     initializeBFFRoutes()

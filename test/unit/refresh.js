@@ -268,6 +268,13 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedModelFiles);
     });
 
+    it('hosts swagger definition', function() {
+      assert.file('Sources/Generated/Routes/SwaggerRoute.swift');
+      assert.fileContent('Sources/Generated/Application.swift', 'initializeSwaggerRoute(');
+      assert.fileContent('Sources/Generated/Application.swift', 'definitions');
+      assert.fileContent('Sources/Generated/Application.swift', appName + '.yaml');
+    });
+
     it('does not generate the bluemix files', function() {
       assert.noFile(expectedBluemixFiles);
     });
@@ -338,6 +345,10 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
+    });
+
+    it('defines OPENAPI_SPEC environment variable', function() {
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
     });
   });
 
@@ -602,6 +613,15 @@ describe('swiftserver:refresh', function () {
     it('does not generate BFF content', function() {
       assert.noFile(`Sources/${appName}/Routes/BFFRoutes.swift`);
       assert.noFileContent(`Sources/${appName}/Application.swift`, 'initializeBFFRoutes()');
+    });
+
+    it('does not host swagger definition', function() {
+      assert.noFile('Sources/' + appName + '/Routes/SwaggerRoute.swift');
+      assert.noFileContent('Sources/' + appName + '/Application.swift', 'initializeSwaggerRoute(');
+    });
+
+    it('does not define OPENAPI_SPEC environment variable', function() {
+      assert.noFileContent('manifest.yml', 'OPENAPI_SPEC');
     });
 
     it('generates the bluemix files', function() {
@@ -1212,13 +1232,29 @@ describe('swiftserver:refresh', function () {
     it('defines BFF routes', function() {
       var bffRoutesFile = 'Sources/' + appName + '/Routes/BFFRoutes.swift';
       assert.file(bffRoutesFile);
-      assert.fileContent(bffRoutesFile, 'Hello World!');
+      assert.fileContent(bffRoutesFile, '"/products"');
+      assert.fileContent(bffRoutesFile, '"/product/:id"');
+      assert.fileContent(bffRoutesFile, 'send(json: [:])');
+      assert.fileContent(bffRoutesFile, 'router.get(');
+      assert.fileContent(bffRoutesFile, 'router.post(');
+      assert.fileContent(bffRoutesFile, 'router.put(');
+      assert.fileContent(bffRoutesFile, 'router.delete(');
     });
 
     it('init BFF routes', function() {
       assert.fileContent('Sources/todo/Application.swift', 'initializeBFFRoutes()');
     });
 
+    it('hosts swagger definition', function() {
+      assert.file('Sources/' + appName + '/Routes/SwaggerRoute.swift');
+      assert.fileContent('Sources/' + appName + '/Application.swift', 'initializeSwaggerRoute(');
+      assert.fileContent('Sources/' + appName + '/Application.swift', 'definitions');
+      assert.fileContent('Sources/' + appName + '/Application.swift', appName + '.yaml');
+    });
+
+    it('defines OPENAPI_SPEC environment variable', function() {
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
+    });
   });
 
   describe('Generate application for bluemix with a service whose name contains spaces', function () {

@@ -1,28 +1,30 @@
 import Kitura
+import SwiftyJSON
 
 func initializeBFFRoutes() {
 
-    router.get("/") {
-        request, response, next in 
-        response.send("Hello World!")
+    router.get("/products") { request, response, next in
+        response.send(json: [:])
         next()
     }
 
-    router.post("/") { 
-        request, response, next in 
-        response.send("POST request at /")
+    router.post("/products") { request, response, next in
+        response.send(json: [:])
         next()
     }
 
-    router.put("/") { 
-        request, response, next in 
-        response.send("PUT request at /")
+    router.get("/product/:id") { request, response, next in
+        response.send(json: [:])
         next()
     }
 
-    router.delete("/") { 
-        request, response, next in 
-        response.send("DELETE request at /")
+    router.put("/product/:id") { request, response, next in
+        response.send(json: [:])
+        next()
+    }
+
+    router.delete("/product/:id") { request, response, next in
+        response.send(json: [:])
         next()
     }
 
