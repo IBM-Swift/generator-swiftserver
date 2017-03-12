@@ -63,25 +63,6 @@ module.exports = generators.Base.extend({
       }
     },
 
-    initHeadlessBluemix: function() {
-      if (this.options.bluemix) {
-        try {
-          this.bluemixInfo = this.options.bluemix;
-          if (typeof(this.bluemixInfo) === 'string') {
-            this.bluemixInfo = JSON.parse(this.bluemixInfo);
-          }
-          // TODO Do some validation of the bluemix object?
-          if (!this.spec) {
-            this.env.error(chalk.red('Missing spec'));
-          }
-          this.skipPrompting = true;
-          this.skipBuild = true;
-        } catch (err) {
-          this.env.error(chalk.red(err));
-        }
-      }
-    },
-
     initAppName: function() {
       if (this.skipPrompting) return;
       this.appname = null; // Discard yeoman default appname
