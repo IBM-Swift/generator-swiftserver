@@ -28,14 +28,15 @@ var appName = 'todo';
 var modelName = 'todo';
 var modelPlural = 'todos';
 var className = 'Todo';
-var genDir = 'Sources/Generated'
-var modelDir = 'models'
 
-var expectedSourceFiles = [`Sources/${appName}/main.swift`];
+var generatedModule = 'Generated';
+var applicationModule = 'Application';
+var executableModule = appName;
 
-var expectedModelFiles = [`${modelDir}/${modelName}.json`, `${genDir}/${className}.swift`,
-    `${genDir}/${className}Adapter.swift`, `${genDir}/${className}Resource.swift`,
-    `${genDir}/Application.swift`];
+var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`];
+
+var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
+    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`];
 
 var expectedBluemixFiles = ['README.md',
                             'manifest.yml',
@@ -269,10 +270,10 @@ describe('swiftserver:refresh', function () {
     });
 
     it('hosts swagger definition', function() {
-      assert.file('Sources/Generated/Routes/SwaggerRoute.swift');
-      assert.fileContent('Sources/Generated/Application.swift', 'initializeSwaggerRoute(');
-      assert.fileContent('Sources/Generated/Application.swift', 'definitions');
-      assert.fileContent('Sources/Generated/Application.swift', appName + '.yaml');
+      assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
     });
 
     it('does not generate the bluemix files', function() {
@@ -280,12 +281,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate any capabilities', function() {
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics');
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsDash');
-      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
-      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetricsDash(swiftMetricsInstance');
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
-      assert.noFileContent('Sources/Generated/Application.swift', 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsDash(swiftMetricsInstance');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = AutoScalar(swiftMetricsInstance: sm)');
     });
   });
 
@@ -383,12 +384,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates metrics and autoscale capabilities', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetrics');
-      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetricsDash');
-      assert.fileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
-      assert.fileContent('Sources/Generated/Application.swift', 'try SwiftMetricsDash(');
-      assert.fileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
-      assert.fileContent('Sources/Generated/Application.swift', 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
     });
   });
 
@@ -422,11 +423,11 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates metrics and autoscale capabilities', function() {
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetrics\nimport SwiftMetricsDash');
-      assert.noFileContent('Sources/Generated/Application.swift', 'SwiftMetrics()');
-      assert.noFileContent('Sources/Generated/Application.swift', 'try SwiftMetricsDash(');
-      assert.noFileContent('Sources/Generated/Application.swift', 'import SwiftMetricsBluemix');
-      assert.noFileContent('Sources/Generated/Application.swift', 'AutoScalar(swiftMetricsInstance:');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics\nimport SwiftMetricsDash');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
     });
   });
 
@@ -478,24 +479,24 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the extensions required by bluemix', function() {
-      assert.file(`Sources/Generated/Extensions/CouchDBExtension.swift`)
+      assert.file(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', ': CouchDBClient?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, ': CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'manager.getCloudantService(name: "myCloudantService")');
-      assert.fileContent('Sources/Generated/Application.swift', 'CouchDBClient(service: cloudantService)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getCloudantService(name: "myCloudantService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(service: cloudantService)');
     });
 
     it('generates the correct adapter for the resource', function() {
-      assert.file(`${genDir}/${className}CloudantAdapter.swift`)
+      assert.file(`Sources/${generatedModule}/${className}CloudantAdapter.swift`)
     });
 
   });
@@ -548,20 +549,20 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/Generated/Extensions/CouchDBExtension.swift`)
+      assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'import CouchDB');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', ': CouchDBClient?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, ': CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      assert.fileContent('Sources/Generated/Application.swift', 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
-      assert.fileContent('Sources/Generated/Application.swift', 'CouchDBClient(connectionProperties: couchDBConnProps)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
 
   });
@@ -573,8 +574,9 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
+          web: true,
           bluemix: {
             "name": "test",
             "host": "myhost",
@@ -612,19 +614,19 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates web only files and folders', function() {
-      var expectedWebFiles = [`Sources/${appName}/Routes/.keep`,
+      var expectedWebFiles = [`Sources/${applicationModule}/Routes/.keep`,
                               `public/.keep`];
       assert.file(expectedWebFiles);
     });
 
-    it('does not generate BFF content', function() {
-      assert.noFile(`Sources/${appName}/Routes/BFFRoutes.swift`);
-      assert.noFileContent(`Sources/${appName}/Application.swift`, 'initializeBFFRoutes()');
+    it('does not generate example endpoint content', function() {
+      assert.noFile(`Sources/${applicationModule}/Routes/ProductRoutes.swift`);
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
     });
 
     it('does not host swagger definition', function() {
-      assert.noFile('Sources/' + appName + '/Routes/SwaggerRoute.swift');
-      assert.noFileContent('Sources/' + appName + '/Application.swift', 'initializeSwaggerRoute(');
+      assert.noFile(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
     });
 
     it('does not define OPENAPI_SPEC environment variable', function() {
@@ -651,8 +653,9 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
+          web: true,
           bluemix: {
             "name": {},
             "host": {},
@@ -705,9 +708,10 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
           bluemix: false,
+          web: true,
           config: {
             logger: 'helium',
             port: 8090
@@ -729,15 +733,15 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the generic swift source files', function() {
-      assert.file('Sources/todoServer/main.swift');
+      assert.file(`Sources/${executableModule}/main.swift`);
     });
 
     if('generates Application.swift', function() {
-      assert.file('Sources/todo/Application.swift')
+      assert.file(`Sources/${applicationModule}/Application.swift`)
     });
 
     it('generates web only file and folders', function() {
-      var expectedExtensionFiles = [`Sources/${appName}/Application.swift`,
+      var expectedExtensionFiles = [`Sources/${applicationModule}/Application.swift`,
                                     `public/.keep`];
       assert.file(expectedExtensionFiles);
     });
@@ -754,9 +758,10 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
           bluemix: false,
+          web: true,
           config: {
             logger: 'helium',
             port: 8090
@@ -778,12 +783,12 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates metrics and autoscale capabilities', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics');
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsDash');
-      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetrics()');
-      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetricsDash(swiftMetricsInstance');
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
-      assert.fileContent('Sources/todo/Application.swift', 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
     });
   });
 
@@ -794,9 +799,10 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
           bluemix: false,
+          web: true,
           config: {
             logger: 'helium',
             port: 8090
@@ -818,12 +824,12 @@ describe('swiftserver:refresh', function () {
     })
 
     it('generates metrics without autoscale capabilities', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetrics');
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftMetricsDash');
-      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetrics()');
-      assert.fileContent('Sources/todo/Application.swift', 'try SwiftMetricsDash(swiftMetricsInstance');
-      assert.noFileContent('Sources/todo/Application.swift', 'import SwiftMetricsBluemix');
-      assert.noFileContent('Sources/todo/Application.swift', 'AutoScalar(swiftMetricsInstance');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance');
     });
   });
 
@@ -833,9 +839,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: true,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -858,20 +865,20 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the cloudant extensions required by bluemix', function() {
-      assert.file(`Sources/${appName}/Extensions/CouchDBExtension.swift`)
+      assert.file(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'import CouchDB');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'try manager.getCloudantService(name: "myCloudantService")');
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient(service: cloudantService)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getCloudantService(name: "myCloudantService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(service: cloudantService)');
     });
 
   });
@@ -882,9 +889,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: false,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -907,21 +915,21 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/${appName}/Extensions/CouchDBExtension.swift`)
+      assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'import CouchDB');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
     it('initialises cloudant', function() {
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient?');
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
       let expectedContent = ['ConnectionProperties(host: "localhost", port: 5984, secured: false)','CouchDBClient(connectionProperties: couchDBConnProps)'];
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
-      assert.fileContent(`Sources/${appName}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
   });
 
@@ -931,9 +939,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: true,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -956,19 +965,19 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the extensions required by bluemix', function() {
-      assert.file(`Sources/todo/Extensions/RedisExtension.swift`)
+      assert.file(`Sources/${applicationModule}/Extensions/RedisExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftRedis');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftRedis');
     });
 
     it('initialises redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'Redis?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis?');
     });
 
     it('creates the boilerplate to connect to redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'manager.getRedisService(name: "myRedisService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getRedisService(name: "myRedisService")');
     });
 
   });
@@ -979,9 +988,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: false,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1004,19 +1014,19 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/todo/Extensions/RedisExtension.swift`)
+      assert.noFile(`Sources/${applicationModule}/Extensions/RedisExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import SwiftRedis');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftRedis');
     });
 
     it('initialises redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'Redis?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis?');
     });
 
     it('creates the boilerplate to connect to redis', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'Redis()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis()');
     });
 
   });
@@ -1027,9 +1037,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: true,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1052,21 +1063,21 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.file(`Sources/todo/Extensions/MongoDBExtension.swift`)
+      assert.file(`Sources/${applicationModule}/Extensions/MongoDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import MongoKitten');
-      assert.fileContent('Sources/todo/Application.swift', 'import SSLService');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import MongoKitten');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SSLService');
     });
 
     it('initialises mongo server', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'internal var server: Server?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var server: Server?');
     });
 
     it('creates the boilerplate to connect to mongo', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'manager.getMongoDBService(name: "myMongoDBService")');
-      assert.fileContent('Sources/todo/Application.swift', 'server = Server(service: mongoDBService)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getMongoDBService(name: "myMongoDBService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'server = Server(service: mongoDBService)');
     });
   });
 
@@ -1076,9 +1087,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: false,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1101,21 +1113,21 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/todo/Extensions/MongoDBExtension.swift`)
+      assert.noFile(`Sources/${applicationModule}/Extensions/MongoDBExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import MongoKitten');
-      assert.fileContent('Sources/todo/Application.swift', 'import SSLService');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import MongoKitten');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SSLService');
     });
 
     it('initialises mongo server', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'internal var server: Server?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var server: Server?');
     });
 
     it('creates the boilerplate to connect to mongo', function() {
       let expectedContent = 'server = try (mongoURL: "mongodb://username:password@localhost")';
-      assert.fileContent('Sources/todo/Application.swift', expectedContent);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, expectedContent);
     });
   });
 
@@ -1125,9 +1137,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: true,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1150,21 +1163,21 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extensions required by bluemix', function() {
-      assert.file(`Sources/todo/Extensions/ObjStorageExtension.swift`)
+      assert.file(`Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'import BluemixObjectStorage');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixObjectStorage');
     });
 
     it('initialises object storage', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'internal var objectStorage: ObjectStorage?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var objectStorage: ObjectStorage?');
     });
 
     it('creates the boilerplate to connect to object storage', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'try manager.getObjectStorageService(name: "myObjectStorageService")');
-      assert.fileContent('Sources/todo/Application.swift', 'ObjectStorage(service: objectStorageService)');
-      assert.fileContent('Sources/todo/Application.swift', 'objectStorage?.connectSync(service: objectStorageService)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getObjectStorageService(name: "myObjectStorageService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ObjectStorage(service: objectStorageService)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'objectStorage?.connectSync(service: objectStorageService)');
     });
   });
 
@@ -1174,9 +1187,10 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
         bluemix: true,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1225,8 +1239,9 @@ describe('swiftserver:refresh', function () {
 
     before(function() {
       var spec = {
-        appType: 'web',
+        appType: 'scaffold',
         appName: appName,
+        web: true,
         config: {
           logger: 'helium',
           port: 8090
@@ -1256,15 +1271,17 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate BFF application for bluemix', function () {
+  describe('Generate application with example endpoints and hosted Swagger for bluemix', function () {
 
     var runContext;
 
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'bff',
+          appType: 'scaffold',
           appName: appName,
+          hostSwagger: true,
+          exampleEndpoints: true,
           bluemix: true,
           config: {
             logger: 'helium',
@@ -1287,38 +1304,38 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the main.swift in the correct directory', function() {
-      assert.file('Sources/todoServer/main.swift');
+      assert.file('Sources/todo/main.swift');
     });
 
     if('generates Application.swift', function() {
-      assert.file('Sources/todo/Application.swift')
+      assert.file(`Sources/${applicationModule}/Application.swift`)
     });
 
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
     });
 
-    it('defines BFF routes', function() {
-      var bffRoutesFile = 'Sources/' + appName + '/Routes/BFFRoutes.swift';
-      assert.file(bffRoutesFile);
-      assert.fileContent(bffRoutesFile, '"/products"');
-      assert.fileContent(bffRoutesFile, '"/product/:id"');
-      assert.fileContent(bffRoutesFile, 'send(json: [:])');
-      assert.fileContent(bffRoutesFile, 'router.get(');
-      assert.fileContent(bffRoutesFile, 'router.post(');
-      assert.fileContent(bffRoutesFile, 'router.put(');
-      assert.fileContent(bffRoutesFile, 'router.delete(');
+    it('defines example endpoints', function() {
+      var productRoutesFile = `Sources/${applicationModule}/Routes/ProductRoutes.swift`;
+      assert.file(productRoutesFile);
+      assert.fileContent(productRoutesFile, '"/products"');
+      assert.fileContent(productRoutesFile, '"/product/:id"');
+      assert.fileContent(productRoutesFile, 'send(json: [:])');
+      assert.fileContent(productRoutesFile, 'router.get(');
+      assert.fileContent(productRoutesFile, 'router.post(');
+      assert.fileContent(productRoutesFile, 'router.put(');
+      assert.fileContent(productRoutesFile, 'router.delete(');
     });
 
-    it('init BFF routes', function() {
-      assert.fileContent('Sources/todo/Application.swift', 'initializeBFFRoutes()');
+    it('init example endpoint routes', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
     });
 
     it('hosts swagger definition', function() {
-      assert.file('Sources/' + appName + '/Routes/SwaggerRoute.swift');
-      assert.fileContent('Sources/' + appName + '/Application.swift', 'initializeSwaggerRoute(');
-      assert.fileContent('Sources/' + appName + '/Application.swift', 'definitions');
-      assert.fileContent('Sources/' + appName + '/Application.swift', appName + '.yaml');
+      assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
     });
 
     it('defines OPENAPI_SPEC environment variable', function() {
@@ -1333,9 +1350,10 @@ describe('swiftserver:refresh', function () {
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
         var spec = {
-          appType: 'web',
+          appType: 'scaffold',
           appName: appName,
           bluemix: true,
+          web: true,
           services: {
             cloudant: [{ name: 'name with spaces' }]
           },

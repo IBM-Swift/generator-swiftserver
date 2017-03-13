@@ -108,12 +108,12 @@ module.exports = generators.Base.extend({
       if (this.spec.appType) {
         this.appType = this.spec.appType;
       } else {
-        this.env.error(chalk.red('App type is missing'));
+        this.env.error(chalk.red('Property appType is missing from the specification'));
       }
       if (this.spec.appName) {
           this.projectName = this.spec.appName;
       } else {
-          this.env.error(chalk.red('Property appName missing from the specification file spec.json'));
+          this.env.error(chalk.red('Property appName missing from the specification'));
       }
 
       // Bluemix configuration
@@ -143,6 +143,15 @@ module.exports = generators.Base.extend({
 
       // Docker configuration
       this.docker = (this.spec.docker === true);
+
+      // Web configuration
+      this.web = (this.spec.web === true);
+
+      // Example endpoints
+      this.exampleEndpoints = (this.spec.exampleEndpoints === true);
+
+      // Swagger hosting
+      this.hostSwagger = (this.spec.hostSwagger === true);
 
       // Service configuration
       this.services = this.spec.services || {};
@@ -177,17 +186,12 @@ module.exports = generators.Base.extend({
         this.capabilities.metrics = true;
       }
 
-      // TODO: Consolidate the folder names
-      // Set the names of the folders
-      if (this.appType === 'crud') {
-        this.executableModule = this.projectName;
-        this.applicationModule = 'Generated';
-      } else {
-        this.executableModule = this.projectName + 'Server';
-        this.applicationModule = this.projectName;
-      }
+      // Set the names of the modules
+      this.generatedModule = 'Generated'
+      this.applicationModule = 'Application';
+      this.executableModule = this.projectName;
 
-      if (this.appType === 'crud' || this.appType === 'bff') {
+      if (this.appType === 'crud') {
         this.hostSwagger = true;
       }
     },
@@ -208,7 +212,7 @@ module.exports = generators.Base.extend({
     },
 
     readModels: function() {
-      if(!this.appType == 'crud') return;
+      if(this.appType !== 'crud') return;
 
       // Start with the models from the spec
       var modelMap = {};
@@ -264,7 +268,6 @@ module.exports = generators.Base.extend({
 
     loadProjectInfo: function() {
       // TODO(tunniclm): Improve how we set these values
-      // this.projectName = this.projectName
       this.projectVersion = '1.0.0';
     }
   },
@@ -306,6 +309,7 @@ module.exports = generators.Base.extend({
   },
 
   buildSwagger: function() {
+    if (this.appType !== 'crud') return;
     var swagger = {
       'swagger': '2.0',
       'info': {
@@ -636,13 +640,16 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('common', 'Application.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-        { appType: this.appType,
+        {
+          appType: this.appType,
           appName: this.projectName,
-          models: this.models,
+          generatedModule: this.generatedModule,
           services: this.services,
           bluemix: this.bluemix,
           capabilities: this.capabilities,
-          hostSwagger: this.hostSwagger
+          web: this.web,
+          hostSwagger: this.hostSwagger,
+          exampleEndpoints: this.exampleEndpoints
         }
       );
 
@@ -650,6 +657,21 @@ module.exports = generators.Base.extend({
         this.fs.copyTpl(
           this.templatePath('common', 'SwaggerRoute.swift'),
           this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+        );
+      }
+      
+      if (this.web) {
+        this.fs.write(this.destinationPath('public','.keep'), '');
+      }
+
+      if (this.exampleEndpoints) {
+        this.fs.copy(
+          this.templatePath('common', 'ProductRoutes.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Routes', 'ProductRoutes.swift')
+        );
+        this.fs.copy(
+          this.templatePath('common', 'productSwagger.yaml'),
+          this.destinationPath('definitions', `${this.projectName}.yaml`)
         );
       }
 
@@ -696,44 +718,49 @@ module.exports = generators.Base.extend({
       }
 
       this.fs.copyTpl(
+        this.templatePath('crud', 'CRUDResources.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'CRUDResources.swift'),
+        { models: this.models }
+      );
+      this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
-        this.destinationPath('Sources', 'Generated', 'AdapterFactory.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
         { models: this.models, crudService: crudService, bluemix: this.bluemix }
       );
       this.models.forEach(function(model) {
         this.fs.copyTpl(
           this.templatePath('crud', 'Resource.swift'),
-          this.destinationPath('Sources', 'Generated', `${model.classname}Resource.swift`),
+          this.destinationPath('Sources', this.generatedModule, `${model.classname}Resource.swift`),
           { model: model }
         );
         this.fs.copyTpl(
           this.templatePath('crud', 'Adapter.swift'),
-          this.destinationPath('Sources', 'Generated', `${model.classname}Adapter.swift`),
+          this.destinationPath('Sources', this.generatedModule, `${model.classname}Adapter.swift`),
           { model: model }
         );
         this.fs.copy(
           this.templatePath('crud', 'AdapterError.swift'),
-          this.destinationPath('Sources', 'Generated', 'AdapterError.swift')
+          this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
         );
         switch (crudService.type) {
         case 'cloudant':
           this.fs.copyTpl(
             this.templatePath('crud', 'CloudantAdapter.swift'),
-            this.destinationPath('Sources', 'Generated', `${model.classname}CloudantAdapter.swift`),
+            this.destinationPath('Sources', this.generatedModule, `${model.classname}CloudantAdapter.swift`),
             { model: model }
           );
           break;
         case '__memory__':
           this.fs.copyTpl(
             this.templatePath('crud', 'MemoryAdapter.swift'),
-            this.destinationPath('Sources', 'Generated', `${model.classname}MemoryAdapter.swift`),
+            this.destinationPath('Sources', this.generatedModule, `${model.classname}MemoryAdapter.swift`),
             { model: model }
           );
           break;
         }
         this.fs.copy(
           this.templatePath('crud', 'ModelError.swift'),
-          this.destinationPath('Sources', 'Generated', 'ModelError.swift')
+          this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
         );
         function optional(propertyName) {
           var required = (model.properties[propertyName].required === true);
@@ -768,7 +795,7 @@ module.exports = generators.Base.extend({
         );
         this.fs.copyTpl(
           this.templatePath('crud', 'Model.swift'),
-          this.destinationPath('Sources', 'Generated', `${model.classname}.swift`),
+          this.destinationPath('Sources', this.generatedModule, `${model.classname}.swift`),
           { model: model, propertyInfos: propertyInfos, helpers: helpers }
         );
       }.bind(this));
@@ -827,29 +854,10 @@ module.exports = generators.Base.extend({
         if(serviceType === 'objectstorage') {
           this.fs.copy(
             this.templatePath('extensions', 'ObjStorageExtension.swift'),
-            this.destinationPath('Sources', this.projectName, 'Extensions', 'ObjStorageExtension.swift')
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift')
           );
         }
       }.bind(this));
-    },
-
-    createWebFiles: function() {
-      if (this.appType !== 'web') return;
-
-      this.fs.write(this.destinationPath('public','.keep'), '');
-    },
-
-    createBFFFiles: function() {
-      if (this.appType !== 'bff') return;
-
-      this.fs.copy(
-        this.templatePath('bff', 'BFFRoutes.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Routes', 'BFFRoutes.swift')
-      );
-      this.fs.copy(
-        this.templatePath('bff', 'swagger.yaml'),
-        this.destinationPath('definitions', `${this.projectName}.yaml`)
-      );
     },
 
     writeMainSwift: function() {
@@ -897,9 +905,8 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('docker', 'cli-config.yml'),
         this.destinationPath('cli-config.yml'),
-        {
-          executableName: this.executableModule,
-        }
+        { appName: this.projectName,
+          executableName: this.executableModule }
       );
     },
 
@@ -917,6 +924,7 @@ module.exports = generators.Base.extend({
           bluemix: this.bluemix }
       );
 
+      // FIXME!
       this.fs.copy(
         this.templatePath('bluemix', 'README.md'),
         this.destinationPath('README.md')
@@ -950,7 +958,9 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'Package.swift'),
           this.destinationPath('Package.swift'),
           {
+            appType: this.appType,
             executableModule: this.executableModule,
+            generatedModule: this.generatedModule,
             applicationModule: this.applicationModule,
             bluemix: this.bluemix,
             services: this.services,

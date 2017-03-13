@@ -46,6 +46,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .withPrompts({                       // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes'
         });
@@ -67,7 +68,7 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -83,6 +84,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'applicationName',
           dir:  'directoryName'
         });
@@ -104,7 +106,7 @@ describe('swiftserver:app', function () {
         appName: 'applicationName',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -112,7 +114,7 @@ describe('swiftserver:app', function () {
 
   });
 
-  describe('Application name only is supplied (via the prompt)', function () {
+  describe('Application type and name only is supplied (via the prompt)', function () {
 
     var runContext;
     before(function () {
@@ -121,6 +123,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'appNameOnly'
         });
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
@@ -131,7 +134,7 @@ describe('swiftserver:app', function () {
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'appNameOnly');
+      assert.equal(path.basename(process.cwd()), 'appNameOnly');
     });
 
     it('create a spec object containing the config', function() {
@@ -141,7 +144,7 @@ describe('swiftserver:app', function () {
         appName: 'appNameOnly',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -159,10 +162,12 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'appDir'));
-        })
-        .withPrompts({ });   // Mock the prompt answers
+        });
         return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'appDir');
@@ -184,7 +189,7 @@ describe('swiftserver:app', function () {
         appName: 'appDir',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -201,12 +206,13 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'currentDir'));
-        })
-        .withPrompts({
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'differentAppName',
           dir:  '.'
+        })
+        .inTmpDir(function (tmpDir) {
+          this.inDir(path.join(tmpDir, 'currentDir'));
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
@@ -226,7 +232,7 @@ describe('swiftserver:app', function () {
         appName: 'differentAppName',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -242,6 +248,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['nameOnCommandLine'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
@@ -260,7 +269,7 @@ describe('swiftserver:app', function () {
         appName: 'nameOnCommandLine',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -278,6 +287,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'validDir'));
         })
@@ -302,7 +314,7 @@ describe('swiftserver:app', function () {
         appName: 'validDir',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -322,6 +334,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'inva&%*lid'));
         })
@@ -343,7 +358,7 @@ describe('swiftserver:app', function () {
         appName: 'app',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -362,6 +377,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['ext&%*ra'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'));
         })
@@ -383,7 +401,7 @@ describe('swiftserver:app', function () {
         appName: 'inv-l-l-l-l-lid',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -400,6 +418,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'testDir'));
         });
@@ -416,6 +437,80 @@ describe('swiftserver:app', function () {
     });
   });
 
+  describe('CRUD application with bluemix', function() {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Generate a CRUD application',
+                            name: 'notes',
+                            dir:  'notes',
+                            store: 'Memory',
+                            capabilities: ['Bluemix cloud deployment']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8080
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('CRUD application with metrics', function() {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Generate a CRUD application',
+                            name: 'notes',
+                            dir:  'notes',
+                            store: 'Memory',
+                            capabilities: ['Embedded metrics dashboard']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        capabilities: {
+          metrics: true,
+        },
+        config: {
+          logger: 'helium',
+          port: 8080
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
   describe('CRUD application using cloudant',
            function () {
 
@@ -426,9 +521,10 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant'
+          store: 'Cloudant'
         })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'testDir'));
@@ -451,16 +547,12 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         services: {
           cloudant: [{
-            credentials: {
-              host: 'localhost',
-              port: 5984,
-              secured: false
-            }
+            credentials: {}
           }]
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -478,13 +570,14 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant',
-          default: false,
-          host: 'cloudanthost',
-          port: 8080,
-          secured: true
+          store: 'Cloudant',
+          configure: ['Cloudant / CouchDB'],
+          cloudantHost: 'cloudanthost',
+          cloudantPort: 8080,
+          cloudantSecured: true
         })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'testDir'));
@@ -516,7 +609,7 @@ describe('swiftserver:app', function () {
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -534,12 +627,13 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant',
-          credentials: true,
-          username: 'admin',
-          password: 'password123'
+          store: 'Cloudant',
+          configure: ['Cloudant / CouchDB'],
+          cloudantUsername: 'admin',
+          cloudantPassword: 'password123'
         })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'testDir'));
@@ -563,9 +657,6 @@ describe('swiftserver:app', function () {
         services: {
           cloudant: [{
             credentials: {
-              host: 'localhost',
-              port: 5984,
-              secured: false,
               username: 'admin',
               password: 'password123'
             }
@@ -573,7 +664,7 @@ describe('swiftserver:app', function () {
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -589,6 +680,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           var tmpFile = path.join(tmpDir, "non_empty.txt");    //Created to make the dir a non-empty
           fs.writeFileSync(tmpFile, "");
@@ -622,6 +716,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           fs.mkdirSync(path.join(tmpDir, 'tmpDir'));
           var tmpFile = path.join(tmpDir, 'tmpDir', "non_empty.txt");    //Created to make the dir non-empty
@@ -660,6 +757,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
           fs.writeFileSync(tmpFile, "");
@@ -677,10 +777,151 @@ describe('swiftserver:app', function () {
     after(function() {
       runContext.cleanTestDirectory();
     });
-    
+
     it('did not generate a project', function () {
       var spec = runContext.generator.spec;
       assert.objectContent(spec, {});
     })
+  });
+
+  describe('Basic application', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: []
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('spec object has no capabilities', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'scaffold',
+        appName: 'mysite',
+        bluemix: undefined,
+        docker: undefined,
+        web: undefined,
+        hostSwagger: undefined,
+        capabilities: {},
+        services: {}
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('Basic application with bluemix, autoscaling and metrics', function() {
+    var runContext;
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: [
+                              'Embedded metrics dashboard',
+                              'Bluemix cloud deployment'
+                            ],
+                            services: ['Auto-scaling']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'scaffold',
+        bluemix: true,
+        capabilities: {
+          metrics: true
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'));
+    });
+  });
+
+  describe('Web application', function() {
+    var runContext;
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: ['Static web file serving']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('spec object has web', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        web: true
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('Web application with bluemix, autoscaling and metrics', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: [
+                              'Static web file serving',
+                              'Embedded metrics dashboard',
+                              'Bluemix cloud deployment'
+                            ],
+                            services: ['Auto-scaling']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'scaffold',
+        web: true,
+        bluemix: true,
+        capabilities: {
+          metrics: true
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'));
+    });
   });
 });
