@@ -1,5 +1,5 @@
 applications:
-- name: <%- bluemix.name || appName %>
+- name: <%- bluemix.name || cleanAppName %>
 <% if (bluemix.host) { -%>
   host: <%- bluemix.host %>
 <% } else { -%>
