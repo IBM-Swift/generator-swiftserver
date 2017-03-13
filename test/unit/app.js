@@ -912,7 +912,6 @@ describe('swiftserver:app', function () {
 
     it('has expected spec object', function() {
       var spec = runContext.generator.spec;
-      console.log(spec);
       var expectedSpec = {
         appType: 'scaffold',
         web: true,

@@ -28,7 +28,7 @@ describe('Prompt and build integration tests', function () {
 
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
     var runContext;
 
     before(function () {
@@ -37,8 +37,7 @@ describe('Prompt and build integration tests', function () {
                             appType: 'Scaffold a starter',
                             name: 'notes',
                             dir:  'notes',
-                            capabilities: [],
-                            services: {}
+                            capabilities: []
                           });
       return runContext.toPromise();
     });
@@ -50,7 +49,7 @@ describe('Prompt and build integration tests', function () {
 
   describe('Web application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(150000);
+    this.timeout(300000);
     var runContext;
 
     before(function () {
