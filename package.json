@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha test/unit/*",
     "testint": "mocha test/integration/*",
-    "coverage": "nyc mocha test/**/*"
+    "testintfast": "mocha test/integration/*nobuild*",
+    "coverage": "nyc mocha --grep @full --invert test/**/*"
   },
   "repository": {
     "type": "git",

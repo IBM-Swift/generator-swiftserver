@@ -238,7 +238,8 @@ module.exports = generators.Base.extend({
         name: 'services',
         type: 'checkbox',
         message: 'Generate boilerplate for local services:',
-        choices: choices
+        choices: choices,
+        default: []
       }];
       this.prompt(prompts, function(answers) {
         if (answers.services.indexOf('CouchDB') !== -1) {
@@ -266,7 +267,8 @@ module.exports = generators.Base.extend({
         name: 'services',
         type: 'checkbox',
         message: 'Generate boilerplate for Bluemix services:',
-        choices: choices
+        choices: choices,
+        default: []
       }];
       this.prompt(prompts, function(answers) {
         if (answers.services.indexOf('Cloudant') !== -1) {

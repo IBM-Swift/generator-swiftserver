@@ -114,7 +114,7 @@ describe('swiftserver:app', function () {
 
   });
 
-  describe('Application name only is supplied (via the prompt)', function () {
+  describe('Application type and name only is supplied (via the prompt)', function () {
 
     var runContext;
     before(function () {
@@ -134,7 +134,7 @@ describe('swiftserver:app', function () {
     });
 
     it('created and changed into a folder according to dir value', function () {
-        assert.equal(path.basename(process.cwd()), 'appNameOnly');
+      assert.equal(path.basename(process.cwd()), 'appNameOnly');
     });
 
     it('create a spec object containing the config', function() {
@@ -167,8 +167,7 @@ describe('swiftserver:app', function () {
         })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'appDir'));
-        })
-        .withPrompts({ });   // Mock the prompt answers
+        });
         return runContext.toPromise()        // Get a Promise back for when the generator finishes
         .then(function (dir) {
           assert.equal(path.basename(process.cwd()), 'appDir');
@@ -209,13 +208,11 @@ describe('swiftserver:app', function () {
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
           appType: 'Generate a CRUD application',
+          name: 'differentAppName',
+          dir:  '.'
         })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'currentDir'));
-        })
-        .withPrompts({
-          name: 'differentAppName',
-          dir:  '.'
         });
         return runContext.toPromise();        // Get a Promise back for when the generator finishes
     });
@@ -437,6 +434,80 @@ describe('swiftserver:app', function () {
     it('used the empty directory for the project', function () {
       assert.equal(path.basename(process.cwd()), 'testDir');
       assert(runContext.generator.destinationSet);
+    });
+  });
+
+  describe('CRUD application with bluemix', function() {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Generate a CRUD application',
+                            name: 'notes',
+                            dir:  'notes',
+                            store: 'Memory',
+                            capabilities: ['Bluemix cloud deployment']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 8080
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('CRUD application with metrics', function() {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Generate a CRUD application',
+                            name: 'notes',
+                            dir:  'notes',
+                            store: 'Memory',
+                            capabilities: ['Embedded metrics dashboard']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has the expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'crud',
+        appName: 'notes',
+        capabilities: {
+          metrics: true,
+        },
+        config: {
+          logger: 'helium',
+          port: 8080
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
     });
   });
 
@@ -706,10 +777,152 @@ describe('swiftserver:app', function () {
     after(function() {
       runContext.cleanTestDirectory();
     });
-    
+
     it('did not generate a project', function () {
       var spec = runContext.generator.spec;
       assert.objectContent(spec, {});
     })
+  });
+
+  describe('Basic application', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: []
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('spec object has no capabilities', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'scaffold',
+        appName: 'mysite',
+        bluemix: undefined,
+        docker: undefined,
+        web: undefined,
+        hostSwagger: undefined,
+        capabilities: {},
+        services: {}
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('Basic application with bluemix, autoscaling and metrics', function() {
+    var runContext;
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: [
+                              'Embedded metrics dashboard',
+                              'Bluemix cloud deployment'
+                            ],
+                            services: ['Auto-scaling']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has expected spec object', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        appType: 'scaffold',
+        bluemix: true,
+        capabilities: {
+          metrics: true
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'));
+    });
+  });
+
+  describe('Web application', function() {
+    var runContext;
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: ['Static web file serving']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('spec object has web', function() {
+      var spec = runContext.generator.spec;
+      var expectedSpec = {
+        web: true
+      };
+      assert.objectContent(spec, expectedSpec);
+    });
+  });
+
+  describe('Web application with bluemix, autoscaling and metrics', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode:  true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'mysite',
+                            dir:  'mysite',
+                            capabilities: [
+                              'Static web file serving',
+                              'Embedded metrics dashboard',
+                              'Bluemix cloud deployment'
+                            ],
+                            services: ['Auto-scaling']
+                          });
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('has expected spec object', function() {
+      var spec = runContext.generator.spec;
+      console.log(spec);
+      var expectedSpec = {
+        appType: 'scaffold',
+        web: true,
+        bluemix: true,
+        capabilities: {
+          metrics: true
+        }
+      };
+      assert.objectContent(spec, expectedSpec);
+      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'));
+    });
   });
 });
