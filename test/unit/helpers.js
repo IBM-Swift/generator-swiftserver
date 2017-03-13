@@ -41,5 +41,34 @@ describe('helpers', function () {
       assert(suffix.match(/[a-z]\d[a-z]\d/));
     });
   });
-});
 
+  describe('sanitizeAppName', function () {
+    it('alpha name unchanged', function() {
+      assert.equal(helpers.sanitizeAppName('bob'), 'bob');
+    });
+
+    it('alphanumeric name unchanged', function() {
+      assert.equal(helpers.sanitizeAppName('b33ob4'), 'b33ob4');
+    });
+
+    it('numbers stripped from start', function() {
+      assert.equal(helpers.sanitizeAppName('33b33ob4'), 'b33ob4');
+      assert.equal(helpers.sanitizeAppName('^33b33ob4'), 'b33ob4');
+    });
+
+    it('non-alphanumerics stripped from everywhere', function() {
+      assert.equal(helpers.sanitizeAppName('*(&33b@33ob4'), 'b33ob4');
+      assert.equal(helpers.sanitizeAppName('3*(&3 3b@33ob4'), 'b33ob4');
+      assert.equal(helpers.sanitizeAppName('h3*(&33b@33ob4'), 'h333b33ob4');
+      assert.equal(helpers.sanitizeAppName(' h3*(&33b@33ob4'), 'h333b33ob4');
+    });
+
+    it('empty or completely invalid string gives generic name', function() {
+      assert.equal(helpers.sanitizeAppName(''), 'SWIFTSERVERAPP');
+      assert.equal(helpers.sanitizeAppName(' '), 'SWIFTSERVERAPP');
+      assert.equal(helpers.sanitizeAppName('*(&@'), 'SWIFTSERVERAPP');
+      assert.equal(helpers.sanitizeAppName('*(&33@334'), 'SWIFTSERVERAPP');
+    });
+  });
+
+});

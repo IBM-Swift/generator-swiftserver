@@ -141,6 +141,9 @@ module.exports = generators.Base.extend({
         }
       }
 
+      // Clean app name (for containers and other uses)
+      this.cleanAppName = helpers.sanitizeAppName(this.bluemix && this.bluemix.name || this.projectName);
+
       // Docker configuration
       this.docker = (this.spec.docker === true);
 
@@ -659,7 +662,7 @@ module.exports = generators.Base.extend({
           this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
         );
       }
-      
+
       if (this.web) {
         this.fs.write(this.destinationPath('public','.keep'), '');
       }
@@ -905,7 +908,7 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('docker', 'cli-config.yml'),
         this.destinationPath('cli-config.yml'),
-        { appName: this.projectName,
+        { cleanAppName: this.cleanAppName,
           executableName: this.executableModule }
       );
     },
@@ -916,7 +919,7 @@ module.exports = generators.Base.extend({
       this.fs.copyTpl(
         this.templatePath('bluemix', 'manifest.yml'),
         this.destinationPath('manifest.yml'),
-        { appName: this.projectName,
+        { cleanAppName: this.cleanAppName,
           executableName: this.executableModule,
           services: this.services,
           capabilities: this.capabilities,
