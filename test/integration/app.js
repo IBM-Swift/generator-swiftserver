@@ -42,6 +42,7 @@ describe('swiftserver:app integration test', function () {
       // Mock the options, set up an output folder and run the generator
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withPrompts({                       // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes'
         })
@@ -65,8 +66,11 @@ describe('swiftserver:app integration test', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
       runContext = helpers.run(path.join( __dirname, '../../app'))
-        .withPrompts({ name: 'notes' })
         .withOptions({ 'skip-build': true })
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+          name: 'notes'
+        })
         .inTmpDir(function(tmpDir) {
           this.inDir(path.join(tmpDir, 'notes'))
         });
@@ -241,7 +245,7 @@ describe('swiftserver:app integration test', function () {
       });
 
       it('compiles the application', function () {
-        assert.file(process.cwd()+'/.build/debug/todoServer');
+        assert.file(process.cwd()+'/.build/debug/todo');
       });
   });
 
@@ -284,7 +288,7 @@ describe('swiftserver:app integration test', function () {
       });
 
       it('compiles the application', function () {
-        assert.file(process.cwd()+'/.build/debug/todoServer');
+        assert.file(process.cwd()+'/.build/debug/todo');
       });
   });
 
@@ -327,7 +331,7 @@ describe('swiftserver:app integration test', function () {
       });
 
       it('compiles the application', function () {
-        assert.file(process.cwd()+'/.build/debug/todoServer');
+        assert.file(process.cwd()+'/.build/debug/todo');
       });
   });
 

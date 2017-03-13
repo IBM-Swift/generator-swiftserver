@@ -2,9 +2,8 @@ import Foundation
 import Kitura
 import LoggerAPI
 import Configuration
-<% if(appType === 'crud') { -%>
-import KituraNet
-import SwiftyJSON
+<% if (appType === 'crud') { -%>
+import <%- generatedModule %>
 <% } -%>
 <% if(bluemix) { -%>
 import CloudFoundryConfig
@@ -64,7 +63,7 @@ public func initialize() throws {
     manager.load(url: projectRoot.appendingPathComponent("config.json"))
            .load(.environmentVariables)
 
-<% if(bluemix) { -%>
+<% if (bluemix) { -%>
     port = manager.port
 <% } else { -%>
     port = manager["port"] as? Int ?? port
@@ -72,7 +71,7 @@ public func initialize() throws {
 
 <% if (Object.keys(capabilities).length > 0) { -%>
 <%   Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<%     if(capabilities[capabilityType]) { -%>
+<%     if (capabilities[capabilityType]) { -%>
 <%-      include(`../capabilities/${capabilityType}/declareCapability.swift`) %>
 <%     } -%>
 <%   }); -%>
@@ -89,20 +88,17 @@ public func initialize() throws {
 <%   }); -%>
 <% } -%>
     router.all("/*", middleware: BodyParser())
-<% if (appType === 'web') { -%>
+<% if (web) { -%>
     router.all("/", middleware: StaticFileServer())
 <% } -%>
 <% if (appType === 'crud') { %>
-    let factory = AdapterFactory(manager: manager)
-<%   models.forEach(function(model) { -%>
-    try <%- model.classname %>Resource(factory: factory).setupRoutes(router: router)
-<%   }); -%>
+    try initializeCRUDResources(manager: manager, router: router)
 <% } -%>
 <% if (hostSwagger) { -%>
     initializeSwaggerRoute(path: projectRoot.appendingPathComponent("definitions/<%- appName %>.yaml").path)
 <% } -%>
-<% if (appType === 'bff') { -%>
-    initializeBFFRoutes()
+<% if (exampleEndpoints) { -%>
+    initializeProductRoutes()
 <% } -%>
 }
 

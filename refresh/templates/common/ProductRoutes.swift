@@ -1,7 +1,7 @@
 import Kitura
 import SwiftyJSON
 
-func initializeBFFRoutes() {
+func initializeProductRoutes() {
 
     router.get("/products") { request, response, next in
         response.send(json: [:])

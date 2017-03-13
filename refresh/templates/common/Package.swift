@@ -3,10 +3,12 @@ import PackageDescription
 let package = Package(
     name: "<%- executableModule %>",
     targets: [
+<% if (appType === 'crud') { -%>
+      Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- generatedModule %>") ]),
+<% } -%>
       Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ])
     ],
     dependencies: [
-
 <% if(bluemix) { -%>
         .Package(url: "https://github.com/IBM-Swift/CloudConfiguration.git", majorVersion: 1),
 <% } else { -%>
@@ -16,11 +18,10 @@ let package = Package(
         <%- include(`../services/${serviceType}/importDependency.swift`) %>
 <% }); -%>
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<% if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
+<%   if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
         <%- include(`../capabilities/${capabilityType}/importDependency.swift`) %>
-<% } -%>
+<%   } -%>
 <% }); -%>
-
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",                 majorVersion: 1),
         .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",           majorVersion: 1)
     ],

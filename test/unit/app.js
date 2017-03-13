@@ -46,6 +46,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
         .withPrompts({                       // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes'
         });
@@ -67,7 +68,7 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -83,6 +84,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'applicationName',
           dir:  'directoryName'
         });
@@ -104,7 +106,7 @@ describe('swiftserver:app', function () {
         appName: 'applicationName',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -121,6 +123,7 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
           name: 'appNameOnly'
         });
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
@@ -141,7 +144,7 @@ describe('swiftserver:app', function () {
         appName: 'appNameOnly',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -159,6 +162,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'appDir'));
         })
@@ -184,7 +190,7 @@ describe('swiftserver:app', function () {
         appName: 'appDir',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -201,6 +207,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'currentDir'));
         })
@@ -226,7 +235,7 @@ describe('swiftserver:app', function () {
         appName: 'differentAppName',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -242,6 +251,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['nameOnCommandLine'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         return runContext.toPromise();       // Get a Promise back for when the generator finishes
     });
 
@@ -260,7 +272,7 @@ describe('swiftserver:app', function () {
         appName: 'nameOnCommandLine',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -278,6 +290,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'validDir'));
         })
@@ -302,7 +317,7 @@ describe('swiftserver:app', function () {
         appName: 'validDir',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -322,6 +337,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['inva&%*lid'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'inva&%*lid'));
         })
@@ -343,7 +361,7 @@ describe('swiftserver:app', function () {
         appName: 'app',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -362,6 +380,9 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withArguments(['ext&%*ra'])
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'));
         })
@@ -383,7 +404,7 @@ describe('swiftserver:app', function () {
         appName: 'inv-l-l-l-l-lid',
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -400,6 +421,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
+        .withPrompts({      // Mock the prompt answers
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'testDir'));
         });
@@ -426,9 +450,10 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant'
+          store: 'Cloudant'
         })
         .inTmpDir(function (tmpDir) {
           this.inDir(path.join(tmpDir, 'testDir'));
@@ -451,16 +476,12 @@ describe('swiftserver:app', function () {
         appName: 'notes',
         services: {
           cloudant: [{
-            credentials: {
-              host: 'localhost',
-              port: 5984,
-              secured: false
-            }
+            credentials: {}
           }]
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -478,13 +499,14 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant',
-          default: false,
-          host: 'cloudanthost',
-          port: 8080,
-          secured: true
+          store: 'Cloudant',
+          configure: ['Cloudant / CouchDB'],
+          cloudantHost: 'cloudanthost',
+          cloudantPort: 8080,
+          cloudantSecured: true
         })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'testDir'));
@@ -516,7 +538,7 @@ describe('swiftserver:app', function () {
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -534,12 +556,13 @@ describe('swiftserver:app', function () {
         .withGenerators(dependentGenerators)
         .withOptions({ testmode:  true })
         .withPrompts({
+          appType: 'Generate a CRUD application',
           name: 'notes',
           dir:  'notes',
-          store: 'cloudant',
-          credentials: true,
-          username: 'admin',
-          password: 'password123'
+          store: 'Cloudant',
+          configure: ['Cloudant / CouchDB'],
+          cloudantUsername: 'admin',
+          cloudantPassword: 'password123'
         })
         .inTmpDir(function (tmpDir) {
            this.inDir(path.join(tmpDir, 'testDir'));
@@ -563,9 +586,6 @@ describe('swiftserver:app', function () {
         services: {
           cloudant: [{
             credentials: {
-              host: 'localhost',
-              port: 5984,
-              secured: false,
               username: 'admin',
               password: 'password123'
             }
@@ -573,7 +593,7 @@ describe('swiftserver:app', function () {
         },
         config: {
           logger: 'helium',
-          port: 8090
+          port: 8080
         }
       };
       assert.objectContent(spec, expectedSpec);
@@ -589,6 +609,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           var tmpFile = path.join(tmpDir, "non_empty.txt");    //Created to make the dir a non-empty
           fs.writeFileSync(tmpFile, "");
@@ -622,6 +645,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           fs.mkdirSync(path.join(tmpDir, 'tmpDir'));
           var tmpFile = path.join(tmpDir, 'tmpDir', "non_empty.txt");    //Created to make the dir non-empty
@@ -660,6 +686,9 @@ describe('swiftserver:app', function () {
       runContext = helpers.run(path.join( __dirname, '../../app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode:  true })    // Workaround to stub subgenerators
+        .withPrompts({
+          appType: 'Generate a CRUD application',
+        })
         .inTmpDir(function (tmpDir) {
           var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir non-empty
           fs.writeFileSync(tmpFile, "");
