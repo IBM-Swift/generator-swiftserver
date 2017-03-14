@@ -679,7 +679,7 @@ module.exports = generators.Base.extend({
         if (this.web) {
           this.fs.copy(
             this.templatePath('common', 'swagger-ui/**/*'),
-            this.destinationPath('public', 'swagger-ui')
+            this.destinationPath('public', 'explorer')
           );
         }
       }
