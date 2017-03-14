@@ -1343,6 +1343,41 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          web: true,
+          hostSwagger: true,
+          exampleEndpoints: true,
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates SwaggerUI', function () {
+      assert.file('public/swagger-ui/index.html');
+      assert.file('public/swagger-ui/swagger-ui.js');
+      assert.file('public/swagger-ui/css/style.css');
+    });
+  });
+
   describe('Generate application for bluemix with a service whose name contains spaces', function () {
 
     var runContext;
