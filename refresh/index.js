@@ -836,12 +836,6 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift')
           );
         }
-        if(serviceType === 'mongodb') {
-          this.fs.copy(
-            this.templatePath('extensions', 'MongoDBExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'MongoDBExtension.swift')
-          );
-        }
         if(serviceType === 'mysql') {
           this.fs.copy(
             this.templatePath('extensions', 'MySQLExtension.swift'),

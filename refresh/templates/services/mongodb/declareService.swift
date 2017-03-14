@@ -1,1 +1,0 @@
-internal var server: Server?
