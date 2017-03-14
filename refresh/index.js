@@ -866,6 +866,12 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift')
           );
         }
+        if(serviceType === 'appid') {
+          this.fs.copy(
+            this.templatePath('extensions', 'AppIDExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift')
+          );
+        }
       }.bind(this));
     },
 
