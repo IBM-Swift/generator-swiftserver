@@ -374,7 +374,7 @@ module.exports = generators.Base.extend({
         {
           name: 'cloudantPort',
           message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
+          validate: (port) => validatePort(port),
           filter: (port) => (port ? parseInt(port) : port)
         },
         {
@@ -417,7 +417,7 @@ module.exports = generators.Base.extend({
         {
           name: 'mongodbPort',
           message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
+          validate: (port) => validatePort(port),
           filter: (port) => (port ? parseInt(port) : port)
         },
         { name: 'mongodbUsername', message: 'Enter username:' },
@@ -447,7 +447,7 @@ module.exports = generators.Base.extend({
         {
           name: 'redisPort',
           message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
+          validate: (port) => validatePort(port),
           filter: (port) => (port ? parseInt(port) : port)
         },
         { name: 'redisPassword', message: 'Enter password:', type: 'password' }
