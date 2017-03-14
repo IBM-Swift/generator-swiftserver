@@ -676,6 +676,12 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'productSwagger.yaml'),
           this.destinationPath('definitions', `${this.projectName}.yaml`)
         );
+        if (this.web) {
+          this.fs.copy(
+            this.templatePath('common', 'swagger-ui/**/*'),
+            this.destinationPath('public', 'swagger-ui')
+          );
+        }
       }
 
       if (this.appType !== 'crud') {
