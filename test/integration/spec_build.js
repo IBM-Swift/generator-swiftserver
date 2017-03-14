@@ -219,7 +219,7 @@ describe('Spec option and build integration tests', function () {
     });
   });
 
-  describe('Web application with a mongo service and is able to build', function () {
+  describe('Web application with an appid service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
     this.timeout(300000);
 
@@ -234,8 +234,8 @@ describe('Spec option and build integration tests', function () {
         port: 8090
       },
       services: {
-        mongodb: [{
-          name: "myMongoDBService"
+        appid: [{
+          name: "myAppIDService"
         }]
       }
     };

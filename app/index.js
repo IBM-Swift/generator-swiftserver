@@ -209,7 +209,7 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    ensureEmptyDirectory: function() { 
+    ensureEmptyDirectory: function() {
       if (this.skipPrompting) return;
       actions.ensureEmptyDirectory.call(this);
     },
@@ -294,9 +294,6 @@ module.exports = generators.Base.extend({
         if (answers.services.indexOf('CouchDB') !== -1) {
           this._addService('cloudant', { name: 'couchdb' });
         }
-        if (answers.services.indexOf('MongoDB') !== -1) {
-          this._addService('mongodb', { name: 'mongodb' });
-        }
         if (answers.services.indexOf('Redis') !== -1) {
           this._addService('redis', { name: 'redis' });
         }
@@ -322,9 +319,6 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.services.indexOf('Cloudant') !== -1) {
           this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') });
-        }
-        if (answers.services.indexOf('MongoDB') !== -1) {
-          this._addService('mongodb', { name: generateServiceName(this.appname, 'MongoDB') });
         }
         if (answers.services.indexOf('Redis') !== -1) {
           this._addService('redis', { name: generateServiceName(this.appname, 'Redis') });
@@ -383,7 +377,6 @@ module.exports = generators.Base.extend({
       function serviceDisplayType(serviceType) {
         switch (serviceType) {
           case 'cloudant':      return 'Cloudant / CouchDB';
-          case 'mongodb':       return 'MongoDB';
           case 'redis':         return 'Redis';
           case 'objectstorage': return 'Object Storage';
           case 'appid':         return 'AppID';
@@ -403,7 +396,7 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         this.servicesToConfigure = {};
         choices.forEach(function(serviceType) {
-          this.servicesToConfigure[serviceType] = 
+          this.servicesToConfigure[serviceType] =
             (answers.configure.indexOf(serviceDisplayType(serviceType)) !== -1);
         }.bind(this));
         done();
@@ -423,7 +416,7 @@ module.exports = generators.Base.extend({
         {
           name: 'cloudantPort',
           message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
+          validate: (port) => validatePort(port),
           filter: (port) => (port ? parseInt(port) : port)
         },
         {
@@ -453,36 +446,6 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptConfigureMongoDB: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.mongodb) return;
-      var done = this.async();
-
-      this.log();
-      this.log('Configure MongoDB');
-      var prompts = [
-        { name: 'mongodbHost', message: 'Enter host name:' },
-        {
-          name: 'mongodbPort',
-          message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
-          filter: (port) => (port ? parseInt(port) : port)
-        },
-        { name: 'mongodbUsername', message: 'Enter username:' },
-        { name: 'mongodbPassword', message: 'Enter password:', type: 'password' }
-      ];
-      this.prompt(prompts, function(answers) {
-        this.services.mongodb[0].credentials = {
-          host: answers.mongodbHost || undefined,
-          port: answers.mongodbPort || undefined,
-          username: answers.mongodbUsername || undefined,
-          password: answers.mongodbPassword || undefined
-        };
-        done();
-      }.bind(this));
-    },
-
     promptConfigureRedis: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
@@ -496,7 +459,7 @@ module.exports = generators.Base.extend({
         {
           name: 'redisPort',
           message: 'Enter port:',
-          validate: (port) => validatePort(port) || !port,
+          validate: (port) => validatePort(port),
           filter: (port) => (port ? parseInt(port) : port)
         },
         { name: 'redisPassword', message: 'Enter password:', type: 'password' }

@@ -1,0 +1,2 @@
+internal var kituraCredentials: Credentials?
+internal var webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin?

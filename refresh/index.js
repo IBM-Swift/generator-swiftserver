@@ -836,12 +836,6 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift')
           );
         }
-        if(serviceType === 'mongodb') {
-          this.fs.copy(
-            this.templatePath('extensions', 'MongoDBExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'MongoDBExtension.swift')
-          );
-        }
         if(serviceType === 'mysql') {
           this.fs.copy(
             this.templatePath('extensions', 'MySQLExtension.swift'),
@@ -864,6 +858,12 @@ module.exports = generators.Base.extend({
           this.fs.copy(
             this.templatePath('extensions', 'ObjStorageExtension.swift'),
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift')
+          );
+        }
+        if(serviceType === 'appid') {
+          this.fs.copy(
+            this.templatePath('extensions', 'AppIDExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift')
           );
         }
       }.bind(this));

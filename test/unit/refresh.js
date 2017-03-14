@@ -286,7 +286,7 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
     });
   });
 
@@ -389,7 +389,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -427,7 +427,7 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -788,7 +788,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -829,7 +829,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance');
     });
   });
 
@@ -1029,106 +1029,6 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis()');
     });
 
-  });
-
-  describe('Generated a web application with mongo for bluemix', function() {
-
-    var runContext;
-
-    before(function() {
-      var spec = {
-        appType: 'scaffold',
-        appName: appName,
-        bluemix: true,
-        web: true,
-        config: {
-          logger: 'helium',
-          port: 8090
-        },
-        services: {
-          mongodb: [{
-            name: "myMongoDBService"
-          }]
-        }
-      };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-      return runContext.toPromise();
-    });
-
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
-
-    it('does not generate the extensions required by bluemix', function() {
-      assert.file(`Sources/${applicationModule}/Extensions/MongoDBExtension.swift`)
-    });
-
-    it('imports the correct modules in Application.swift', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import MongoKitten');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SSLService');
-    });
-
-    it('initialises mongo server', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var server: Server?');
-    });
-
-    it('creates the boilerplate to connect to mongo', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getMongoDBService(name: "myMongoDBService")');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'server = Server(service: mongoDBService)');
-    });
-  });
-
-  describe('Generated a web application with mongo without bluemix', function() {
-
-    var runContext;
-
-    before(function() {
-      var spec = {
-        appType: 'scaffold',
-        appName: appName,
-        bluemix: false,
-        web: true,
-        config: {
-          logger: 'helium',
-          port: 8090
-        },
-        services: {
-          mongodb: [{
-            name: "myMongoDBService"
-          }]
-        }
-      };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-      return runContext.toPromise();
-    });
-
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
-
-    it('does not generate the extensions required by bluemix', function() {
-      assert.noFile(`Sources/${applicationModule}/Extensions/MongoDBExtension.swift`)
-    });
-
-    it('imports the correct modules in Application.swift', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import MongoKitten');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SSLService');
-    });
-
-    it('initialises mongo server', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var server: Server?');
-    });
-
-    it('creates the boilerplate to connect to mongo', function() {
-      let expectedContent = 'server = try (mongoURL: "mongodb://username:password@localhost")';
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, expectedContent);
-    });
   });
 
   describe('Generated a web application with objectstorage for bluemix', function() {
@@ -1412,4 +1312,60 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"');
     });
   });
+
+  describe('Generated a web application with appid for bluemix', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 8090
+        },
+        services: {
+          appid: [{
+            name: "myAppIDService"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('does not generate the extensions required by bluemix', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/AppIDExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import Credentials');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixAppID');
+    });
+
+    it('initialises AppID credentials and credentialsplugin', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var kituraCredentials: Credentials?');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin?');
+    });
+
+    it('creates the boilerplate to connect to appid', function() {
+
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getAppIDService(name: "myAppIDService")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'WebAppKituraCredentialsPlugin(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials = Credentials()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials?.register(plugin: ');
+
+    });
+  });
+
 });
