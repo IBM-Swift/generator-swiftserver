@@ -1272,9 +1272,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates SwaggerUI', function () {
-      assert.file('public/swagger-ui/index.html');
-      assert.file('public/swagger-ui/swagger-ui.js');
-      assert.file('public/swagger-ui/css/style.css');
+      assert.file('public/explorer/index.html');
+      assert.file('public/explorer/swagger-ui.js');
+      assert.file('public/explorer/css/style.css');
     });
   });
 
