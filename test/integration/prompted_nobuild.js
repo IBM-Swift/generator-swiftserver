@@ -150,8 +150,8 @@ describe('Prompt and no build integration tests', function () {
       assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetricsBluemix');
     });
 
-    it('Application.swift references AutoScalar', function() {
-      assert.fileContent('Sources/Application/Application.swift', 'AutoScalar');
+    it('Application.swift references SwiftMetricsBluemix', function() {
+      assert.fileContent('Sources/Application/Application.swift', 'SwiftMetricsBluemix(');
     });
   });
 

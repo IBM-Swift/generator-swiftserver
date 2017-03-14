@@ -1,1 +1,1 @@
-    let _ = AutoScalar(swiftMetricsInstance: sm)
+    let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)

@@ -286,7 +286,7 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = AutoScalar(swiftMetricsInstance: sm)');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
     });
   });
 
@@ -389,7 +389,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -427,7 +427,7 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -788,7 +788,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance:');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:');
     });
   });
 
@@ -829,7 +829,7 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
-      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'AutoScalar(swiftMetricsInstance');
+      assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance');
     });
   });
 
