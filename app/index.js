@@ -182,6 +182,33 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
+    /*
+     * Determine the application pattern so that the capability
+     * defaults can be set appropriately.
+     */
+    promptApplicationPattern: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'appPattern',
+        type: 'list',
+        message: 'Select capability presets for application pattern:',
+        choices: [ 'Basic', 'Web', 'Backend for frontend' ],
+        default: 'Basic'
+      }];
+      this.prompt(prompts, function(answers) {
+        switch (answers.appPattern) {
+          case 'Basic':                this.appPattern = 'Basic'; break;
+          case 'Web':                  this.appPattern = 'Web'; break;
+          case 'Backend for frontend': this.appPattern = 'Bff'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appPattern}`));
+        }
+        done();
+      }.bind(this));
+    },
+
     ensureEmptyDirectory: function() { 
       if (this.skipPrompting) return;
       actions.ensureEmptyDirectory.call(this);
@@ -194,19 +221,41 @@ module.exports = generators.Base.extend({
       var self = this;
       function displayName(property) {
         switch (property) {
-          case 'web':         return 'Static web file serving';
-          case 'hostSwagger': return 'OpenAPI / Swagger endpoint';
-          case 'metrics':     return 'Embedded metrics dashboard';
-          case 'docker':      return 'Docker files';
-          case 'bluemix':     return 'Bluemix cloud deployment';
+          case 'web':              return 'Static web file serving';
+          case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
+          case 'metrics':          return 'Embedded metrics dashboard';
+          case 'docker':           return 'Docker files';
+          case 'exampleEndpoints': return 'Example endpoints';
+          case 'bluemix':          return 'Bluemix cloud deployment';
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`));
+        }
+      }
+
+      function defaultCapabilities(appPattern) {
+        switch (appPattern) {
+          case 'Basic': return ['Docker files',
+                                'Embedded metrics dashboard',
+                                'Bluemix cloud deployment'];
+          case 'Web':   return ['Static web file serving',
+                                'Embedded metrics dashboard',
+                                'Docker files',
+                                'Bluemix cloud deployment'];
+          case 'Bff':   return ['OpenAPI / Swagger endpoint',
+                                'Embedded metrics dashboard',
+                                'Example endpoints',
+                                'Static web file serving',
+                                'Docker files',
+                                'Bluemix cloud deployment'];
+          default:
+            self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`));
         }
       }
 
       var choices = ['metrics', 'docker', 'bluemix'];
 
       if (this.appType === 'scaffold') {
+        choices.unshift('exampleEndpoints');
         choices.unshift('hostSwagger');
         choices.unshift('web');
       }
@@ -216,7 +265,7 @@ module.exports = generators.Base.extend({
         type: 'checkbox',
         message: 'Select capabilities:',
         choices: choices.map(displayName),
-        default: choices.map(displayName)
+        default: defaultCapabilities(this.appPattern)
       }];
       this.prompt(prompts, function(answers) {
         choices.forEach(function(choice) {
