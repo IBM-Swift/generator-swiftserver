@@ -281,7 +281,7 @@ module.exports = generators.Base.extend({
       if (this.bluemix) return;
       var done = this.async();
 
-      var choices = ['CouchDB', 'MongoDB', 'Redis'];
+      var choices = ['CouchDB', 'Redis'];
 
       var prompts = [{
         name: 'services',
@@ -307,7 +307,7 @@ module.exports = generators.Base.extend({
       if (!this.bluemix) return;
       var done = this.async();
 
-      var choices = ['Cloudant', 'MongoDB', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'];
+      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'];
 
       var prompts = [{
         name: 'services',
