@@ -552,6 +552,10 @@ describe('swiftserver:refresh', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
+    it('generates the CloudantConfig', function() {
+      assert.file(`Sources/${applicationModule}/CloudantConfig.swift`)
+    });
+
     it('imports the correct modules in Application.swift', function() {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
@@ -561,7 +565,8 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CloudantConfig(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
 
@@ -918,6 +923,10 @@ describe('swiftserver:refresh', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
+    it('generates the CloudantConfig', function() {
+      assert.file(`Sources/${applicationModule}/CloudantConfig.swift`)
+    });
+
     it('imports the correct modules in Application.swift', function() {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
@@ -927,8 +936,8 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to cloudant', function() {
-      let expectedContent = ['ConnectionProperties(host: "localhost", port: 5984, secured: false)','CouchDBClient(connectionProperties: couchDBConnProps)'];
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(host: "localhost", port: 5984, secured: false)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CloudantConfig(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
   });
@@ -1017,11 +1026,16 @@ describe('swiftserver:refresh', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/RedisExtension.swift`)
     });
 
+    it('generates the RedisConfig', function() {
+      assert.noFile(`Sources/${applicationModule}/RedisConfig.swift`)
+    });
+
     it('imports the correct modules in Application.swift', function() {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftRedis');
     });
 
     it('initialises redis', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'RedisConfig');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis?');
     });
 
