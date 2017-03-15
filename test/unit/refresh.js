@@ -22,7 +22,7 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.cfignore', '.yo-rc.json'];
+                     '.cfignore', '.yo-rc.json', 'LICENSE'];
 
 var appName = 'todo';
 var modelName = 'todo';
@@ -1241,6 +1241,10 @@ describe('swiftserver:refresh', function () {
     it('defines OPENAPI_SPEC environment variable', function() {
       assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
     });
+
+    it('does not generate NOTICES.txt', function() {
+      assert.noFile('NOTICES.txt');
+    });
   });
 
   describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
@@ -1275,6 +1279,10 @@ describe('swiftserver:refresh', function () {
       assert.file('public/explorer/index.html');
       assert.file('public/explorer/swagger-ui.js');
       assert.file('public/explorer/css/style.css');
+    });
+
+    it('generates NOTICES.txt', function() {
+      assert.file('NOTICES.txt');
     });
   });
 
