@@ -845,7 +845,7 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'CloudantConfig.swift')
           )
         }
-        if(serviceType === 'cloudant') {
+        if(serviceType === 'redis') {
           this.fs.copy(
             this.templatePath('local', 'RedisConfig.swift'),
             this.destinationPath('Sources', this.applicationModule, 'RedisConfig.swift')
