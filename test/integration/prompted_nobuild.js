@@ -177,4 +177,107 @@ describe('Prompt and no build integration tests', function () {
     });
   });
 
+  describe('Bluemix application where service application name is provided', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            cloudantName: 'testCloudant',
+                            redisName: 'testRedis',
+                            objectstorageName: 'testObjectStorage',
+                            appIDName: 'testAppID'
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
+      var expected = {
+        vcap: {
+          services: {
+            cloudantNoSQLDB: [{
+              name: 'testCloudant'
+            }],
+            'compose-for-redis': [{
+              name: 'testRedis'
+            }],
+            'Object-Storage': [{
+              name: 'testObjectStorage'
+            }],
+            AdvancedMobileAccess: [{
+              name: 'testAppID'
+            }]
+          }
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Bluemix application where service application name is defaulted', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
+      assert.fileContent([ ['config.json', /\s\"name\":\s\"notes-Cloudant-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-Redis-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-ObjectStorage-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-AppID-\w{4}\",/],
+                         ]);
+    });
+  });
+
+  describe('Non bluemix where service application name should not be provided', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
+                            services: ['CouchDB', 'Redis'],
+                            configure: ['Cloudant / CouchDB', 'Redis'],
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct values for cloudant and redis service names', function () {
+      var expected = {
+        services: {
+          cloudant: [{
+            name: 'couchdb'
+          }],
+          'redis': [{
+            name: 'redis'
+          }],
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
 });
