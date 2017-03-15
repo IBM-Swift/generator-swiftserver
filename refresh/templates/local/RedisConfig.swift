@@ -1,5 +1,5 @@
 import SwiftyJSON
-import ConfigurationManager
+import Configuration
 
 public struct RedisConfig {
 
