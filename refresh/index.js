@@ -640,6 +640,11 @@ module.exports = generators.Base.extend({
                      this.destinationPath('.swift-version'));
       }
 
+      this.fs.copy(
+        this.templatePath('common', 'LICENSE_for_generated_code'),
+        this.destinationPath('LICENSE')
+      );
+
       this.fs.copyTpl(
         this.templatePath('common', 'Application.swift'),
         this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
@@ -680,6 +685,10 @@ module.exports = generators.Base.extend({
           this.fs.copy(
             this.templatePath('common', 'swagger-ui/**/*'),
             this.destinationPath('public', 'explorer')
+          );
+          this.fs.copy(
+            this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
+            this.destinationPath('NOTICES.txt')
           );
         }
       }

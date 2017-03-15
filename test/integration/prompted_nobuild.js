@@ -54,6 +54,10 @@ describe('Prompt and no build integration tests', function () {
       assert.file('.yo-rc.json');
     });
 
+    it('created a LICENSE file', function() {
+      assert.file('LICENSE');
+    });
+
     it('created a spec.json file', function() {
       assert.file('spec.json');
     });
@@ -76,6 +80,10 @@ describe('Prompt and no build integration tests', function () {
 
     it('Application.swift references Configuration', function() {
       assert.fileContent('Sources/Application/Application.swift', 'import Configuration');
+    });
+
+    it('did not create NOTICES.txt', function() {
+      assert.noFile('NOTICES.txt');
     });
   });
 
@@ -152,6 +160,98 @@ describe('Prompt and no build integration tests', function () {
 
     it('Application.swift references SwiftMetricsBluemix', function() {
       assert.fileContent('Sources/Application/Application.swift', 'SwiftMetricsBluemix(');
+    });
+  });
+
+  describe('BFF application', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir:  'notes',
+                            appPattern: 'Backend for frontend'
+                          });
+      return runContext.toPromise();
+    });
+
+    describe('Static web file serving', function() {
+      it('created public web directory', function () {
+        assert.file('public');
+      });
+
+      it('created Application.swift with web serving of public directory', function() {
+        assert.fileContent('Sources/Application/Application.swift', 'StaticFileServer()');
+      });
+    });
+
+    describe('OpenAPI / Swagger endpoint', function() {
+      it('created swagger endpoint route', function() {
+        assert.file(`Sources/Application/Routes/SwaggerRoute.swift`);
+      });
+    });
+
+    describe('Example endpoints', function() {
+      it('created example endpoints', function() {
+        assert.file(`Sources/Application/Routes/ProductRoutes.swift`);
+      });
+
+      it('created example swagger definition', function() {
+        assert.file(`definitions/notes.yaml`);
+      });
+    });
+
+    describe('Static web file serving + Example endpoints', function() {
+      it('created SwaggerUI', function () {
+        assert.file('public/explorer/index.html');
+        assert.file('public/explorer/swagger-ui.js');
+        assert.file('public/explorer/css/style.css');
+      });
+
+      it('created NOTICES.txt', function() {
+        assert.file('NOTICES.txt');
+      });
+    });
+
+    describe('Embedded metrics dashboard', function() {
+      it('created Application.swift with metrics', function() {
+        assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetrics');
+      });
+
+      it('created Application.swift with metrics dashboard', function() {
+        assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetricsDash');
+      });
+    });
+
+    describe('Docker files', function() {
+      it('created tools docker file', function() {
+        assert.file('Dockerfile-tools');
+      });
+
+      it('created run docker file', function() {
+        assert.file('Dockerfile');
+      });
+    });
+
+    describe('Bluemix cloud deployment', function() {
+      it('created CloudFoundry manifest file', function() {
+        assert.file('manifest.yml');
+      });
+
+      it('created Bluemix toolchain files', function() {
+        assert.file('.bluemix/pipeline.yml');
+        assert.file('.bluemix/toolchain.yml');
+        assert.file('.bluemix/deploy.json');
+      });
+    });
+
+    describe('Bluemix cloud deployment + Docker files', function() {
+      it('created bluemix dev CLI config file', function() {
+        assert.file('cli-config.yml');
+      });
     });
   });
 
