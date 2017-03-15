@@ -1027,7 +1027,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the RedisConfig', function() {
-      assert.noFile(`Sources/${applicationModule}/RedisConfig.swift`)
+      assert.file(`Sources/${applicationModule}/RedisConfig.swift`)
     });
 
     it('imports the correct modules in Application.swift', function() {
