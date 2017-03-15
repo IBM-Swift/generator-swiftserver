@@ -834,6 +834,26 @@ module.exports = generators.Base.extend({
       }
     },
 
+    createConfigFiles: function() {
+      if(this.bluemix) return;
+
+      // Only create these files if we are running locally
+      Object.keys(this.services).forEach(function(serviceType) {
+        if(serviceType === 'cloudant') {
+          this.fs.copy(
+            this.templatePath('local', 'CloudantConfig.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'CloudantConfig.swift')
+          )
+        }
+        if(serviceType === 'cloudant') {
+          this.fs.copy(
+            this.templatePath('local', 'RedisConfig.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'RedisConfig.swift')
+          )
+        }
+      }.bind(this))
+    },
+
     createExtensionFiles: function() {
       if(!this.bluemix) return;
 

@@ -1,2 +1,9 @@
-    let couchDBConnProps = ConnectionProperties(host: "<%- service.credentials.host || 'localhost' %>", port: <%- service.credentials.port || 5984 %>, secured: <%- service.credentials.secured || false %>)
+    let cloudantConfig = CloudantConfig(manager: manager)
+
+    let couchDBConnProps = ConnectionProperties(host:     cloudantConfig.host,
+                                                port:     cloudantConfig.port,
+                                                secured:  cloudantConfig.secured,
+                                                username: cloudantConfig.username,
+                                                password: cloudantConfig.password )
+
     couchDBClient = CouchDBClient(connectionProperties: couchDBConnProps)
