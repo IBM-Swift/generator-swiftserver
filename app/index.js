@@ -203,7 +203,7 @@ module.exports = generators.Base.extend({
           case 'Web':                  this.appPattern = 'Web'; break;
           case 'Backend for frontend': this.appPattern = 'Bff'; break;
           default:
-            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appPattern}`));
+            this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`));
         }
         done();
       }.bind(this));
@@ -550,6 +550,7 @@ module.exports = generators.Base.extend({
       bluemix: this.bluemix || undefined,
       docker: this.docker || undefined,
       web: this.web || undefined,
+      exampleEndpoints: this.exampleEndpoints || undefined,
       hostSwagger: this.hostSwagger || undefined,
       services: this.services || {},
       crudservice: this.crudservice,
