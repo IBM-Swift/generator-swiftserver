@@ -585,10 +585,7 @@ describe('swiftserver:refresh', function () {
           bluemix: {
             "name": "test",
             "host": "myhost",
-            "domain": "mydomain.net",
-            "memory": "512M",
-            "diskQuota": "512M",
-            "instances": 3
+            "domain": "mydomain.net"
           },
           config: {
             logger: 'helium',
@@ -639,15 +636,15 @@ describe('swiftserver:refresh', function () {
     });
 
     it('produces the correct memory in the manifest', function () {
-      assert.fileContent('manifest.yml', 'memory: 512M');
+      assert.fileContent('manifest.yml', 'memory: 128M');
     });
 
     it('produces the correct number of instances in the manifest', function () {
-      assert.fileContent('manifest.yml', 'instances: 3');
+      assert.fileContent('manifest.yml', 'instances: 1');
     });
 
     it('produces the correct disk quota in the manifest', function () {
-      assert.fileContent('manifest.yml', 'disk_quota: 512M');
+      assert.fileContent('manifest.yml', 'disk_quota: 1024M');
     });
   });
 
@@ -664,10 +661,7 @@ describe('swiftserver:refresh', function () {
           bluemix: {
             "name": {},
             "host": {},
-            "domain": true,
-            "memory": 512,
-            "instances": "3",
-            "diskQuota": 512
+            "domain": true
           },
           config: {
             logger: 'helium',
@@ -691,18 +685,6 @@ describe('swiftserver:refresh', function () {
 
     it('produces sets random-route to true in the manifest', function () {
       assert.fileContent('manifest.yml', 'random-route: true');
-    });
-
-    it('produces the default memory amount in the manifest', function () {
-      assert.fileContent('manifest.yml', 'memory: 128M');
-    });
-
-    it('produces the correct number of instances in the manifest', function () {
-      assert.fileContent('manifest.yml', 'instances: 1');
-    });
-
-    it('omits disk quota', function () {
-      assert.noFileContent('manifest.yml', 'disk_quota:');
     });
   });
 

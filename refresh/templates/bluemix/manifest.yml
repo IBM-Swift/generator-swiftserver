@@ -8,11 +8,9 @@ applications:
 <% if (bluemix.domain) { -%>
   domain: <%- bluemix.domain %>
 <% } -%>
-  memory: <%- bluemix.memory || '128M' %>
-  instances: <%- bluemix.instances || 1 %>
-<% if (bluemix.diskQuota) { -%>
-  disk_quota: <%- bluemix.diskQuota %>
-<% } -%>
+  memory: 128M
+  instances: 1
+  disk_quota: 1024M
   buildpack: swift_buildpack
   command: <%- executableName %> --bind 0.0.0.0:$PORT
 <% if (hostSwagger) { -%>
