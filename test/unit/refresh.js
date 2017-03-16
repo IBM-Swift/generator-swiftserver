@@ -586,9 +586,7 @@ describe('swiftserver:refresh', function () {
             "name": "test",
             "host": "myhost",
             "domain": "mydomain.net",
-            "memory": "512M",
-            "diskQuota": "512M",
-            "instances": 3
+            "diskQuota": "512M"
           },
           config: {
             logger: 'helium',
@@ -639,11 +637,11 @@ describe('swiftserver:refresh', function () {
     });
 
     it('produces the correct memory in the manifest', function () {
-      assert.fileContent('manifest.yml', 'memory: 512M');
+      assert.fileContent('manifest.yml', 'memory: 128M');
     });
 
     it('produces the correct number of instances in the manifest', function () {
-      assert.fileContent('manifest.yml', 'instances: 3');
+      assert.fileContent('manifest.yml', 'instances: 1');
     });
 
     it('produces the correct disk quota in the manifest', function () {

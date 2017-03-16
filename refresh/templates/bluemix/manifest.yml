@@ -8,8 +8,8 @@ applications:
 <% if (bluemix.domain) { -%>
   domain: <%- bluemix.domain %>
 <% } -%>
-  memory: <%- bluemix.memory || '128M' %>
-  instances: <%- bluemix.instances || 1 %>
+  memory: 128M
+  instances: 1
 <% if (bluemix.diskQuota) { -%>
   disk_quota: <%- bluemix.diskQuota %>
 <% } -%>
