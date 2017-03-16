@@ -412,6 +412,9 @@ module.exports = generators.Base.extend({
       this.log();
       this.log('Configure Cloudant / CouchDB');
       var prompts = [
+        { name: 'cloudantName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
         { name: 'cloudantHost', message: 'Enter host name:' },
         {
           name: 'cloudantPort',
@@ -435,6 +438,7 @@ module.exports = generators.Base.extend({
         }
       ];
       this.prompt(prompts, function(answers) {
+        this.services.cloudant[0].name = answers.cloudantName || this.services.cloudant[0].name;
         this.services.cloudant[0].credentials = {
           host: answers.cloudantHost || undefined,
           port: answers.cloudantPort || undefined,
@@ -455,6 +459,9 @@ module.exports = generators.Base.extend({
       this.log();
       this.log('Configure Redis');
       var prompts = [
+        { name: 'redisName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
         { name: 'redisHost', message: 'Enter host name:' },
         {
           name: 'redisPort',
@@ -465,6 +472,7 @@ module.exports = generators.Base.extend({
         { name: 'redisPassword', message: 'Enter password:', type: 'password' }
       ];
       this.prompt(prompts, function(answers) {
+        this.services.redis[0].name = answers.redisName || this.services.redis[0].name;
         this.services.redis[0].credentials = {
           host: answers.redisHost || undefined,
           port: answers.redisPort || undefined,
@@ -491,12 +499,16 @@ module.exports = generators.Base.extend({
         { name: 'objectstorageRole',       message: 'Enter role:' },
         { name: 'objectstorageUsername',   message: 'Enter username:' },
         */
+        { name: 'objectstorageName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
         { name: 'objectstorageRegion',     message: 'Enter region:' },
         { name: 'objectstorageProjectId',  message: 'Enter project ID:' },
         { name: 'objectstorageUserId',     message: 'Enter user ID:' },
         { name: 'objectstoragePassword',   message: 'Enter password:', type: 'password' }
       ];
       this.prompt(prompts, function(answers) {
+        this.services.objectstorage[0].name = answers.objectstorageName || this.services.objectstorage[0].name;
         this.services.objectstorage[0].credentials = {
           /*
           auth_url:   answers.objectstorageAuth_url || undefined,
@@ -524,11 +536,15 @@ module.exports = generators.Base.extend({
       this.log();
       this.log('Configure AppID');
       var prompts = [
+        { name: 'appIDName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
         { name: 'appidTenantId', message: 'Enter tenant ID:' },
         { name: 'appidClientId', message: 'Enter client ID:' },
         { name: 'appidSecret',   message: 'Enter secret:', type: 'password' }
       ];
       this.prompt(prompts, function(answers) {
+        this.services.appid[0].name = answers.appIDName || this.services.appid[0].name;
         this.services.appid[0].credentials = {
           tenantId: answers.appidTenantId || undefined,
           clientId: answers.appidClientId || undefined,
