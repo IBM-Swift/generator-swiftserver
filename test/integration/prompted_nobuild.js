@@ -380,4 +380,42 @@ describe('Prompt and no build integration tests', function () {
     });
   });
 
+  describe('Non bluemix where service application name should not be provided', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../app'))
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            cloudantName: 'cloudantService',
+                            redisName: 'redisService',
+                            objectstorageName: 'objStoreService',
+                            appIDName: 'appIDService'
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('sets the correct plan for cloudant', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Lite" "cloudantService"')
+    });
+
+    it('sets the correct plan for redis', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Standard" "redisService"')
+    });
+
+    it('sets the correct plan for object storage', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Free" "objStoreService"')
+    });
+
+    it('sets the correct plan for appID', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Graduated tier" "appIDService"')
+    });
+  });
+
 });
