@@ -109,27 +109,6 @@ module.exports = generators.Base.extend({
   },
 
   prompting: {
-    promptAppType: function() {
-      if (this.skipPrompting) return;
-
-      var done = this.async();
-      var prompts = [{
-        name: 'appType',
-        type: 'list',
-        message: 'Select type of project:',
-        choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
-      }];
-      this.prompt(prompts, function(answers) {
-        switch (answers.appType) {
-          case 'Scaffold a starter':          this.appType = 'scaffold'; break;
-          case 'Generate a CRUD application': this.appType = 'crud'; break;
-          default:
-            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`));
-        }
-        done();
-      }.bind(this));
-    },
-
     promptAppName: function() {
       if (this.skipPrompting) return;
       if (this.skipPromptingAppName) { return; }
@@ -182,12 +161,39 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
+    ensureEmptyDirectory: function() {
+      if (this.skipPrompting) return;
+      actions.ensureEmptyDirectory.call(this);
+    },
+
+    promptAppType: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'appType',
+        type: 'list',
+        message: 'Select type of project:',
+        choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
+      }];
+      this.prompt(prompts, function(answers) {
+        switch (answers.appType) {
+          case 'Scaffold a starter':          this.appType = 'scaffold'; break;
+          case 'Generate a CRUD application': this.appType = 'crud'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`));
+        }
+        done();
+      }.bind(this));
+    },
+
     /*
      * Determine the application pattern so that the capability
      * defaults can be set appropriately.
      */
     promptApplicationPattern: function() {
       if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
 
       var done = this.async();
       var prompts = [{
@@ -207,11 +213,6 @@ module.exports = generators.Base.extend({
         }
         done();
       }.bind(this));
-    },
-
-    ensureEmptyDirectory: function() {
-      if (this.skipPrompting) return;
-      actions.ensureEmptyDirectory.call(this);
     },
 
     promptCapabilities: function() {
@@ -253,11 +254,13 @@ module.exports = generators.Base.extend({
       }
 
       var choices = ['metrics', 'docker', 'bluemix'];
+      var defaults = choices.map(displayName);
 
       if (this.appType === 'scaffold') {
         choices.unshift('exampleEndpoints');
         choices.unshift('hostSwagger');
         choices.unshift('web');
+        defaults = defaultCapabilities(this.appPattern);
       }
 
       var prompts = [{
@@ -265,7 +268,7 @@ module.exports = generators.Base.extend({
         type: 'checkbox',
         message: 'Select capabilities:',
         choices: choices.map(displayName),
-        default: defaultCapabilities(this.appPattern)
+        default: defaults
       }];
       this.prompt(prompts, function(answers) {
         choices.forEach(function(choice) {
