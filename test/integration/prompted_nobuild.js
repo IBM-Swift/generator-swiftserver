@@ -164,6 +164,7 @@ describe('Prompt and no build integration tests', function () {
   });
 
   describe('BFF application', function() {
+    this.timeout(4000); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {

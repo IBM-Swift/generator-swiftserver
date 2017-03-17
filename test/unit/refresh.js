@@ -22,7 +22,7 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.cfignore', '.yo-rc.json', 'LICENSE'];
+                     '.cfignore', '.yo-rc.json', 'LICENSE', 'README.md'];
 
 var appName = 'todo';
 var modelName = 'todo';
@@ -38,8 +38,7 @@ var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${
 var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
     `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`];
 
-var expectedBluemixFiles = ['README.md',
-                            'manifest.yml',
+var expectedBluemixFiles = ['manifest.yml',
                             '.bluemix/pipeline.yml',
                             '.bluemix/toolchain.yml',
                             '.bluemix/deploy.json'];
@@ -258,7 +257,9 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
+      // FIXME: All project types should have a README
+      var expectedFilesExceptREADME = expectedFiles.filter((f) => f !== 'README.md');
+      assert.file(expectedFilesExceptREADME);
     });
 
     it('generates the generic swift source files', function() {

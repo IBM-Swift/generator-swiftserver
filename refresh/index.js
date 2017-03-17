@@ -694,12 +694,39 @@ module.exports = generators.Base.extend({
       }
 
       if (this.appType !== 'crud') {
+        this.fs.copyTpl(
+          this.templatePath('common', 'README.scaffold.md'),
+          this.destinationPath('README.md'),
+          {
+            appName: this.projectName,
+            executableName: this.executableModule,
+            generatorVersion: this.generatorVersion,
+            bluemix: this.bluemix,
+            web: this.web,
+            docker: this.docker,
+            hostSwagger: this.hostSwagger,
+            exampleEndpoints: this.exampleEndpoints,
+            metrics: this.capabilities.metrics,
+            autoscale: this.capabilities.autoscale,
+            cloudant: this.services.cloudant && this.services.cloudant.length > 0,
+            redis: this.services.redis && this.services.redis.length > 0,
+            objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
+            appid: this.services.appid && this.services.appid.length > 0
+          }
+        );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
       }
     },
 
     createCRUD: function() {
       if(this.appType != "crud") return;
+
+      if (this.bluemix) {
+        this.fs.copy(
+          this.templatePath('bluemix', 'README.md'),
+          this.destinationPath('README.md')
+        );
+      }
 
       // Check if there is a models folder, create one if there isn't
       if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
@@ -961,12 +988,6 @@ module.exports = generators.Base.extend({
           hostSwagger: this.hostSwagger,
           bluemix: this.bluemix }
       );
-
-      // FIXME!
-      this.fs.copy(
-        this.templatePath('bluemix', 'README.md'),
-        this.destinationPath('README.md')
-       );
 
       this.fs.copyTpl(
         this.templatePath('bluemix', 'pipeline.yml'),
