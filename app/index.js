@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016-2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
+var generateServiceName = helpers.generateServiceName;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
 
@@ -41,12 +42,30 @@ module.exports = generators.Base.extend({
       required: false,
       type: String
     });
+
+    this.option('skip-build', {
+      type: Boolean,
+      desc: 'Skip building the generated application',
+      defaults: false
+    });
   },
 
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
+    initSpec: function() {
+      if (this.options.spec) {
+        try {
+          this.spec = JSON.parse(this.options.spec);
+          this.skipPrompting = true;
+        } catch (err) {
+          this.env.error(chalk.red(err));
+        }
+      }
+    },
+
     initAppName: function() {
+      if (this.skipPrompting) return;
       this.appname = null; // Discard yeoman default appname
       this.skipPromptingAppName = false;
       if (this.name) {
@@ -83,14 +102,41 @@ module.exports = generators.Base.extend({
     }
   },
 
+  _addService: function(serviceType, service) {
+    this.services = this.services || {};
+    this.services[serviceType] = this.services[serviceType] || [];
+    this.services[serviceType].push(service);
+  },
+
   prompting: {
+    promptAppType: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'appType',
+        type: 'list',
+        message: 'Select type of project:',
+        choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
+      }];
+      this.prompt(prompts, function(answers) {
+        switch (answers.appType) {
+          case 'Scaffold a starter':          this.appType = 'scaffold'; break;
+          case 'Generate a CRUD application': this.appType = 'crud'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`));
+        }
+        done();
+      }.bind(this));
+    },
+
     promptAppName: function() {
+      if (this.skipPrompting) return;
       if (this.skipPromptingAppName) { return; }
 
       var done = this.async();
       var prompts = [
         {
-          type: 'input',
           name: 'name',
           message: 'What\'s the name of your application?',
           default: this.appname,
@@ -109,17 +155,18 @@ module.exports = generators.Base.extend({
      * to point to the directory where we want to generate code.
      */
     promptAppDir: function() {
+      if (this.skipPrompting) return;
       if (this.appname === path.basename(this.destinationRoot())) {
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
         this.log('working directory is %s', path.basename(this.destinationRoot()));
+        this.destinationSet = true;
         return;
       }
 
       var done = this.async();
       var prompts = [
         {
-          type: 'input',
           name: 'dir',
           message: 'Enter the name of the directory to contain the project:',
           default: this.appname,
@@ -128,171 +175,414 @@ module.exports = generators.Base.extend({
       ];
       this.prompt(prompts, function(answers) {
         if (answers.dir !== '.') {
+          this.destinationSet = true;
           this.destinationRoot(answers.dir);
         }
         done();
       }.bind(this));
     },
-    ensureEmptyDirectory: actions.ensureEmptyDirectory,
+
+    /*
+     * Determine the application pattern so that the capability
+     * defaults can be set appropriately.
+     */
+    promptApplicationPattern: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'appPattern',
+        type: 'list',
+        message: 'Select capability presets for application pattern:',
+        choices: [ 'Basic', 'Web', 'Backend for frontend' ],
+        default: 'Basic'
+      }];
+      this.prompt(prompts, function(answers) {
+        switch (answers.appPattern) {
+          case 'Basic':                this.appPattern = 'Basic'; break;
+          case 'Web':                  this.appPattern = 'Web'; break;
+          case 'Backend for frontend': this.appPattern = 'Bff'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`));
+        }
+        done();
+      }.bind(this));
+    },
+
+    ensureEmptyDirectory: function() {
+      if (this.skipPrompting) return;
+      actions.ensureEmptyDirectory.call(this);
+    },
+
+    promptCapabilities: function() {
+      if (this.skipPrompting) return;
+      var done = this.async();
+
+      var self = this;
+      function displayName(property) {
+        switch (property) {
+          case 'web':              return 'Static web file serving';
+          case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
+          case 'metrics':          return 'Embedded metrics dashboard';
+          case 'docker':           return 'Docker files';
+          case 'exampleEndpoints': return 'Example endpoints';
+          case 'bluemix':          return 'Bluemix cloud deployment';
+          default:
+            self.env.error(chalk.red(`Internal error: unknown property ${property}`));
+        }
+      }
+
+      function defaultCapabilities(appPattern) {
+        switch (appPattern) {
+          case 'Basic': return ['Docker files',
+                                'Embedded metrics dashboard',
+                                'Bluemix cloud deployment'];
+          case 'Web':   return ['Static web file serving',
+                                'Embedded metrics dashboard',
+                                'Docker files',
+                                'Bluemix cloud deployment'];
+          case 'Bff':   return ['OpenAPI / Swagger endpoint',
+                                'Embedded metrics dashboard',
+                                'Example endpoints',
+                                'Static web file serving',
+                                'Docker files',
+                                'Bluemix cloud deployment'];
+          default:
+            self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`));
+        }
+      }
+
+      var choices = ['metrics', 'docker', 'bluemix'];
+
+      if (this.appType === 'scaffold') {
+        choices.unshift('exampleEndpoints');
+        choices.unshift('hostSwagger');
+        choices.unshift('web');
+      }
+
+      var prompts = [{
+        name: 'capabilities',
+        type: 'checkbox',
+        message: 'Select capabilities:',
+        choices: choices.map(displayName),
+        default: defaultCapabilities(this.appPattern)
+      }];
+      this.prompt(prompts, function(answers) {
+        choices.forEach(function(choice) {
+          this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
+        }.bind(this));
+        done();
+      }.bind(this));
+    },
+
+    promptServicesForScaffoldLocal: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      if (this.bluemix) return;
+      var done = this.async();
+
+      var choices = ['CouchDB', 'Redis'];
+
+      var prompts = [{
+        name: 'services',
+        type: 'checkbox',
+        message: 'Generate boilerplate for local services:',
+        choices: choices,
+        default: []
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.services.indexOf('CouchDB') !== -1) {
+          this._addService('cloudant', { name: 'couchdb' });
+        }
+        if (answers.services.indexOf('Redis') !== -1) {
+          this._addService('redis', { name: 'redis' });
+        }
+        done();
+      }.bind(this));
+    },
+
+    promptServicesForScaffoldBluemix: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      if (!this.bluemix) return;
+      var done = this.async();
+
+      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'];
+
+      var prompts = [{
+        name: 'services',
+        type: 'checkbox',
+        message: 'Generate boilerplate for Bluemix services:',
+        choices: choices,
+        default: []
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.services.indexOf('Cloudant') !== -1) {
+          this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') });
+        }
+        if (answers.services.indexOf('Redis') !== -1) {
+          this._addService('redis', { name: generateServiceName(this.appname, 'Redis') });
+        }
+        if (answers.services.indexOf('Object Storage') !== -1) {
+          this._addService('objectstorage', { name: generateServiceName(this.appname, 'ObjectStorage') });
+        }
+        if (answers.services.indexOf('AppID') !== -1) {
+          this._addService('appid',  { name: generateServiceName(this.appname, 'AppID') });
+        }
+        if (answers.services.indexOf('Auto-scaling') !== -1) {
+          this.autoscale = generateServiceName(this.appname, 'AutoScaling');
+        }
+        done();
+      }.bind(this));
+    },
+
     /*
      * Configure the data store, asking the user what type of data store they
      * are using and configuring the data store if needed. These answers will
      * be the basis for the config.json.
      */
-    promptDataStore: function() {
+    promptDataStoreForCRUD: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'crud') return;
       var done = this.async();
       var prompts = [
         {
           name: 'store',
-          message: 'Select the data store',
+          message: 'Select data store:',
           type: 'list',
-          choices: ['memory (for development purposes)', 'cloudant'],
+          choices: ['Memory (for development purposes)', 'Cloudant / CouchDB'],
           filter: (store) => store.split(" ")[0]
         }
       ];
       this.prompt(prompts, function(answer) {
-        if(answer.store === 'memory') {
-          //No need to ask for anything else
-          this.store = answer.store;
-          done();
-          return;
-        } else {
-          this.storeType = answer.store;
+        // NOTE(tunniclm): no need to do anything for memory it is the default
+        // if no crudservice is passed to the refresh generator
+        if (answer.store === 'Cloudant') {
+          this._addService('cloudant', { name: 'crudDataStore' });
+          this.crudservice = 'crudDataStore';
         }
+        done();
+      }.bind(this));
+    },
 
-        this.defaultHost = 'localhost';
-        this.defaultPort = 5984;
-        this.defaultSecured = false;
-        var storeConfigPrompt = [
-          {
-            name: 'default',
-            message: 'Use default configuration for CloudantStore?',
-            type: 'confirm',
-            default: true
-          },
-          {
-            name: 'host',
-            message: 'Enter the host name',
-            default: this.defaultHost,
-            when: (answers) => !answers.default
-          },
-          {
-            name: 'port',
-            message: 'Enter the port number',
-            default: this.defaultPort,
-            when: (answers) => !answers.default,
-            validate: (port) => validatePort(port),
-            filter: (port) => parseInt(port)
-          },
-          {
-            name: 'secured',
-            message: 'Is this secure?',
-            type: 'confirm',
-            default: this.defaultSecured,
-            when: (answers) => !answers.default
-          },
-          {
-            name: 'credentials',
-            message: 'Set credentials?',
-            type: 'confirm',
-            default: false
-          },
-          {
-            name: 'username',
-            message: 'Enter username',
-            when: (answers) => answers.credentials,
-            validate: (username) => validateCredential(username)
-          },
-          {
-            name: 'password',
-            message: 'Enter password',
-            type: 'password',
-            when: (answers) => answers.credentials,
-            validate: (password) => validateCredential(password)
-          }
-        ];
-        this.prompt(storeConfigPrompt, function(answers) {
-          if(!answers.default || answers.credentials) {
-            this.store = {
-              type: this.storeType,
-              host: answers.host || this.defaultHost,
-              port: answers.port || this.defaultPort,
-              secured: answers.secured || this.defaultSecured,
-              username: answers.username,
-              password: answers.password
-            }
-          } else {
-            this.store = this.storeType;
-          }
-          done();
+    // NOTE(tunniclm): This part of the prompting assumes there can only
+    // be one of each type of service.
+    promptConfigureServices: function() {
+      if (this.skipPrompting) return;
+      if (!this.services) return;
+      if (Object.keys(this.services).length == 0) return;
+      var done = this.async();
+
+      var self = this;
+      function serviceDisplayType(serviceType) {
+        switch (serviceType) {
+          case 'cloudant':      return 'Cloudant / CouchDB';
+          case 'redis':         return 'Redis';
+          case 'objectstorage': return 'Object Storage';
+          case 'appid':         return 'AppID';
+          default:
+            self.env.error(chalk.red(`Internal error: unknown service type ${serviceType}`));
+        }
+      }
+
+      var choices = Object.keys(this.services);
+      var prompts = [{
+        name: 'configure',
+        type: 'checkbox',
+        message: 'Configure service credentials (leave unchecked for defaults):',
+        choices: choices.map(serviceDisplayType),
+        default: []
+      }];
+      this.prompt(prompts, function(answers) {
+        this.servicesToConfigure = {};
+        choices.forEach(function(serviceType) {
+          this.servicesToConfigure[serviceType] =
+            (answers.configure.indexOf(serviceDisplayType(serviceType)) !== -1);
         }.bind(this));
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureCloudant: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.cloudant) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Cloudant / CouchDB');
+      var prompts = [
+        { name: 'cloudantName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'cloudantHost', message: 'Enter host name:' },
+        {
+          name: 'cloudantPort',
+          message: 'Enter port:',
+          validate: (port) => validatePort(port),
+          filter: (port) => (port ? parseInt(port) : port)
+        },
+        {
+          name: 'cloudantSecured',
+          message: 'Secure (https)?',
+          type: 'confirm',
+          default: false,
+        },
+        { name: 'cloudantUsername', message: 'Enter username (blank for none):' },
+        {
+          name: 'cloudantPassword',
+          message: 'Enter password:',
+          type: 'password',
+          when: (answers) => answers.cloudantUsername,
+          validate: (password) => validateCredential(password)
+        }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.cloudant[0].name = answers.cloudantName || this.services.cloudant[0].name;
+        this.services.cloudant[0].credentials = {
+          host: answers.cloudantHost || undefined,
+          port: answers.cloudantPort || undefined,
+          secured: answers.cloudantSecured || undefined,
+          username: answers.cloudantUsername || undefined,
+          password: answers.cloudantPassword || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureRedis: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.redis) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Redis');
+      var prompts = [
+        { name: 'redisName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'redisHost', message: 'Enter host name:' },
+        {
+          name: 'redisPort',
+          message: 'Enter port:',
+          validate: (port) => validatePort(port),
+          filter: (port) => (port ? parseInt(port) : port)
+        },
+        { name: 'redisPassword', message: 'Enter password:', type: 'password' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.redis[0].name = answers.redisName || this.services.redis[0].name;
+        this.services.redis[0].credentials = {
+          host: answers.redisHost || undefined,
+          port: answers.redisPort || undefined,
+          password: answers.redisPassword || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureObjectStorage: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.objectstorage) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Object Storage');
+      var prompts = [
+        /*
+        { name: 'objectstorageAuth_url'    message: 'Enter auth url:' },
+        { name: 'objectstorageDomainId',   message: 'Enter domain ID:' },
+        { name: 'objectstorageDomainName', message: 'Enter domain name:' },
+        { name: 'objectstorageProject',    message: 'Enter project:' },
+        { name: 'objectstorageRole',       message: 'Enter role:' },
+        { name: 'objectstorageUsername',   message: 'Enter username:' },
+        */
+        { name: 'objectstorageName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'objectstorageRegion',     message: 'Enter region:' },
+        { name: 'objectstorageProjectId',  message: 'Enter project ID:' },
+        { name: 'objectstorageUserId',     message: 'Enter user ID:' },
+        { name: 'objectstoragePassword',   message: 'Enter password:', type: 'password' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.objectstorage[0].name = answers.objectstorageName || this.services.objectstorage[0].name;
+        this.services.objectstorage[0].credentials = {
+          /*
+          auth_url:   answers.objectstorageAuth_url || undefined,
+          domainId:   answers.objectstorageDomainId || undefined,
+          domainName: answers.objectstorageDomainName || undefined,
+          project:    answers.objectstorageProject || undefined,
+          role:       answers.objectstorageRole || undefined,
+          username:   answers.objectstorageUsername || undefined,
+          */
+          region:    answers.objectstorageRegion || undefined,
+          projectId: answers.objectstorageProjectId || undefined,
+          userId:    answers.objectstorageUserId || undefined,
+          password:  answers.objectstoragePassword || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureAppID: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.appid) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure AppID');
+      var prompts = [
+        { name: 'appIDName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'appidTenantId', message: 'Enter tenant ID:' },
+        { name: 'appidClientId', message: 'Enter client ID:' },
+        { name: 'appidSecret',   message: 'Enter secret:', type: 'password' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.appid[0].name = answers.appIDName || this.services.appid[0].name;
+        this.services.appid[0].credentials = {
+          tenantId: answers.appidTenantId || undefined,
+          clientId: answers.appidClientId || undefined,
+          secret:   answers.appidSecret || undefined
+        };
+        done();
       }.bind(this));
     }
   },
 
-  writing: {
-    writeConfig: function() {
-      this.config = {
-        appName: this.appname,
-        store: this.store,
+  createSpecFromAnswers: function() {
+    if (this.skipPrompting) return;
+
+    // NOTE(tunniclm): This spec object may not exploit all possible functionality,
+    // some may only be available via non-prompting route.
+    this.spec = {
+      appType: this.appType,
+      appName: this.appname,
+      bluemix: this.bluemix || undefined,
+      docker: this.docker || undefined,
+      web: this.web || undefined,
+      exampleEndpoints: this.exampleEndpoints || undefined,
+      hostSwagger: this.hostSwagger || undefined,
+      services: this.services || {},
+      crudservice: this.crudservice,
+      capabilities: {
+        metrics: this.metrics || undefined,
+        autoscale: this.autoscale || undefined
+      },
+      config: {
         logger: 'helium',
-        port: 8090
-      };
-      this.fs.writeJSON(this.destinationPath('config.json'), this.config);
-    },
-
-    writeGeneratorConfig: function() {
-      this.fs.writeJSON(this.destinationPath('.yo-rc.json'), {});
-    },
-
-    writePackageSwift: function() {
-      let packageSwift = helpers.generatePackageSwift(this.config);
-      this.fs.write(this.destinationPath('Package.swift'), packageSwift);
-    },
-
-    writeMainSwift: function() {
-      this.fs.copy(this.templatePath('main.swift'),
-                   this.destinationPath('Sources', this.appname, 'main.swift'));
-    },
-
-    writeAppConfigSwift: function() {
-      this.fs.copy(this.templatePath('ApplicationConfiguration.swift'),
-                   this.destinationPath('Sources', 'Generated', 'ApplicationConfiguration.swift'));
-    },
-
-    writeManifest: function() {
-      this.manifest = `applications:\n` +
-                      `- name: ${this.appname}\n` +
-                      `  memory: 128M\n` +
-                      `  instances: 1\n` +
-                      `  random-route: true\n` +
-                      `  buildpack: swift_buildpack\n` +
-                      `  command: ${this.appname} --bind 0.0.0.0:$PORT\n`;
-
-      this.fs.write(this.destinationPath('manifest.yml'), this.manifest); 
-      this.fs.copy(this.templatePath('.cfignore'),
-                 this.destinationPath('.cfignore'));
-    },
-
-    writeProjectMarker: function() {
-      // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
-      // directory
-      this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
-    },
-
-    writeModelsDirectory: function() {
-      this.fs.write(this.destinationPath('models', '.keep'), '');
-    },
-
-    writeNodeWrapper: function() {
-      if (this.options.apic) {
-        this.fs.copy(this.templatePath('apic-node-wrapper.js'),
-                     this.destinationPath('index.js'));
+        port: 8080
       }
-    }
+    };
   },
 
   install: {
+
     buildDefinitions: function() {
 
       // this.composeWith with just the subgenerator name doesn't work with the
@@ -304,20 +594,28 @@ module.exports = generators.Base.extend({
       // Adding a testmode allows us to stub the subgenerators (for unit testing).
       // (This is to work around https://github.com/yeoman/yeoman-test/issues/16)
 
-      this.composeWith('swiftserver:refresh', {
-             // Pass in the option to refresh to decided whether or not we create the *-product.yml
-             options: {
-               apic: this.options.apic
-             }
-           },
-           this.options.testmode ? null : { local: require.resolve('../refresh')});
+      this.composeWith(
+        'swiftserver:refresh',
+        {
+          // Pass in the option to refresh to decided whether or not we create the *-product.yml
+          options: {
+            apic: this.options.apic,
+            specObj: this.spec,
+            destinationSet: (this.destinationSet === true)
+          }
+        },
+        this.options.testmode ? null : { local: require.resolve('../refresh')}
+      );
     },
 
     buildApp: function() {
+      if (this.skipBuild || this.options['skip-build']) return;
 
-      this.composeWith('swiftserver:build',
-           {},
-           this.options.testmode ? null : { local: require.resolve('../build')});
+      this.composeWith(
+        'swiftserver:build',
+        {},
+        this.options.testmode ? null : { local: require.resolve('../build')}
+      );
     }
   },
 
@@ -330,17 +628,19 @@ module.exports = generators.Base.extend({
       this.log(chalk.green('    $ cd ' + this.destinationRoot()));
       this.log();
     }
-    var createModelInstruction = '    $ yo swiftserver:model';
-    if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
-      createModelInstruction = '    $ swiftservergenerator --model';
-    } else if (process.env.RUN_BY_COMMAND === 'apic') {
-      createModelInstruction = '    $ apic create --type model-swiftserver';
-    }
+    if (this.appType === 'crud') {
+      var createModelInstruction = '    $ yo swiftserver:model';
+      if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
+        createModelInstruction = '    $ swiftservergenerator --model';
+      } else if (process.env.RUN_BY_COMMAND === 'apic') {
+        createModelInstruction = '    $ apic create --type model-swiftserver';
+      }
 
-    this.log('  Create a model in your app');
-    this.log(chalk.green(createModelInstruction));
-    this.log();
-    this.log('  Run the app');
+      this.log('  Create a model in your app');
+      this.log(chalk.green(createModelInstruction));
+      this.log();
+    }
+    this.log('  Run your app');
     this.log(chalk.green('    $ .build/debug/' + this.appname));
     this.log();
   }

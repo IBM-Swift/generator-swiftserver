@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016-2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,18 +28,17 @@ var dependentGenerators = [
 ];
 
 describe('swiftserver:property', function() {
-var testingDir;
+
   describe('Basic property test. ' +
             'Check if properties are added to a model', function() {
 
+    var runContext;
     before(function() {
       // Mock the options, set up an output folder and run the generator
-      return helpers.run(path.join( __dirname, '../../property'))
+      runContext = helpers.run(path.join( __dirname, '../../property'))
         .withGenerators(dependentGenerators) // Stub subgenerators
-        // .withOptions({ testmode:  true })    // Workaround to stub subgenerators
-        .inTmpDir(function (tmpDir) {
           //Get the temporary directory so that we can delete later on.
-          testingDir = tmpDir;
+        .inTmpDir(function(tmpDir){
 
           var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
           fs.writeFileSync(tmpFile, "");
@@ -55,46 +54,49 @@ var testingDir;
 
           var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
           fs.writeFileSync(tmp_yorc, "{}");
-
-          fs.mkdirSync("models");
-          var model = {
-            name: "MyModel",
-            plural: "MyModels",
-            classame: "MyModel",
+        })
+        .withOptions({
+          model: {
+            name: 'MyModel',
+            plural: 'MyModels',
+            classname: 'MyModel',
             properties: {
-              id: {
-                type: "string",
-                id: "true"
+              "id": {
+                "type": "string",
+                "id": true
               }
             }
           }
-          var tmpModel = path.join(tmpDir+"/models", "MyModel.json");           //Create a mock model in order to
-          fs.writeFileSync(tmpModel, JSON.stringify(model));                    //test adding a property to the model.
         })
         .withPrompts({                       // Mock the prompt answers
           model: 'MyModel',
           name: 'foo',
           type: 'boolean'
         })
-        .toPromise();                        // Get a Promise back when the generator finishes
+        return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
     after(function() {
-      //rm -rf the temporary directory that we made
-      rimraf(testingDir, function(err) {
-        if(err) {
-          console.log('Error: ', err);
-        }
-      });
+      runContext.cleanTestDirectory();
     });
 
     it('added a property to a model', function() {
-      var expectedProperties = {  //Create the json for the expected properties
-        foo: {                    //Without the id property
-          type: "boolean"
+      var model = runContext.generator.model;
+      var expectedModel = {
+        name: 'MyModel',
+        plural: 'MyModels',
+        classname: 'MyModel',
+        properties: {
+          "id": {
+            "type": "string",
+            "id": true
+          },
+          "foo": {
+            "type": "boolean"
+          }
         }
-      }
-      assert.jsonFileContent("models/MyModel.json", {properties: expectedProperties});
+      };
+      assert.objectContent(model, expectedModel);
     });
   });
 });

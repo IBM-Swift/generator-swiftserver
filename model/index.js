@@ -1,5 +1,5 @@
 /*
- * Copyright IBM Corporation 2016
+ * Copyright IBM Corporation 2016-2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ var debug = require('debug')('generator-swiftserver:model');
 var actions = require('../lib/actions');
 var helpers = require('../lib/helpers');
 var validateRequiredName = helpers.validateRequiredName;
+var validateNewModel = helpers.validateNewModel;
 var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname;
 
 module.exports = generators.Base.extend({
@@ -74,7 +75,7 @@ module.exports = generators.Base.extend({
           name: 'name',
           message: 'Enter the model name:',
           default: this.name,
-          validate: validateRequiredName
+          validate: validateNewModel
         }
       ];
       this.prompt(prompts, function(props) {
@@ -100,49 +101,30 @@ module.exports = generators.Base.extend({
     }
   },
 
-  writing: {
-    writeModel: function() {
+  property: function() {
+    this.classname = convertModelNametoSwiftClassname(this.name);
 
-      // Convert modelname to valid Swift name (if required)
-      this.classname = convertModelNametoSwiftClassname(this.name);
-
-      // Create JSON file with model information
-      var model = {
-        name: this.name,
-        plural: this.plural,
-        classname: this.classname,
-        properties: {
-          "id": {
-            "type": "string",
-            "id": true
-          }
+    // Create a model object
+    this.model = {
+      name: this.name,
+      plural: this.plural,
+      classname: this.classname,
+      properties: {
+        "id": {
+          "type": "string",
+          "id": true
         }
       }
+    }
 
-      var modelFilename = this.destinationPath('models', `${this.name}.json`);
-      if (this.fs.exists(modelFilename)) {
-        debug('modifying the existing model: ', modelFilename);
-        this.env.error(chalk.red(`\nAttempting to modify existing model '${this.name}'`,
-                           `\nUse the property generator to modify the '${this.name}' model`));
+    this.log('Let\'s add some ' + this.name + ' properties now.\n');
+    this.log('Enter an empty property name when done.');
+    this.composeWith('swiftserver:property', {
+      options: {
+        apic: this.options.apic,
+        repeatMultiple: true,
+        model: this.model
       }
-      this.fs.extendJSON(modelFilename, model, null, 2);
-
-      // Create the stub model swift file
-      var stubFilename = this.destinationPath('Sources', 'Generated', `${this.classname}.swift`);
-      var stubModelSwift = `import GeneratedSwiftServer\n\nclass ${this.classname}: Model {\n}`;
-      this.fs.write(stubFilename, stubModelSwift);
-    },
-
-    property: function() {
-      this.log('Let\'s add some ' + this.name + ' properties now.\n');
-      this.log('Enter an empty property name when done.');
-      this.composeWith('swiftserver:property', {
-        options: {
-          apic: this.options.apic,
-          repeatMultiple: true,
-          modelName: this.name
-        },
-      });
-    },
+    });
   },
 });
