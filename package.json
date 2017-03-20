@@ -7,7 +7,8 @@
     "test": "mocha test/unit/*",
     "testint": "mocha test/integration/*",
     "testintfast": "mocha test/integration/*nobuild*",
-    "coverage": "nyc mocha --grep @full --invert test/**/*"
+    "coverage": "nyc mocha --grep @full --invert test/**/*",
+    "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
     "yeoman-generator": "^0.21.1"
   },
   "devDependencies": {
+    "codecov": "^2.1.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "nyc": "^10.1.2",
