@@ -115,16 +115,20 @@ module.exports = generators.Base.extend({
           "id": true
         }
       }
-    }
+    };
 
     this.log('Let\'s add some ' + this.name + ' properties now.\n');
     this.log('Enter an empty property name when done.');
-    this.composeWith('swiftserver:property', {
-      options: {
-        apic: this.options.apic,
-        repeatMultiple: true,
-        model: this.model
-      }
-    });
-  },
+    this.composeWith(
+      'swiftserver:property',
+      {
+        options: {
+          apic: this.options.apic,
+          repeatMultiple: true,
+          model: this.model
+        }
+      },
+      this.options.testmode ? null : { local: require.resolve('../property')}
+    );
+  }
 });

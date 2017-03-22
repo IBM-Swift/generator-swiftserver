@@ -166,7 +166,10 @@ module.exports = generators.Base.extend({
     },
 
     buildApp: function() {
-      this.composeWith('swiftserver:build');
+      this.composeWith(
+        'swiftserver:build',
+        {}
+      );
     }
   }
 });

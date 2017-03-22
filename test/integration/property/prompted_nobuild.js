@@ -1,0 +1,72 @@
+/*
+ * Copyright IBM Corporation 2016-2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Tests here do not stub out the subgenerators, so for the app generator
+ * the real build and refresh subgenerators get called.
+ */
+'use strict';
+var path = require('path');
+var assert = require('yeoman-assert');
+var helpers = require('yeoman-test');
+var rimraf = require('rimraf');
+var testhelper = require('../../helpers');
+var fs = require('fs');
+
+var propertyGeneratorPath = path.join(__dirname, '../../../property');
+
+describe('Prompt and no build integration tests for property generator', function() {
+
+  describe('Prompt property when not in a project', function() {
+    var runContext;
+    var error;
+
+    before(function(){
+      runContext = helpers.run(propertyGeneratorPath)
+      return runContext.toPromise().catch(function(err){
+        error = err;
+      });
+    });
+
+    it('aborts generator with an error', function() {
+      assert(error, 'Should throw an error');
+    });
+  });
+
+  describe('Prompt property when not in a project', function() {
+    var runContext;
+    var error;
+
+    before(function(){
+      runContext = helpers.run(propertyGeneratorPath)
+                          .inTmpDir(function(tmpDir) {
+                            testhelper.generateFakeProject(tmpDir);
+                            var spec = {
+                              appType: 'scaffold'
+                            };
+                            fs.writeFileSync('spec.json', JSON.stringify(spec));
+                          })
+      return runContext.toPromise().catch(function(err){
+        error = err;
+      });
+    });
+
+    it('aborts generator with an error', function() {
+      assert(error, 'Should throw an error');
+    });
+  });
+
+});

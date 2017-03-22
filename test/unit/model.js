@@ -39,11 +39,13 @@ describe('swiftserver:model', function () {
   describe('Basic model test. '+
            'Check the spec object is correct.', function () {
 
+    this.timeout(10000);
     var runContext;
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
         runContext = helpers.run(path.join( __dirname, '../../model'))
+          .withOptions({ testmode: true })
           .withGenerators(dependentGenerators) // Stub subgenerators
           .inTmpDir(function (tmpDir) {
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
