@@ -379,10 +379,6 @@ describe('helpers', function () {
     });
 
     it('convert unrecognised type', function() {
-      assert.equal(helpers.convertJSDefaultValueToSwift(true), 'true');
-    });
-
-    it('convert unrecognised type', function() {
       try {
         var person;
         var result = helpers.convertJSDefaultValueToSwift(person);
