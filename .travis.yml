@@ -18,7 +18,7 @@ before_install:
 script:
   - osName="linux"
   # Overwrite if OSX
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx" fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
   - export projectFolder=`pwd`
   - projectName="$(basename $projectFolder)"
   - source ./Package-Builder/install-swift.sh
