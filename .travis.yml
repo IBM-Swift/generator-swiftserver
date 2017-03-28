@@ -16,7 +16,9 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
     - git clone https://github.com/IBM-Swift/Package-Builder.git
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; else osName="linux" fi
+  - osName="linux"
+  # Overwrite if OSX
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx" fi
   - export projectFolder=`pwd`
   - projectName="$(basename $projectFolder)"
   - source ./Package-Builder/install-swift.sh
