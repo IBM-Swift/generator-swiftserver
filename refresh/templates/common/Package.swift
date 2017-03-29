@@ -9,10 +9,12 @@ let package = Package(
       Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ])
     ],
     dependencies: [
+        .Package(url: "https://github.com/IBM-Swift/Kitura.git",             majorVersion: 1, minor: 6),
+        .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",       majorVersion: 1, minor: 6),
 <% if(bluemix) { -%>
         .Package(url: "https://github.com/IBM-Swift/CloudConfiguration.git", majorVersion: 1),
 <% } else { -%>
-        .Package(url: "https://github.com/IBM-Swift/Configuration.git", majorVersion: 0, minor: 2),
+        .Package(url: "https://github.com/IBM-Swift/Configuration.git",      majorVersion: 0, minor: 2),
 <% } -%>
 <% Object.keys(services).forEach(function(serviceType) { -%>
         <%- include(`../services/${serviceType}/importDependency.swift`) %>
@@ -22,8 +24,6 @@ let package = Package(
         <%- include(`../capabilities/${capabilityType}/importDependency.swift`) %>
 <%   } -%>
 <% }); -%>
-        .Package(url: "https://github.com/IBM-Swift/Kitura.git",                 majorVersion: 1, minor: 6),
-        .Package(url: "https://github.com/IBM-Swift/HeliumLogger.git",           majorVersion: 1, minor: 6)
     ],
     exclude: ["src"]
 )
