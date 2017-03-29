@@ -19,6 +19,7 @@ script:
   - export projectFolder=`pwd`
   - source ./Package-Builder/install-swift.sh
   - npm run coverage
+  - npm run report-coverage
 
 env:
   global:

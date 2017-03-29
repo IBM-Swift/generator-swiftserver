@@ -416,7 +416,7 @@ module.exports = generators.Base.extend({
       this.log('Configure Cloudant / CouchDB');
       var prompts = [
         { name: 'cloudantName', message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix
+          when: (answers) => this.bluemix && this.appType !== 'crud'
         },
         { name: 'cloudantHost', message: 'Enter host name:' },
         {

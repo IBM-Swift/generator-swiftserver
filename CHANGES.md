@@ -1,3 +1,17 @@
+2017-03-29, Version 2.0.1
+=========================
+
+* Added codecov reports
+* Added tests for validators
+* Fixed CRUD name/crudservice name insconsitency
+* Additional unit tests for helpers (#154)
+* Additional unit tests for helpers
+* Fix dependency problems since Kitura 1.7 (#156)
+* Update Package.swift to reference SwiftMetrics version 1
+* Tighten Kitura related dependencies to 1.6.x
+* Reorder dependencies to fix graph problem
+* Inject Kitura-Request dep to tighten version
+
 2017-03-17, Version 2.0.0
 =========================
 

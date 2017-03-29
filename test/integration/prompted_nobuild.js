@@ -381,7 +381,7 @@ describe('Prompt and no build integration tests', function () {
     });
   });
 
-  describe('Non bluemix where service application name should not be provided', function () {
+  describe('Bluemix where service application name should not be provided', function () {
     var runContext;
 
     before(function () {
