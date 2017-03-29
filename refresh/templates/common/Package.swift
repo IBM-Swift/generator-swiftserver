@@ -17,11 +17,11 @@ let package = Package(
         .Package(url: "https://github.com/IBM-Swift/Configuration.git",      majorVersion: 0, minor: 2),
 <% } -%>
 <% Object.keys(services).forEach(function(serviceType) { -%>
-        <%- include(`../services/${serviceType}/importDependency.swift`) %>
+<%-  include(`../services/${serviceType}/importDependency.swift`) %>
 <% }); -%>
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
 <%   if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
-        <%- include(`../capabilities/${capabilityType}/importDependency.swift`) %>
+<%-    include(`../capabilities/${capabilityType}/importDependency.swift`) %>
 <%   } -%>
 <% }); -%>
     ],
