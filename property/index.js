@@ -25,8 +25,20 @@ var validateDefaultValue = helpers.validateDefaultValue;
 var convertDefaultValue = helpers.convertDefaultValue;
 
 module.exports = generators.Base.extend({
+
+  constructor: function() {
+    generators.Base.apply(this, arguments);
+
+    this.option('skip-build', {
+      type: Boolean,
+      desc: 'Skip building the generated application',
+      defaults: false
+    });
+  },
+
   initializing: {
     ensureInProject: actions.ensureInProject,
+    ensureProjectIsCrud: actions.ensureProjectIsCrud,
 
     initProperties: function() {
       this.properties = {};
@@ -91,14 +103,14 @@ module.exports = generators.Base.extend({
 
       var prompts = [
         {
-          name: 'name',
+          name: 'propertyName',
           message: 'Enter the property name:',
           validate: (name) => (this.options.repeatMultiple && !name) ||
                               validatePropertyName(name)
         }
       ];
       this.prompt(prompts, function(answers) {
-        if (this.options.repeatMultiple && !answers.name) {
+        if (this.options.repeatMultiple && !answers.propertyName) {
           // Sentinel blank value to end looping
           done();
           return;
@@ -119,8 +131,8 @@ module.exports = generators.Base.extend({
           }
         ];
         this.prompt(parameterPrompts, function(parameters) {
-          this.model.properties[answers.name] = { type: parameters.type };
-          this.model.properties[answers.name].required = parameters.required ? true : undefined;
+          this.model.properties[answers.propertyName] = { type: parameters.type };
+          this.model.properties[answers.propertyName].required = parameters.required ? true : undefined;
 
           var defaultPrompts = [
             {
@@ -142,7 +154,7 @@ module.exports = generators.Base.extend({
           }
           this.prompt(defaultPrompts, function(defaultAnswers) {
             if (defaultAnswers.default) {
-              this.model.properties[answers.name].default = convertDefaultValue(parameters.type, defaultAnswers.defaultValue);
+              this.model.properties[answers.propertyName].default = convertDefaultValue(parameters.type, defaultAnswers.defaultValue);
             }
             if (this.options.repeatMultiple) {
               this.env.runLoop.add('prompting', this.prompting.promptProperty.bind(this));
@@ -156,16 +168,22 @@ module.exports = generators.Base.extend({
 
   install: {
     buildDefinitions: function() {
-      this.composeWith('swiftserver:refresh', {
-        // Pass in the option to refresh to decided whether or not we create the *-product.yml
-        options: {
-          apic: this.options.apic,
-          model: this.model
-        }
-      });
+      this.composeWith(
+        'swiftserver:refresh',
+        {
+          // Pass in the option to refresh to decided whether or not we create the *-product.yml
+          options: {
+            apic: this.options.apic,
+            model: this.model
+          }
+        },
+        this.options.testmode ? null : { local: require.resolve('../refresh')});
     },
 
     buildApp: function() {
+
+      if(this.skipBuild || this.options['skip-build']) return;
+
       this.composeWith(
         'swiftserver:build',
         {}

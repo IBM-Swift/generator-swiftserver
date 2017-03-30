@@ -37,10 +37,17 @@ module.exports = generators.Base.extend({
       required: false,
       type: String
     });
+
+    this.option('skip-build', {
+      type: Boolean,
+      desc: 'Skip building the generated application',
+      defaults: false
+    });
   },
 
   initializing: {
     ensureInProject: actions.ensureInProject,
+    ensureProjectIsCrud: actions.ensureProjectIsCrud,
 
     initModelName: function() {
       this.skipPromptingAppName = false;
@@ -125,7 +132,8 @@ module.exports = generators.Base.extend({
         options: {
           apic: this.options.apic,
           repeatMultiple: true,
-          model: this.model
+          model: this.model,
+          'skip-build': this.options['skip-build']
         }
       },
       this.options.testmode ? null : { local: require.resolve('../property')}

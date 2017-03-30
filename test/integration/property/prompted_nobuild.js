@@ -37,16 +37,17 @@ describe('Prompt and no build integration tests for property generator', functio
     before(function(){
       runContext = helpers.run(propertyGeneratorPath)
       return runContext.toPromise().catch(function(err){
-        error = err;
+        error = err.message;
       });
     });
 
     it('aborts generator with an error', function() {
       assert(error, 'Should throw an error');
+      assert(error.match('This is not a Swift Server Generator project directory.*$'), 'Specified directory is not a project and should have thrown an error')
     });
   });
 
-  describe('Prompt property when not in a project', function() {
+  describe('Prompt property when not in a CRUD project', function() {
     var runContext;
     var error;
 
@@ -60,12 +61,37 @@ describe('Prompt and no build integration tests for property generator', functio
                             fs.writeFileSync('spec.json', JSON.stringify(spec));
                           })
       return runContext.toPromise().catch(function(err){
-        error = err;
+        error = err.message;
       });
     });
 
     it('aborts generator with an error', function() {
       assert(error, 'Should throw an error');
+      assert(error.match('App type not compatible with model generator!'), 'Should throw an error about not being correct app type');
+    });
+  });
+
+  describe('Prompt property when there are no models', function() {
+    var runContext;
+    var error;
+
+    before(function(){
+      runContext = helpers.run(propertyGeneratorPath)
+                          .inTmpDir(function(tmpDir) {
+                            testhelper.generateFakeProject(tmpDir);
+                            var spec = {
+                              appType: 'crud'
+                            };
+                            fs.writeFileSync('spec.json', JSON.stringify(spec));
+                          })
+      return runContext.toPromise().catch(function(err){
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert.strictEqual(error, 'There are no models to update (no models directory).')
     });
   });
 
