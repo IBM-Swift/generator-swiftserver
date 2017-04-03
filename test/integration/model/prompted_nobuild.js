@@ -80,7 +80,7 @@ describe('Prompt and no build integration tests for model generator', function()
 
     it('aborts generator with an error', function(){
       assert(error, 'Should throw an error');
-      assert(error, 'App type not compatible with model generator!', 'Specified directory is not a crud app type and should have thrown an error');
+      assert(error, 'The swftserver:model generator is not compatible with non-CRUD application types', 'Specified directory is not a crud app type and should have thrown an error');
     });
   });
 
