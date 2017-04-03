@@ -37,10 +37,17 @@ module.exports = generators.Base.extend({
       required: false,
       type: String
     });
+
+    this.option('skip-build', {
+      type: Boolean,
+      desc: 'Skip building the generated application',
+      defaults: false
+    });
   },
 
   initializing: {
     ensureInProject: actions.ensureInProject,
+    ensureProjectIsCrud: actions.ensureProjectIsCrud,
 
     initModelName: function() {
       this.skipPromptingAppName = false;
@@ -115,16 +122,21 @@ module.exports = generators.Base.extend({
           "id": true
         }
       }
-    }
+    };
 
     this.log('Let\'s add some ' + this.name + ' properties now.\n');
     this.log('Enter an empty property name when done.');
-    this.composeWith('swiftserver:property', {
-      options: {
-        apic: this.options.apic,
-        repeatMultiple: true,
-        model: this.model
-      }
-    });
-  },
+    this.composeWith(
+      'swiftserver:property',
+      {
+        options: {
+          apic: this.options.apic,
+          repeatMultiple: true,
+          model: this.model,
+          'skip-build': this.options['skip-build']
+        }
+      },
+      this.options.testmode ? null : { local: require.resolve('../property')}
+    );
+  }
 });

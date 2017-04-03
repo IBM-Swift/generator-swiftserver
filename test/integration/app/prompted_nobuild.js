@@ -24,14 +24,16 @@ var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
 
-describe('Prompt and no build integration tests', function () {
+var appGeneratorPath = path.join(__dirname, '../../../app');
+
+describe('Prompt and no build integration tests for app generator', function () {
 
   describe('Basic application', function() {
     this.timeout(10000); // Allow first test to be slow
     var runContext;
 
     before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -91,7 +93,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -111,7 +113,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -139,7 +141,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -168,7 +170,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -260,7 +262,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Generate a CRUD application',
@@ -282,7 +284,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -326,7 +328,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -352,7 +354,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -385,7 +387,7 @@ describe('Prompt and no build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',

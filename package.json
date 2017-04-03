@@ -5,8 +5,8 @@
   "main": "app/index.js",
   "scripts": {
     "test": "mocha test/unit/*",
-    "testint": "mocha test/integration/*",
-    "testintfast": "mocha test/integration/*nobuild*",
+    "testint": "mocha test/integration/**/*",
+    "testintfast": "mocha test/integration/**/*nobuild*",
     "coverage": "nyc mocha --grep @full --invert test/**/*",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
