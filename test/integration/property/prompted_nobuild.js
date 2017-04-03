@@ -69,7 +69,8 @@ describe('Prompt and no build integration tests for property generator', functio
 
     it('aborts generator with an error', function() {
       assert(error, 'Should throw an error');
-      assert(error.match('The swiftserver:property generator is not compatible with non-CRUD application types'), 'Should throw an error about not being correct app type');
+      var expectedError = 'The swiftserver:property generator is not compatible with non-CRUD application types';
+      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`);
     });
   });
 

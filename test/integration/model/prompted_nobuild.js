@@ -64,7 +64,7 @@ describe('Prompt and no build integration tests for model generator', function()
                             fs.writeFileSync(tmp_yorc, "{}");
                             var spec = {
                               appName: 'test',
-                              appType: 'crud'
+                              appType: 'scaffold'
                             };
                             var pathToConfig = path.join(tmpDir, 'spec.json');
                             fs.writeFileSync(pathToConfig, JSON.stringify(spec));
@@ -80,7 +80,8 @@ describe('Prompt and no build integration tests for model generator', function()
 
     it('aborts generator with an error', function(){
       assert(error, 'Should throw an error');
-      assert(error, 'The swftserver:model generator is not compatible with non-CRUD application types', 'Specified directory is not a crud app type and should have thrown an error');
+      var expectedError = 'The swiftserver:model generator is not compatible with non-CRUD application types';
+      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`);
     });
   });
 
