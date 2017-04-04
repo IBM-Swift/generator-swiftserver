@@ -36,7 +36,9 @@ var executableModule = appName;
 var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`];
 
 var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
-    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`];
+    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
+    `Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
+    `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,];
 
 var expectedBluemixFiles = ['manifest.yml',
                             '.bluemix/pipeline.yml',
@@ -288,6 +290,53 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsDash(swiftMetricsInstance');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
+    });
+  });
+
+  describe('Generate a skeleton CRUD application without bluemix and with no models', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 8090
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      // FIXME: All project types should have a README
+      var expectedFilesExceptREADME = expectedFiles.filter((f) => f !== 'README.md');
+      assert.file(expectedFilesExceptREADME);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+    it('generates a todo model metadata file and the todo swift files', function() {
+      var expectedModelFiles = [
+        `Sources/${generatedModule}/AdapterFactory.swift`,
+        `Sources/${generatedModule}/CRUDResources.swift`,
+        `Sources/${generatedModule}/AdapterError.swift`,
+        `Sources/${generatedModule}/ModelError.swift`
+      ];
+      assert.file(expectedModelFiles);
     });
   });
 

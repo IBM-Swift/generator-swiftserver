@@ -772,6 +772,14 @@ module.exports = generators.Base.extend({
         this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
         { models: this.models, crudService: crudService, bluemix: this.bluemix }
       );
+      this.fs.copy(
+        this.templatePath('crud', 'AdapterError.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
+      );
+      this.fs.copy(
+        this.templatePath('crud', 'ModelError.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
+      );
       this.models.forEach(function(model) {
         this.fs.copyTpl(
           this.templatePath('crud', 'Resource.swift'),
@@ -782,10 +790,6 @@ module.exports = generators.Base.extend({
           this.templatePath('crud', 'Adapter.swift'),
           this.destinationPath('Sources', this.generatedModule, `${model.classname}Adapter.swift`),
           { model: model }
-        );
-        this.fs.copy(
-          this.templatePath('crud', 'AdapterError.swift'),
-          this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
         );
         switch (crudService.type) {
         case 'cloudant':
@@ -803,10 +807,6 @@ module.exports = generators.Base.extend({
           );
           break;
         }
-        this.fs.copy(
-          this.templatePath('crud', 'ModelError.swift'),
-          this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
-        );
         function optional(propertyName) {
           var required = (model.properties[propertyName].required === true);
           var identifier = (model.properties[propertyName].id === true);
