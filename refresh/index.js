@@ -639,21 +639,23 @@ module.exports = generators.Base.extend({
         this.destinationPath('LICENSE')
       );
 
-      this.fs.copyTpl(
-        this.templatePath('common', 'Application.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-        {
-          appType: this.appType,
-          appName: this.projectName,
-          generatedModule: this.generatedModule,
-          services: this.services,
-          bluemix: this.bluemix,
-          capabilities: this.capabilities,
-          web: this.web,
-          hostSwagger: this.hostSwagger,
-          exampleEndpoints: this.exampleEndpoints
-        }
-      );
+      if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Application.swift'))) {
+        this.fs.copyTpl(
+          this.templatePath('common', 'Application.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+          {
+            appType: this.appType,
+            appName: this.projectName,
+            generatedModule: this.generatedModule,
+            services: this.services,
+            bluemix: this.bluemix,
+            capabilities: this.capabilities,
+            web: this.web,
+            hostSwagger: this.hostSwagger,
+            exampleEndpoints: this.exampleEndpoints
+          }
+        );
+      }
 
       if (this.hostSwagger) {
         this.fs.copyTpl(
