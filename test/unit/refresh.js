@@ -22,7 +22,7 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.cfignore', '.yo-rc.json', 'LICENSE', 'README.md'];
+                     '.yo-rc.json', 'LICENSE', 'README.md'];
 
 var appName = 'todo';
 var modelName = 'todo';
@@ -39,6 +39,7 @@ var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule
     `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`];
 
 var expectedBluemixFiles = ['manifest.yml',
+                            '.cfignore',
                             '.bluemix/pipeline.yml',
                             '.bluemix/toolchain.yml',
                             '.bluemix/deploy.json'];
