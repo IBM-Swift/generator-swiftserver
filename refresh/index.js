@@ -594,12 +594,6 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
       }
 
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'));
-      }
-
       // Check if there is a .gitignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.gitignore'))) {
         this.fs.copy(this.templatePath('common', 'gitignore'),
@@ -977,6 +971,12 @@ module.exports = generators.Base.extend({
 
     writeBluemixDeploymentFiles: function() {
       if (!this.bluemix) return;
+
+      // Check if there is a .cfignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
+        this.fs.copy(this.templatePath('common', 'cfignore'),
+                     this.destinationPath('.cfignore'));
+      }
 
       this.fs.copyTpl(
         this.templatePath('bluemix', 'manifest.yml'),
