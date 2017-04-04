@@ -658,10 +658,12 @@ module.exports = generators.Base.extend({
       }
 
       if (this.hostSwagger) {
-        this.fs.copyTpl(
-          this.templatePath('common', 'SwaggerRoute.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
-        );
+        if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'))) {
+          this.fs.copyTpl(
+            this.templatePath('common', 'SwaggerRoute.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+          );
+        }
       }
 
       if (this.web) {
