@@ -47,6 +47,9 @@ describe('Prompt and build integration tests for app generator', function () {
     it('compiles the application', function () {
       assert.file('.build/debug/notes');
     });
+    it('generates an .xcodeproj file', function () {
+      assert.file('notes.xcodeproj');
+    });
   });
 
   describe('Web application @full', function () {
@@ -87,6 +90,9 @@ describe('Prompt and build integration tests for app generator', function () {
 
     it('compiles the application', function () {
       assert.file(process.cwd()+'/.build/debug/notes');
+    });
+    it('generates an .xcodeproj file', function () {
+      assert.file('notes.xcodeproj');
     });
   });
 
