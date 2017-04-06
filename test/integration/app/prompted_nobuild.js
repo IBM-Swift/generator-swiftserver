@@ -508,7 +508,7 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             'compose-for-redis': [{
               credentials: {
-                uri: 'redis://:@localhost:6397'
+                uri: 'redis://admin:@localhost:6397'
               }
             }],
             'Object-Storage': [{
@@ -532,6 +532,87 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'profilesUrl': '',
                 'secret': '',
                 'tenantId': '',
+                'version': 3
+              }
+            }]
+          }
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Bluemix application where service credentials are specified', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            cloudantHost: 'bluemix.cloudant',
+                            cloudantPort: 443,
+                            cloudantSecured: true,
+                            cloudantUsername: 'admin',
+                            cloudantPassword: 'password',
+                            redisHost: 'bluemix.redis',
+                            redisPort: '443',
+                            redisPassword: 'password',
+                            objectstorageRegion: 'earth',
+                            objectstorageProjectId: 'PROJECT_ID',
+                            objectstorageUserId: 'USER_ID',
+                            objectstoragePassword: 'password',
+                            appidTenantId: 'TENANT_ID',
+                            appidClientId: 'CLIENT_ID',
+                            appidSecret: 'APP_ID_SECRET'
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage and appid services', function () {
+      var expected = {
+        vcap: {
+          services: {
+            cloudantNoSQLDB: [{
+              credentials: {
+                host: 'bluemix.cloudant',
+                url: '',
+                username: 'admin',
+                password: 'password',
+                port: 443
+              }
+            }],
+            'compose-for-redis': [{
+              credentials: {
+                uri: 'redis://admin:password@bluemix.redis:443'
+              }
+            }],
+            'Object-Storage': [{
+              credentials: {
+                'auth_url': '',
+                'project': '',
+                'projectId': 'PROJECT_ID',
+                'region': 'earth',
+                'userId': 'USER_ID',
+                'username': '',
+                'password': 'password',
+                'domainId': '',
+                'domainName': '',
+                'role': ''
+              }
+            }],
+            AdvancedMobileAccess: [{
+              credentials: {
+                'clientId': 'CLIENT_ID',
+                'oauthServerUrl': '',
+                'profilesUrl': '',
+                'secret': 'APP_ID_SECRET',
+                'tenantId': 'TENANT_ID',
                 'version': 3
               }
             }]
