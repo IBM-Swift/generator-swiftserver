@@ -41,7 +41,7 @@ describe('Spec option and build integration tests for app generator', function (
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         cloudant: [{
@@ -98,7 +98,7 @@ describe('Spec option and build integration tests for app generator', function (
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       capabilities: {
         metrics: true,
@@ -154,7 +154,7 @@ describe('Spec option and build integration tests for app generator', function (
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         cloudant: [{
@@ -194,7 +194,7 @@ describe('Spec option and build integration tests for app generator', function (
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         redis: [{
@@ -234,7 +234,7 @@ describe('Spec option and build integration tests for app generator', function (
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         appid: [{
