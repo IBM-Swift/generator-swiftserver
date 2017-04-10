@@ -1,4 +1,4 @@
-FROM ibmcom/swift-ubuntu-runtime:latest
+FROM ibmcom/swift-ubuntu-runtime:3.0.2
 MAINTAINER IBM Swift Engineering at IBM Cloud
 LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu-runtime image."
 
