@@ -179,7 +179,7 @@ describe('helpers', function () {
                                       "compose-for-redis":[{label:"compose-for-redis",
                                                             tags:[],
                                                             plan:"Standard",
-                                                            credentials:{uri:"redis://:@localhost:6397"}}],
+                                                            credentials:{uri:"redis://admin:@localhost:6397"}}],
                                       "Object-Storage":[{label:"Object-Storage",
                                                          tags:[],
                                                          plan:"Free",

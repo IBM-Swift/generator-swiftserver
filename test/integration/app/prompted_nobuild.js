@@ -383,7 +383,247 @@ describe('Prompt and no build integration tests for app generator', function () 
     });
   });
 
-  describe('Bluemix where service application name should not be provided', function () {
+  describe('Non bluemix application where default service credentials are used', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
+                            services: ['CouchDB', 'Redis'],
+                            configure: ['Cloudant / CouchDB', 'Redis'],
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct default service credentials for cloudant and redis credentials', function () {
+      var expected = {
+        services: {
+          cloudant: [{
+            name: 'couchdb',
+            type: 'cloudant',
+            host: 'localhost',
+            port: 5984,
+            secured: false
+          }],
+          'redis': [{
+            name: 'redis',
+            type: 'redis',
+            host: 'localhost',
+            port: 6397
+          }],
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Non bluemix application where service credentials are provided', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
+                            services: ['CouchDB', 'Redis'],
+                            configure: ['Cloudant / CouchDB', 'Redis'],
+                            cloudantType: 'cloudant',
+                            cloudantHost: 'cloudy.ibm.com',
+                            cloudantPort: 4568,
+                            cloudantSecured: true,
+                            cloudantUsername: 'admin',
+                            cloudantPassword: 'password',
+                            redisType: 'redis',
+                            redisHost: 'reducto.ibm.com',
+                            redisPort: 4569,
+                            redisPassword: 'gimble'
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct service credentials for cloudant and redis credentials', function () {
+      var expected = {
+        services: {
+          cloudant: [{
+            name: 'couchdb',
+            type: 'cloudant',
+            host: 'cloudy.ibm.com',
+            port: 4568,
+            secured: true,
+            username: 'admin',
+            password: 'password'
+          }],
+          'redis': [{
+            name: 'redis',
+            type: 'redis',
+            host: 'reducto.ibm.com',
+            port: 4569,
+            password: 'gimble'
+          }],
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Bluemix application where default service credentials are used', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage and appid services', function () {
+      var expected = {
+        vcap: {
+          services: {
+            cloudantNoSQLDB: [{
+              credentials: {
+                host: 'localhost',
+                url: '',
+                username: '',
+                password: '',
+                port: 6984
+              }
+            }],
+            'compose-for-redis': [{
+              credentials: {
+                uri: 'redis://admin:@localhost:6397'
+              }
+            }],
+            'Object-Storage': [{
+              credentials: {
+                'auth_url': '',
+                'project': '',
+                'projectId': '',
+                'region': '',
+                'userId': '',
+                'username': '',
+                'password': '',
+                'domainId': '',
+                'domainName': '',
+                'role': ''
+              }
+            }],
+            AdvancedMobileAccess: [{
+              credentials: {
+                'clientId': '',
+                'oauthServerUrl': '',
+                'profilesUrl': '',
+                'secret': '',
+                'tenantId': '',
+                'version': 3
+              }
+            }]
+          }
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Bluemix application where service credentials are specified', function () {
+    var runContext;
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            cloudantHost: 'bluemix.cloudant',
+                            cloudantPort: 443,
+                            cloudantSecured: true,
+                            cloudantUsername: 'admin',
+                            cloudantPassword: 'password',
+                            redisHost: 'bluemix.redis',
+                            redisPort: '443',
+                            redisPassword: 'password',
+                            objectstorageRegion: 'earth',
+                            objectstorageProjectId: 'PROJECT_ID',
+                            objectstorageUserId: 'USER_ID',
+                            objectstoragePassword: 'password',
+                            appidTenantId: 'TENANT_ID',
+                            appidClientId: 'CLIENT_ID',
+                            appidSecret: 'APP_ID_SECRET'
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('config.json contains the credentials specified by the user', function () {
+      var expected = {
+        vcap: {
+          services: {
+            cloudantNoSQLDB: [{
+              credentials: {
+                host: 'bluemix.cloudant',
+                url: '',
+                username: 'admin',
+                password: 'password',
+                port: 443
+              }
+            }],
+            'compose-for-redis': [{
+              credentials: {
+                uri: 'redis://admin:password@bluemix.redis:443'
+              }
+            }],
+            'Object-Storage': [{
+              credentials: {
+                'auth_url': '',
+                'project': '',
+                'projectId': 'PROJECT_ID',
+                'region': 'earth',
+                'userId': 'USER_ID',
+                'username': '',
+                'password': 'password',
+                'domainId': '',
+                'domainName': '',
+                'role': ''
+              }
+            }],
+            AdvancedMobileAccess: [{
+              credentials: {
+                'clientId': 'CLIENT_ID',
+                'oauthServerUrl': '',
+                'profilesUrl': '',
+                'secret': 'APP_ID_SECRET',
+                'tenantId': 'TENANT_ID',
+                'version': 3
+              }
+            }]
+          }
+        }
+      };
+      assert.jsonFileContent('config.json', expected);
+    });
+  });
+
+  describe('Bluemix where service plan type is not provided', function () {
     var runContext;
 
     before(function () {
