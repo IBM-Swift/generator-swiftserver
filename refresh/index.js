@@ -726,6 +726,10 @@ module.exports = generators.Base.extend({
         );
       }
 
+      // Add the models to the spec
+      this.spec.models = this.models;
+      this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
+
       // Check if there is a models folder, create one if there isn't
       if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
         this.fs.write(this.destinationPath('models', '.keep'), '');

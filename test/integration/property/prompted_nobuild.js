@@ -101,4 +101,107 @@ describe('Prompt and no build integration tests for property generator', functio
     });
   });
 
+  describe('Prompt to add properties to a model gets added to the correct model' +
+           ' and updates the spec.json', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(propertyGeneratorPath)
+                          .inTmpDir(function(tmpDir) {
+                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
+                            fs.writeFileSync(tmpFile, "");
+                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
+                            fs.writeFileSync(tmp_yorc, "{}");
+                            var spec = {
+                              appType: 'crud',
+                              appName: 'test',
+                              models: [{
+                                name: 'MyModel',
+                                plural: 'MyModels',
+                                classname: 'MyModel',
+                                properties: {
+                                  "id": {
+                                    "type": "string",
+                                    "id": true
+                                  }
+                                }
+                              }],
+                              config: {}
+                            };
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'), JSON.stringify(spec));
+                            var model =
+                            {
+                              name: 'MyModel',
+                              plural: 'MyModels',
+                              classname: 'MyModel',
+                              properties: {
+                                "id": {
+                                  "type": "string",
+                                  "id": true
+                                }
+                              }
+                            }
+                            fs.mkdirSync(path.join(tmpDir,'models'));
+                            fs.writeFileSync(path.join(tmpDir,'models','MyModel.json'), JSON.stringify(model));
+                          })
+                          .withPrompts({
+                            model: 'MyModel',
+                            propertyName: 'book',
+                            type: 'boolean',
+                            required: 'true',
+                            default: 'false'
+                          })
+                          .withOptions({ 'skip-build': true })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('adds the properties to the spec.json', function() {
+      const exp = {
+        models: [
+          {
+            name: 'MyModel',
+            plural: 'MyModels',
+            classname: 'MyModel',
+            properties: {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "book": {
+                "type": "boolean",
+                "required": true,
+                "default": false
+              }
+            }
+          }
+        ]
+      };
+      assert.jsonFileContent('spec.json', exp);
+    });
+
+    it('adds the properties to the model file', function() {
+      var expected = {
+        name: 'MyModel',
+        plural: 'MyModels',
+        classname: 'MyModel',
+        properties: {
+          "id": {
+            "type": "string",
+            "id": true
+          },
+          "book": {
+            "type": "boolean",
+            "required": true,
+            "default": false
+          }
+        }
+      };
+      assert.jsonFileContent(path.join(process.cwd(), 'models', 'MyModel.json'), expected);
+    });
+  });
+
 });

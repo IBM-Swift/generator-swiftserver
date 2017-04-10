@@ -85,7 +85,7 @@ describe('Prompt and no build integration tests for model generator', function()
     });
   });
 
-  describe('Prompt model', function() {
+  describe('Create a new model, creating a new model json file and update the spec.json', function() {
     var runContext;
     var error;
 
@@ -119,6 +119,37 @@ describe('Prompt and no build integration tests for model generator', function()
     it('creates a model', function() {
       assert.file('models/MyModel.json');
     });
-  });
 
+    it('Creates the correct model file with the correct information', function() {
+      const expected = {
+        name: 'MyModel',
+        plural: 'MyModels',
+        classname: 'MyModel',
+        properties: {
+          "id": {
+            "type": "string",
+            "id": true
+          }
+        }
+      }
+      assert.jsonFileContent(path.join(process.cwd(), 'models','MyModel.json'), expected);
+    });
+
+    it('updates the spec.json with the model', function() {
+      var expected = {
+        models: [{
+          name: 'MyModel',
+          plural: 'MyModels',
+          classname: 'MyModel',
+          properties: {
+            "id": {
+              "type": "string",
+              "id": true
+            }
+          }
+        }]
+      };
+      assert.jsonFileContent('spec.json', expected);
+    });
+  });
 });
