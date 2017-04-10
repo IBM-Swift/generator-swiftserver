@@ -1,3 +1,18 @@
+2017-04-10, Version 2.0.2
+=========================
+
+* variable defs in travisCI
+* Updated README to reflect docker changes (#161)
+* Errors when non-CRUD type in property and model generator (#160)
+* cfignore no longer created when non-Bluemix
+* Doesn't overwrite the Application.swift (#164)
+* Doesn't overwrite the SwaggerRoute.swift (#165)
+* Generates CRUD error files (#163)
+* Remove port 8090 references in tests (#167)
+* Added credentials tests (#168)
+* Pin Swift version to 3.0.2 in docker files (#170)
+
+
 2017-03-29, Version 2.0.1
 =========================
 

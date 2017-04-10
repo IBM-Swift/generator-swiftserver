@@ -39,23 +39,23 @@ describe('swiftserver:model', function () {
   describe('Basic model test. '+
            'Check the spec object is correct.', function () {
 
+    this.timeout(10000);
     var runContext;
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
         runContext = helpers.run(path.join( __dirname, '../../model'))
+          .withOptions({ testmode: true })
           .withGenerators(dependentGenerators) // Stub subgenerators
           .inTmpDir(function (tmpDir) {
             var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
             fs.writeFileSync(tmpFile, "");
-            var config = {
+            var spec = {
               appName: "modelTestDir",
-              store: "cloudant",
-              logger: "helium",
-              port: 8090
+              appType: "crud"
             }
-            var tmpConfig = path.join(tmpDir, "config.json");           //Created so there is an appName for the models
-            fs.writeFileSync(tmpConfig, JSON.stringify(config));
+            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
+            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
             var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
             fs.writeFileSync(tmp_yorc, "{}");
           })

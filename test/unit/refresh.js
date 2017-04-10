@@ -22,7 +22,7 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.cfignore', '.yo-rc.json', 'LICENSE', 'README.md'];
+                     '.yo-rc.json', 'LICENSE', 'README.md'];
 
 var appName = 'todo';
 var modelName = 'todo';
@@ -36,9 +36,12 @@ var executableModule = appName;
 var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`];
 
 var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
-    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`];
+    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
+    `Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
+    `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,];
 
 var expectedBluemixFiles = ['manifest.yml',
+                            '.cfignore',
                             '.bluemix/pipeline.yml',
                             '.bluemix/toolchain.yml',
                             '.bluemix/deploy.json'];
@@ -60,7 +63,7 @@ describe('swiftserver:refresh', function () {
           appName: appName,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           "models": [
             {
@@ -122,7 +125,7 @@ describe('swiftserver:refresh', function () {
         appName: appName,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         "models": [
           {
@@ -187,7 +190,7 @@ describe('swiftserver:refresh', function () {
           bluemix: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -202,7 +205,7 @@ describe('swiftserver:refresh', function () {
     });
 
     if('generated the correct config file', function() {
-      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 8090}});
+      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}});
     });
 
     it('generates the expected files in the root of the project', function () {
@@ -226,7 +229,7 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           "models": [
             {
@@ -291,6 +294,53 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Generate a skeleton CRUD application without bluemix and with no models', function () {
+
+    var runContext;
+
+    before(function () {
+        // Set up the spec file which should create all the necessary files for a server
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          bluemix: false,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      // FIXME: All project types should have a README
+      var expectedFilesExceptREADME = expectedFiles.filter((f) => f !== 'README.md');
+      assert.file(expectedFilesExceptREADME);
+    });
+
+    it('generates the generic swift source files', function() {
+      assert.file(expectedSourceFiles);
+    });
+
+    it('generates a todo model metadata file and the todo swift files', function() {
+      var expectedModelFiles = [
+        `Sources/${generatedModule}/AdapterFactory.swift`,
+        `Sources/${generatedModule}/CRUDResources.swift`,
+        `Sources/${generatedModule}/AdapterError.swift`,
+        `Sources/${generatedModule}/ModelError.swift`
+      ];
+      assert.file(expectedModelFiles);
+    });
+  });
+
   describe('Generate a skeleton CRUD application for bluemix', function () {
 
     var runContext;
@@ -303,7 +353,7 @@ describe('swiftserver:refresh', function () {
           bluemix: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           "models": [
             {
@@ -366,7 +416,7 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           capabilities: {
             "metrics" : true,
@@ -406,7 +456,7 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           capabilities: {
             "metrics" : false
@@ -443,7 +493,7 @@ describe('swiftserver:refresh', function () {
         bluemix: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           cloudant: [{
@@ -513,7 +563,7 @@ describe('swiftserver:refresh', function () {
         bluemix: false,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           cloudant: [{
@@ -590,7 +640,7 @@ describe('swiftserver:refresh', function () {
           },
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -666,7 +716,7 @@ describe('swiftserver:refresh', function () {
           },
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -702,7 +752,7 @@ describe('swiftserver:refresh', function () {
           web: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -752,7 +802,7 @@ describe('swiftserver:refresh', function () {
           web: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           capabilities: {
             "metrics" : true,
@@ -793,7 +843,7 @@ describe('swiftserver:refresh', function () {
           web: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           },
           capabilities: {
             "metrics" : true,
@@ -833,7 +883,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           cloudant: [{
@@ -883,7 +933,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           cloudant: [{
@@ -937,7 +987,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           redis: [{
@@ -986,7 +1036,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           redis: [{
@@ -1040,7 +1090,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           objectstorage: [{
@@ -1090,7 +1140,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         "models": [
           {
@@ -1141,7 +1191,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           objectstorage: [{
@@ -1182,7 +1232,7 @@ describe('swiftserver:refresh', function () {
           bluemix: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -1258,7 +1308,7 @@ describe('swiftserver:refresh', function () {
           exampleEndpoints: true,
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -1299,7 +1349,7 @@ describe('swiftserver:refresh', function () {
           },
           config: {
             logger: 'helium',
-            port: 8090
+            port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
@@ -1330,7 +1380,7 @@ describe('swiftserver:refresh', function () {
         web: true,
         config: {
           logger: 'helium',
-          port: 8090
+          port: 4567
         },
         services: {
           appid: [{

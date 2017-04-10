@@ -24,7 +24,9 @@ var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
 
-describe('Prompt and build integration tests', function () {
+var appGeneratorPath = path.join(__dirname, '../../../app');
+
+describe('Prompt and build integration tests for app generator', function () {
 
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
@@ -32,7 +34,7 @@ describe('Prompt and build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
                             name: 'notes',
@@ -53,7 +55,7 @@ describe('Prompt and build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
                             name: 'notes',
@@ -74,7 +76,7 @@ describe('Prompt and build integration tests', function () {
     var runContext;
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Generate a CRUD application',
                             name: 'notes',

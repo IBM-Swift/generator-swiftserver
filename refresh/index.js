@@ -594,12 +594,6 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
       }
 
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'));
-      }
-
       // Check if there is a .gitignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.gitignore'))) {
         this.fs.copy(this.templatePath('common', 'gitignore'),
@@ -645,27 +639,31 @@ module.exports = generators.Base.extend({
         this.destinationPath('LICENSE')
       );
 
-      this.fs.copyTpl(
-        this.templatePath('common', 'Application.swift'),
-        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-        {
-          appType: this.appType,
-          appName: this.projectName,
-          generatedModule: this.generatedModule,
-          services: this.services,
-          bluemix: this.bluemix,
-          capabilities: this.capabilities,
-          web: this.web,
-          hostSwagger: this.hostSwagger,
-          exampleEndpoints: this.exampleEndpoints
-        }
-      );
+      if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Application.swift'))) {
+        this.fs.copyTpl(
+          this.templatePath('common', 'Application.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+          {
+            appType: this.appType,
+            appName: this.projectName,
+            generatedModule: this.generatedModule,
+            services: this.services,
+            bluemix: this.bluemix,
+            capabilities: this.capabilities,
+            web: this.web,
+            hostSwagger: this.hostSwagger,
+            exampleEndpoints: this.exampleEndpoints
+          }
+        );
+      }
 
       if (this.hostSwagger) {
-        this.fs.copyTpl(
-          this.templatePath('common', 'SwaggerRoute.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
-        );
+        if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'))) {
+          this.fs.copyTpl(
+            this.templatePath('common', 'SwaggerRoute.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+          );
+        }
       }
 
       if (this.web) {
@@ -772,6 +770,14 @@ module.exports = generators.Base.extend({
         this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
         { models: this.models, crudService: crudService, bluemix: this.bluemix }
       );
+      this.fs.copy(
+        this.templatePath('crud', 'AdapterError.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
+      );
+      this.fs.copy(
+        this.templatePath('crud', 'ModelError.swift'),
+        this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
+      );
       this.models.forEach(function(model) {
         this.fs.copyTpl(
           this.templatePath('crud', 'Resource.swift'),
@@ -782,10 +788,6 @@ module.exports = generators.Base.extend({
           this.templatePath('crud', 'Adapter.swift'),
           this.destinationPath('Sources', this.generatedModule, `${model.classname}Adapter.swift`),
           { model: model }
-        );
-        this.fs.copy(
-          this.templatePath('crud', 'AdapterError.swift'),
-          this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
         );
         switch (crudService.type) {
         case 'cloudant':
@@ -803,10 +805,6 @@ module.exports = generators.Base.extend({
           );
           break;
         }
-        this.fs.copy(
-          this.templatePath('crud', 'ModelError.swift'),
-          this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
-        );
         function optional(propertyName) {
           var required = (model.properties[propertyName].required === true);
           var identifier = (model.properties[propertyName].id === true);
@@ -977,6 +975,12 @@ module.exports = generators.Base.extend({
 
     writeBluemixDeploymentFiles: function() {
       if (!this.bluemix) return;
+
+      // Check if there is a .cfignore, create one if there isn't
+      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
+        this.fs.copy(this.templatePath('common', 'cfignore'),
+                     this.destinationPath('.cfignore'));
+      }
 
       this.fs.copyTpl(
         this.templatePath('bluemix', 'manifest.yml'),

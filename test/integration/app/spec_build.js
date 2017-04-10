@@ -24,7 +24,10 @@ var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
 
-describe('Spec option and build integration tests', function () {
+var appGeneratorPath = path.join(__dirname, '../../../app');
+var buildGeneratorPath = path.join(__dirname, '../../../build');
+
+describe('Spec option and build integration tests for app generator', function () {
 
   describe('A CRUD application with a cloudant service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
@@ -38,7 +41,7 @@ describe('Spec option and build integration tests', function () {
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         cloudant: [{
@@ -65,14 +68,14 @@ describe('Spec option and build integration tests', function () {
     };
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
                           });
 
       return runContext.toPromise()
                         .then(function(dir) {
-                          return helpers.run(path.join(__dirname, '../../build'))
+                          return helpers.run(buildGeneratorPath)
                                         .cd(dir + "/swiftserver")
                                         .toPromise();
                         });
@@ -95,7 +98,7 @@ describe('Spec option and build integration tests', function () {
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       capabilities: {
         metrics: true,
@@ -121,14 +124,14 @@ describe('Spec option and build integration tests', function () {
     };
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
                           });
 
       return runContext.toPromise()
                        .then(function(dir) {
-                         return helpers.run(path.join(__dirname, '../../build'))
+                         return helpers.run(buildGeneratorPath)
                                        .cd(dir + "/swiftserver")
                                        .toPromise();
                        });
@@ -151,7 +154,7 @@ describe('Spec option and build integration tests', function () {
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         cloudant: [{
@@ -161,14 +164,14 @@ describe('Spec option and build integration tests', function () {
     };
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
                           });
 
       return runContext.toPromise()
                        .then(function(dir) {
-                         return helpers.run(path.join(__dirname, '../../build'))
+                         return helpers.run(buildGeneratorPath)
                                        .cd(dir + "/swiftserver")
                                        .toPromise();
                        });
@@ -191,7 +194,7 @@ describe('Spec option and build integration tests', function () {
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         redis: [{
@@ -201,14 +204,14 @@ describe('Spec option and build integration tests', function () {
     };
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
                           });
 
         return runContext.toPromise()
                          .then(function(dir) {
-                           return helpers.run(path.join(__dirname, '../../build'))
+                           return helpers.run(buildGeneratorPath)
                                          .cd(dir + "/swiftserver")
                                          .toPromise();
                          });
@@ -231,7 +234,7 @@ describe('Spec option and build integration tests', function () {
       bluemix: true,
       config: {
         logger: 'helium',
-        port: 8090
+        port: 4567
       },
       services: {
         appid: [{
@@ -241,14 +244,14 @@ describe('Spec option and build integration tests', function () {
     };
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
                           });
 
         return runContext.toPromise()
                          .then(function(dir) {
-                           return helpers.run(path.join(__dirname, '../../build'))
+                           return helpers.run(buildGeneratorPath)
                                          .cd(dir + "/swiftserver")
                                          .toPromise();
                          });

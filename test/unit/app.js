@@ -576,7 +576,7 @@ describe('swiftserver:app', function () {
           store: 'Cloudant',
           configure: ['Cloudant / CouchDB'],
           cloudantHost: 'cloudanthost',
-          cloudantPort: 8080,
+          cloudantPort: 4568,
           cloudantSecured: true
         })
         .inTmpDir(function (tmpDir) {
@@ -602,7 +602,7 @@ describe('swiftserver:app', function () {
           cloudant: [{
             credentials: {
               host: 'cloudanthost',
-              port: 8080,
+              port: 4568,
               secured: true
             }
           }]
