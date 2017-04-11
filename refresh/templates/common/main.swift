@@ -1,3 +1,4 @@
+import Foundation
 import Kitura
 import LoggerAPI
 import HeliumLogger
