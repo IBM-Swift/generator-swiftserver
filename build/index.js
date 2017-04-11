@@ -45,6 +45,23 @@ module.exports = generators.Base.extend({
         this.log('swift build command completed');
         done();
       }.bind(this));
+    },
+
+    generateXCodeprojFile: function() {
+
+      var done = this.async();
+      var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj']);
+      buildProcess.on('error', function(err) {
+        this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'));
+      });
+      buildProcess.on('close', function(err) {
+        if(err) {
+          this.env.error(chalk.red('\nswift package generate-xcodeproj command completed with errors'));
+        }
+
+        this.log('generate .xcodeproj command completed');
+        done();
+      }.bind(this));
     }
   }
 });
