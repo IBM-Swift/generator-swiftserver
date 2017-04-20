@@ -15,7 +15,7 @@ let package = Package(
 <% } else { -%>
         .Package(url: "https://github.com/IBM-Swift/Configuration.git", majorVersion: 0),
 <% } -%>
-<% if(!("metrics" in capabilities)) { -%>
+<% if(capabilities["metrics"] === false || typeof(capabilities["metrics"]) != 'string') { -%>
         .Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 6),
 <% } -%>
 <% Object.keys(services).forEach(function(serviceType) { -%>
