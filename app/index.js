@@ -117,7 +117,7 @@ module.exports = generators.Base.extend({
       var prompts = [
         {
           name: 'name',
-          message: 'What\'s the name of your application?',
+          message: 'What\'s the name of your applicationnnnnnnnnnnnnnnnnnnn?',
           default: this.appname,
           validate: validateAppName
         }
