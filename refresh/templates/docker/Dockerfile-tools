@@ -4,7 +4,7 @@ LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu imag
 
 # We can replace this port with what the user wants
 # EXPOSE {{PORT}}
-EXPOSE 8080 1024
+EXPOSE 8080 1024 1025
 
 # Linux OS utils
 RUN apt-get update
