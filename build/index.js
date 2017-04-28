@@ -21,11 +21,16 @@ var actions = require('../lib/actions');
 var os = require('os');
 
 module.exports = generators.Base.extend({
-  initializing: actions.ensureInProject,
+  initializing: {
+    config: function() {
+      if(!this.options.singleShot) {
+        actions.ensureInProject.call(this);
+      }
+    }
+  },
 
   install: {
     ensureRequiredSwiftInstalled: actions.ensureRequiredSwiftInstalled,
-
     buildSwift: function() {
       // Build swift code
       var done = this.async();

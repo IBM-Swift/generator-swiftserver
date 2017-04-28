@@ -584,14 +584,18 @@ module.exports = generators.Base.extend({
 
   writing: {
     createCommonFiles: function() {
-      // Root directory
-      this.config.save();
 
-      // Check if there is a .swiftservergenerator-project, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
-        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
-        // directory
-        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
+      // Check if we should create generator metadata files
+      if(!this.options.singleShot) {
+        // Root directory
+        this.config.save();
+
+        // Check if there is a .swiftservergenerator-project, create one if there isn't
+        if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
+          // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
+          // directory
+          this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
+        }
       }
 
       // Check if there is a .gitignore, create one if there isn't
