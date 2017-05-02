@@ -52,15 +52,17 @@ module.exports = generators.Base.extend({
 
   initializing: {
     config: function() {
-      this.generatorVersion = require('../package.json').version;
-      this.config.defaults({ version: this.generatorVersion });
+      if(!this.options.singleShot) {
+        this.generatorVersion = require('../package.json').version;
+        this.config.defaults({ version: this.generatorVersion });
 
-      // Ensure generator major version match
-      // TODO Use node-semver? Strip leading non-digits?
-      var generatorMajorVersion = this.generatorVersion.split('.')[0];
-      var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
-      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
-        this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
+        // Ensure generator major version match
+        // TODO Use node-semver? Strip leading non-digits?
+        var generatorMajorVersion = this.generatorVersion.split('.')[0];
+        var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
+        if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
+          this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
+        }
       }
     },
 
