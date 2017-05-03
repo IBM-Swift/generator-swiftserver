@@ -156,6 +156,64 @@ describe('helpers', function () {
 
   });
 
+  describe('generateLocalAuth', function () {
+    it('get default local auth: no credentials', function() {
+      var services = {};
+      var expected = {};
+      var config = helpers.generateLocalAuth(services);
+
+      assert.objectContent(config, expected);
+    });
+
+    it('get default local config: default credentials', function() {
+      var cloudantCredentials = {}
+      var redisCredentials = {}
+      var objectstorageCredentials = {}
+      var services = {cloudant:[{credentials:cloudantCredentials}],
+                      redis:[{credentials:redisCredentials}],
+                      objectstorage:[{credentials:objectstorageCredentials}]
+                     };
+      var expected = {services:{cloudant:[{}],
+                                redis:[{}],
+                                objectstorage:[{}]}};
+      var config = helpers.generateLocalAuth(services);
+
+      assert.objectContent(config, expected);
+    });
+
+    it('get default local auth: supplied credentials', function() {
+      var cloudantCredentials = {host:'host', port:1234,username:'username', password:'password'}
+      var redisCredentials = {host:'host', port:1234,username:'username', password:'password'}
+      var objectstorageCredentials = {auth_url:'auth_url',
+                                      project:'project',
+                                      projectId:'projectId',
+                                      region:'region',
+                                      userId:'userId',
+                                      username:'username',
+                                      password:'password',
+                                      domainId:'domainId',
+                                      domainName:'domainName',
+                                      role:'role'}
+      var services = {cloudant:[{credentials:cloudantCredentials}],
+                      redis:[{credentials:redisCredentials}],
+                      objectstorage:[{credentials:objectstorageCredentials}]
+                     };
+      var expected = {services:{cloudant:[{
+                                           username:'username',
+                                           password:'password'}],
+                                redis:[{
+                                        username:'username',
+                                        password:'password'}],
+                                objectstorage:[{username:'username',
+                                                password:'password'}]
+                               }};
+      var config = helpers.generateLocalAuth(services);
+
+      assert.objectContent(config, expected);
+    });
+
+  });
+
   describe('generateCloudConfig', function () {
     it('get default cloud config: no services', function() {
       var services = {};
@@ -175,47 +233,16 @@ describe('helpers', function () {
                      };
       var expected = {vcap:{services:{"cloudantNoSQLDB":[{label:"cloudantNoSQLDB",
                                                           tags:[],
-                                                          plan:"Lite",
-                                                          credentials:{host:"localhost",
-                                                                       port:6984}}],
+                                                          plan:"Lite"}],
                                       "compose-for-redis":[{label:"compose-for-redis",
                                                             tags:[],
-                                                            plan:"Standard",
-                                                            credentials:{uri:"redis://admin:@localhost:6397"}}],
+                                                            plan:"Standard"}],
                                       "Object-Storage":[{label:"Object-Storage",
                                                          tags:[],
-                                                         plan:"Free",
-                                                         credentials:{auth_url:"",
-                                                                      project:"",
-                                                                      projectId:"",
-                                                                      region:"",
-                                                                      userId:"",
-                                                                      username:"",
-                                                                      password:"",
-                                                                      domainId:"",
-                                                                      domainName:"",
-                                                                      role:""}}],
+                                                         plan:"Free"}],
                                       "AdvancedMobileAccess":[{label:"AdvancedMobileAccess",
                                                                tags:[],
-                                                               plan:"Graduated tier",
-                                                               credentials:{clientId:"",
-                                                                            oauthServerUrl:"",
-                                                                            profilesUrl:"",
-                                                                            secret:"",
-                                                                            tenantId:"",
-                                                                            version:3}}],
-                                      "WatsonConversation":[{label:"WatsonConversation",
-                                                             tags:[],
-                                                             plan:"Free",
-                                                             credentials:{username:"",
-                                                                          password:"",
-                                                                          url:""}}],
-                                      "AlertNotification":[{label:"AlertNotification",
-                                                            tags:[],
-                                                            plan:"Authorized Users",
-                                                            credentials:{name:"",
-                                                                         password:"",
-                                                                         url:""}}]
+                                                               plan:"Graduated tier"}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -251,6 +278,108 @@ describe('helpers', function () {
                                            profilesUrl:"profilesUrl",
                                            secret:"secret",
                                            tenantId:"tenantId",
+                                           version:1}}]
+                     };
+      var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
+                                                     tags:[],
+                                                     plan:"premium"}],
+                                      testredis:[{label:"testredis",
+                                                    tags:[],
+                                                    plan:"premium"}],
+                                      testobjectstorage:[{label:"testobjectstorage",
+                                                          tags:[],
+                                                          plan:"premium"}],
+                                      testappid:[{label:"testappid",
+                                                  tags:[],
+                                                  plan:"premium"}]
+                     }}};
+      var config = helpers.generateCloudConfig({}, services);
+      assert.objectContent(config, expected);
+    });
+
+  });
+
+  describe('generateBluemixAuth', function () {
+    it('get default cloud auth: no services', function() {
+      var services = {};
+      var expected = {vcap:{services:{}}};
+      var config = helpers.generateCloudConfig({}, services);
+
+      assert.objectContent(config, expected);
+    });
+
+    it('get default cloud auth: all services with default values', function() {
+      var services = {cloudant:[{credentials:{}}],
+                      redis:[{credentials:{}}],
+                      objectstorage:[{credentials:{}}],
+                      appid:[{credentials:{}}]
+                     };
+      var expected = {vcap:{services:{"cloudantNoSQLDB":[{label:"cloudantNoSQLDB",
+                                                          credentials:{host:"localhost",
+                                                                       port:6984}}],
+                                      "compose-for-redis":[{label:"compose-for-redis",
+                                                            credentials:{uri:"redis://admin:@localhost:6397"}}],
+                                      "Object-Storage":[{label:"Object-Storage",
+                                                         credentials:{auth_url:"",
+                                                                      project:"",
+                                                                      projectId:"",
+                                                                      region:"",
+                                                                      userId:"",
+                                                                      username:"",
+                                                                      password:"",
+                                                                      domainId:"",
+                                                                      domainName:"",
+                                                                      role:""}}],
+                                      "AdvancedMobileAccess":[{label:"AdvancedMobileAccess",
+                                                               credentials:{clientId:"",
+                                                                            oauthServerUrl:"",
+                                                                            profilesUrl:"",
+                                                                            secret:"",
+                                                                            tenantId:"",
+                                                                            version:3}}],
+                                      "WatsonConversation":[{label:"WatsonConversation",
+                                                             tags:[],
+                                                             plan:"Free",
+                                                             credentials:{username:"",
+                                                                          password:"",
+                                                                          url:""}}],
+                                      "AlertNotification":[{label:"AlertNotification",
+                                                            tags:[],
+                                                            plan:"Authorized Users",
+                                                            credentials:{name:"",
+                                                                         password:"",
+                                                                         url:""}}]
+                     }}};
+      var config = helpers.generateBluemixAuth(services);
+      assert.objectContent(config, expected);
+    });
+
+    it('get default cloud auth: all services with specified values', function() {
+      var services = {cloudant:[{label:"testcloudant",
+                                 credentials:{host:'host',
+                                              url:'url',
+                                              username:'username',
+                                              password:'password',
+                                              port:1234}}],
+                      redis:[{label:"testredis",
+                              credentials:{uri:'uri'}}],
+                      objectstorage:[{label:"testobjectstorage",
+                                      credentials:{auth_url:'auth_url',
+                                                   project:'project',
+                                                   projectId:'projectId',
+                                                   region:'region',
+                                                   userId:'userId',
+                                                   username:'username',
+                                                   password:'password',
+                                                   domainId:'domainId',
+                                                   domainName:'domainName',
+                                                   role:'role'}}],
+                      appid:[{label:"testappid",
+                              credentials:{clientId:"clientId",
+                                           oauthServerUrl:"oauthServerUrl",
+                                           profilesUrl:"profilesUrl",
+                                           secret:"secret",
+                                           tenantId:"tenantId",
                                            version:1}}],
                       watsonconversation:[{label:"testwatsonconversation",
                                            plan:"free",
@@ -264,20 +393,14 @@ describe('helpers', function () {
                                                        url:"https://api.alerts"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
-                                                     tags:[],
-                                                     plan:"premium",
                                                      credentials:{host:"host",
                                                                   url:"url",
                                                                   username:"username",
                                                                   password:"password",
                                                                   port:1234}}],
                                       testredis:[{label:"testredis",
-                                                    tags:[],
-                                                    plan:"premium",
                                                     credentials:{uri:"uri"}}],
                                       testobjectstorage:[{label:"testobjectstorage",
-                                                          tags:[],
-                                                          plan:"premium",
                                                           credentials:{auth_url:"auth_url",
                                                                        project:"project",
                                                                        projectId:"projectId",
@@ -289,8 +412,6 @@ describe('helpers', function () {
                                                                        domainName:"domainName",
                                                                        role:"role"}}],
                                       testappid:[{label:"testappid",
-                                                  tags:[],
-                                                  plan:"premium",
                                                   credentials:{clientId:"clientId",
                                                                oauthServerUrl:"oauthServerUrl",
                                                                profilesUrl:"profilesUrl",
@@ -309,7 +430,7 @@ describe('helpers', function () {
                                                                            password:'password',
                                                                            url:"https://api.alerts"}}]
                      }}};
-      var config = helpers.generateCloudConfig({}, services);
+      var config = helpers.generateBluemixAuth(services);
       assert.objectContent(config, expected);
     });
 

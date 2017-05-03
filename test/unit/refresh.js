@@ -668,6 +668,10 @@ describe('swiftserver:refresh', function () {
       assert.file(`Sources/${generatedModule}/${className}CloudantAdapter.swift`)
     });
 
+    it('generates the auth.json file containing the credentials', function() {
+      assert.file('auth.json');
+    });
+
   });
 
   describe('Generated a CRUD application with cloudant without bluemix', function() {
