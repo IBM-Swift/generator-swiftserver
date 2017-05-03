@@ -651,6 +651,30 @@ module.exports = generators.Base.extend({
         this.fs.writeJSON(filepath, configToWrite);
       });
 
+      // Write out the auth.json, this won't be regenerated again
+      this._ifNotExistsInProject('auth.json', (filepath) => {
+        var authToWrite;
+        if(this.bluemix) {
+          // For now write the whole recap services bit to the auth.json
+          authToWrite = helpers.generateBluemixAuth(this.services);
+        } else {
+          // Non-bluemix
+          // We only write out the credentials, so we need to map the name to the
+          // credentials from the config.json
+          // We only need to know about the services.
+          authToWrite = helpers.generateLocalAuth(this.services);
+        }
+        // authToWrite is an object containing arrays of service credentials
+        // these credentials should be picked up in the swift code and merged
+        // together with the config.
+        //TODO: Only right the file if auth has got values in it?
+        // Write to file
+        this.fs.writeJSON(
+          filepath,
+          authToWrite
+        );
+      }
+
       this._ifNotExistsInProject('.swift-version', (filepath) => {
         this.fs.copy(this.templatePath('common','swift-version'),
                      filepath);

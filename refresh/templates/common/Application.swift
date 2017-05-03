@@ -32,6 +32,7 @@ public var port: Int = 8080
 public func initialize() throws {
 
     manager.load(file: "config.json", relativeFrom: .project)
+           .load(file: "auth.json", relativeFrom: .project)
            .load(.environmentVariables)
 
     port = manager.port
