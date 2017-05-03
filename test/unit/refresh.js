@@ -1431,4 +1431,191 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Refreshing CRUD app does not generate files', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join(__dirname, "../../refresh"))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a fake project
+                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
+                            fs.writeFileSync(tmpFile, "");
+                            var spec = {
+                              appName: "modelTestDir",
+                              appType: "crud",
+                              config: {}
+                            }
+                            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
+                            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
+                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
+                            fs.writeFileSync(tmp_yorc, "{}");
+                          })
+                          .withOptions({
+                            force: false
+                          });
+      return runContext.toPromise();
+
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('Does not generate the common files', function() {
+      assert.noFile('.gitignore');
+      assert.noFile('config.json');
+      assert.noFile(path.join('Sources', 'Application', 'Application.swift'));
+      assert.noFile('.swift-version');
+      assert.noFile('LICENSE');
+    });
+
+    it('Does not generate the model files', function() {
+      assert.noFile(path.join('models','.keep'));
+    });
+  });
+
+  describe('Refresh scaffolded app does not generate files', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join(__dirname, "../../refresh"))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a fake project
+                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
+                            fs.writeFileSync(tmpFile, "");
+                            var spec = {
+                              appName: "scaffoldTest",
+                              appType: "scaffold",
+                              web: true,
+                              exampleEndpoints: true,
+                              hostSwagger: true,
+                              config: {}
+                            }
+                            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
+                            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
+                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
+                            fs.writeFileSync(tmp_yorc, "{}");
+                          })
+                          .withOptions({
+                            apic: true,
+                            force: false
+                          });
+      return runContext.toPromise();
+
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('does not generate the common files', function() {
+      assert.noFile('.gitignore');
+      assert.noFile('config.json');
+      assert.noFile('LICENSE');
+      assert.noFile('index.js');
+      assert.noFile('.swift-version');
+      assert.noFile(path.join('Sources', 'Application', 'Application.swift'));
+      assert.noFile(path.join('Sources', 'Application', 'Routes', 'SwaggerRoute.swift'));
+      assert.noFile(path.join('public', '.keep'));
+      assert.noFile(path.join('definitions', 'scaffoldTest.yaml'));
+      assert.noFile(path.join('public', 'explorer'));
+      assert.noFile(path.join('NOTICES.txt'));
+      assert.noFile('README.md');
+      assert.noFile(path.join('Sources', 'Application', 'Routes', 'ProductRoutes.swift'));
+    });
+  });
+
+  describe('Force refresh all of the files in a CRUD app', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join(__dirname, "../../refresh"))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a fake project
+                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
+                            fs.writeFileSync(tmpFile, "");
+                            var spec = {
+                              appName: "modelTestDir",
+                              appType: "crud",
+                              config: {}
+                            }
+                            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
+                            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
+                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
+                            fs.writeFileSync(tmp_yorc, "{}");
+                          })
+                          .withOptions({
+                            force: true
+                          });
+      return runContext.toPromise();
+
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the common files', function() {
+      assert.file('.gitignore');
+      assert.file('config.json');
+      assert.file(path.join('Sources', 'Application', 'Application.swift'));
+      assert.file('.swift-version');
+      assert.file('LICENSE');
+    });
+
+    it('generates the model files', function() {
+      assert.file(path.join('models','.keep'));
+    });
+  });
+
+  describe('Force refresh all of the files in a scaffolded app', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(path.join(__dirname, "../../refresh"))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a fake project
+                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
+                            fs.writeFileSync(tmpFile, "");
+                            var spec = {
+                              appName: "scaffoldTest",
+                              appType: "scaffold",
+                              web: true,
+                              exampleEndpoints: true,
+                              hostSwagger: true,
+                              config: {}
+                            }
+                            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
+                            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
+                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
+                            fs.writeFileSync(tmp_yorc, "{}");
+                          })
+                          .withOptions({
+                            apic: true,
+                            force: true
+                          });
+      return runContext.toPromise();
+
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the common files', function() {
+      assert.file('.gitignore');
+      assert.file('config.json');
+      assert.file('LICENSE');
+      assert.file('index.js');
+      assert.file('.swift-version');
+      assert.file(path.join('Sources', 'Application', 'Application.swift'));
+      assert.file(path.join('Sources', 'Application', 'Routes', 'SwaggerRoute.swift'));
+      assert.file(path.join('public', '.keep'));
+      assert.file(path.join('definitions', 'scaffoldTest.yaml'));
+      assert.file(path.join('public', 'explorer'));
+      assert.file(path.join('NOTICES.txt'));
+      assert.file('README.md');
+      assert.file(path.join('Sources', 'Application', 'Routes', 'ProductRoutes.swift'));
+    });
+  });
 });

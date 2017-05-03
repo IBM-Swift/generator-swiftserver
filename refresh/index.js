@@ -40,13 +40,19 @@ module.exports = generators.Base.extend({
       required: false,
       hide: true,
       type: String
-    })
+    }),
 
     this.option('spec', {
       desc: 'The specification in a JSON format.',
       required: false,
       hide: true,
       type: String
+    }),
+
+    this.option('force', {
+      desc: 'Force refresh of all files - [WARNING] will remove any changes to generated files',
+      type: Boolean,
+      default: false
     })
   },
 
@@ -212,6 +218,11 @@ module.exports = generators.Base.extend({
       } else {
         actions.ensureEmptyDirectory.call(this);
       }
+    },
+
+    checkGenerateFiles: function() {
+      // Decide whether or not we want to generate/refresh the files
+      this.shouldGenerate = !this.fs.exists('.swiftservergenerator-project') || this.options.force;
     },
 
     readModels: function() {
@@ -584,87 +595,68 @@ module.exports = generators.Base.extend({
 
   writing: {
     createCommonFiles: function() {
-      // Root directory
+      // Save the yo-rc file
       this.config.save();
 
-      // Check if there is a .swiftservergenerator-project, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
-        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
-        // directory
-        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
-      }
+      if(!this.shouldGenerate) return;
 
       // Check if there is a .gitignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.gitignore'))) {
-        this.fs.copy(this.templatePath('common', 'gitignore'),
-                     this.destinationPath('.gitignore'));
-      }
+      this.fs.copy(this.templatePath('common', 'gitignore'),
+                   this.destinationPath('.gitignore'));
 
       // Check if there is a config.json, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('config.json'))) {
-        var configToWrite;
-        if(this.bluemix) {
-          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services);
-        } else {
-          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services);
-        }
-        this.fs.writeJSON(
-          this.destinationPath('config.json'),
-          configToWrite
-        );
+      var configToWrite;
+      if(this.bluemix) {
+        configToWrite = helpers.generateCloudConfig(this.spec.config, this.services);
+      } else {
+        configToWrite = helpers.generateLocalConfig(this.spec.config, this.services);
       }
+      this.fs.writeJSON(
+        this.destinationPath('config.json'),
+        configToWrite
+      );
 
-      // Check if there is a spec.json, if there isn't create one
-      if(!this.fs.exists(this.destinationPath('spec.json'))) {
-        if(this.spec) {
-          this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
-        }
+       // Check if there is a spec.json, if there isn't create one
+      if(this.spec) {
+        this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
       }
 
       // Check if there is a index.js, create one if there isn't
       if (this.options.apic) {
-        if(!this.fs.exists(this.destinationPath('index.js'))) {
-          this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
-                       this.destinationPath('index.js'));
-        }
+        this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
+                     this.destinationPath('index.js'));
       }
 
-      if(!this.fs.exists(this.destinationPath('.swift-version'))) {
-        this.fs.copy(this.templatePath('common','swift-version'),
-                     this.destinationPath('.swift-version'));
+      this.fs.copy(this.templatePath('common','swift-version'),
+                   this.destinationPath('.swift-version'));
+
+      this.fs.copyTpl(
+        this.templatePath('common', 'Application.swift'),
+        this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+        {
+          appType: this.appType,
+          appName: this.projectName,
+          generatedModule: this.generatedModule,
+          services: this.services,
+          bluemix: this.bluemix,
+          capabilities: this.capabilities,
+          web: this.web,
+          hostSwagger: this.hostSwagger,
+          exampleEndpoints: this.exampleEndpoints
+        }
+      );
+
+      if (this.hostSwagger) {
+          this.fs.copyTpl(
+            this.templatePath('common', 'SwaggerRoute.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+          );
       }
 
       this.fs.copy(
         this.templatePath('common', 'LICENSE_for_generated_code'),
         this.destinationPath('LICENSE')
       );
-
-      if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Application.swift'))) {
-        this.fs.copyTpl(
-          this.templatePath('common', 'Application.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
-          {
-            appType: this.appType,
-            appName: this.projectName,
-            generatedModule: this.generatedModule,
-            services: this.services,
-            bluemix: this.bluemix,
-            capabilities: this.capabilities,
-            web: this.web,
-            hostSwagger: this.hostSwagger,
-            exampleEndpoints: this.exampleEndpoints
-          }
-        );
-      }
-
-      if (this.hostSwagger) {
-        if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'))) {
-          this.fs.copyTpl(
-            this.templatePath('common', 'SwaggerRoute.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
-          );
-        }
-      }
 
       if (this.web) {
         this.fs.write(this.destinationPath('public','.keep'), '');
@@ -731,7 +723,7 @@ module.exports = generators.Base.extend({
       this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
 
       // Check if there is a models folder, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
+      if(this.shouldGenerate) {
         this.fs.write(this.destinationPath('models', '.keep'), '');
       }
       this.models.forEach(function(model) {
@@ -988,7 +980,7 @@ module.exports = generators.Base.extend({
       if (!this.bluemix) return;
 
       // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
+      if (this.shouldGenerate) {
         this.fs.copy(this.templatePath('common', 'cfignore'),
                      this.destinationPath('.cfignore'));
       }
@@ -1027,7 +1019,7 @@ module.exports = generators.Base.extend({
 
     writePackageSwift: function() {
       // Check if there is a Package.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
+      if(this.shouldGenerate) {
         this.fs.copyTpl(
           this.templatePath('common', 'Package.swift'),
           this.destinationPath('Package.swift'),
@@ -1041,6 +1033,15 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
           }
         )
+      }
+    },
+
+    writeProjectMarker: function() {
+      // Check if there is a .swiftservergenerator-project, create one if there isn't
+      if(this.shouldGenerate) {
+        // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
+        // directory
+        this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
       }
     }
   },
