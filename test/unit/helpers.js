@@ -117,8 +117,6 @@ describe('helpers', function () {
                                       projectId:'projectId',
                                       region:'region',
                                       userId:'userId',
-                                      username:'username',
-                                      password:'password',
                                       domainId:'domainId',
                                       domainName:'domainName',
                                       role:'role'}
@@ -129,22 +127,16 @@ describe('helpers', function () {
       var expected = {services:{cloudant:[{type:'cloudant',
                                            host:'host',
                                            port:1234,
-                                           secured:false,
-                                           username:'username',
-                                           password:'password'}],
+                                           secured:false,}],
                                 redis:[{type:'redis',
                                         host:'host',
-                                        port:1234,
-                                        username:'username',
-                                        password:'password'}],
+                                        port:1234,}],
                                 objectstorage:[{type:'objectstorage',
                                                 auth_url:'auth_url',
                                                 project:'project',
                                                 projectId:'projectId',
                                                 region:'region',
                                                 userId:'userId',
-                                                username:'username',
-                                                password:'password',
                                                 domainId:'domainId',
                                                 domainName:'domainName',
                                                 role:'role'}]
@@ -152,6 +144,34 @@ describe('helpers', function () {
       var config = helpers.generateLocalConfig(specConfig, services);
 
       assert.objectContent(config, expected);
+    });
+
+    it('get default local config: supplied credentials do not get set', function() {
+      var specConfig = {};
+      var cloudantCredentials = {host:'host', port:1234,username:'username', password:'password'}
+      var redisCredentials = {host:'host', port:1234,username:'username', password:'password'}
+      var objectstorageCredentials = {auth_url:'auth_url',
+                                      project:'project',
+                                      projectId:'projectId',
+                                      region:'region',
+                                      userId:'userId',
+                                      domainId:'domainId',
+                                      domainName:'domainName',
+                                      role:'role'}
+      var services = {cloudant:[{credentials:cloudantCredentials}],
+                      redis:[{credentials:redisCredentials}],
+                      objectstorage:[{credentials:objectstorageCredentials}]
+                     };
+      var expected = {services:{cloudant:[{username: 'username',
+                                           password: 'password'}],
+                                redis:[{username: 'username',
+                                        password: 'password'}],
+                                objectstorage:[{username: 'username',
+                                                password: 'password'}]
+                               }};
+      var config = helpers.generateLocalConfig(specConfig, services);
+
+      assert.noObjectContent(config, expected);
     });
 
   });
@@ -597,6 +617,60 @@ describe('helpers', function () {
       catch(err) {
         assert.equal(err.message, "Unrecognised type 'undefined'");
       }
+    });
+
+  });
+
+  describe('removeCredentials', function () {
+
+    it('remove all references to usernames and passwords: all services with specified values', function() {
+      var services = {cloudant:[{label:"testcloudant",
+                                 credentials:{host:'host',
+                                              url:'url',
+                                              port:1234}}],
+                      redis:[{label:"testredis",
+                              credentials:{uri:'uri'}}],
+                      objectstorage:[{label:"testobjectstorage",
+                                      credentials:{auth_url:'auth_url',
+                                                   project:'project',
+                                                   projectId:'projectId',
+                                                   region:'region',
+                                                   userId:'userId',
+                                                   domainId:'domainId',
+                                                   domainName:'domainName',
+                                                   role:'role'}}],
+                      appid:[{label:"testappid",
+                              credentials:{clientId:"clientId",
+                                           oauthServerUrl:"oauthServerUrl",
+                                           profilesUrl:"profilesUrl",
+                                           secret:"secret",
+                                           tenantId:"tenantId",
+                                           version:1}}]
+                     };
+      var expected = {}/*{vcap:{services:{testcloudant:[{label:"testcloudant",
+                                                     credentials:{host:"host",
+                                                                  url:"url",
+                                                                  port:1234}}],
+                                      testredis:[{label:"testredis",
+                                                    credentials:{}}],
+                                      testobjectstorage:[{label:"testobjectstorage",
+                                                          credentials:{auth_url:"auth_url",
+                                                                       project:"project",
+                                                                       projectId:"projectId",
+                                                                       region:"region",
+                                                                       userId:"userId",
+                                                                       domainId:"domainId",
+                                                                       domainName:"domainName",
+                                                                       role:"role"}}],
+                                      testappid:[{label:"testappid",
+                                                  credentials:{clientId:"clientId",
+                                                               oauthServerUrl:"oauthServerUrl",
+                                                               profilesUrl:"profilesUrl",
+                                                               tenantId:"tenantId",
+                                                               version:1}}]
+                     }}};*/
+      var spec = helpers.removeCredentials(services);
+      assert.objectContent(spec, expected);
     });
 
   });
