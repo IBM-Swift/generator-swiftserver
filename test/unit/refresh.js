@@ -292,6 +292,10 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
     });
+
+    it('generates the extension for ConfigurationManager', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
+    });
   });
 
   describe('Generate a skeleton CRUD application without bluemix and with no models', function () {
@@ -393,6 +397,10 @@ describe('swiftserver:refresh', function () {
 
     it('generates a todo model metadata file and the todo swift files', function() {
       assert.file(expectedModelFiles);
+    });
+
+    it('does not generate the extension for ConfigurationManager', function() {
+      assert.noFile(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
     });
 
     it('generates the bluemix files', function() {

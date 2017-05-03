@@ -884,7 +884,14 @@ module.exports = generators.Base.extend({
     },
 
     createExtensionFiles: function() {
-      if(!this.bluemix) return;
+      if(!this.bluemix) {
+        // Add the extension for the configuration manager
+        this.fs.copy(
+          this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift')
+        );
+        return;
+      }
 
       // Create all the extension files
       Object.keys(this.services).forEach(function(serviceType) {
