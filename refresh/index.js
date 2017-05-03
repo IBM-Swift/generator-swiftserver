@@ -887,8 +887,8 @@ module.exports = generators.Base.extend({
       if(!this.bluemix) {
         // Add the extension for the configuration manager
         this.fs.copy(
-          this.templatePath('extensions', 'Manager.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Extensions', 'Manager.swift')
+          this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
+          this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift')
         );
         return;
       }
