@@ -294,7 +294,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('generates the extension for ConfigurationManager', function() {
-      assert.file(`Sources/${applicationModule}/Extensions/Manager.swift`);
+      assert.file(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
     });
   });
 
@@ -400,7 +400,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('does not generate the extension for ConfigurationManager', function() {
-      assert.noFile(`Sources/${applicationModule}/Extensions/Manager.swift`);
+      assert.noFile(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
     });
 
     it('generates the bluemix files', function() {
