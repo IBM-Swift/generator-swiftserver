@@ -48,6 +48,12 @@ module.exports = generators.Base.extend({
       desc: 'Skip building the generated application',
       defaults: false
     });
+
+    this.option('single-shot', {
+      type: Boolean,
+      desc: 'Creates application without including generator metadata files',
+      defaults: false
+    });
   },
 
   initializing: {
@@ -604,6 +610,7 @@ module.exports = generators.Base.extend({
           options: {
             apic: this.options.apic,
             specObj: this.spec,
+            singleShot: this.options['single-shot'],
             destinationSet: (this.destinationSet === true)
           }
         },
@@ -616,7 +623,12 @@ module.exports = generators.Base.extend({
 
       this.composeWith(
         'swiftserver:build',
-        {},
+        {
+          // Pass in the option of doing single-shot so the appropriate checks are performed
+          options: {
+            singleShot: this.options['single-shot'],
+          }
+        },
         this.options.testmode ? null : { local: require.resolve('../build')}
       );
     }
