@@ -1187,6 +1187,74 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Rejected spec missing appType', function() {
+
+    var runContext;
+    var error = null;
+
+    before(function() {
+      var spec = {
+        appName: appName,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {}
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err;
+      });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('aborts the generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert(error.message.match('^.*appType is missing.*$'), 'Thrown error should be about missing appType');
+    });
+  });
+
+  describe('Rejected spec with invalid appType', function() {
+
+    var runContext;
+    var error = null;
+
+    before(function() {
+      var spec = {
+        appType: 'tomato',
+        appName: appName,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {}
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err;
+      });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('aborts the generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert(error.message.match('^.*appType is invalid.*$'), 'Thrown error should be about missing appType');
+    });
+  });
+
+
   describe('Rejected spec containing a service with no name', function() {
 
     var runContext;
