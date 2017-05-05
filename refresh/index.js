@@ -107,11 +107,16 @@ module.exports = generators.Base.extend({
         this.env.error(chalk.red('No specification for this project'));
       }
 
-      if (this.spec.appType) {
-        this.appType = this.spec.appType;
-      } else {
+      // App type
+      if (!this.spec.appType) {
         this.env.error(chalk.red('Property appType is missing from the specification'));
       }
+      if (['crud', 'scaffold'].indexOf(this.spec.appType) == -1) {
+        this.env.error(chalk.red(`Invalid value for property appType: ${this.spec.appType}`));
+      }
+      this.appType = this.spec.appType;
+
+      // App name
       if (this.spec.appName) {
           this.projectName = this.spec.appName;
       } else {

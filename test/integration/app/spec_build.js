@@ -149,7 +149,7 @@ describe('Spec option and build integration tests for app generator', function (
     var runContext;
 
     var spec = {
-      appType: 'web',
+      appType: 'scaffold',
       appName: 'todo',
       bluemix: true,
       config: {
@@ -189,7 +189,7 @@ describe('Spec option and build integration tests for app generator', function (
     var runContext;
 
     var spec = {
-      appType: 'web',
+      appType: 'scaffold',
       appName: 'todo',
       bluemix: true,
       config: {
@@ -229,7 +229,7 @@ describe('Spec option and build integration tests for app generator', function (
     var runContext;
 
     var spec = {
-      appType: 'web',
+      appType: 'scaffold',
       appName: 'todo',
       bluemix: true,
       config: {
