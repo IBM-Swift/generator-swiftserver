@@ -230,7 +230,7 @@ To compile the application using the tools docker image, run:
 * `docker run -v $PWD:/root/project -w /root/project myapp-build /root/utils/tools-utils.sh build release`
 
 To run the application:
-* `docker run -it -p 8080:8080 -v $PWD:/root/project -w /root/project myapp-run sh -c .build-docker/release/<%- executableName %>`
+* `docker run -it -p 8080:8080 -v $PWD:/root/project -w /root/project myapp-run sh -c .build-ubuntu/release/<%- executableName %>`
 <% } -%>
 
 <% if (bluemix) { -%>
