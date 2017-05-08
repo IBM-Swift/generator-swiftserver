@@ -151,6 +151,7 @@ describe('Spec option and build integration tests for app generator', function (
     var spec = {
       appType: 'scaffold',
       appName: 'todo',
+      web: true,
       bluemix: true,
       config: {
         logger: 'helium',
@@ -191,6 +192,7 @@ describe('Spec option and build integration tests for app generator', function (
     var spec = {
       appType: 'scaffold',
       appName: 'todo',
+      web: true,
       bluemix: true,
       config: {
         logger: 'helium',
@@ -231,6 +233,7 @@ describe('Spec option and build integration tests for app generator', function (
     var spec = {
       appType: 'scaffold',
       appName: 'todo',
+      web: true,
       bluemix: true,
       config: {
         logger: 'helium',
@@ -262,4 +265,44 @@ describe('Spec option and build integration tests for app generator', function (
     });
   });
 
+  describe('Web application with an object storage service is able to build', function () {
+    // Swift build is slow so we need to set a longer timeout for the test
+    this.timeout(300000);
+
+    var runContext;
+
+    var spec = {
+      appType: 'scaffold',
+      appName: 'todo',
+      web: true,
+      bluemix: true,
+      config: {
+        logger: 'helium',
+        port: 4567
+      },
+      services: {
+        objectstorage: [{
+          name: "mObjectStorageService"
+        }]
+      }
+    };
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({
+                            spec: JSON.stringify(spec)
+                          });
+
+        return runContext.toPromise()
+                         .then(function(dir) {
+                           return helpers.run(buildGeneratorPath)
+                                         .cd(dir + "/swiftserver")
+                                         .toPromise();
+                         });
+    });
+
+    it('compiles the application', function () {
+      assert.file('.build/debug/todo');
+    });
+  });
 });
