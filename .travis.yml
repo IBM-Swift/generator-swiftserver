@@ -14,7 +14,7 @@ dist: trusty
 osx_image: xcode8
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
-    - git clone https://github.com/IBM-Swift/Package-Builder.git
+    - git clone -b develop https://github.com/IBM-Swift/Package-Builder.git
 script:
   - osName="linux"
   # Overwrite if OSX
