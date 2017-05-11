@@ -51,7 +51,7 @@ module.exports = generators.Base.extend({
   },
 
   // Check if the given file exists, print a log message if it does and execute
-  // the provided callback function if it doesn not.
+  // the provided callback function if it does not.
   //
   // The given file is specified relative to the destination root as a string or
   // an array of path segments to be joined.
@@ -66,10 +66,12 @@ module.exports = generators.Base.extend({
   // @callback ifNotExistsInProjectCallback
   // @param {string} filepath - absolute filepath of file to check
   _ifNotExistsInProject: function(fileInProject, cb) {
+    var filepath;
     if (typeof(fileInProject) === 'string') {
-      fileInProject = [fileInProject];
+      filepath = this.destinationPath(fileInProject);
+    } else {
+      filepath = this.destinationPath.apply(this, fileInProject);
     }
-    var filepath = this.destinationPath(...fileInProject);
     if (this.fs.exists(this.destinationPath(filepath))) {
       const relativeFilepath = path.relative(this.destinationRoot(), filepath);
       this.log(chalk.cyan('   exists ') + relativeFilepath);
