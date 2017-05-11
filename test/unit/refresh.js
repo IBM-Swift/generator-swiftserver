@@ -298,6 +298,58 @@ describe('swiftserver:refresh', function () {
     });
   });
 
+  describe('Updating a skeleton CRUD application without bluemix and with no models', function () {
+
+    var runContext;
+    var userOwnedFiles = ['.swift-version',
+                          'README.md',
+                          'LICENSE',
+                          'Package.swift',
+                          'config.json',
+                          `Sources/${executableModule}/main.swift`,
+                          `Sources/${applicationModule}/Application.swift`,
+                          `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
+                          `Sources/${applicationModule}/Routes/SwaggerRoute.swift`];
+    var dummyContent = '==Dummy existing content==';
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a dummy file for each one that should
+                            // not be overwritten by the update
+                            fs.mkdirSync('Sources');
+                            fs.mkdirSync(`Sources/${executableModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Routes`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+                            userOwnedFiles.forEach((filename) => {
+                              fs.writeFileSync(path.join(tmpDir, filename),
+                                               dummyContent);
+                            });
+
+                            var spec = {
+                              appType: 'crud',
+                              appName: appName,
+                              config: {}
+                            };
+                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+                                             JSON.stringify(spec));
+                          })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    userOwnedFiles.forEach((filename) => {
+      it(`does not overwrite user-owned file ${filename}`, function () {
+        assert.fileContent(filename, dummyContent);
+      });
+    });
+  });
+
   describe('Generate a skeleton CRUD application without bluemix and with no models', function () {
 
     var runContext;
@@ -409,6 +461,64 @@ describe('swiftserver:refresh', function () {
 
     it('defines OPENAPI_SPEC environment variable', function() {
       assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
+    });
+  });
+
+  describe('Updating a skeleton CRUD application with bluemix and services', function () {
+
+    var runContext;
+    var spec = {
+      appType: 'crud',
+      appName: appName,
+      bluemix: true,
+      config: {},
+      services: {
+        cloudant:      [{ name: "myCloudantService" }],
+        redis:         [{ name: "myRedisService" }],
+        objectstorage: [{ name: "myObjectStorageService" }],
+        appid:         [{ name: "myAppIDService" }]
+      }
+    };
+    var userOwnedFiles = ['manifest.yml',
+                          '.bluemix/pipeline.yml',
+                          '.bluemix/toolchain.yml',
+                          '.bluemix/deploy.json',
+                          'README.md',
+                          `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/AppIDExtension.swift`];
+    var dummyContent = '==Dummy existing content==';
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a dummy file for each one that should
+                            // not be overwritten by the update
+                            fs.mkdirSync('.bluemix');
+                            fs.mkdirSync('Sources');
+                            fs.mkdirSync(`Sources/${applicationModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+                            userOwnedFiles.forEach((filename) => {
+                              fs.writeFileSync(path.join(tmpDir, filename),
+                                               dummyContent);
+                            });
+
+                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+                                             JSON.stringify(spec));
+                          })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    userOwnedFiles.forEach((filename) => {
+      it(`does not overwrite user-owned file ${filename}`, function () {
+        assert.fileContent(filename, dummyContent);
+      });
     });
   });
 
