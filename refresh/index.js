@@ -747,7 +747,8 @@ module.exports = generators.Base.extend({
             cloudant: this.services.cloudant && this.services.cloudant.length > 0,
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
-            appid: this.services.appid && this.services.appid.length > 0
+            appid: this.services.appid && this.services.appid.length > 0,
+            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
@@ -984,6 +985,12 @@ module.exports = generators.Base.extend({
               filepath
             );
           });
+        }
+        if(serviceType === 'watsonconversation') {
+          this.fs.copy(
+            this.templatePath('extensions', 'WatsonConversationExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
+          );
         }
       }.bind(this));
     },
