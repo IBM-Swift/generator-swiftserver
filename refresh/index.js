@@ -992,6 +992,12 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
           );
         }
+        if(serviceType === 'watsonconversation') {
+          this.fs.copy(
+            this.templatePath('extensions', 'WatsonConversationExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
+          );
+        }
       }.bind(this));
     },
 
