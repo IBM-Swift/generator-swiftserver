@@ -233,6 +233,7 @@ module.exports = generators.Base.extend({
           case 'metrics':          return 'Embedded metrics dashboard';
           case 'docker':           return 'Docker files';
           case 'exampleEndpoints': return 'Example endpoints';
+          case 'fromSwagger':      return 'From Swagger';
           case 'bluemix':          return 'Bluemix cloud deployment';
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`));
@@ -264,6 +265,7 @@ module.exports = generators.Base.extend({
 
       if (this.appType === 'scaffold') {
         choices.unshift('exampleEndpoints');
+        choices.unshift('fromSwagger');
         choices.unshift('hostSwagger');
         choices.unshift('web');
         defaults = defaultCapabilities(this.appPattern);
@@ -280,6 +282,25 @@ module.exports = generators.Base.extend({
         choices.forEach(function(choice) {
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
         }.bind(this));
+        done();
+      }.bind(this));
+    },
+
+    promptFromSwagger: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      if (!this.fromSwagger) return;
+      var done = this.async();
+
+      var prompts = [{
+        name: 'path',
+        type: 'String',
+        message: 'Provide the path to a local swagger file:'
+      }];
+      this.prompt(prompts, function(answer) {
+        if (answer.path) {
+          this.fromSwagger = answer.path;
+        }
         done();
       }.bind(this));
     },
@@ -640,6 +661,7 @@ module.exports = generators.Base.extend({
       docker: this.docker || undefined,
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
+      fromSwagger: this.fromSwagger || undefined,
       hostSwagger: this.hostSwagger || undefined,
       services: this.services || {},
       crudservice: this.crudservice,

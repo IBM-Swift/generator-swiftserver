@@ -26,6 +26,9 @@ var rimraf = require('rimraf');
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
 
+var util = require('util');
+var swaggerize = require('./fromSwagger/swaggerize');
+
 module.exports = generators.Base.extend({
   constructor: function() {
     generators.Base.apply(this, arguments);
@@ -189,6 +192,9 @@ module.exports = generators.Base.extend({
 
       // Example endpoints
       this.exampleEndpoints = (this.spec.exampleEndpoints === true);
+
+      // Generation from Swagger
+      this.fromSwagger = this.spec.fromSwagger || undefined;
 
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true);
@@ -769,6 +775,12 @@ module.exports = generators.Base.extend({
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
+      }
+    },
+
+    createFromSwagger: function() {
+      if (this.fromSwagger) {
+        swaggerize.call(this);
       }
     },
 
