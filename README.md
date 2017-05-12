@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/IBM-Swift/generator-swiftserver.svg?branch=master)](https://travis-ci.org/IBM-Swift/generator-swiftserver)
+[![codecov](https://codecov.io/gh/IBM-Swift/generator-swiftserver/branch/master/graph/badge.svg)](https://codecov.io/gh/IBM-Swift/generator-swiftserver)
+
 # generator-swiftserver
 
 This module is a [Yeoman](http://yeoman.io) generator for creating REST webservices based on the [Kitura web framework](http://kitura.io) with the [Swift](https://swift.org/) language.

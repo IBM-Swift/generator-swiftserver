@@ -34,11 +34,7 @@ public func initialize() throws {
     manager.load(file: "config.json", relativeFrom: .project)
            .load(.environmentVariables)
 
-<% if (bluemix) { -%>
     port = manager.port
-<% } else { -%>
-    port = manager["port"] as? Int ?? port
-<% } -%>
 
 <% if (Object.keys(capabilities).length > 0) { -%>
 <%   Object.keys(capabilities).forEach(function(capabilityType) { -%>

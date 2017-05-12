@@ -1,3 +1,22 @@
+2017-05-12, Version 2.1.0
+=========================
+
+* Swift 3.1.1 support (#191,#201,#203)
+* Don't overwrite existing user-owned files (#199)
+* Fix integration tests with custom generator dir (#200)
+* Add Object Storage test (#184)
+* Add badges to README.md for Travis and Codecov.io (#197)
+* Add .build-ubuntu as a file to ignores (#192)
+* Add validation of appType, fix tests (#193)
+* Narrow dependency on Kitura-Credentials (#194)
+* Add --single-shot option (#186)
+* Generate extension to Configuration Manager for local projects (#183)
+* Update debug port mapping in cli-config (#179)
+* Update travis test configuration for latest Package-Builder changes (#176,#181)
+* Fix XCode compilation by adding import Foundation to generated main.swift (#172)
+* Update spec.json when a model is updated in a CRUD project (#169)
+* Generate an <application>.xcodeproj file (#166)
+
 2017-04-10, Version 2.0.2
 =========================
 

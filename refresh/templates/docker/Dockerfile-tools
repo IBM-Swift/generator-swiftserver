@@ -1,10 +1,10 @@
-FROM ibmcom/swift-ubuntu:3.0.2
+FROM ibmcom/swift-ubuntu:3.1.1
 MAINTAINER IBM Swift Engineering at IBM Cloud
 LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu image."
 
 # We can replace this port with what the user wants
 # EXPOSE {{PORT}}
-EXPOSE 8080 1024
+EXPOSE 8080 1024 1025
 
 # Linux OS utils
 RUN apt-get update

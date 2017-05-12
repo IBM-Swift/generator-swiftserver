@@ -89,6 +89,33 @@ describe('Prompt and no build integration tests for app generator', function () 
     });
   });
 
+  describe('Basic application with single-shot', function() {
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({
+                            'skip-build': true,
+                            'single-shot': true
+                          })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir:  'notes',
+                            capabilities: []
+                          });
+      return runContext.toPromise();
+    });
+
+    it('did not create a .yo-rc.json file', function() {
+      assert.noFile('.yo-rc.json');
+    });
+
+    it('did not create a .swiftservergenerator-project file', function() {
+      assert.noFile('.swiftservergenerator-project');
+    });
+  });
+
   describe('Basic application with bluemix', function() {
     var runContext;
 

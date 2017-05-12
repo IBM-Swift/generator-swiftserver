@@ -292,6 +292,62 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
     });
+
+    it('generates the extension for ConfigurationManager', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
+    });
+  });
+
+  describe('Updating a skeleton CRUD application without bluemix and with no models', function () {
+
+    var runContext;
+    var userOwnedFiles = ['.swift-version',
+                          'README.md',
+                          'LICENSE',
+                          'Package.swift',
+                          'config.json',
+                          `Sources/${executableModule}/main.swift`,
+                          `Sources/${applicationModule}/Application.swift`,
+                          `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
+                          `Sources/${applicationModule}/Routes/SwaggerRoute.swift`];
+    var dummyContent = '==Dummy existing content==';
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a dummy file for each one that should
+                            // not be overwritten by the update
+                            fs.mkdirSync('Sources');
+                            fs.mkdirSync(`Sources/${executableModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Routes`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+                            userOwnedFiles.forEach((filename) => {
+                              fs.writeFileSync(path.join(tmpDir, filename),
+                                               dummyContent);
+                            });
+
+                            var spec = {
+                              appType: 'crud',
+                              appName: appName,
+                              config: {}
+                            };
+                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+                                             JSON.stringify(spec));
+                          })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    userOwnedFiles.forEach((filename) => {
+      it(`does not overwrite user-owned file ${filename}`, function () {
+        assert.fileContent(filename, dummyContent);
+      });
+    });
   });
 
   describe('Generate a skeleton CRUD application without bluemix and with no models', function () {
@@ -395,12 +451,74 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedModelFiles);
     });
 
+    it('does not generate the extension for ConfigurationManager', function() {
+      assert.noFile(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
+    });
+
     it('generates the bluemix files', function() {
       assert.file(expectedBluemixFiles);
     });
 
     it('defines OPENAPI_SPEC environment variable', function() {
       assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
+    });
+  });
+
+  describe('Updating a skeleton CRUD application with bluemix and services', function () {
+
+    var runContext;
+    var spec = {
+      appType: 'crud',
+      appName: appName,
+      bluemix: true,
+      config: {},
+      services: {
+        cloudant:      [{ name: "myCloudantService" }],
+        redis:         [{ name: "myRedisService" }],
+        objectstorage: [{ name: "myObjectStorageService" }],
+        appid:         [{ name: "myAppIDService" }]
+      }
+    };
+    var userOwnedFiles = ['manifest.yml',
+                          '.bluemix/pipeline.yml',
+                          '.bluemix/toolchain.yml',
+                          '.bluemix/deploy.json',
+                          'README.md',
+                          `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
+                          `Sources/${applicationModule}/Extensions/AppIDExtension.swift`];
+    var dummyContent = '==Dummy existing content==';
+
+    before(function () {
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+                          .inTmpDir(function(tmpDir) {
+                            // Create a dummy file for each one that should
+                            // not be overwritten by the update
+                            fs.mkdirSync('.bluemix');
+                            fs.mkdirSync('Sources');
+                            fs.mkdirSync(`Sources/${applicationModule}`);
+                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+                            userOwnedFiles.forEach((filename) => {
+                              fs.writeFileSync(path.join(tmpDir, filename),
+                                               dummyContent);
+                            });
+
+                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+                                             JSON.stringify(spec));
+                          })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    userOwnedFiles.forEach((filename) => {
+      it(`does not overwrite user-owned file ${filename}`, function () {
+        assert.fileContent(filename, dummyContent);
+      });
     });
   });
 
@@ -1178,6 +1296,74 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent('manifest.yml', 'declared-services:');
     });
   });
+
+  describe('Rejected spec missing appType', function() {
+
+    var runContext;
+    var error = null;
+
+    before(function() {
+      var spec = {
+        appName: appName,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {}
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err;
+      });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('aborts the generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert(error.message.match('^.*appType is missing.*$'), 'Thrown error should be about missing appType');
+    });
+  });
+
+  describe('Rejected spec with invalid appType', function() {
+
+    var runContext;
+    var error = null;
+
+    before(function() {
+      var spec = {
+        appType: 'tomato',
+        appName: appName,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {}
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err;
+      });
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('aborts the generator with an error', function() {
+      assert(error, 'Should throw an error');
+      assert(error.message.match('^.*appType is invalid.*$'), 'Thrown error should be about missing appType');
+    });
+  });
+
 
   describe('Rejected spec containing a service with no name', function() {
 

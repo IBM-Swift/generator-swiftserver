@@ -21,11 +21,16 @@ var actions = require('../lib/actions');
 var os = require('os');
 
 module.exports = generators.Base.extend({
-  initializing: actions.ensureInProject,
+  initializing: {
+    config: function() {
+      if(!this.options.singleShot) {
+        actions.ensureInProject.call(this);
+      }
+    }
+  },
 
   install: {
     ensureRequiredSwiftInstalled: actions.ensureRequiredSwiftInstalled,
-
     buildSwift: function() {
       // Build swift code
       var done = this.async();
@@ -43,6 +48,23 @@ module.exports = generators.Base.extend({
         }
 
         this.log('swift build command completed');
+        done();
+      }.bind(this));
+    },
+
+    generateXCodeprojFile: function() {
+
+      var done = this.async();
+      var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj']);
+      buildProcess.on('error', function(err) {
+        this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'));
+      });
+      buildProcess.on('close', function(err) {
+        if(err) {
+          this.env.error(chalk.red('\nswift package generate-xcodeproj command completed with errors'));
+        }
+
+        this.log('generate .xcodeproj command completed');
         done();
       }.bind(this));
     }

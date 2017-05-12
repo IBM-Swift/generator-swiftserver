@@ -80,12 +80,12 @@ describe('Prompt and no build integration tests for model generator', function()
 
     it('aborts generator with an error', function(){
       assert(error, 'Should throw an error');
-      var expectedError = 'The swiftserver:model generator is not compatible with non-CRUD application types';
+      var expectedError = 'The \\S+?:model generator is not compatible with non-CRUD application types';
       assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`);
     });
   });
 
-  describe('Prompt model', function() {
+  describe('Create a new model, creating a new model json file and update the spec.json', function() {
     var runContext;
     var error;
 
@@ -119,6 +119,37 @@ describe('Prompt and no build integration tests for model generator', function()
     it('creates a model', function() {
       assert.file('models/MyModel.json');
     });
-  });
 
+    it('Creates the correct model file with the correct information', function() {
+      const expected = {
+        name: 'MyModel',
+        plural: 'MyModels',
+        classname: 'MyModel',
+        properties: {
+          "id": {
+            "type": "string",
+            "id": true
+          }
+        }
+      }
+      assert.jsonFileContent(path.join(process.cwd(), 'models','MyModel.json'), expected);
+    });
+
+    it('updates the spec.json with the model', function() {
+      var expected = {
+        models: [{
+          name: 'MyModel',
+          plural: 'MyModels',
+          classname: 'MyModel',
+          properties: {
+            "id": {
+              "type": "string",
+              "id": true
+            }
+          }
+        }]
+      };
+      assert.jsonFileContent('spec.json', expected);
+    });
+  });
 });
