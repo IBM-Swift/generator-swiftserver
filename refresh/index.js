@@ -992,10 +992,10 @@ module.exports = generators.Base.extend({
             this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
           );
         }
-        if(serviceType === 'watsonconversation') {
+        if(serviceType === 'alertnotification') {
           this.fs.copy(
-            this.templatePath('extensions', 'WatsonConversationExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
+            this.templatePath('extensions', 'AlertNotificationExtension.swift'),
+            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift')
           );
         }
       }.bind(this));
