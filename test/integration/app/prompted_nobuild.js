@@ -318,17 +318,18 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
                             cloudantName: 'testCloudant',
                             redisName: 'testRedis',
                             objectstorageName: 'testObjectStorage',
-                            appIDName: 'testAppID'
+                            appIDName: 'testAppID',
+                            watsonConversationName: 'testWatsonConversation'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
+    it('config.json contains the correct values for cloudant, redis, objectstorage, appid, and watsonconversation service names', function () {
       var expected = {
         vcap: {
           services: {
@@ -343,6 +344,9 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             AdvancedMobileAccess: [{
               name: 'testAppID'
+            }],
+            'WatsonConversation': [{
+              name: 'testWatsonConversation'
             }]
           }
         }
@@ -362,8 +366,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -373,6 +377,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                            ['config.json', /\s\"name\":\s\"notes-Redis-\w{4}\",/],
                            ['config.json', /\s\"name\":\s\"notes-ObjectStorage-\w{4}\",/],
                            ['config.json', /\s\"name\":\s\"notes-AppID-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-WatsonConversation-\w{4}\",/],
                          ]);
     });
   });
@@ -514,13 +519,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage and appid services', function () {
+    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage, appid and watsonconversation services', function () {
       var expected = {
         vcap: {
           services: {
@@ -561,6 +566,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'tenantId': '',
                 'version': 3
               }
+            }],
+            'WatsonConversation': [{
+              credentials: {
+                'username': '',
+                'password': '',
+                'url': ''
+              }
             }]
           }
         }
@@ -580,8 +592,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
                             cloudantHost: 'bluemix.cloudant',
                             cloudantPort: 443,
                             cloudantSecured: true,
@@ -642,6 +654,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'tenantId': 'TENANT_ID',
                 'version': 3
               }
+            }],
+            'WatsonConversation': [{
+              credentials: {
+                'username': '',
+                'password': '',
+                'url': ''
+              }
             }]
           }
         }
@@ -661,12 +680,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation'],
                             cloudantName: 'cloudantService',
                             redisName: 'redisService',
                             objectstorageName: 'objStoreService',
-                            appIDName: 'appIDService'
+                            appIDName: 'appIDService',
+                            watsonConversationName: 'watsonConversationService'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -685,6 +705,10 @@ describe('Prompt and no build integration tests for app generator', function () 
 
     it('sets the correct plan for appID', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"Graduated tier" "appIDService"')
+    });
+
+    it('sets the correct plan for watson conversation', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Free" "watsonConversationService"')
     });
   });
 
