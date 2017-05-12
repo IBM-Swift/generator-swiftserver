@@ -79,6 +79,7 @@ public class <%- model.classname %>Resource {
         Log.debug("DELETE \(path)")
         adapter.deleteAll() { error in
             if let error = error {
+                Log.error("InternalServerError during handleDeleteAll: \(error)")
                 response.status(.internalServerError)
             } else {
                 let result = JSON([])
