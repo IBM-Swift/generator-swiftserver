@@ -50,6 +50,36 @@ module.exports = generators.Base.extend({
     })
   },
 
+  // Check if the given file exists, print a log message if it does and execute
+  // the provided callback function if it does not.
+  //
+  // The given file is specified relative to the destination root as a string or
+  // an array of path segments to be joined.
+  //
+  // The callback function is passed the absolute filepath of the given file.
+  //
+  // @param {(string|string[])} fileInProject - filepath of file to check relative to destination root,
+  //                                            if an array is provided, the elements will be joined with
+  //                                            the path separator
+  // @param {ifNotExistsInProjectCallback} cb - callback to be executed if file to check does not exist
+  //
+  // @callback ifNotExistsInProjectCallback
+  // @param {string} filepath - absolute filepath of file to check
+  _ifNotExistsInProject: function(fileInProject, cb) {
+    var filepath;
+    if (typeof(fileInProject) === 'string') {
+      filepath = this.destinationPath(fileInProject);
+    } else {
+      filepath = this.destinationPath.apply(this, fileInProject);
+    }
+    if (this.fs.exists(this.destinationPath(filepath))) {
+      const relativeFilepath = path.relative(this.destinationRoot(), filepath);
+      this.log(chalk.cyan('   exists ') + relativeFilepath);
+    } else {
+      cb.call(this, filepath);
+    }
+  },
+
   initializing: {
     config: function() {
       if(!this.options.singleShot) {
@@ -598,62 +628,44 @@ module.exports = generators.Base.extend({
         this.config.save();
 
         // Check if there is a .swiftservergenerator-project, create one if there isn't
-        if(!this.fs.exists(this.destinationPath('.swiftservergenerator-project'))) {
+        this._ifNotExistsInProject('.swiftservergenerator-project', (filepath) => {
           // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
           // directory
-          this.fs.write(this.destinationPath('.swiftservergenerator-project'), '');
-        }
+          this.fs.write(filepath, '');
+        });
       }
 
       // Check if there is a .gitignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.gitignore'))) {
-        this.fs.copy(this.templatePath('common', 'gitignore'),
-                     this.destinationPath('.gitignore'));
-      }
+      this._ifNotExistsInProject('.gitignore', (filepath) => {
+        this.fs.copy(this.templatePath('common', 'gitignore'), filepath);
+      });
 
       // Check if there is a config.json, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('config.json'))) {
+      this._ifNotExistsInProject('config.json', (filepath) => {
         var configToWrite;
         if(this.bluemix) {
           configToWrite = helpers.generateCloudConfig(this.spec.config, this.services);
         } else {
           configToWrite = helpers.generateLocalConfig(this.spec.config, this.services);
         }
-        this.fs.writeJSON(
-          this.destinationPath('config.json'),
-          configToWrite
-        );
-      }
+        this.fs.writeJSON(filepath, configToWrite);
+      });
 
-      // Check if there is a spec.json, if there isn't create one
-      if(!this.fs.exists(this.destinationPath('spec.json'))) {
-        if(this.spec) {
-          this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
-        }
-      }
-
-      // Check if there is a index.js, create one if there isn't
-      if (this.options.apic) {
-        if(!this.fs.exists(this.destinationPath('index.js'))) {
-          this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
-                       this.destinationPath('index.js'));
-        }
-      }
-
-      if(!this.fs.exists(this.destinationPath('.swift-version'))) {
+      this._ifNotExistsInProject('.swift-version', (filepath) => {
         this.fs.copy(this.templatePath('common','swift-version'),
-                     this.destinationPath('.swift-version'));
-      }
+                     filepath);
+      });
 
-      this.fs.copy(
-        this.templatePath('common', 'LICENSE_for_generated_code'),
-        this.destinationPath('LICENSE')
-      );
+      this._ifNotExistsInProject('LICENSE', (filepath) => {
+        this.fs.copy(
+          this.templatePath('common', 'LICENSE_for_generated_code'),
+                            filepath);
+      });
 
-      if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Application.swift'))) {
+      this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Application.swift'),
+          filepath,
           {
             appType: this.appType,
             appName: this.projectName,
@@ -666,15 +678,30 @@ module.exports = generators.Base.extend({
             exampleEndpoints: this.exampleEndpoints
           }
         );
+      });
+
+      // Check if there is a spec.json, if there isn't create one
+      if(this.spec) {
+        this._ifNotExistsInProject('spec.json', (filepath) => {
+          this.fs.writeJSON(filepath, this.spec);
+        });
+      }
+
+      // Check if there is a index.js, create one if there isn't
+      if (this.options.apic) {
+        this._ifNotExistsInProject('index.js', (filepath) => {
+          this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
+                       filepath);
+        });
       }
 
       if (this.hostSwagger) {
-        if(!this.fs.exists(this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'))) {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'SwaggerRoute.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift')
+            filepath
           );
-        }
+        });
       }
 
       if (this.web) {
@@ -731,10 +758,12 @@ module.exports = generators.Base.extend({
       if(this.appType != "crud") return;
 
       if (this.bluemix) {
-        this.fs.copy(
-          this.templatePath('bluemix', 'README.md'),
-          this.destinationPath('README.md')
-        );
+        if(!this.fs.exists(this.destinationPath('README.md'))) {
+          this.fs.copy(
+            this.templatePath('bluemix', 'README.md'),
+            this.destinationPath('README.md')
+          );
+        }
       }
 
       // Add the models to the spec
@@ -896,51 +925,65 @@ module.exports = generators.Base.extend({
 
     createExtensionFiles: function() {
       if(!this.bluemix) {
-        // Add the extension for the configuration manager
-        this.fs.copy(
-          this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift')
-        );
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift'], (filepath) => {
+          // Add the extension for the configuration manager
+          this.fs.copy(
+            this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
+            filepath
+          );
+        });
         return;
       }
 
       // Create all the extension files
       Object.keys(this.services).forEach(function(serviceType) {
         if(serviceType === 'cloudant') {
-          this.fs.copy(
-            this.templatePath('extensions', 'CouchDBExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'CouchDBExtension.swift'),
+              filepath
+            );
+          });
         }
         if(serviceType === 'mysql') {
-          this.fs.copy(
-            this.templatePath('extensions', 'MySQLExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'MySQLExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'MySQLExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'MySQLExtension.swift'),
+              filepath
+            );
+          });
         }
         if(serviceType === 'postgresql') {
-          this.fs.copy(
-            this.templatePath('extensions', 'PostgreSQLExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'PostgreSQLExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PostgreSQLExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'PostgreSQLExtension.swift'),
+              filepath
+            );
+          });
         }
         if(serviceType === 'redis') {
-          this.fs.copy(
-            this.templatePath('extensions', 'RedisExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'RedisExtension.swift'),
+              filepath
+            );
+          });
         }
         if(serviceType === 'objectstorage') {
-          this.fs.copy(
-            this.templatePath('extensions', 'ObjStorageExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'ObjStorageExtension.swift'),
+              filepath
+            );
+          });
         }
         if(serviceType === 'appid') {
-          this.fs.copy(
-            this.templatePath('extensions', 'AppIDExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'AppIDExtension.swift'),
+              filepath
+            );
+          });
         }
       }.bind(this));
     },
@@ -975,24 +1018,26 @@ module.exports = generators.Base.extend({
     writeDockerFiles: function() {
       if (!this.docker) return;
 
-      this.fs.copy(
-        this.templatePath('docker', 'dockerignore'),
-        this.destinationPath('.dockerignore')
-      );
-      this.fs.copy(
-        this.templatePath('docker', 'Dockerfile-tools'),
-        this.destinationPath('Dockerfile-tools')
-      );
-      this.fs.copy(
-        this.templatePath('docker', 'Dockerfile'),
-        this.destinationPath('Dockerfile')
-      );
-      this.fs.copyTpl(
-        this.templatePath('docker', 'cli-config.yml'),
-        this.destinationPath('cli-config.yml'),
-        { cleanAppName: this.cleanAppName,
-          executableName: this.executableModule }
-      );
+      this._ifNotExistsInProject('.dockerignore', (filepath) => {
+        this.fs.copy(this.templatePath('docker', 'dockerignore'),
+                     filepath);
+      });
+      this._ifNotExistsInProject('Dockerfile-tools', (filepath) => {
+        this.fs.copy(this.templatePath('docker', 'Dockerfile-tools'),
+                     filepath);
+      });
+      this._ifNotExistsInProject('Dockerfile', (filepath) => {
+        this.fs.copy(this.templatePath('docker', 'Dockerfile'),
+                     filepath);
+      });
+      this._ifNotExistsInProject('cli-config.yml', (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('docker', 'cli-config.yml'),
+          filepath,
+          { cleanAppName: this.cleanAppName,
+            executableName: this.executableModule }
+        );
+      });
     },
 
     writeBluemixDeploymentFiles: function() {
@@ -1004,44 +1049,50 @@ module.exports = generators.Base.extend({
                      this.destinationPath('.cfignore'));
       }
 
-      this.fs.copyTpl(
-        this.templatePath('bluemix', 'manifest.yml'),
-        this.destinationPath('manifest.yml'),
-        { cleanAppName: this.cleanAppName,
-          executableName: this.executableModule,
-          services: this.services,
-          capabilities: this.capabilities,
-          hostSwagger: this.hostSwagger,
-          bluemix: this.bluemix }
-      );
+      this._ifNotExistsInProject('manifest.yml', (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('bluemix', 'manifest.yml'),
+          filepath,
+          { cleanAppName: this.cleanAppName,
+            executableName: this.executableModule,
+            services: this.services,
+            capabilities: this.capabilities,
+            hostSwagger: this.hostSwagger,
+            bluemix: this.bluemix }
+        );
+      });
 
-      this.fs.copyTpl(
-        this.templatePath('bluemix', 'pipeline.yml'),
-        this.destinationPath('.bluemix', 'pipeline.yml'),
-        { appName: this.projectName,
-          services: this.services,
-          capabilities: this.capabilities,
-          helpers: helpers }
-      );
+      this._ifNotExistsInProject(['.bluemix', 'pipeline.yml'], (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('bluemix', 'pipeline.yml'),
+          filepath,
+          { appName: this.projectName,
+            services: this.services,
+            capabilities: this.capabilities,
+            helpers: helpers }
+        );
+      });
 
-      this.fs.copyTpl(
-        this.templatePath('bluemix', 'toolchain.yml'),
-        this.destinationPath('.bluemix', 'toolchain.yml'),
-        { appName: this.projectName }
-      );
+      this._ifNotExistsInProject(['.bluemix', 'toolchain.yml'], (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('bluemix', 'toolchain.yml'),
+          filepath,
+          { appName: this.projectName }
+        );
+      });
 
-      this.fs.copy(
-        this.templatePath('bluemix', 'deploy.json'),
-        this.destinationPath('.bluemix', 'deploy.json')
-      );
+      this._ifNotExistsInProject(['.bluemix', 'deploy.json'], (filepath) => {
+        this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
+                     filepath);
+      });
     },
 
     writePackageSwift: function() {
       // Check if there is a Package.swift, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('Package.swift'))) {
+      this._ifNotExistsInProject('Package.swift', (filepath) => {
         this.fs.copyTpl(
           this.templatePath('common', 'Package.swift'),
-          this.destinationPath('Package.swift'),
+          filepath,
           {
             appType: this.appType,
             executableModule: this.executableModule,
@@ -1052,7 +1103,7 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
           }
         )
-      }
+      });
     }
   },
 });
