@@ -28,7 +28,7 @@ public class <%- model.classname %>Resource {
         Log.debug("GET \(path)")
         // TODO: offset and limit
         adapter.findAll() { models, error in
-            if let _ = error {
+            if let error = error {
                 // TODO: Send error object?
                 Log.error("InternalServerError during handleIndex: \(error)")
                 response.status(.internalServerError)
@@ -55,7 +55,7 @@ public class <%- model.classname %>Resource {
         do {
             let model = try <%- model.classname %>(json: json)
             adapter.create(model) { storedModel, error in
-                if let _ = error {
+                if let error = error {
                     // TODO: Handle model errors (eg id conflict)
                     Log.error("InternalServerError during handleCreate: \(error)")
                     response.status(.internalServerError)
@@ -78,7 +78,7 @@ public class <%- model.classname %>Resource {
     private func handleDeleteAll(request: RouterRequest, response: RouterResponse, next: @escaping () -> Void) {
         Log.debug("DELETE \(path)")
         adapter.deleteAll() { error in
-            if let _ = error {
+            if let error = error {
                 response.status(.internalServerError)
             } else {
                 let result = JSON([])
