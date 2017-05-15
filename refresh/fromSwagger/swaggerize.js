@@ -8,7 +8,7 @@ var editor = require('mem-fs-editor');
 var enjoi = require('enjoi');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
-var jsYaml = require('js-yaml');
+var YAML = require('js-yaml');
 
 var builderUtils = require('swaggerize-routes/lib/utils');
 
@@ -22,14 +22,19 @@ var process = require('process');
 var document = 'http://localhost:8080/swagger.yaml';
 
 function loadApi(apiPath, content) {
-//    'use strict';
-    console.log(apiPath);
+    'use strict';
     if (apiPath.indexOf('.yaml') === apiPath.length - 5 ||
             apiPath.indexOf('.yml') === apiPath.length - 4) {
         /*jslint node: true, stupid: true */
-        return jsYaml.load(content || this.fs.read(apiPath));
+        return YAML.load(content || this.fs.read(apiPath));
     }
     return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
+}
+
+function baseName(path) {
+  var baseNameRegex = new RegExp(/([^/]+)$/);
+  var name = path.match(baseNameRegex)[1];
+  return name.split('.')[0];
 }
 
 function swiftRoute(route) {
@@ -69,7 +74,6 @@ function methPropertiesFromSchema(schema) {
       property['required'] = '?';
     }
     properties.push(property);
-    //console.log(util.inspect(properties, {depth: null, colors: true}));
   });
 
   return properties;
@@ -77,17 +81,14 @@ function methPropertiesFromSchema(schema) {
 
 function parseSwagger(api) {
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
-  // For inlined schemas:
-  //    if they have a title, add to our list.
-  //    If name clash then throw an error. current behaviour is to overwrite the previous one.
-  //    If no title, then throw an error. current behaviour is to ignore.
   var resources = {}
   var refs = [];
+  var basePath = api.basePath || undefined;
 
   Object.keys(api.paths).forEach(function(path) {
     var resource = resourceFromPath(path);
     if (resource === "*") {
-      // ignore a resource of '*'. A default route for this is set up in the template.
+      // ignore a resource of '*' as a default route for this is set up in the template.
       return;
     }
 
@@ -175,20 +176,17 @@ function parseSwagger(api) {
     });
   } while (foundNewRef);
 
-  var parsed = {basepath: api.basePath, resources: resources, refs: refs};
-  //console.log(util.inspect(parsed, {depth: 1, colors: true}));
-  return {basepath: api.basePath, resources: resources, refs: refs};
+  var parsed = {basepath: basePath, resources: resources, refs: refs};
+  return parsed;
 }
 
 function createEntities(api) {
   var tpath = this.templatePath('swagger', 'Entity.swift');
   filesys.readFile(tpath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
-
-    console.log(api);
     var schemas = getSchemaDefinitions(api);
+
     // walk the schemas and create entity objects from which we can build the templated code.
-    console.log('===== $refs =====');
     Object.keys(schemas).forEach(function(schema) {
       var prototype = methParamsFromSchema(schemas[schema]);
       var properties = methPropertiesFromSchema(schemas[schema]);
@@ -198,19 +196,19 @@ function createEntities(api) {
                                  license: '// IBM',
                                  prototype: prototype,
                                  properties: properties});
-      console.log(sourceCode);
     });
   });
 }
 
 function createRoutes(parsed) {
-  var tpath = this.templatePath('swagger', 'Routes.swift');
-  filesys.readFile(tpath, 'utf-8', function (err, data) {
+  var tPath = this.templatePath('swagger', 'Routes.swift');
+  filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
  
     Object.keys(parsed.resources).forEach(function(resource) {
       var sourceCode = template({resource: resource,
                                  routes: parsed.resources[resource],
+                                 basepath: parsed.basepath,
                                  license: '// IBM'});
 
       // write the source code to its file.
@@ -220,11 +218,12 @@ function createRoutes(parsed) {
   }.bind(this));
 }
 
-function createApplication(parsed) {
-  var tpath = this.templatePath('swagger', 'Application.swift');
-  filesys.readFile(tpath, 'utf-8', function (err, data) {
+function createApplication(parsed, swaggerFileName) {
+  var tPath = this.templatePath('swagger', 'Application.swift');
+  filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
     var sourceCode = template({resource: parsed.resources,
+                               swaggerfile: swaggerFileName,
                                license: '// IBM'});
 
     // write the source code to its file.
@@ -233,22 +232,26 @@ function createApplication(parsed) {
 }
 
 function swaggerize() {
-  console.log('in swaggerize');
   var api;
   var swaggerPath = this.fromSwagger;
   if (swaggerPath.indexOf('http') === 0) {
     wreck.get(swaggerPath, function (err, res, body) {
-      api = loadApi.call(this, swaggerPath, body);
+      this.api = loadApi.call(this, swaggerPath, body);
     }.bind(this));
   } else {
-    api = loadApi.call(this, swaggerPath);
+    this.api = loadApi.call(this, swaggerPath);
   }
 
-  var parsed = parseSwagger(api);
-  console.log(util.inspect(parsed, {depth: null, colors: true}));
+  var parsed = parseSwagger(this.api);
+  // console.log(util.inspect(parsed, {depth: null, colors: true}));
+
+  // write the swagger document out.
+  var swaggerFileName = this.destinationPath('definitions', baseName(swaggerPath) + '.yaml');
+  this.conflicter.force = true;
+  this.fs.write(swaggerFileName, YAML.safeDump(this.api));
+
   createRoutes.call(this, parsed);
-  createApplication.call(this, parsed);
-  console.log('out swaggerize');
+  createApplication.call(this, parsed, swaggerFileName);
 }
 
 module.exports = swaggerize;

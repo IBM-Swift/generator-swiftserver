@@ -20,6 +20,7 @@ public func initialize() throws {
 {{#each resource}}
     initialize{{@key}}Routes()
 {{/each}}
+    initializeSwaggerRoute(path: "{{swaggerfile}}")
 }
 
 public func run() throws {

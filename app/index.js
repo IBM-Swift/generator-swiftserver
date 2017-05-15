@@ -292,6 +292,7 @@ module.exports = generators.Base.extend({
       if (!this.fromSwagger) return;
       var done = this.async();
 
+      this.hostSwagger = true;
       var prompts = [{
         name: 'path',
         type: 'String',
