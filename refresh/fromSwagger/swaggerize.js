@@ -32,6 +32,49 @@ function loadApi(apiPath, content) {
     return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
 }
 
+function swiftRoute(route) {
+  var newRoute = route.replace(/{/g, ':');
+  return newRoute.replace(/}/g, '');
+}
+
+function resourceFromPath(path) {
+  var resourceRegex = new RegExp(/^\/*([^/]+)/);
+  var resource = path.match(resourceRegex)[1];
+  return resource.charAt(0).toUpperCase() + resource.slice(1);
+}
+
+function methParamsFromSchema(schema) {
+  var params = '';
+  Object.keys(schema.properties).forEach(function(prop) {
+    params += prop + ': ' + genUtils.getTypeFromSwaggerProperty(schema.properties[prop]);
+    if (schema.required && schema.required.indexOf(prop) >= 0) {
+      params += ', ';
+    } else {
+      params += '?, ';
+    }
+  });
+
+  return params.substring(0, params.length -2);
+}
+
+function methPropertiesFromSchema(schema) {
+  var properties = [];
+  var property = '';
+  Object.keys(schema.properties).forEach(function(prop) {
+    property = {name: prop,
+                type: genUtils.getTypeFromSwaggerProperty(schema.properties[prop]),
+                required: ''
+               }
+    if (!schema.required || schema.required && schema.required.indexOf(prop) == -1) {
+      property['required'] = '?';
+    }
+    properties.push(property);
+    //console.log(util.inspect(properties, {depth: null, colors: true}));
+  });
+
+  return properties;
+}
+
 function parseSwagger(api) {
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
   // For inlined schemas:
@@ -42,11 +85,15 @@ function parseSwagger(api) {
   var refs = [];
 
   Object.keys(api.paths).forEach(function(path) {
+    var resource = resourceFromPath(path);
+    if (resource === "*") {
+      // ignore a resource of '*'. A default route for this is set up in the template.
+      return;
+    }
+
     // for each path, walk the method verbs
     builderUtils.verbs.forEach(function(verb) {
       if (api.paths[path][verb]) {
-       var resource = resourceFromPath(path);
-
        if (!resources[resource]) {
          resources[resource] = [];
        }
@@ -131,49 +178,6 @@ function parseSwagger(api) {
   var parsed = {basepath: api.basePath, resources: resources, refs: refs};
   //console.log(util.inspect(parsed, {depth: 1, colors: true}));
   return {basepath: api.basePath, resources: resources, refs: refs};
-}
-
-function swiftRoute(route) {
-  var newRoute = route.replace(/{/g, ':');
-  return newRoute.replace(/}/g, '');
-}
-
-function resourceFromPath(path) {
-  var resourceRegex = new RegExp(/^\/*([^/]+)/);
-  var resource = path.match(resourceRegex)[1];
-  return resource.charAt(0).toUpperCase() + resource.slice(1);
-}
-
-function methParamsFromSchema(schema) {
-  var params = '';
-  Object.keys(schema.properties).forEach(function(prop) {
-    params += prop + ': ' + genUtils.getTypeFromSwaggerProperty(schema.properties[prop]);
-    if (schema.required && schema.required.indexOf(prop) >= 0) {
-      params += ', ';
-    } else {
-      params += '?, ';
-    }
-  });
-
-  return params.substring(0, params.length -2);
-}
-
-function methPropertiesFromSchema(schema) {
-  var properties = [];
-  var property = '';
-  Object.keys(schema.properties).forEach(function(prop) {
-    property = {name: prop,
-                type: genUtils.getTypeFromSwaggerProperty(schema.properties[prop]),
-                required: ''
-               }
-    if (!schema.required || schema.required && schema.required.indexOf(prop) == -1) {
-      property['required'] = '?';
-    }
-    properties.push(property);
-    //console.log(util.inspect(properties, {depth: null, colors: true}));
-  });
-
-  return properties;
 }
 
 function createEntities(api) {
