@@ -27,7 +27,7 @@ var rimraf = require('rimraf');
 var appGeneratorPath = path.join(__dirname, '../../../app');
 var buildGeneratorPath = path.join(__dirname, '../../../build');
 
-describe('Spec option and build integration tests for app generator', function () { 
+describe('Spec option and build integration tests for app generator', function () {
 
   describe('A CRUD application with a cloudant service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
