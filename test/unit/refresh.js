@@ -1290,8 +1290,8 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to watson conversation service', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getWatsonConversationervice(name: "myConversationService")');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Conversation(username: username, password: password, version: version)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getWatsonConversationervice');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'conversation = Conversation(service: service)');
     });
 
   });

@@ -329,7 +329,7 @@ describe('Prompt and no build integration tests for app generator', function () 
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct values for cloudant, redis, objectstorage, appid, and watsonconversation service names', function () {
+    it('config.json contains the correct values for cloudant, redis, objectstorage, appid and watsonconversation service names', function () {
       var expected = {
         vcap: {
           services: {
