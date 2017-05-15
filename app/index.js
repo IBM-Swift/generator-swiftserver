@@ -515,7 +515,6 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name;
         this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version;
-        this.services.watsonconversation[0].workspaceID = answers.watsonConversationWorkspaceID || this.services.watsonconversation[0].workspaceID;
         this.services.watsonconversation[0].credentials = {
           username: answers.watsonConversationUsername || undefined,
           password: answers.watsonConversationPassword || undefined,
