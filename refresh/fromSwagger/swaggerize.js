@@ -246,12 +246,15 @@ function swaggerize() {
   // console.log(util.inspect(parsed, {depth: null, colors: true}));
 
   // write the swagger document out.
-  var swaggerFileName = this.destinationPath('definitions', baseName(swaggerPath) + '.yaml');
+  //var swaggerFileName = this.destinationPath('definitions', baseName(swaggerPath) + '.yaml');
+  var swaggerFileName = baseName(swaggerPath) + '.yaml';
+  var swaggerPartialPath = path.join('definitions', swaggerFileName);
+  var hostedSwaggerPath = this.destinationPath(swaggerPartialPath);
   this.conflicter.force = true;
-  this.fs.write(swaggerFileName, YAML.safeDump(this.api));
+  this.fs.write(hostedSwaggerPath, YAML.safeDump(this.api));
 
   createRoutes.call(this, parsed);
-  createApplication.call(this, parsed, swaggerFileName);
+  createApplication.call(this, parsed, swaggerPartialPath);
 }
 
 module.exports = swaggerize;
