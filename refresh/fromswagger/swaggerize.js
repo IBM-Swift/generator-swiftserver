@@ -198,7 +198,6 @@ function createEntities(api) {
 
 function createRoutes(parsed) {
   var tPath = this.templatePath('fromswagger', 'Routes.swift');
-  console.log(tPath);
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
  
