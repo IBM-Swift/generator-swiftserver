@@ -27,7 +27,7 @@ var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
 
 var util = require('util');
-var swaggerize = require('./fromSwagger/swaggerize');
+var swaggerize = require('./fromswagger/swaggerize');
 
 module.exports = generators.Base.extend({
   constructor: function() {

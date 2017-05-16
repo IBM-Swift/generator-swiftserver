@@ -1,3 +1,18 @@
+/*
+ * Copyright IBM Corporation 2017
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
@@ -31,22 +46,22 @@ function loadApi(apiPath, content) {
     return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
 }
 
-function baseName(path) {
-  var baseNameRegex = new RegExp(/([^/]+)$/);
-  var name = path.match(baseNameRegex)[1];
-  return name.split('.')[0];
-}
+//function baseName(path) {
+//  var baseNameRegex = new RegExp(/([^/]+)$/);
+//  var name = path.match(baseNameRegex)[1];
+//  return name.split('.')[0];
+//}
 
-function swiftRoute(route) {
-  var newRoute = route.replace(/{/g, ':');
-  return newRoute.replace(/}/g, '');
-}
+//function swiftRoute(route) {
+//  var newRoute = route.replace(/{/g, ':');
+//  return newRoute.replace(/}/g, '');
+//}
 
-function resourceFromPath(path) {
-  var resourceRegex = new RegExp(/^\/*([^/]+)/);
-  var resource = path.match(resourceRegex)[1];
-  return resource.charAt(0).toUpperCase() + resource.slice(1);
-}
+//function resourceFromPath(path) {
+//  var resourceRegex = new RegExp(/^\/*([^/]+)/);
+//  var resource = path.match(resourceRegex)[1];
+//  return resource.charAt(0).toUpperCase() + resource.slice(1);
+//}
 
 function methParamsFromSchema(schema) {
   var params = '';
@@ -86,7 +101,7 @@ function parseSwagger(api) {
   var basePath = api.basePath || undefined;
 
   Object.keys(api.paths).forEach(function(path) {
-    var resource = resourceFromPath(path);
+    var resource = genUtils.resourceNameFromPath(path);
     if (resource === "*") {
       // ignore a resource of '*' as a default route for this is set up in the template.
       return;
@@ -100,7 +115,7 @@ function parseSwagger(api) {
        }
 
        // save the method and the path in the resources list.
-       resources[resource].push({method: verb, route: swiftRoute(path)});
+       resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)});
        // process the parameters
         if (api.paths[path][verb].parameters) {
           var parameters = api.paths[path][verb].parameters;
@@ -181,7 +196,7 @@ function parseSwagger(api) {
 }
 
 function createEntities(api) {
-  var tpath = this.templatePath('swagger', 'Entity.swift');
+  var tpath = this.templatePath('fromswagger', 'Entity.swift');
   filesys.readFile(tpath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
     var schemas = getSchemaDefinitions(api);
@@ -201,7 +216,8 @@ function createEntities(api) {
 }
 
 function createRoutes(parsed) {
-  var tPath = this.templatePath('swagger', 'Routes.swift');
+  var tPath = this.templatePath('fromswagger', 'Routes.swift');
+  console.log(tPath);
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
  
@@ -219,7 +235,7 @@ function createRoutes(parsed) {
 }
 
 function createApplication(parsed, swaggerFileName) {
-  var tPath = this.templatePath('swagger', 'Application.swift');
+  var tPath = this.templatePath('fromswagger', 'Application.swift');
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
     var sourceCode = template({resource: parsed.resources,
@@ -247,7 +263,7 @@ function swaggerize() {
 
   // write the swagger document out.
   //var swaggerFileName = this.destinationPath('definitions', baseName(swaggerPath) + '.yaml');
-  var swaggerFileName = baseName(swaggerPath) + '.yaml';
+  var swaggerFileName = genUtils.baseName(swaggerPath) + '.yaml';
   var swaggerPartialPath = path.join('definitions', swaggerFileName);
   var hostedSwaggerPath = this.destinationPath(swaggerPartialPath);
   this.conflicter.force = true;
