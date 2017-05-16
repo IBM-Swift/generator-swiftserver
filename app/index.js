@@ -300,7 +300,7 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answer) {
         if (answer.path) {
-          this.fromSwagger = answer.path;
+          this.fromSwagger = answer.path.trim();
         }
         done();
       }.bind(this));

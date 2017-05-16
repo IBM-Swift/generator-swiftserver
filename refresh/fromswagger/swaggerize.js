@@ -33,8 +33,6 @@ var fs = editor.create(store);
 
 var path = require('path');
 var process = require('process');
-// apiDocument can be json or yaml and either on the local fs or accessed via http.
-var document = 'http://localhost:8080/swagger.yaml';
 
 function loadApi(apiPath, content) {
     'use strict';
@@ -45,23 +43,6 @@ function loadApi(apiPath, content) {
     }
     return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
 }
-
-//function baseName(path) {
-//  var baseNameRegex = new RegExp(/([^/]+)$/);
-//  var name = path.match(baseNameRegex)[1];
-//  return name.split('.')[0];
-//}
-
-//function swiftRoute(route) {
-//  var newRoute = route.replace(/{/g, ':');
-//  return newRoute.replace(/}/g, '');
-//}
-
-//function resourceFromPath(path) {
-//  var resourceRegex = new RegExp(/^\/*([^/]+)/);
-//  var resource = path.match(resourceRegex)[1];
-//  return resource.charAt(0).toUpperCase() + resource.slice(1);
-//}
 
 function methParamsFromSchema(schema) {
   var params = '';
@@ -262,15 +243,13 @@ function swaggerize() {
   // console.log(util.inspect(parsed, {depth: null, colors: true}));
 
   // write the swagger document out.
-  //var swaggerFileName = this.destinationPath('definitions', baseName(swaggerPath) + '.yaml');
-  var swaggerFileName = genUtils.baseName(swaggerPath) + '.yaml';
-  var swaggerPartialPath = path.join('definitions', swaggerFileName);
-  var hostedSwaggerPath = this.destinationPath(swaggerPartialPath);
+  var swaggerFileName =  this.projectName + '.yaml';
+  var swaggerRelativePath = path.join('definitions', swaggerFileName);
   this.conflicter.force = true;
-  this.fs.write(hostedSwaggerPath, YAML.safeDump(this.api));
+  this.fs.write(swaggerRelativePath, YAML.safeDump(this.api));
 
   createRoutes.call(this, parsed);
-  createApplication.call(this, parsed, swaggerPartialPath);
+  createApplication.call(this, parsed, swaggerRelativePath);
 }
 
 module.exports = swaggerize;
