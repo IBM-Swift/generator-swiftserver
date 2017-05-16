@@ -29,7 +29,9 @@
     "handlebars": "^4.0.5",
     "wreck": "^6.0.0",
     "js-yaml": "^3.2.6",
-    "enjoi": "^1.0.1"
+    "enjoi": "^1.0.1",
+    "swagger-schema-official": "^2.0.0-",
+    "swaggerize-routes": "^1.0.0"
   },
   "devDependencies": {
     "codecov": "^2.1.0",
