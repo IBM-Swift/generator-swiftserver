@@ -170,7 +170,8 @@ describe('helpers', function () {
                       redis:[{credentials:{}}],
                       objectstorage:[{credentials:{}}],
                       appid:[{credentials:{}}],
-                      watsonconversation:[{credentials:{}}]
+                      watsonconversation:[{credentials:{}}],
+                      alertnotification:[{credentials:{}}]
                      };
       var expected = {vcap:{services:{"cloudantNoSQLDB":[{label:"cloudantNoSQLDB",
                                                           tags:[],
@@ -204,11 +205,17 @@ describe('helpers', function () {
                                                                             tenantId:"",
                                                                             version:3}}],
                                       "WatsonConversation":[{label:"WatsonConversation",
-                                                         tags:[],
-                                                         plan:"Free",
-                                                         credentials:{username:"",
-                                                                      password:"",
-                                                                      url:""}}]
+                                                             tags:[],
+                                                             plan:"Free",
+                                                             credentials:{username:"",
+                                                                          password:"",
+                                                                          url:""}}],
+                                      "AlertNotification":[{label:"AlertNotification",
+                                                            tags:[],
+                                                            plan:"Authorized Users",
+                                                            credentials:{name:"",
+                                                                         password:"",
+                                                                         url:""}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -249,7 +256,12 @@ describe('helpers', function () {
                                            plan:"free",
                                            credentials:{username:'username',
                                                         password:'password',
-                                                        url:"https://api.watson"}}]
+                                                        url:"https://api.watson"}}],
+                      alertnotification:[{label:"testalertnotification",
+                                          plan:"authorizedusers",
+                                          credentials:{name:'username',
+                                                       password:'password',
+                                                       url:"https://api.alerts"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
                                                      tags:[],
@@ -290,7 +302,12 @@ describe('helpers', function () {
                                                                plan:"free",
                                                                credentials:{username:'username',
                                                                             password:'password',
-                                                                            url:"https://api.watson"}}]
+                                                                            url:"https://api.watson"}}],
+                                      testalertnotification:[{label:"testalertnotification",
+                                                              tags:[],
+                                                              credentials:{name:'username',
+                                                                           password:'password',
+                                                                           url:"https://api.alerts"}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -319,7 +336,10 @@ describe('helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('watsonconversation'), 'WatsonConversation');
     });
 
-    it('get label for unrecognised value', function() {
+    it('get label for alertnotification', function() {
+      assert.equal(helpers.getBluemixServiceLabel('alertnotification'), 'AlertNotification');
+    });
+
       assert.equal(helpers.getBluemixServiceLabel('unrecognised'), 'unrecognised');
     });
   });
@@ -343,6 +363,10 @@ describe('helpers', function () {
 
     it('get default plan for watsonconversation', function() {
       assert.equal(helpers.getBluemixDefaultPlan('watsonconversation'), 'Free');
+    });
+
+    it('get default plan for alertnotification', function() {
+      assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'Authorized Users');
     });
 
     it('get default plan for unrecognised value', function() {

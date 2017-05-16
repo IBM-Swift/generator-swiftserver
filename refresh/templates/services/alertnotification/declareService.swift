@@ -1,0 +1,1 @@
+internal var serviceCredentials: ServiceCredentials?

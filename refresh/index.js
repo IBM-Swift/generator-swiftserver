@@ -748,7 +748,8 @@ module.exports = generators.Base.extend({
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
             appid: this.services.appid && this.services.appid.length > 0,
-            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0
+            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0,
+            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
