@@ -20,6 +20,7 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
+var request = require('request');
 var debug = require('debug')('generator-swiftserver:app');
 
 var helpers = require('../lib/helpers');
@@ -231,45 +232,100 @@ module.exports = generators.Base.extend({
       var prompts = [{
         name: 'swaggerInput',
         type: 'confirm',
-        message: 'Would you like to generate an iOS SDK from your Swagger file?:',
+        message: 'Would you like to generate an iOS SDK from your Swagger file?',
         default: false,
-      },
-      { name: 'swaggerInputPath', message: 'Enter Swagger yaml file path:'
+      }, { 
+        when: function (response) {
+          return response.swaggerInput;
+        },
+        name: 'swaggerInputPath', 
+        message: 'Enter Swagger yaml file path:'
       }];
       this.prompt(prompts, function(answers) {
-        console.log("answers: " + answers.swaggerInputPath);
-        console.log("name: " + this.appname);
+        if (!answers.swaggerInput) return;
 
         var file = require("html-wiring").readFileAsString(answers.swaggerInputPath);
-        // console.log(file);
 
         // Call SDK generator
-        var url = "https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/" + this.appname + "-iOS/ios_swift";
-        console.log("URL: " + url);
+        var baseURL = "https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/"
+        var startGenURL = baseURL + this.appname + "-iOS/ios_swift";
+        console.log("URL: " + baseURL);
 
-        var request = require('request');
+        
         request.post({
           headers: {'Accept' : 'application/json',
                     'Content-Type' : 'application/json',
-                    'Authorization' : 'Bearer <token>'},
-          url:     url,
+                    'Authorization' : ''}, // 'Bearer '},
+          url:     startGenURL,
           body: file
         }, function(error, response, body){
+          body = JSON.parse("{\"start\":\"2017-05-15T23:11:31.241+0000\",\"message\":\"[SDKGEN] You started a sdk generator job to generate an sdk for ios_swift\",\"job\":{\"id\":\"5361704d-0a96-4544-aa5b-3aa9e59a2d37\",\"url\":\"https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e\",\"docs\":\"https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e/docs/README\"}}");
           console.log(body);
-          console.log(response.statusCode);
 
           // get job:id from response body
-          // while loop checking status every second or so 
-          // https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e/status
-          // when status == "FINISHED"
-          // Pipe https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e into zip file in SDKs folder
+          var job = body['job']
+          console.log("JOB: " + job);
+          console.log("id " + job['id']);
+          var genID = job['id'];
 
+          // while loop checking status every second or so
+          var sdkReady = false
+          function getStatus() {
+            if (!sdkReady) {
+              request.get({
+                headers: {'Accept' : 'application/json',
+                'Authorization' : 'Bearer '},
+                url: baseURL + genID + "/status"
+              }, function(error, response, body){
+                body = JSON.parse(body);
+                console.log(body['status']);
+                console.log(response.statusCode);
+                if (body['status'] === "FINISHED") {
+                  sdkReady = true
+                  getSDK();
+                }
 
-          done();
+              })
+            }
+          }
+
+          function getSDK() {
+              request.get({
+                headers: {'Accept' : 'application/zip',
+                'Authorization' : 'Bearer '},
+                url: baseURL + genID
+              }, function(error, response, body){
+                console.log(response.statusCode);
+                
+                var mkdirp = require('mkdirp');
+                mkdirp("./SDKs", function (err) {
+                    if (err) console.error(err)
+                    else {
+                      console.log('pow!')
+
+                      fs.writeFile("./SDKs/iOSSDK.zip", body, function(err) {
+                        if (err) {
+                          console.log("Error: " + err);
+                        } else {
+                          done();
+                        }
+                      });
+                    }
+                });
+              })
+          }
+
+          // Goes through 10 get requests as needed for a 30 second timeout
+          (function myLoop (i) {          
+             setTimeout(function () {   
+                getStatus()
+                if (!sdkReady && --i) myLoop(i);      //  decrement i and call myLoop again if i > 0
+             }, 3000)
+          })(10);
+
+          // /Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml          
         });
 
-
-        // done();
       }.bind(this));
     },
 
