@@ -224,6 +224,55 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
+    promptSwaggerInput: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'swaggerInput',
+        type: 'confirm',
+        message: 'Would you like to generate an iOS SDK from your Swagger file?:',
+        default: false,
+      },
+      { name: 'swaggerInputPath', message: 'Enter Swagger yaml file path:'
+      }];
+      this.prompt(prompts, function(answers) {
+        console.log("answers: " + answers.swaggerInputPath);
+        console.log("name: " + this.appname);
+
+        var file = require("html-wiring").readFileAsString(answers.swaggerInputPath);
+        // console.log(file);
+
+        // Call SDK generator
+        var url = "https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/" + this.appname + "-iOS/ios_swift";
+        console.log("URL: " + url);
+
+        var request = require('request');
+        request.post({
+          headers: {'Accept' : 'application/json',
+                    'Content-Type' : 'application/json',
+                    'Authorization' : 'Bearer <token>'},
+          url:     url,
+          body: file
+        }, function(error, response, body){
+          console.log(body);
+          console.log(response.statusCode);
+
+          // get job:id from response body
+          // while loop checking status every second or so 
+          // https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e/status
+          // when status == "FINISHED"
+          // Pipe https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e into zip file in SDKs folder
+
+
+          done();
+        });
+
+
+        // done();
+      }.bind(this));
+    },
+
     promptCapabilities: function() {
       if (this.skipPrompting) return;
       var done = this.async();
