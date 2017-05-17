@@ -695,21 +695,21 @@ module.exports = generators.Base.extend({
         });
       }
 
-      if(!this.fs.exists(this.destinationPath('Tests', this.applicationModule + 'Tests', 'RouteTests.swift'))) {
+      this._ifNotExistsInProject(['Tests', this.applicationModule + 'Tests', 'RouteTests.swift'], (filepath) => {
         this.fs.copyTpl(
           this.templatePath('common', 'RouteTests.swift'),
-          this.destinationPath('Tests', this.applicationModule + 'Tests', 'RouteTests.swift'),
+          filepath,
           { applicationModule: this.applicationModule }
         );
-      }
+      });
 
-      if(!this.fs.exists(this.destinationPath('Tests', 'LinuxMain.swift'))) {
+      this._ifNotExistsInProject(['Tests', 'LinuxMain.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'LinuxMain.swift'),
-            this.destinationPath('Tests', 'LinuxMain.swift'),
+            filepath,
             { applicationModule: this.applicationModule }
           );
-      }
+      });
 
       if (this.hostSwagger) {
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
