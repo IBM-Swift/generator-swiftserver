@@ -220,6 +220,7 @@ function createApplication(parsed, swaggerFileName) {
     var template = handlebars.compile(data);
     var sourceCode = template({resource: parsed.resources,
                                swaggerfile: swaggerFileName,
+                               web: this.web,
                                license: '// IBM'});
 
     // write the source code to its file.

@@ -33,6 +33,9 @@ public func initialize() throws {
     port = manager["port"] as? Int ?? port
 
     router.all("/*", middleware: BodyParser())
+{{#if web}}
+    router.all("/", middleware: StaticFileServer())
+{{/if}}
 {{#each resource}}
     initialize{{@key}}Routes()
 {{/each}}

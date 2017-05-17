@@ -739,16 +739,17 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'productSwagger.yaml'),
           this.destinationPath('definitions', `${this.projectName}.yaml`)
         );
-        if (this.web) {
-          this.fs.copy(
-            this.templatePath('common', 'swagger-ui/**/*'),
-            this.destinationPath('public', 'explorer')
-          );
-          this.fs.copy(
-            this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
-            this.destinationPath('NOTICES.txt')
-          );
-        }
+      }
+
+      if (this.web && (this.fromSwagger || this.exampleEndpoints)) {
+        this.fs.copy(
+          this.templatePath('common', 'swagger-ui/**/*'),
+          this.destinationPath('public', 'explorer')
+        );
+        this.fs.copy(
+          this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
+          this.destinationPath('NOTICES.txt')
+        );
       }
 
       if (this.appType !== 'crud') {
