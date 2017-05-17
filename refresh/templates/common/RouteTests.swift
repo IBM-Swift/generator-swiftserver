@@ -1,14 +1,7 @@
-#if os(Linux)
-    import Glibc
-#else
-    import Darwin
-#endif
-
 import Foundation
 import Kitura
 import KituraNet
 import XCTest
-import Dispatch
 import HeliumLogger
 import LoggerAPI
 import SwiftyJSON
@@ -22,9 +15,7 @@ class RouteTests: XCTestCase {
             ("testGetStatic", testGetStatic)
         ]
     }
-    
-    private let queue = DispatchQueue(label: "Kitura runloop", qos: .userInitiated, attributes: .concurrent)
-    
+        
     override func setUp() {
         super.setUp()
         
@@ -36,9 +27,7 @@ class RouteTests: XCTestCase {
         }
         
         Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: <%- applicationModule %>.router)
-        queue.async {
-            Kitura.start()
-        }
+        Kitura.start()
         
         print("------------------------------")
         print("------------New Test----------")
@@ -76,7 +65,7 @@ class RouteTests: XCTestCase {
 private extension URLRequest {
     
     init?(forTestWithMethod method: String, route: String = "", body: Data? = nil) {
-        if let url = URL(string: "http://127.0.0.1:8080/" + route){
+        if let url = URL(string: "http://127.0.0.1:\(<%- applicationModule %>.port)/" + route){
             self.init(url: url)
             addValue("application/json", forHTTPHeaderField: "Content-Type")
             httpMethod = method
