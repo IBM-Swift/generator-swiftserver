@@ -234,96 +234,85 @@ module.exports = generators.Base.extend({
         type: 'confirm',
         message: 'Would you like to generate an iOS SDK from your Swagger file?',
         default: false,
-      }, { 
-        when: function (response) {
-          return response.swaggerInput;
-        },
+      }];
+      this.prompt(prompts, function(answers) {
+        this.swaggerInput = answers.swaggerInput;
+        done();
+      }.bind(this));
+    },
+
+    promptSwaggerFilename: function() {
+      if (this.skipPrompting) return;
+      if (!this.swaggerInput) return;
+
+      var done = this.async();
+      var prompts = [{
         name: 'swaggerInputPath', 
         message: 'Enter Swagger yaml file path:'
       }];
       this.prompt(prompts, function(answers) {
-        if (!answers.swaggerInput) return;
 
-        var file = require("html-wiring").readFileAsString(answers.swaggerInputPath);
+        var fileContent = require("html-wiring").readFileAsString(answers.swaggerInputPath);
 
         // Call SDK generator
         var baseURL = "https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/"
         var startGenURL = baseURL + this.appname + "-iOS/ios_swift";
-        console.log("URL: " + baseURL);
-
         
         request.post({
           headers: {'Accept' : 'application/json',
                     'Content-Type' : 'application/json',
-                    'Authorization' : ''}, // 'Bearer '},
+                    'Authorization' : 'Bearer <token>'},
           url:     startGenURL,
-          body: file
+          body: fileContent
         }, function(error, response, body){
-          body = JSON.parse("{\"start\":\"2017-05-15T23:11:31.241+0000\",\"message\":\"[SDKGEN] You started a sdk generator job to generate an sdk for ios_swift\",\"job\":{\"id\":\"5361704d-0a96-4544-aa5b-3aa9e59a2d37\",\"url\":\"https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e\",\"docs\":\"https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/4480ff04-265f-411a-af26-fa1446d9d61e/docs/README\"}}");
-          console.log(body);
+          body = JSON.parse(body);
 
-          // get job:id from response body
           var job = body['job']
-          console.log("JOB: " + job);
-          console.log("id " + job['id']);
           var genID = job['id'];
 
-          // while loop checking status every second or so
           var sdkReady = false
           function getStatus() {
             if (!sdkReady) {
               request.get({
                 headers: {'Accept' : 'application/json',
-                'Authorization' : 'Bearer '},
+                          'Authorization' : 'Bearer <token>'},
                 url: baseURL + genID + "/status"
               }, function(error, response, body){
                 body = JSON.parse(body);
-                console.log(body['status']);
-                console.log(response.statusCode);
+
                 if (body['status'] === "FINISHED") {
                   sdkReady = true
                   getSDK();
                 }
-
               })
             }
           }
 
           function getSDK() {
-              request.get({
-                headers: {'Accept' : 'application/zip',
-                'Authorization' : 'Bearer '},
-                url: baseURL + genID
-              }, function(error, response, body){
-                console.log(response.statusCode);
-                
-                var mkdirp = require('mkdirp');
-                mkdirp("./SDKs", function (err) {
-                    if (err) console.error(err)
-                    else {
-                      console.log('pow!')
 
-                      fs.writeFile("./SDKs/iOSSDK.zip", body, function(err) {
-                        if (err) {
-                          console.log("Error: " + err);
-                        } else {
-                          done();
-                        }
-                      });
-                    }
-                });
-              })
+            var mkdirp = require('mkdirp');
+            mkdirp("./SDKs", function (err) {
+                if (err) console.error(err)
+            });
+
+            request.get({
+              headers: {'Accept' : 'application/zip',
+                        'Authorization' : 'Bearer <token>'},
+              url: baseURL + genID
+            })
+            .pipe(fs.createWriteStream('SDKs/iOSSDK.zip'))
+            .on('finish', function () {
+              done();
+            });
           }
 
           // Goes through 10 get requests as needed for a 30 second timeout
           (function myLoop (i) {          
              setTimeout(function () {   
                 getStatus()
-                if (!sdkReady && --i) myLoop(i);      //  decrement i and call myLoop again if i > 0
+                if (!sdkReady && --i) myLoop(i); // decrement i and call myLoop again if i > 0
              }, 3000)
           })(10);
-
-          // /Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml          
         });
 
       }.bind(this));
