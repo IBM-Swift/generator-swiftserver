@@ -1246,7 +1246,57 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generated a web application for bluemix without services', function() {
+  describe('Generated a bff application with watson conversation for bluemix', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: false,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {
+          watsonconversation: [{
+            name: "myConversationService"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the watson conversation extensions required by bluemix', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/WatsonConversationExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import ConversationV1');
+    });
+
+    it('initialises conversation', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Conversation?');
+    });
+
+    it('creates the boilerplate to connect to watson conversation service', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getWatsonConversationService');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'conversation = Conversation(service: service)');
+    });
+
+  });
+
+describe('Generated a web application for bluemix without services', function() {
 
     var runContext;
 

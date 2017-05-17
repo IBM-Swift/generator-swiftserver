@@ -60,6 +60,9 @@ This application has been generated with the following capabilities and services
 <%   if (appid) { -%>
 * [AppID](#appid)
 <%   } -%>
+<%   if (watsonconversation) { -%>
+* [Watson Conversation](#watsonconversation)
+<%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)
 <%   } -%>
@@ -165,6 +168,18 @@ App ID provides authentication to secure your web applications and back-end syst
 Boilerplate code for creating a client object for the App ID API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module. Extra routes and logic need to be added to make this a authentication boilerplate work. A working example can be found in the [App ID README](https://github.com/ibm-cloud-security/appid-serversdk-swift/blob/master/README.md#example-usage).
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the App ID client in the boilerplate code.
+<%   } -%>
+<%   if (watsonconversation) { -%>
+#### Watson Conversation
+This application uses the [Watson Swift SDK package](https://github.com/watson-developer-cloud/swift-sdk), which allows Kitura applications to build Watson-powered applications, specifically in this case the IBM Watson Conversation service.
+
+With the IBM Watson Conversation service you can create cognitive agents--virtual agents that combine machine learning, natural language understanding, and integrated dialog scripting tools to build outstanding projects, such as a chat room with an integrated Watson chat bot.
+
+Boilerplate code for creating a client object for the Watson Conversation API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module.
+
+The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Watson Conversation client in the boilerplate code.
+
+More information about the Watson Conversation can be found in the [README](https://github.com/watson-developer-cloud/swift-sdk#conversation)
 <%   } -%>
 <%   if (autoscale) { -%>
 #### Auto-scaling
