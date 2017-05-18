@@ -20,7 +20,6 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
-var request = require('request');
 var debug = require('debug')('generator-swiftserver:app');
 
 var helpers = require('../lib/helpers');
@@ -31,6 +30,7 @@ var validatePort = helpers.validatePort;
 var generateServiceName = helpers.generateServiceName;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
+var performSDKGeneration = helpers.performSDKGeneration;
 
 module.exports = generators.Base.extend({
 
@@ -254,66 +254,15 @@ module.exports = generators.Base.extend({
 
         var fileContent = require("html-wiring").readFileAsString(answers.swaggerInputPath);
 
-        // Call SDK generator
-        var baseURL = "https://mobilesdkgen.ng.bluemix.net/sdkgen/api/generator/"
-        var startGenURL = baseURL + this.appname + "-iOS/ios_swift";
-        
-        request.post({
-          headers: {'Accept' : 'application/json',
-                    'Content-Type' : 'application/json',
-                    'Authorization' : 'Bearer <token>'},
-          url:     startGenURL,
-          body: fileContent
-        }, function(error, response, body){
-          body = JSON.parse(body);
+        // performSDKGeneration(this.appname + "-iOS", "ios_swift", fileContent, function() {
+        //   console.log("in callback");
+        //   done();
+        // })
 
-          var job = body['job']
-          var genID = job['id'];
-
-          var sdkReady = false
-          function getStatus() {
-            if (!sdkReady) {
-              request.get({
-                headers: {'Accept' : 'application/json',
-                          'Authorization' : 'Bearer <token>'},
-                url: baseURL + genID + "/status"
-              }, function(error, response, body){
-                body = JSON.parse(body);
-
-                if (body['status'] === "FINISHED") {
-                  sdkReady = true
-                  getSDK();
-                }
-              })
-            }
-          }
-
-          function getSDK() {
-
-            var mkdirp = require('mkdirp');
-            mkdirp("./SDKs", function (err) {
-                if (err) console.error(err)
-            });
-
-            request.get({
-              headers: {'Accept' : 'application/zip',
-                        'Authorization' : 'Bearer <token>'},
-              url: baseURL + genID
-            })
-            .pipe(fs.createWriteStream('SDKs/iOSSDK.zip'))
-            .on('finish', function () {
-              done();
-            });
-          }
-
-          // Goes through 10 get requests as needed for a 30 second timeout
-          (function myLoop (i) {          
-             setTimeout(function () {   
-                getStatus()
-                if (!sdkReady && --i) myLoop(i); // decrement i and call myLoop again if i > 0
-             }, 3000)
-          })(10);
-        });
+        performSDKGeneration(this.appname + "-ServerSDK", "server_swift", fileContent, function() {
+          console.log("in callback");
+          done();
+        })
 
       }.bind(this));
     },
