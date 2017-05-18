@@ -76,6 +76,14 @@ describe('Prompt and no build integration tests for app generator', function () 
       assert.file('Sources/Application/Application.swift');
     });
 
+    it('created an RouteTests.swift file', function() {
+      assert.file('Tests/ApplicationTests/RouteTests.swift');
+    });
+
+    it('created an LinuxMain.swift file', function() {
+      assert.file('Tests/LinuxMain.swift');
+    });
+
     it('Package.swift contains Configuration dependency', function() {
       assert.fileContent('Package.swift', '/Configuration');
     });
