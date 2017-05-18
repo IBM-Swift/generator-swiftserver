@@ -225,42 +225,75 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptSwaggerInput: function() {
+    /*promptiOSSwaggerInput: function() {
       if (this.skipPrompting) return;
 
       var done = this.async();
       var prompts = [{
-        name: 'swaggerInput',
+        name: 'iosSwaggerInput',
         type: 'confirm',
-        message: 'Would you like to generate an iOS SDK from your Swagger file?',
+        message: 'Would you like to generate an iOS SDK from a Swagger file?',
         default: false,
       }];
       this.prompt(prompts, function(answers) {
-        this.swaggerInput = answers.swaggerInput;
+        this.iosSwaggerInput = answers.iosSwaggerInput;
         done();
       }.bind(this));
     },
 
-    promptSwaggerFilename: function() {
+    promptiOSSwaggerFilename: function() {
       if (this.skipPrompting) return;
-      if (!this.swaggerInput) return;
+      if (!this.iosSwaggerInput) return;
 
       var done = this.async();
       var prompts = [{
-        name: 'swaggerInputPath', 
+        name: 'iosSwaggerInputPath', 
         message: 'Enter Swagger yaml file path:'
       }];
       this.prompt(prompts, function(answers) {
 
-        var fileContent = require("html-wiring").readFileAsString(answers.swaggerInputPath);
+        var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
 
-        // performSDKGeneration(this.appname + "-iOS", "ios_swift", fileContent, function() {
-        //   console.log("in callback");
-        //   done();
-        // })
-
-        performSDKGeneration(this.appname + "-ServerSDK", "server_swift", fileContent, function() {
+        performSDKGeneration(this.appname + "-iOS_SDK", "ios_swift", fileContent, function() {
           console.log("in callback");
+          done();
+        })
+
+      }.bind(this));
+    },*/
+
+    promptServerSwaggerInput: function() {
+      if (this.skipPrompting) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'serverSwaggerInput',
+        type: 'confirm',
+        message: 'Would you like to generate an Swift server SDK from a Swagger file?',
+        default: false,
+      }];
+      this.prompt(prompts, function(answers) {
+        this.serverSwaggerInput = answers.serverSwaggerInput;
+        done();
+      }.bind(this));
+    },
+
+    promptServerSwaggerFilename: function() {
+      if (this.skipPrompting) return;
+      if (!this.serverSwaggerInput) return;
+
+      var done = this.async();
+      var prompts = [{
+        name: 'serverSwaggerInputPath', 
+        message: 'Enter Swagger yaml file path:'
+      }];
+      this.prompt(prompts, function(answers) {
+
+        // var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
+        var fileContent = require("html-wiring").readFileAsString('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml');
+
+        this.serverSDKName = this.appname + "-ServerSDK"
+        performSDKGeneration(this.serverSDKName, "server_swift", fileContent, function() {
           done();
         })
 
@@ -867,6 +900,36 @@ module.exports = generators.Base.extend({
         },
         this.options.testmode ? null : { local: require.resolve('../refresh')}
       );
+    },
+
+    configureServerSDK: function() {
+      if(!this.serverSDKName) return;
+      console.log("configuring server sdk");
+
+      var unzipFolderName;
+      var unzip = require('unzip');
+      fs.createReadStream(this.serverSDKName + '.zip')
+        // .pipe(unzip.Extract({ path: '.' })
+        .pipe(unzip.Parse())
+        .on('entry', function (entry) {
+          var fileName = entry.path;
+          if(!unzipFolderName) {
+            unzipFolderName = fileName.split("/");
+          }
+        })
+        .pipe(unzip.Extract({ path: '.' })
+        .on('finish', function () {
+
+          fs.rename(unzipFolderName + '/Sources', '/Sources/', function(err) {
+            if(err) {
+              console.log('Err: ' + err);
+            }
+          })
+
+        }));
+
+        
+
     },
 
     buildApp: function() {
