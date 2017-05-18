@@ -340,6 +340,7 @@ describe('helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('alertnotification'), 'AlertNotification');
     });
 
+    it('get label for unrecognised value', function() {
       assert.equal(helpers.getBluemixServiceLabel('unrecognised'), 'unrecognised');
     });
   });
