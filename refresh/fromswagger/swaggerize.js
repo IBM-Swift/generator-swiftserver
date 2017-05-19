@@ -82,6 +82,7 @@ function parseSwagger(api) {
   var basePath = api.basePath || undefined;
 
   Object.keys(api.paths).forEach(function(path) {
+    console.log("path: " + path);
     var resource = genUtils.resourceNameFromPath(path);
     if (resource === "*") {
       // ignore a resource of '*' as a default route for this is set up in the template.
@@ -128,14 +129,16 @@ function parseSwagger(api) {
                 var ref = genUtils.getRefName(responses[responseType].schema.$ref);
                 refs[ref] = api.definitions[ref];
               } else if (responses[responseType].schema.type && responses[responseType].schema.type === 'array') {
-                var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
-                refs[ref] = api.definitions[ref];
-                if (responses[responseType].schema.items) {
-                  // handle array of schema items
-                  if (responses[responseType].schema.items.$ref) {
-                    // handle the schema ref
-                    var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
-                    refs[ref] = api.definitions[ref];
+                if (responses[responseType].schema.items && responses[responseType].schema.items.$ref) {
+                  var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
+                  refs[ref] = api.definitions[ref];
+                  if (responses[responseType].schema.items) {
+                    // handle array of schema items
+                    if (responses[responseType].schema.items.$ref) {
+                      // handle the schema ref
+                      var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
+                      refs[ref] = api.definitions[ref];
+                    }
                   }
                 }
               }
