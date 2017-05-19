@@ -6,8 +6,8 @@ LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu imag
 # EXPOSE {{PORT}}
 EXPOSE 8080 1024 1025
 
-# Linux OS utils
-RUN apt-get update
+# Needed for debugging (lldb) - attaching to process
+RUN echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
 
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/tools-utils.sh /root/utils/tools-utils.sh
 RUN chmod +x /root/utils/tools-utils.sh
