@@ -1003,10 +1003,12 @@ module.exports = generators.Base.extend({
           });
         }
         if(serviceType === 'watsonconversation') {
-          this.fs.copy(
-            this.templatePath('extensions', 'WatsonConversationExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'WatsonConversationExtension.swift'),
+              filepath
+            );
+          });
         }
       }.bind(this));
     },
