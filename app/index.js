@@ -20,6 +20,9 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
+var swaggerparser = require('swagger-parser');
+var unzip = require('unzip');
+var mv = require('mv');
 var debug = require('debug')('generator-swiftserver:app');
 
 var helpers = require('../lib/helpers');
@@ -254,7 +257,7 @@ module.exports = generators.Base.extend({
 
         var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
 
-        performSDKGeneration(this.appname + "-iOS_SDK", "ios_swift", fileContent, function() {
+        performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
           console.log("in callback");
           done();
         })
@@ -291,11 +294,19 @@ module.exports = generators.Base.extend({
 
         // var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
         var fileContent = require("html-wiring").readFileAsString('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml');
-
-        this.serverSDKName = this.appname + "-ServerSDK"
-        performSDKGeneration(this.serverSDKName, "server_swift", fileContent, function() {
-          done();
-        })
+        
+        var self = this;
+        swaggerparser.validate('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml', function(err, api) {
+          if (err) {
+            console.error(err);
+          } else {
+            console.log("API name: %s, Version: %s", api.info.title, api.info.version);
+            self.serverSDKName = api.info.title.split(' ').join('_') + "_ServerSDK";
+            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function() {
+              done();
+            })
+          }
+        });
 
       }.bind(this));
     },
@@ -904,32 +915,35 @@ module.exports = generators.Base.extend({
 
     configureServerSDK: function() {
       if(!this.serverSDKName) return;
-      console.log("configuring server sdk");
 
-      var unzipFolderName;
-      var unzip = require('unzip');
+      var unzipFolderName = this.serverSDKName;
       fs.createReadStream(this.serverSDKName + '.zip')
-        // .pipe(unzip.Extract({ path: '.' })
-        .pipe(unzip.Parse())
-        .on('entry', function (entry) {
-          var fileName = entry.path;
-          if(!unzipFolderName) {
-            unzipFolderName = fileName.split("/");
-          }
-        })
         .pipe(unzip.Extract({ path: '.' })
-        .on('finish', function () {
+        .on('close', function () {
+          // TODO: Get renaming working properly, edit Package.swift file, and consider moving HTTP code to its own library
+          console.log("unzipFolder: " + unzipFolderName);
+          // fs.rename('Dockerfile', './Sources/friend.txt', function(err) {
+          //   if(err) {
+          //     console.log('Err: ' + err);
+          //   }
+          // })
+          console.log("cwd: " + process.cwd());
 
-          fs.rename(unzipFolderName + '/Sources', '/Sources/', function(err) {
-            if(err) {
-              console.log('Err: ' + err);
-            }
-          })
+          // Works on command line, mv won't work because it doesn't merge
+          // rsync -av Products_API_ServerSDK/Sources Sources
+          var Rsync = require('rsync');
+
+          // Build the command
+          var rsync = new Rsync()
+            .source('./Products_API_ServerSDK/Sources')
+            .destination('./Sources');
+
+          // Execute the command
+          rsync.execute(function(error, code, cmd) {
+              console.log("finished");
+          });
 
         }));
-
-        
-
     },
 
     buildApp: function() {
