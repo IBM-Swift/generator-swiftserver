@@ -328,7 +328,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                             appPattern: 'Basic',
                             services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                             configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
-                           cloudantName: 'testCloudant',
+                            cloudantName: 'testCloudant',
                             redisName: 'testRedis',
                             objectstorageName: 'testObjectStorage',
                             appIDName: 'testAppID',

@@ -1010,10 +1010,12 @@ module.exports = generators.Base.extend({
           );
         }
         if(serviceType === 'alertnotification') {
-          this.fs.copy(
-            this.templatePath('extensions', 'AlertNotificationExtension.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift')
-          );
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'AlertNotificationExtension.swift'),
+              filepath
+            );
+          });
         }
       }.bind(this));
     },
