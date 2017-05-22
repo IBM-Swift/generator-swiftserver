@@ -23,6 +23,7 @@ var fs = require('fs');
 var swaggerparser = require('swagger-parser');
 var unzip = require('unzip');
 var mv = require('mv');
+var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
 
 var helpers = require('../lib/helpers');
@@ -920,27 +921,26 @@ module.exports = generators.Base.extend({
       fs.createReadStream(this.serverSDKName + '.zip')
         .pipe(unzip.Extract({ path: '.' })
         .on('close', function () {
-          // TODO: Get renaming working properly, edit Package.swift file, and consider moving HTTP code to its own library
+          // TODO: edit Package.swift file, and consider moving HTTP code to its own library, un-hard code api name
           console.log("unzipFolder: " + unzipFolderName);
-          // fs.rename('Dockerfile', './Sources/friend.txt', function(err) {
-          //   if(err) {
-          //     console.log('Err: ' + err);
-          //   }
-          // })
-          console.log("cwd: " + process.cwd());
 
           // Works on command line, mv won't work because it doesn't merge
-          // rsync -av Products_API_ServerSDK/Sources Sources
-          var Rsync = require('rsync');
+          var dir = './Sources/Products_API_ServerSDK';
+          if (!fs.existsSync(dir)){
+              fs.mkdirSync(dir);
+          }
 
           // Build the command
           var rsync = new Rsync()
-            .source('./Products_API_ServerSDK/Sources')
-            .destination('./Sources');
-
+            .flags('av')
+            .source('./Products_API_ServerSDK/Sources/')
+            .destination('./Sources/Products_API_ServerSDK');
+            console.log(rsync.cwd());
           // Execute the command
           rsync.execute(function(error, code, cmd) {
-              console.log("finished");
+            if(error) {
+              console.log("Finished Rsync with error " + error);
+            }
           });
 
         }));
