@@ -69,7 +69,7 @@ public func initialize() throws {
 <% } -%>
 
     router.get("/health") { request, response, _ in
-        try response.send("{\"status\":\"UP\"}").end()
+        try response.send(json: ["status": "UP"]).end()
     }
 }
 
