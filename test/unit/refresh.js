@@ -1296,6 +1296,57 @@ describe('swiftserver:refresh', function () {
 
   });
 
+  describe('Generated a bff application with alert notification for bluemix', function() {
+
+    var runContext;
+
+    before(function() {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: false,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {
+          alertnotification: [{
+            name: "myAlertNotificationService"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the Alert Notification extensions required by bluemix', function() {
+      assert.file(`Sources/${applicationModule}/Extensions/AlertNotificationExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import AlertNotifications');
+    });
+
+    it('initialises alert notification', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, '');
+    });
+
+    it('creates the boilerplate to connect to an alert notification service', function() {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getAlertNotificationService');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, '');
+    });
+
+  });
+
+
 describe('Generated a web application for bluemix without services', function() {
 
     var runContext;
