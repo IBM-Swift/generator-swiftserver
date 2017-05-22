@@ -315,6 +315,7 @@ describe('Spec option and build integration tests for app generator', function (
     var spec = {
       appType: 'scaffold',
       appName: 'todo',
+      web: true,
       bluemix: true,
       config: {
         logger: 'helium',

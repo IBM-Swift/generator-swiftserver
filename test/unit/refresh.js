@@ -1246,7 +1246,7 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generated a bff application with watson conversation for bluemix', function() {
+  describe('Generated a web application with watson conversation for bluemix', function() {
 
     var runContext;
 
@@ -1255,7 +1255,7 @@ describe('swiftserver:refresh', function () {
         appType: 'scaffold',
         appName: appName,
         bluemix: true,
-        web: false,
+        web: true,
         config: {
           logger: 'helium',
           port: 4567
