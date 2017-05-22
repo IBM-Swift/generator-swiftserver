@@ -316,7 +316,7 @@ module.exports = generators.Base.extend({
       if (!this.bluemix) return;
       var done = this.async();
 
-      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification'];
+      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications'];
 
       var prompts = [{
         name: 'services',
@@ -343,6 +343,9 @@ module.exports = generators.Base.extend({
         }
         if (answers.services.indexOf('Alert Notification') !== -1) {
           this._addService('alertnotification',  { name: generateServiceName(this.appname, 'AlertNotification') });
+        }
+        if (answers.services.indexOf('Push Notifications') !== -1) {
+          this._addService('pushnotifications',  { name: generateServiceName(this.appname, 'PushNotifications') });
         }
         if (answers.services.indexOf('Auto-scaling') !== -1) {
           this.autoscale = generateServiceName(this.appname, 'AutoScaling');
@@ -397,6 +400,7 @@ module.exports = generators.Base.extend({
           case 'appid':               return 'AppID';
           case 'watsonconversation':  return 'Watson Conversation';
           case 'alertnotification':  return 'Alert Notification';
+          case 'pushnotifications':  return 'Push Notifications';
           default:
             self.env.error(chalk.red(`Internal error: unknown service type ${serviceType}`));
         }
@@ -550,6 +554,33 @@ module.exports = generators.Base.extend({
           name: answers.alertNotificationUsername || undefined,
           password: answers.alertNotificationPassword || undefined,
           url: answers.alertNotificationUrl || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigurePushNotifications: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.pushnotifications) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Push Notifications');
+      var prompts = [
+        { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'pushNotificationsRegion', message: 'Enter Bluemix region (blank for default):' },
+        { name: 'pushNotificationsGuid', message: 'Enter app GUID:' },
+        { name: 'pushNotificationsSecret', message: 'Enter secret:', type: 'password' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
+        this.services.pushnotifications[0].credentials = {
+          region: answers.pushNotificationsRegion || undefined,
+          guid: answers.pushNotificationsGuid || undefined,
+          secret: answers.pushNotificationsSecret || undefined
         };
         done();
       }.bind(this));

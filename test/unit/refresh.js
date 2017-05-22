@@ -22,7 +22,7 @@ var fs = require('fs');
 var format = require('util').format;
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.yo-rc.json', 'LICENSE', 'README.md'];
+  '.yo-rc.json', 'LICENSE', 'README.md'];
 
 var appName = 'todo';
 var modelName = 'todo';
@@ -36,28 +36,28 @@ var executableModule = appName;
 var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`];
 
 var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
-    `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
-    `Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
-    `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,];
+`Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
+`Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
+`Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,];
 
 var expectedBluemixFiles = ['manifest.yml',
-                            '.cfignore',
-                            '.bluemix/pipeline.yml',
-                            '.bluemix/toolchain.yml',
-                            '.bluemix/deploy.json'];
+  '.cfignore',
+  '.bluemix/pipeline.yml',
+  '.bluemix/toolchain.yml',
+  '.bluemix/deploy.json'];
 
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
-           'Check the Swagger file exists and ' +
-           'is written out correctly.', function () {
+    'Check the Swagger file exists and ' +
+    'is written out correctly.', function () {
 
-    var dirName;
-    var expected = [
-      `definitions/${appName}.yaml`
-    ];
-    var runContext;
+      var dirName;
+      var expected = [
+        `definitions/${appName}.yaml`
+      ];
+      var runContext;
 
-    before(function () {
+      before(function () {
         var spec = {
           appType: 'crud',
           appName: appName,
@@ -83,46 +83,150 @@ describe('swiftserver:refresh', function () {
           ]
         }
         // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        runContext = helpers.run(path.join(__dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec
+          })
+        return runContext.toPromise();
+      });
+
+      after(function () {
+        runContext.cleanTestDirectory();
+      });
+
+      it('generates the expected files', function () {
+        assert.file(expected);
+      });
+
+      // This is only a starter set of checks, we need to add further check in.
+      it('the swagger file contains the expected content', function () {
+        assert.fileContent([
+          [expected[0], 'title: ' + appName],
+          [expected[0], `${modelName}:`]
+        ]);
+      });
+    });
+
+  describe('Basic refresh generator test with apic option. ' +
+    'Check the yaml files exist and ' +
+    'are written out correctly.', function () {
+
+      var dirName;
+      var appName = 'testApp';
+      var expected = [
+        `definitions/${appName}-product.yaml`,
+        `definitions/${appName}.yaml`
+      ];
+      var runContext;
+
+      before(function () {
+        var spec = {
+          appType: 'crud',
+          appName: appName,
+          config: {
+            logger: 'helium',
+            port: 4567
+          },
+          "models": [
+            {
+              "name": modelName,
+              "plural": modelPlural,
+              "classname": className,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "id": true
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          ]
+        }
+        // Mock the options, set up an output folder and run the generator
+        runContext = helpers.run(path.join(__dirname, '../../refresh'))
+          .withOptions({
+            specObj: spec,
+            apic: true
+          })
+        return runContext.toPromise();
+      });
+
+      after(function () {
+        runContext.cleanTestDirectory();
+      });
+
+      it('generates the expected files', function () {
+        assert.file(expected);
+      });
+
+      it('the product file contains the expected content', function () {
+        assert.fileContent([
+          [expected[0], 'name: ' + appName],
+          [expected[0], 'title: ' + appName]
+        ]);
+      });
+
+      // This is only a starter set of checks, we need to add further check in.
+      it('the swagger file contains the expected content', function () {
+        assert.fileContent([
+          [expected[1], 'name: ' + appName],
+          [expected[1], 'title: ' + appName],
+          [expected[1], `${modelName}:`]
+        ]);
+      });
+    });
+
+  describe('Generate the config file from the spec', function () {
+
+    var runContext;
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the expected files', function () {
-      assert.file(expected);
+    if ('generated the correct config file', function () {
+      assert.jsonFileContent('config.json', { config: { logger: 'helium', port: 4567 } });
     });
 
-    // This is only a starter set of checks, we need to add further check in.
-    it('the swagger file contains the expected content', function() {
-      assert.fileContent([
-        [expected[0], 'title: ' + appName],
-        [expected[0], `${modelName}:`]
-      ]);
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('generates the swift files', function () {
+      assert.file(expectedSourceFiles);
     });
   });
 
-  describe('Basic refresh generator test with apic option. ' +
-           'Check the yaml files exist and ' +
-           'are written out correctly.', function () {
+  describe('Generate a skeleton CRUD application without bluemix', function () {
 
-    var dirName;
-    var appName = 'testApp';
-    var expected = [
-      `definitions/${appName}-product.yaml`,
-      `definitions/${appName}.yaml`
-    ];
     var runContext;
 
     before(function () {
+      // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'crud',
         appName: appName,
+        bluemix: false,
         config: {
           logger: 'helium',
           port: 4567
@@ -143,119 +247,15 @@ describe('swiftserver:refresh', function () {
             }
           }
         ]
-      }
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec,
-          apic: true
-        })
-        return runContext.toPromise();
-    });
-
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
-
-    it('generates the expected files', function () {
-      assert.file(expected);
-    });
-
-    it('the product file contains the expected content', function() {
-      assert.fileContent([
-        [expected[0], 'name: ' + appName],
-        [expected[0], 'title: ' + appName]
-      ]);
-    });
-
-    // This is only a starter set of checks, we need to add further check in.
-    it('the swagger file contains the expected content', function() {
-      assert.fileContent([
-        [expected[1], 'name: ' + appName],
-        [expected[1], 'title: ' + appName],
-        [expected[1], `${modelName}:`]
-      ]);
-    });
-  });
-
-  describe('Generate the config file from the spec', function () {
-
-    var runContext;
-
-    before(function () {
-        // Mock the options, set up an output folder and run the generator
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
-
-    if('generated the correct config file', function() {
-      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}});
-    });
-
-    it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles);
-    });
-
-    it('generates the swift files', function() {
-      assert.file(expectedSourceFiles);
-    });
-  });
-
-  describe('Generate a skeleton CRUD application without bluemix', function () {
-
-    var runContext;
-
-    before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: false,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          "models": [
-            {
-              "name": modelName,
-              "plural": modelPlural,
-              "classname": className,
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "id": true
-                },
-                "title": {
-                  "type": "string"
-                }
-              }
-            }
-          ]
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-      return runContext.toPromise();
-    });
-
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -265,26 +265,26 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedFilesExceptREADME);
     });
 
-    it('generates the generic swift source files', function() {
+    it('generates the generic swift source files', function () {
       assert.file(expectedSourceFiles);
     });
 
-    it('generates a todo model metadata file and the todo swift files', function() {
+    it('generates a todo model metadata file and the todo swift files', function () {
       assert.file(expectedModelFiles);
     });
 
-    it('hosts swagger definition', function() {
+    it('hosts swagger definition', function () {
       assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
     });
 
-    it('does not generate the bluemix files', function() {
+    it('does not generate the bluemix files', function () {
       assert.noFile(expectedBluemixFiles);
     });
 
-    it('does not generate any capabilities', function() {
+    it('does not generate any capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
@@ -293,7 +293,7 @@ describe('swiftserver:refresh', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'let _ = SwiftMetricsBluemix(swiftMetricsInstance: sm)');
     });
 
-    it('generates the extension for ConfigurationManager', function() {
+    it('generates the extension for ConfigurationManager', function () {
       assert.file(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
     });
   });
@@ -302,44 +302,44 @@ describe('swiftserver:refresh', function () {
 
     var runContext;
     var userOwnedFiles = ['.swift-version',
-                          'README.md',
-                          'LICENSE',
-                          'Package.swift',
-                          'config.json',
-                          `Sources/${executableModule}/main.swift`,
-                          `Sources/${applicationModule}/Application.swift`,
-                          `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
-                          `Sources/${applicationModule}/Routes/SwaggerRoute.swift`];
+      'README.md',
+      'LICENSE',
+      'Package.swift',
+      'config.json',
+      `Sources/${executableModule}/main.swift`,
+      `Sources/${applicationModule}/Application.swift`,
+      `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
+      `Sources/${applicationModule}/Routes/SwaggerRoute.swift`];
     var dummyContent = '==Dummy existing content==';
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-                          .inTmpDir(function(tmpDir) {
-                            // Create a dummy file for each one that should
-                            // not be overwritten by the update
-                            fs.mkdirSync('Sources');
-                            fs.mkdirSync(`Sources/${executableModule}`);
-                            fs.mkdirSync(`Sources/${applicationModule}`);
-                            fs.mkdirSync(`Sources/${applicationModule}/Routes`);
-                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
-                            userOwnedFiles.forEach((filename) => {
-                              fs.writeFileSync(path.join(tmpDir, filename),
-                                               dummyContent);
-                            });
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .inTmpDir(function (tmpDir) {
+          // Create a dummy file for each one that should
+          // not be overwritten by the update
+          fs.mkdirSync('Sources');
+          fs.mkdirSync(`Sources/${executableModule}`);
+          fs.mkdirSync(`Sources/${applicationModule}`);
+          fs.mkdirSync(`Sources/${applicationModule}/Routes`);
+          fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+          userOwnedFiles.forEach((filename) => {
+            fs.writeFileSync(path.join(tmpDir, filename),
+              dummyContent);
+          });
 
-                            var spec = {
-                              appType: 'crud',
-                              appName: appName,
-                              config: {}
-                            };
-                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
-                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
-                                             JSON.stringify(spec));
-                          })
+          var spec = {
+            appType: 'crud',
+            appName: appName,
+            config: {}
+          };
+          fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+          fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+            JSON.stringify(spec));
+        })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -355,24 +355,24 @@ describe('swiftserver:refresh', function () {
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: false,
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -382,11 +382,11 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedFilesExceptREADME);
     });
 
-    it('generates the generic swift source files', function() {
+    it('generates the generic swift source files', function () {
       assert.file(expectedSourceFiles);
     });
 
-    it('generates a todo model metadata file and the todo swift files', function() {
+    it('generates a todo model metadata file and the todo swift files', function () {
       var expectedModelFiles = [
         `Sources/${generatedModule}/AdapterFactory.swift`,
         `Sources/${generatedModule}/CRUDResources.swift`,
@@ -402,40 +402,40 @@ describe('swiftserver:refresh', function () {
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          "models": [
-            {
-              "name": modelName,
-              "plural": modelPlural,
-              "classname": className,
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "id": true
-                },
-                "title": {
-                  "type": "string"
-                }
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        "models": [
+          {
+            "name": modelName,
+            "plural": modelPlural,
+            "classname": className,
+            "properties": {
+              "id": {
+                "type": "string",
+                "id": true
+              },
+              "title": {
+                "type": "string"
               }
             }
-          ]
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+          }
+        ]
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -443,23 +443,23 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedFiles);
     });
 
-    it('generates the generic swift source files', function() {
+    it('generates the generic swift source files', function () {
       assert.file(expectedSourceFiles);
     });
 
-    it('generates a todo model metadata file and the todo swift files', function() {
+    it('generates a todo model metadata file and the todo swift files', function () {
       assert.file(expectedModelFiles);
     });
 
-    it('does not generate the extension for ConfigurationManager', function() {
+    it('does not generate the extension for ConfigurationManager', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`);
     });
 
-    it('generates the bluemix files', function() {
+    it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles);
     });
 
-    it('defines OPENAPI_SPEC environment variable', function() {
+    it('defines OPENAPI_SPEC environment variable', function () {
       assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
     });
   });
@@ -473,45 +473,45 @@ describe('swiftserver:refresh', function () {
       bluemix: true,
       config: {},
       services: {
-        cloudant:      [{ name: "myCloudantService" }],
-        redis:         [{ name: "myRedisService" }],
+        cloudant: [{ name: "myCloudantService" }],
+        redis: [{ name: "myRedisService" }],
         objectstorage: [{ name: "myObjectStorageService" }],
-        appid:         [{ name: "myAppIDService" }]
+        appid: [{ name: "myAppIDService" }]
       }
     };
     var userOwnedFiles = ['manifest.yml',
-                          '.bluemix/pipeline.yml',
-                          '.bluemix/toolchain.yml',
-                          '.bluemix/deploy.json',
-                          'README.md',
-                          `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
-                          `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
-                          `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
-                          `Sources/${applicationModule}/Extensions/AppIDExtension.swift`];
+      '.bluemix/pipeline.yml',
+      '.bluemix/toolchain.yml',
+      '.bluemix/deploy.json',
+      'README.md',
+      `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
+      `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
+      `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
+      `Sources/${applicationModule}/Extensions/AppIDExtension.swift`];
     var dummyContent = '==Dummy existing content==';
 
     before(function () {
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
-                          .inTmpDir(function(tmpDir) {
-                            // Create a dummy file for each one that should
-                            // not be overwritten by the update
-                            fs.mkdirSync('.bluemix');
-                            fs.mkdirSync('Sources');
-                            fs.mkdirSync(`Sources/${applicationModule}`);
-                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
-                            userOwnedFiles.forEach((filename) => {
-                              fs.writeFileSync(path.join(tmpDir, filename),
-                                               dummyContent);
-                            });
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .inTmpDir(function (tmpDir) {
+          // Create a dummy file for each one that should
+          // not be overwritten by the update
+          fs.mkdirSync('.bluemix');
+          fs.mkdirSync('Sources');
+          fs.mkdirSync(`Sources/${applicationModule}`);
+          fs.mkdirSync(`Sources/${applicationModule}/Extensions`);
+          userOwnedFiles.forEach((filename) => {
+            fs.writeFileSync(path.join(tmpDir, filename),
+              dummyContent);
+          });
 
-                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
-                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
-                                             JSON.stringify(spec));
-                          })
+          fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '');
+          fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+            JSON.stringify(spec));
+        })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -522,37 +522,37 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a CRUD application with capabilities', function() {
+  describe('Generate a CRUD application with capabilities', function () {
 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: false,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          capabilities: {
-            "metrics" : true,
-            "autoscale": "myAutoScalingService"
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        capabilities: {
+          "metrics": true,
+          "autoscale": "myAutoScalingService"
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates metrics and autoscale capabilities', function() {
+    it('generates metrics and autoscale capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
@@ -562,36 +562,36 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a CRUD application without metrics', function() {
+  describe('Generate a CRUD application without metrics', function () {
 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'crud',
-          appName: appName,
-          bluemix: false,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          capabilities: {
-            "metrics" : false
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: false,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        capabilities: {
+          "metrics": false
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates metrics and autoscale capabilities', function() {
+    it('generates metrics and autoscale capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics\nimport SwiftMetricsDash');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()');
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(');
@@ -600,11 +600,11 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generated a CRUD application with cloudant for bluemix', function() {
+  describe('Generated a CRUD application with cloudant for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -636,45 +636,45 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: "myCloudantService"
       };
-      runContext =  helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-        return runContext.toPromise();                        // Get a Promise back when the generator finishes
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the extensions required by bluemix', function() {
+    it('generates the extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
-    it('initialises cloudant', function() {
+    it('initialises cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, ': CouchDBClient?');
     });
 
-    it('creates the boilerplate to connect to cloudant', function() {
+    it('creates the boilerplate to connect to cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getCloudantService(name: "myCloudantService")');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(service: cloudantService)');
     });
 
-    it('generates the correct adapter for the resource', function() {
+    it('generates the correct adapter for the resource', function () {
       assert.file(`Sources/${generatedModule}/${className}CloudantAdapter.swift`)
     });
 
   });
 
-  describe('Generated a CRUD application with cloudant without bluemix', function() {
+  describe('Generated a CRUD application with cloudant without bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -706,34 +706,34 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: "myCloudantService"
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('does not generate the extensions required by bluemix', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
-    it('generates the CloudantConfig', function() {
+    it('generates the CloudantConfig', function () {
       assert.file(`Sources/${applicationModule}/CloudantConfig.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
-    it('initialises cloudant', function() {
+    it('initialises cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, ': CouchDBClient?');
     });
 
-    it('creates the boilerplate to connect to cloudant', function() {
+    it('creates the boilerplate to connect to cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CloudantConfig(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
@@ -746,29 +746,29 @@ describe('swiftserver:refresh', function () {
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          web: true,
-          bluemix: {
-            "name": "test",
-            "host": "myhost",
-            "domain": "mydomain.net"
-          },
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        web: true,
+        bluemix: {
+          "name": "test",
+          "host": "myhost",
+          "domain": "mydomain.net"
+        },
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -784,23 +784,23 @@ describe('swiftserver:refresh', function () {
       assert.fileContent('manifest.yml', 'domain: mydomain.net');
     });
 
-    it('generates web only files and folders', function() {
+    it('generates web only files and folders', function () {
       var expectedWebFiles = [`Sources/${applicationModule}/Routes/.keep`,
-                              `public/.keep`];
+        `public/.keep`];
       assert.file(expectedWebFiles);
     });
 
-    it('does not generate example endpoint content', function() {
+    it('does not generate example endpoint content', function () {
       assert.noFile(`Sources/${applicationModule}/Routes/ProductRoutes.swift`);
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
     });
 
-    it('does not host swagger definition', function() {
+    it('does not host swagger definition', function () {
       assert.noFile(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
     });
 
-    it('does not define OPENAPI_SPEC environment variable', function() {
+    it('does not define OPENAPI_SPEC environment variable', function () {
       assert.noFileContent('manifest.yml', 'OPENAPI_SPEC');
     });
 
@@ -822,29 +822,29 @@ describe('swiftserver:refresh', function () {
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          web: true,
-          bluemix: {
-            "name": {},
-            "host": {},
-            "domain": true
-          },
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        web: true,
+        bluemix: {
+          "name": {},
+          "host": {},
+          "domain": true
+        },
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -862,25 +862,25 @@ describe('swiftserver:refresh', function () {
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          bluemix: false,
-          web: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: false,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -888,57 +888,57 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedFiles);
     });
 
-    it('generates the generic swift source files', function() {
+    it('generates the generic swift source files', function () {
       assert.file(`Sources/${executableModule}/main.swift`);
     });
 
-    if('generates Application.swift', function() {
+    if ('generates Application.swift', function () {
       assert.file(`Sources/${applicationModule}/Application.swift`)
     });
 
-    it('generates web only file and folders', function() {
+    it('generates web only file and folders', function () {
       var expectedExtensionFiles = [`Sources/${applicationModule}/Application.swift`,
-                                    `public/.keep`];
+        `public/.keep`];
       assert.file(expectedExtensionFiles);
     });
 
-    it('does not generate the bluemix files', function() {
+    it('does not generate the bluemix files', function () {
       assert.noFile(expectedBluemixFiles);
     });
   });
 
-  describe('Generate a web application with capabilities', function() {
+  describe('Generate a web application with capabilities', function () {
 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          bluemix: false,
-          web: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          capabilities: {
-            "metrics" : true,
-            "autoscale": "myAutoScalingService"
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: false,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        capabilities: {
+          "metrics": true,
+          "autoscale": "myAutoScalingService"
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates metrics and autoscale capabilities', function() {
+    it('generates metrics and autoscale capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
@@ -948,38 +948,38 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a web application with capabilities', function() {
+  describe('Generate a web application with capabilities', function () {
 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          bluemix: false,
-          web: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          },
-          capabilities: {
-            "metrics" : true,
-            "autoscale": false
-          }
-        };
-        runContext = helpers.run(path.join( __dirname, '../../refresh'))
-          .withOptions({
-            specObj: spec
-          })
-          return runContext.toPromise();                        // Get a Promise back when the generator finishes
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: false,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        capabilities: {
+          "metrics": true,
+          "autoscale": false
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     })
 
-    it('generates metrics without autoscale capabilities', function() {
+    it('generates metrics without autoscale capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()');
@@ -989,11 +989,11 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generated a web application with cloudant for bluemix', function() {
+  describe('Generated a web application with cloudant for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1009,41 +1009,41 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the cloudant extensions required by bluemix', function() {
+    it('generates the cloudant extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
-    it('initialises cloudant', function() {
+    it('initialises cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient?');
     });
 
-    it('creates the boilerplate to connect to cloudant', function() {
+    it('creates the boilerplate to connect to cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getCloudantService(name: "myCloudantService")');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(service: cloudantService)');
     });
 
   });
 
-  describe('Generated a web application with cloudant without bluemix', function() {
+  describe('Generated a web application with cloudant without bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1059,45 +1059,45 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('does not generate the extensions required by bluemix', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/CouchDBExtension.swift`)
     });
 
-    it('generates the CloudantConfig', function() {
+    it('generates the CloudantConfig', function () {
       assert.file(`Sources/${applicationModule}/CloudantConfig.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import CouchDB');
     });
 
-    it('initialises cloudant', function() {
+    it('initialises cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient?');
     });
 
-    it('creates the boilerplate to connect to cloudant', function() {
+    it('creates the boilerplate to connect to cloudant', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CloudantConfig(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ConnectionProperties(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'CouchDBClient(connectionProperties: couchDBConnProps)');
     });
   });
 
-  describe('Generated a web application with redis for bluemix', function() {
+  describe('Generated a web application with redis for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1113,40 +1113,40 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the extensions required by bluemix', function() {
+    it('generates the extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/RedisExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftRedis');
     });
 
-    it('initialises redis', function() {
+    it('initialises redis', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis?');
     });
 
-    it('creates the boilerplate to connect to redis', function() {
+    it('creates the boilerplate to connect to redis', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getRedisService(name: "myRedisService")');
     });
 
   });
 
-  describe('Generated a web application with redis without bluemix', function() {
+  describe('Generated a web application with redis without bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1162,45 +1162,45 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('does not generate the extensions required by bluemix', function () {
       assert.noFile(`Sources/${applicationModule}/Extensions/RedisExtension.swift`)
     });
 
-    it('generates the RedisConfig', function() {
+    it('generates the RedisConfig', function () {
       assert.file(`Sources/${applicationModule}/RedisConfig.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftRedis');
     });
 
-    it('initialises redis', function() {
+    it('initialises redis', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'RedisConfig');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis?');
     });
 
-    it('creates the boilerplate to connect to redis', function() {
+    it('creates the boilerplate to connect to redis', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Redis()');
     });
 
   });
 
-  describe('Generated a web application with objectstorage for bluemix', function() {
+  describe('Generated a web application with objectstorage for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1216,41 +1216,41 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('does not generate the extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixObjectStorage');
     });
 
-    it('initialises object storage', function() {
+    it('initialises object storage', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var objectStorage: ObjectStorage?');
     });
 
-    it('creates the boilerplate to connect to object storage', function() {
+    it('creates the boilerplate to connect to object storage', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getObjectStorageService(name: "myObjectStorageService")');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'ObjectStorage(service: objectStorageService)');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'objectStorage?.connectSync(service: objectStorageService)');
     });
   });
 
-  describe('Generated a web application with watson conversation for bluemix', function() {
+  describe('Generated a web application with watson conversation for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1267,41 +1267,41 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the watson conversation extensions required by bluemix', function() {
+    it('generates the watson conversation extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/WatsonConversationExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import ConversationV1');
     });
 
-    it('initialises conversation', function() {
+    it('initialises conversation', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'Conversation?');
     });
 
-    it('creates the boilerplate to connect to watson conversation service', function() {
+    it('creates the boilerplate to connect to watson conversation service', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getWatsonConversationService');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'conversation = Conversation(service: service, version: "4-19-2017")');
     });
 
   });
 
-  describe('Generated a bff application with alert notification for bluemix', function() {
+  describe('Generated a bff application with alert notification for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1317,42 +1317,90 @@ describe('swiftserver:refresh', function () {
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('generates the Alert Notification extensions required by bluemix', function() {
+    it('generates the Alert Notification extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/AlertNotificationExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import AlertNotifications');
     });
 
-    it('initialises alert notification', function() {
+    it('initialises alert notification', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, '');
     });
 
-    it('creates the boilerplate to connect to an alert notification service', function() {
+    it('creates the boilerplate to connect to an alert notification service', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try manager.getAlertNotificationService');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, '');
     });
 
   });
 
-
-describe('Generated a web application for bluemix without services', function() {
+  describe('Generated a web application with push notifications for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {
+          pushnotifications: [{
+            name: "myPushNotificationsService"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function () {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the Push Notifications extensions required by bluemix', function () {
+      assert.file(`Sources/${applicationModule}/Extensions/PushNotificationsExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixPushNotifications');
+    });
+
+    it('initialises push notifications', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var pushNotifications: PushNotifications?');
+    });
+
+    it('creates the boilerplate to connect to a push notifications service', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(bluemixRegion: region, bluemixAppGuid: guid, bluemixAppSecret: secret)');
+    });
+
+  });
+
+  describe('Generated a web application for bluemix without services', function () {
+
+    var runContext;
+
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1379,32 +1427,32 @@ describe('Generated a web application for bluemix without services', function() 
           }
         ]
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate services in manifest.yml', function() {
+    it('does not generate services in manifest.yml', function () {
       assert.noFileContent('manifest.yml', 'services:');
     });
 
-    it('does not generate declared-services in manifest.yml', function() {
+    it('does not generate declared-services in manifest.yml', function () {
       assert.noFileContent('manifest.yml', 'declared-services:');
     });
   });
 
-  describe('Rejected spec missing appType', function() {
+  describe('Rejected spec missing appType', function () {
 
     var runContext;
     var error = null;
 
-    before(function() {
+    before(function () {
       var spec = {
         appName: appName,
         config: {
@@ -1413,31 +1461,31 @@ describe('Generated a web application for bluemix without services', function() 
         },
         services: {}
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-      return runContext.toPromise().catch(function(err) {
+      return runContext.toPromise().catch(function (err) {
         error = err;
       });
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('aborts the generator with an error', function() {
+    it('aborts the generator with an error', function () {
       assert(error, 'Should throw an error');
       assert(error.message.match('^.*appType is missing.*$'), 'Thrown error should be about missing appType');
     });
   });
 
-  describe('Rejected spec with invalid appType', function() {
+  describe('Rejected spec with invalid appType', function () {
 
     var runContext;
     var error = null;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'tomato',
         appName: appName,
@@ -1447,32 +1495,32 @@ describe('Generated a web application for bluemix without services', function() 
         },
         services: {}
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-      return runContext.toPromise().catch(function(err) {
+      return runContext.toPromise().catch(function (err) {
         error = err;
       });
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('aborts the generator with an error', function() {
+    it('aborts the generator with an error', function () {
       assert(error, 'Should throw an error');
       assert(error.message.match('^.*appType is invalid.*$'), 'Thrown error should be about missing appType');
     });
   });
 
 
-  describe('Rejected spec containing a service with no name', function() {
+  describe('Rejected spec containing a service with no name', function () {
 
     var runContext;
     var error = null;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1487,20 +1535,20 @@ describe('Generated a web application for bluemix without services', function() 
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
-      return runContext.toPromise().catch(function(err) {
+      return runContext.toPromise().catch(function (err) {
         error = err;
       });
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('aborts the generator with an error', function() {
+    it('aborts the generator with an error', function () {
       assert(error, 'Should throw an error');
       assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name');
     });
@@ -1511,26 +1559,26 @@ describe('Generated a web application for bluemix without services', function() 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          hostSwagger: true,
-          exampleEndpoints: true,
-          bluemix: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        hostSwagger: true,
+        exampleEndpoints: true,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -1538,19 +1586,19 @@ describe('Generated a web application for bluemix without services', function() 
       assert.file(expectedFiles);
     });
 
-    it('generates the main.swift in the correct directory', function() {
+    it('generates the main.swift in the correct directory', function () {
       assert.file('Sources/todo/main.swift');
     });
 
-    if('generates Application.swift', function() {
+    if ('generates Application.swift', function () {
       assert.file(`Sources/${applicationModule}/Application.swift`)
     });
 
-    it('generates the bluemix files', function() {
+    it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles);
     });
 
-    it('defines example endpoints', function() {
+    it('defines example endpoints', function () {
       var productRoutesFile = `Sources/${applicationModule}/Routes/ProductRoutes.swift`;
       assert.file(productRoutesFile);
       assert.fileContent(productRoutesFile, '"/products"');
@@ -1562,22 +1610,22 @@ describe('Generated a web application for bluemix without services', function() 
       assert.fileContent(productRoutesFile, 'router.delete(');
     });
 
-    it('init example endpoint routes', function() {
+    it('init example endpoint routes', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
     });
 
-    it('hosts swagger definition', function() {
+    it('hosts swagger definition', function () {
       assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
     });
 
-    it('defines OPENAPI_SPEC environment variable', function() {
+    it('defines OPENAPI_SPEC environment variable', function () {
       assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"');
     });
 
-    it('does not generate NOTICES.txt', function() {
+    it('does not generate NOTICES.txt', function () {
       assert.noFile('NOTICES.txt');
     });
   });
@@ -1587,26 +1635,26 @@ describe('Generated a web application for bluemix without services', function() 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          web: true,
-          hostSwagger: true,
-          exampleEndpoints: true,
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        web: true,
+        hostSwagger: true,
+        exampleEndpoints: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -1616,7 +1664,7 @@ describe('Generated a web application for bluemix without services', function() 
       assert.file('public/explorer/css/style.css');
     });
 
-    it('generates NOTICES.txt', function() {
+    it('generates NOTICES.txt', function () {
       assert.file('NOTICES.txt');
     });
   });
@@ -1626,28 +1674,28 @@ describe('Generated a web application for bluemix without services', function() 
     var runContext;
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
-        var spec = {
-          appType: 'scaffold',
-          appName: appName,
-          bluemix: true,
-          web: true,
-          services: {
-            cloudant: [{ name: 'name with spaces' }]
-          },
-          config: {
-            logger: 'helium',
-            port: 4567
-          }
-        };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      // Set up the spec file which should create all the necessary files for a server
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        services: {
+          cloudant: [{ name: 'name with spaces' }]
+        },
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
@@ -1656,11 +1704,11 @@ describe('Generated a web application for bluemix without services', function() 
     });
   });
 
-  describe('Generated a web application with appid for bluemix', function() {
+  describe('Generated a web application with appid for bluemix', function () {
 
     var runContext;
 
-    before(function() {
+    before(function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1676,32 +1724,32 @@ describe('Generated a web application for bluemix without services', function() 
           }]
         }
       };
-      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
           specObj: spec
         })
       return runContext.toPromise();
     });
 
-    after(function() {
+    after(function () {
       runContext.cleanTestDirectory();
     });
 
-    it('does not generate the extensions required by bluemix', function() {
+    it('does not generate the extensions required by bluemix', function () {
       assert.file(`Sources/${applicationModule}/Extensions/AppIDExtension.swift`)
     });
 
-    it('imports the correct modules in Application.swift', function() {
+    it('imports the correct modules in Application.swift', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import Credentials');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixAppID');
     });
 
-    it('initialises AppID credentials and credentialsplugin', function() {
+    it('initialises AppID credentials and credentialsplugin', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var kituraCredentials: Credentials?');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin?');
     });
 
-    it('creates the boilerplate to connect to appid', function() {
+    it('creates the boilerplate to connect to appid', function () {
 
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'manager.getAppIDService(name: "myAppIDService")');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'WebAppKituraCredentialsPlugin(');
