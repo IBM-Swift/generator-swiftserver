@@ -33,7 +33,9 @@ var validatePort = helpers.validatePort;
 var generateServiceName = helpers.generateServiceName;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
-var performSDKGeneration = helpers.performSDKGeneration;
+var sdkHelper = require('../lib/sdkGenHelper');
+var performSDKGeneration = sdkHelper.performSDKGeneration;
+var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 module.exports = generators.Base.extend({
 
@@ -302,7 +304,10 @@ module.exports = generators.Base.extend({
           } else {
             console.log("API name: %s, Version: %s", api.info.title, api.info.version);
             self.serverSDKName = api.info.title.split(' ').join('_') + "_ServerSDK";
-            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function() {
+            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function(newTargets, newPackages) {
+              // self.newTargets = newTargets;
+              // self.newPackages = newPackages;
+              console.log("returned: " + newTargets);
               done();
             })
           }
@@ -922,43 +927,7 @@ module.exports = generators.Base.extend({
         .on('close', function () {
           // TODO: edit Package.swift file, and consider moving HTTP code to its own library, un-hard code api name
           console.log("unzipFolder: " + unzipFolderName);
-
-          // Works on command line, mv won't work because it doesn't merge
-          var dir = './Sources/Products_API_ServerSDK';
-          if (!fs.existsSync(dir)){
-              fs.mkdirSync(dir);
-          }
-
-          // Write source files to app's Source folder
-          var rsync = new Rsync()
-            .flags('av')
-            .source('./Products_API_ServerSDK/Sources/')
-            .destination('./Sources/Products_API_ServerSDK');
-            console.log(rsync.cwd());
-          // Execute the command
-          rsync.execute(function(error, code, cmd) {
-            if(error) {
-              console.log("Finished Rsync with error " + error);
-            }
-
-            // Extract dependencies from generated sdk Package.swift
-            var regex = /\.\bPackage\b.*/g
-            var fileContent = fs.readFileSync("./Products_API_ServerSDK/Package.swift", 'utf8');
-            console.log("file -> " + fileContent);
-            var packageMatches = fileContent.match(regex);
-
-            // TODO: read file to write to, get all matches, take last one index
-            // build string within loop
-
-            var index;
-            for (index = 0; index < packageMatches.length; index++) {
-              console.log("-> " + packageMatches[index]);
-              // write match to position index
-
-              // get indexOf what you just wrote + length and update position index
-            }
-
-          });
+          // integrateServerSDK('Products_API_ServerSDK');
 
         }));
     },
