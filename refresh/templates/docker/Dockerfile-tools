@@ -13,3 +13,7 @@ ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils
 RUN chmod +x /root/utils/tools-utils.sh
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/common-utils.sh /root/utils/common-utils.sh
 RUN chmod +x /root/utils/common-utils.sh
+
+ARG bx_dev_userid=root
+RUN BX_DEV_USERID=$bx_dev_userid
+RUN if [ $bx_dev_userid != "root" ]; then useradd -ms /bin/bash $bx_dev_userid; fi
