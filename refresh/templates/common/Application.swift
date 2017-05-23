@@ -61,6 +61,13 @@ public func initialize() throws {
 <% if (appType === 'crud') { %>
     try initializeCRUDResources(manager: manager, router: router)
 <% } -%>
+<% if (parsedSwagger) { -%>
+<%   if (Object.keys(parsedSwagger.resources).length > 0) { -%>
+<%     Object.keys(parsedSwagger.resources).forEach(function(resource) { -%>
+    initialize<%- resource %>Routes()     
+<%     }); -%>
+<%   } -%>
+<% } -%>
 <% if (hostSwagger) { -%>
     initializeSwaggerRoute(path: ConfigurationManager.BasePath.project.path + "/definitions/<%- appName %>.yaml")
 <% } -%>

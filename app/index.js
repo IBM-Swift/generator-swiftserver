@@ -90,6 +90,9 @@ module.exports = generators.Base.extend({
         }
       }
 
+      // save the initial directory for use by the fromSwagger processing.
+      this.initialWorkingDir = process.cwd();
+
       if (this.appname === null) {
         // Fall back to name of current working directory
         // Normalize if it contains special characters
@@ -296,11 +299,19 @@ module.exports = generators.Base.extend({
       var prompts = [{
         name: 'path',
         type: 'String',
-        message: 'Provide the path to a local swagger file:'
+        message: 'Provide the path to a swagger file:',
+        filter: function(response) {
+          return response.trim();
+        },
+        validate: function(response) {
+          // permit paths starting with './' or '../' or '/' or 'http://' or 'https://'
+          var pathPattern = new RegExp(/^\/|\.\.?\/|^https?:\/\/\S+/);
+          return pathPattern.test(response);
+        }
       }];
       this.prompt(prompts, function(answer) {
         if (answer.path) {
-          this.fromSwagger = answer.path.trim();
+          this.fromSwagger = path.resolve(this.initialWorkingDir, answer.path);
         }
         done();
       }.bind(this));

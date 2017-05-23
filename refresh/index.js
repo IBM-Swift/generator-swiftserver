@@ -625,6 +625,12 @@ module.exports = generators.Base.extend({
     this.swagger = swagger;
   },
 
+  parseFromSwagger: function() {
+    if (this.fromSwagger) {
+      this.parsedSwagger = swaggerize.parse.call(this);
+    } 
+  },
+
   writing: {
     createCommonFiles: function() {
 
@@ -681,6 +687,7 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
             web: this.web,
             hostSwagger: this.hostSwagger,
+            parsedSwagger: this.parsedSwagger,
             exampleEndpoints: this.exampleEndpoints
           }
         );
@@ -781,7 +788,11 @@ module.exports = generators.Base.extend({
 
     createFromSwagger: function() {
       if (this.fromSwagger) {
-        swaggerize.call(this);
+        swaggerize.createRoutes.call(this, this.parsedSwagger);
+
+        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
+        this.conflicter.force = true;
+        this.fs.write(swaggerFilename, YAML.safeDump(this.api));
       }
     },
 

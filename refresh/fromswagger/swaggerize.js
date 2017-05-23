@@ -82,7 +82,6 @@ function parseSwagger(api) {
   var basePath = api.basePath || undefined;
 
   Object.keys(api.paths).forEach(function(path) {
-    console.log("path: " + path);
     var resource = genUtils.resourceNameFromPath(path);
     if (resource === "*") {
       // ignore a resource of '*' as a default route for this is set up in the template.
@@ -217,42 +216,16 @@ function createRoutes(parsed) {
   }.bind(this));
 }
 
-function createApplication(parsed, swaggerFileName) {
-  var tPath = this.templatePath('fromswagger', 'Application.swift');
-  filesys.readFile(tPath, 'utf-8', function (err, data) {
-    var template = handlebars.compile(data);
-    var sourceCode = template({resource: parsed.resources,
-                               swaggerfile: swaggerFileName,
-                               web: this.web,
-                               license: '// IBM'});
-
-    // write the source code to its file.
-    this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Application.swift'), sourceCode);
-  }.bind(this));
-}
-
-function swaggerize() {
-  var api;
-  var swaggerPath = this.fromSwagger;
-  if (swaggerPath.indexOf('http') === 0) {
-    wreck.get(swaggerPath, function (err, res, body) {
-      this.api = loadApi.call(this, swaggerPath, body);
+function parse() {
+  if (this.fromSwagger.indexOf('http') === 0) {
+    wreck.get(this.fromSwagger, function (err, res, body) {
+      this.api = loadApi.call(this, this.fromSwagger, body);
     }.bind(this));
   } else {
-    this.api = loadApi.call(this, swaggerPath);
+    this.api = loadApi.call(this, this.fromSwagger);
   }
 
-  var parsed = parseSwagger(this.api);
-  // console.log(util.inspect(parsed, {depth: null, colors: true}));
-
-  // write the swagger document out.
-  var swaggerFileName =  this.projectName + '.yaml';
-  var swaggerRelativePath = path.join('definitions', swaggerFileName);
-  this.conflicter.force = true;
-  this.fs.write(swaggerRelativePath, YAML.safeDump(this.api));
-
-  createRoutes.call(this, parsed);
-  createApplication.call(this, parsed, swaggerRelativePath);
+  return parseSwagger(this.api);
 }
 
-module.exports = swaggerize;
+module.exports = {createRoutes, parse};

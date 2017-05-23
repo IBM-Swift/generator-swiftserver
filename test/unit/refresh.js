@@ -46,6 +46,7 @@ var expectedBluemixFiles = ['manifest.yml',
                             '.bluemix/toolchain.yml',
                             '.bluemix/deploy.json'];
 
+
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
@@ -175,6 +176,227 @@ describe('swiftserver:refresh', function () {
         [expected[1], 'title: ' + appName],
         [expected[1], `${modelName}:`]
       ]);
+    });
+  });
+
+  describe('Generate a Bff application from a Swagger document', function () {
+
+    var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "definitions": {
+        "ResponseDefinition": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "description": ""
+            }
+          } 
+        }
+      },
+      "paths": {
+        "/persons": {
+          "get": {
+            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
+            "parameters": [
+              {
+                "name": "size",
+                "in": "query",
+                "description": "Size of array",
+                "required": true,
+                "type": "number",
+                "format": "double"
+              },
+              {
+                "name": "employed",
+                "in": "query",
+                "description": "Size of array",
+                "required": true,
+                "type": "number",
+                "format": "double"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "schema": {
+                  "title": "ArrayOfPersons",
+                  "type": "array",
+                  "items": {
+                    "title": "Person",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "single": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "put": {
+            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
+            "parameters": [
+              {
+                "name": "size",
+                "in": "query",
+                "description": "Size of array",
+                "required": true,
+                "type": "number",
+                "format": "double"
+              },
+              {
+                "name": "employed",
+                "in": "query",
+                "description": "Size of array",
+                "required": true,
+                "type": "number",
+                "format": "double"
+              },
+              {
+                "schema": {
+                  "title": "BodyData",
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "description": ""
+                    } 
+                  }
+                },
+                "required": true,
+                "name": "docs",
+                "in": "body"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "schema": {
+                  "title": "ArrayOfPersons",
+                  "type": "array",
+                  "items": {
+                    "title": "Person",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "single": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/dinosaurs": {
+          "get": {
+            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
+            "parameters": [
+              {
+                "name": "size",
+                "in": "query",
+                "description": "Size of array",
+                "required": true,
+                "type": "number",
+                "format": "double"
+              },
+              {
+                "schema": {
+                  "$ref": "#/definitions/ResponseDefinition"
+                },
+                "required": true,
+                "name": "docs",
+                "in": "body"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "schema": {
+                  "title": "ArrayOfPersons",
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var runContext;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          bluemix: false,
+          web: true,
+          hostSwagger: true,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .inTmpDir(function(tmpDir) {
+          spec.fromSwagger = path.join(tmpDir, "swagger.json");
+          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
+        })
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    if('generated the correct config file', function() {
+      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}});
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('installs the swagger file to be hosted', function () {
+      var expectedFiles = [
+        `definitions/${executableModule}.yaml`,
+      ];
+
+      assert.file(expectedFiles);
+    });
+
+    it('generates the swift files', function() {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/DinosaursRoutes.swift`,
+        `Sources/${applicationModule}/Routes/PersonsRoutes.swift`,
+        `Sources/${applicationModule}/Routes/SwaggerRoute.swift`,
+        `Sources/${executableModule}/main.swift`,
+      ];
+      assert.file(expectedSourceFiles);
+      assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(');
     });
   });
 
