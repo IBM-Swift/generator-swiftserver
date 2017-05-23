@@ -22,7 +22,6 @@ var path = require('path');
 var fs = require('fs');
 var swaggerparser = require('swagger-parser');
 var unzip = require('unzip');
-var mv = require('mv');
 var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
 
@@ -930,7 +929,7 @@ module.exports = generators.Base.extend({
               fs.mkdirSync(dir);
           }
 
-          // Build the command
+          // Write source files to app's Source folder
           var rsync = new Rsync()
             .flags('av')
             .source('./Products_API_ServerSDK/Sources/')
@@ -941,6 +940,24 @@ module.exports = generators.Base.extend({
             if(error) {
               console.log("Finished Rsync with error " + error);
             }
+
+            // Extract dependencies from generated sdk Package.swift
+            var regex = /\.\bPackage\b.*/g
+            var fileContent = fs.readFileSync("./Products_API_ServerSDK/Package.swift", 'utf8');
+            console.log("file -> " + fileContent);
+            var packageMatches = fileContent.match(regex);
+
+            // TODO: read file to write to, get all matches, take last one index
+            // build string within loop
+
+            var index;
+            for (index = 0; index < packageMatches.length; index++) {
+              console.log("-> " + packageMatches[index]);
+              // write match to position index
+
+              // get indexOf what you just wrote + length and update position index
+            }
+
           });
 
         }));

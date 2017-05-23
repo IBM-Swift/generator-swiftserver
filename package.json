@@ -32,6 +32,7 @@
     "enjoi": "^1.0.1",
     "swagger-schema-official": "^2.0.0-",
     "swaggerize-routes": "^1.0.0",
+    "rsync": "^0.6.1",
     "swagger-parser": "^3.4.1",
     "unzip": "^0.1.11"
   },
