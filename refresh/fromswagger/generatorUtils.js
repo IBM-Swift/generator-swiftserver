@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-function baseName(path) {
-  // get the base file name from a full path.
-  var baseNameRegex = new RegExp(/([^/]+)$/);
-  var name = path.match(baseNameRegex)[1];
-  return name.split('.')[0];
+function baseName(thepath) {
+  // get the base file name without extension from a full path.
+  return path.basename(thepath).split('.')[0];
 }
 
-function convertToSwiftParameterFormat(path) {
+function convertToSwiftParameterFormat(thepath) {
   // take a swagger path and convert the parameters to swift format.
   // i.e. convert "/path/to/{param1/{param2}" to "/path/to/:param1/:param2} 
-  var newPath = path.replace(/{/g, ':');
+  var newPath = thepath.replace(/{/g, ':');
   return newPath.replace(/}/g, '');
 }
 
-function resourceNameFromPath(path) {
+function resourceNameFromPath(thepath) {
   // grab the first valid element of a path (or partial path) and return it capitalized.
-  var resourceRegex = new RegExp(/^\/*([^/]+)/);
-  var resource = path.match(resourceRegex)[1];
+  var resource = thepath.match(/^\/*([^/]+)/)[1];
   return resource.charAt(0).toUpperCase() + resource.slice(1);
 }
 
