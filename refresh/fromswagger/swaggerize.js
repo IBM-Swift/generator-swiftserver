@@ -191,7 +191,6 @@ function createEntities(api) {
 
       var sourceCode = template({entity: schema,
                                  classorstruct: 'class',
-                                 license: '// IBM',
                                  prototype: prototype,
                                  properties: properties});
     });
@@ -206,8 +205,7 @@ function createRoutes(parsed) {
     Object.keys(parsed.resources).forEach(function(resource) {
       var sourceCode = template({resource: resource,
                                  routes: parsed.resources[resource],
-                                 basepath: parsed.basepath,
-                                 license: '// IBM'});
+                                 basepath: parsed.basepath});
 
       // write the source code to its file.
       var fileName = resource + 'Routes.swift';

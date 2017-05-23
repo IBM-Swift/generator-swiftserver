@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 --}}
-{{license}}
-
 import Kitura
 import SwiftyJSON
 
@@ -25,6 +23,9 @@ func initialize{{resource}}Routes() {
         response.send(json: [:])
         next()
     }
+{{#if @last}}
+{{else}}
 
+{{/if}}
 {{/each}}
 }
