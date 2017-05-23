@@ -13,8 +13,6 @@ applications:
   disk_quota: 1024M
   buildpack: swift_buildpack
   command: <%- executableName %> --bind 0.0.0.0:$PORT
-  health-check-type: http
-  health-check-http-endpoint: /health
 <% if (hostSwagger) { -%>
   env:
     OPENAPI_SPEC: "/swagger/api"
