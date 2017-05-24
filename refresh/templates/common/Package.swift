@@ -6,7 +6,10 @@ let package = Package(
 <% if (appType === 'crud') { -%>
       Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- generatedModule %>") ]),
 <% } -%>
-      Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ])
+      Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ]),
+<% for(var i=0; i < sdkTargets.length; i++) { %>
+      Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- sdkTargets[i] %>") ]),
+<% } %>
     ],
     dependencies: [
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",             majorVersion: 1, minor: 7),

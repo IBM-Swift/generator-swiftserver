@@ -209,6 +209,7 @@ module.exports = generators.Base.extend({
       this.services = this.spec.services || {};
       // Ensure every service has a credentials object to
       // make life easier for templates
+
       Object.keys(this.services).forEach(function(serviceType) {
         this.services[serviceType].forEach(function(service, index) {
           // TODO: Further checking that service name is valid?
@@ -255,6 +256,12 @@ module.exports = generators.Base.extend({
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application';
       this.executableModule = this.projectName;
+      
+      // Target dependencies to add to the applicationModule
+      this.sdkTargets = this.spec.sdkTargets || [];
+
+      // Package dependeicies to add the Package.swift file
+      this.sdkPackages = this.spec.sdkPackages || '';
     },
 
     setDestinationRootFromSpec: function() {
@@ -1184,6 +1191,8 @@ module.exports = generators.Base.extend({
             bluemix: this.bluemix,
             services: this.services,
             capabilities: this.capabilities,
+            sdkTargets: this.sdkTargets,
+            sdkPackages: this.sdkPackages
           }
         )
       });

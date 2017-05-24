@@ -21,7 +21,6 @@ var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
 var swaggerparser = require('swagger-parser');
-var unzip = require('unzip');
 var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
 
@@ -304,10 +303,15 @@ module.exports = generators.Base.extend({
           } else {
             console.log("API name: %s, Version: %s", api.info.title, api.info.version);
             self.serverSDKName = api.info.title.split(' ').join('_') + "_ServerSDK";
-            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function(newTargets, newPackages) {
-              // self.newTargets = newTargets;
-              // self.newPackages = newPackages;
-              console.log("returned: " + newTargets);
+            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function(sdkTargets, sdkPackages) {
+
+              if(sdkTargets.length > 0) {
+                self.sdkTargets = sdkTargets;
+              }
+              if(sdkPackages.length > 0) {
+                self.sdkPackages = sdkPackages;
+              }
+              console.log("1 " + self.sdkTargets + "  2  " + self.sdkPackages);
               done();
             })
           }
@@ -883,6 +887,8 @@ module.exports = generators.Base.extend({
         metrics: this.metrics || undefined,
         autoscale: this.autoscale || undefined
       },
+      sdkTargets: this.sdkTargets || undefined,
+      sdkPackages: this.sdkPackages || undefined,
       config: {
         logger: 'helium',
         port: 8080
@@ -921,15 +927,15 @@ module.exports = generators.Base.extend({
     configureServerSDK: function() {
       if(!this.serverSDKName) return;
 
-      var unzipFolderName = this.serverSDKName;
-      fs.createReadStream(this.serverSDKName + '.zip')
-        .pipe(unzip.Extract({ path: '.' })
-        .on('close', function () {
-          // TODO: edit Package.swift file, and consider moving HTTP code to its own library, un-hard code api name
-          console.log("unzipFolder: " + unzipFolderName);
-          // integrateServerSDK('Products_API_ServerSDK');
+      // var unzipFolderName = this.serverSDKName;
+      // fs.createReadStream(this.serverSDKName + '.zip')
+      //   .pipe(unzip.Extract({ path: '.' })
+      //   .on('close', function () {
+      //     // TODO: edit Package.swift file, and consider moving HTTP code to its own library, un-hard code api name
+      //     console.log("unzipFolder: " + unzipFolderName);
+      //     // integrateServerSDK('Products_API_ServerSDK');
 
-        }));
+      //   }));
     },
 
     buildApp: function() {
