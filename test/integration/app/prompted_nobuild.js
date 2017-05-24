@@ -92,6 +92,10 @@ describe('Prompt and no build integration tests for app generator', function () 
       assert.fileContent('Sources/Application/Application.swift', 'import Configuration');
     });
 
+    it('Application.swift contains a health endpoint', function() {
+      assert.fileContent('Sources/Application/Application.swift', '"/health"');
+    });
+
     it('did not create NOTICES.txt', function() {
       assert.noFile('NOTICES.txt');
     });
