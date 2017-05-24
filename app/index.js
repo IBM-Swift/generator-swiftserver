@@ -229,7 +229,7 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    /*promptiOSSwaggerInput: function() {
+    promptiOSSwaggerInput: function() {
       if (this.skipPrompting) return;
 
       var done = this.async();
@@ -256,7 +256,8 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answers) {
 
-        var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
+        // var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
+        var fileContent = require("html-wiring").readFileAsString('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml');
 
         performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
           console.log("in callback");
@@ -264,7 +265,7 @@ module.exports = generators.Base.extend({
         })
 
       }.bind(this));
-    },*/
+    },
 
     promptServerSwaggerInput: function() {
       if (this.skipPrompting) return;
@@ -301,9 +302,8 @@ module.exports = generators.Base.extend({
           if (err) {
             console.error(err);
           } else {
-            console.log("API name: %s, Version: %s", api.info.title, api.info.version);
-            self.serverSDKName = api.info.title.split(' ').join('_') + "_ServerSDK";
-            performSDKGeneration(self.serverSDKName, "server_swift", fileContent, function(sdkTargets, sdkPackages) {
+            var sdkName = api.info.title.split(' ').join('_') + "_ServerSDK";
+            performSDKGeneration(sdkName, "server_swift", fileContent, function(sdkTargets, sdkPackages) {
 
               if(sdkTargets.length > 0) {
                 self.sdkTargets = sdkTargets;
@@ -311,7 +311,6 @@ module.exports = generators.Base.extend({
               if(sdkPackages.length > 0) {
                 self.sdkPackages = sdkPackages;
               }
-              console.log("1 " + self.sdkTargets + "  2  " + self.sdkPackages);
               done();
             })
           }
@@ -925,17 +924,11 @@ module.exports = generators.Base.extend({
     },
 
     configureServerSDK: function() {
-      if(!this.serverSDKName) return;
-
-      // var unzipFolderName = this.serverSDKName;
-      // fs.createReadStream(this.serverSDKName + '.zip')
-      //   .pipe(unzip.Extract({ path: '.' })
-      //   .on('close', function () {
-      //     // TODO: edit Package.swift file, and consider moving HTTP code to its own library, un-hard code api name
-      //     console.log("unzipFolder: " + unzipFolderName);
-      //     // integrateServerSDK('Products_API_ServerSDK');
-
-      //   }));
+      if(!this.sdkTargets) return;
+      var done = this.async();
+      integrateServerSDK(this.sdkTargets[0], function() {
+        done();
+      });
     },
 
     buildApp: function() {
