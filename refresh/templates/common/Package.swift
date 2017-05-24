@@ -5,11 +5,11 @@ let package = Package(
     targets: [
 <% if (appType === 'crud') { -%>
       Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- generatedModule %>") ]),
-<% } -%>
+<% } _%>
       Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ]),
-<% for(var i=0; i < sdkTargets.length; i++) { %>
+<%_ for(var i=0; i < sdkTargets.length; i++) { _%>
       Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- sdkTargets[i] %>") ]),
-<% } %>
+<% } -%>
     ],
     dependencies: [
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",             majorVersion: 1, minor: 7),
@@ -21,12 +21,15 @@ let package = Package(
 <% } -%>
 <% Object.keys(services).forEach(function(serviceType) { -%>
 <%-  include(`../services/${serviceType}/importDependency.swift`) %>
-<% }); -%>
+<% }); _%>
 <% Object.keys(capabilities).forEach(function(capabilityType) { -%>
 <%   if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
 <%-    include(`../capabilities/${capabilityType}/importDependency.swift`) %>
-<%   } -%>
-<% }); -%>
+<%_   } _%>
+<%_ }); _%>
+<%_ if (sdkPackages) { _%>
+        <%- sdkPackages %>
+<%_ } _%>
     ],
     exclude: ["src"]
 )
