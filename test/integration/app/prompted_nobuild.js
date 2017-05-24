@@ -632,7 +632,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                             objectstoragePassword: 'password',
                             appidTenantId: 'TENANT_ID',
                             appidClientId: 'CLIENT_ID',
-                            appidSecret: 'APP_ID_SECRET'
+                            appidSecret: 'APP_ID_SECRET',
+                            watsonConversationUsername: 'WC_USERNAME',
+                            watsonConversationPassword: 'WC_PASSWORD',
+                            watsonConversationUrl: 'WC_URL',
+                            alertNotificationUsername: 'AN_USERNAME',
+                            alertNotificationPassword: 'AN_PASSWORD',
+                            alertNotificationUrl: 'AN_URL'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -681,16 +687,16 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             'WatsonConversation': [{
               credentials: {
-                'username': '',
-                'password': '',
-                'url': ''
+                'username': 'WC_USERNAME',
+                'password': 'WC_PASSWORD',
+                'url': 'WC_URL'
               }
             }],
             'AlertNotification': [{
               credentials: {
-                'name': '',
-                'password': '',
-                'url': ''
+                'name': 'AN_USERNAME',
+                'password': 'AN_PASSWORD',
+                'url': 'AN_URL'
               }
             }]
           }
