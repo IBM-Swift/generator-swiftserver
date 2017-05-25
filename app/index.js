@@ -256,11 +256,9 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answers) {
 
-        // var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
-        var fileContent = require("html-wiring").readFileAsString('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml');
+        var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
 
         performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
-          console.log("in callback");
           done();
         })
 
@@ -294,11 +292,10 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answers) {
 
-        // var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
-        var fileContent = require("html-wiring").readFileAsString('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml');
+        var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
         
         var self = this;
-        swaggerparser.validate('/Users/tlfrankl/ibm/OpenSource/generatorCode/besty/definitions/besty.yaml', function(err, api) {
+        swaggerparser.validate(answers.serverSwaggerInputPath, function(err, api) {
           if (err) {
             console.error(err);
           } else {

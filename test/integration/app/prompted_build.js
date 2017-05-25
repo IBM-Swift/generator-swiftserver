@@ -25,6 +25,7 @@ var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
+var testResourcesPath = path.join(__dirname, '../../../test/resources');
 
 describe('Prompt and build integration tests for app generator', function () {
 
@@ -94,6 +95,52 @@ describe('Prompt and build integration tests for app generator', function () {
     it('generates an .xcodeproj file', function () {
       assert.file('notes.xcodeproj');
     });
+  });
+
+  describe('Starter with generated SDK integration', function () {
+    var runContext;
+
+    before(function () {
+      // Swift build is slow so we need to set a longer timeout for the test
+      this.timeout(300000);
+      runContext = helpers.run(appGeneratorPath)
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir: 'notes',
+                            appPattern: 'Basic',
+                            iosSwaggerInput: true,
+                            iosSwaggerInputPath: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput: true,
+                            serverSwaggerInputPath: testResourcesPath + '/petstore.yaml',
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('created a iOS SDK zip file', function() {
+      assert.file('notes_iOS_SDK.zip');
+    });
+
+    it('created a server SDK zip file', function() {
+      assert.file('Swagger_Petstore_ServerSDK.zip');
+    });
+
+    it('unzipped server SDK folder was created', function() {
+      assert.file('Swagger_Petstore_ServerSDK/README.md');
+    });
+
+    it('unzipped server SDK folder was created', function() {
+      assert.file('Swagger_Petstore_ServerSDK/README.md');
+    });
+
+    it('created Pet model from swagger file', function() {
+      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift');
+    });
+
+    it('modified Package.swift to include server SDK module', function() {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK');
+    });
+
   });
 
 });
