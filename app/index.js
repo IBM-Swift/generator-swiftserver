@@ -34,7 +34,9 @@ var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
 var sdkHelper = require('../lib/sdkGenHelper');
 var performSDKGeneration = sdkHelper.performSDKGeneration;
+var extractNewContent = sdkHelper.extractNewContent;
 var integrateServerSDK = sdkHelper.integrateServerSDK;
+
 
 module.exports = generators.Base.extend({
 
@@ -299,16 +301,20 @@ module.exports = generators.Base.extend({
           if (err) {
             console.error(err);
           } else {
-            var sdkName = api.info.title.split(' ').join('_') + "_ServerSDK";
-            performSDKGeneration(sdkName, "server_swift", fileContent, function(sdkTargets, sdkPackages) {
+            var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
 
-              if(sdkTargets.length > 0) {
-                self.sdkTargets = sdkTargets;
-              }
-              if(sdkPackages.length > 0) {
-                self.sdkPackages = sdkPackages;
-              }
-              done();
+            performSDKGeneration(sdkName, "server_swift", fileContent, function() {
+
+              extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
+                console.log("second");
+                if(sdkTargets.length > 0) {
+                  self.sdkTargets = sdkTargets;
+                }
+                if(sdkPackages.length > 0) {
+                  self.sdkPackages = sdkPackages;
+                }
+                done();
+              })
             })
           }
         });
