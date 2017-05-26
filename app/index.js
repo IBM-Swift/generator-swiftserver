@@ -29,6 +29,7 @@ var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
+var validateFilePath = helpers.validateFilePath;
 var generateServiceName = helpers.generateServiceName;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
@@ -254,15 +255,13 @@ module.exports = generators.Base.extend({
       var done = this.async();
       var prompts = [{
         name: 'iosSwaggerInputPath', 
-        message: 'Enter Swagger yaml file path:'
+        message: 'Enter Swagger yaml file path:',
+        validate: validateFilePath
       }];
       this.prompt(prompts, function(answers) {
 
-        var fileContent = require("html-wiring").readFileAsString(answers.iosSwaggerInputPath);
-
-        performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
-          done();
-        })
+        this.iOSSwaggerFile = answers.iosSwaggerInputPath;
+        done();
 
       }.bind(this));
     },
@@ -290,34 +289,42 @@ module.exports = generators.Base.extend({
       var done = this.async();
       var prompts = [{
         name: 'serverSwaggerInputPath', 
-        message: 'Enter Swagger yaml file path:'
+        message: 'Enter Swagger yaml file path:',
+        validate: validateFilePath
       }];
       this.prompt(prompts, function(answers) {
 
-        var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
+        if (this.serverSwaggerFiles === undefined) {
+          this.serverSwaggerFiles = [];
+        }
+        this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
+        done();
+
+        // var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
         
-        var self = this;
-        swaggerparser.validate(answers.serverSwaggerInputPath, function(err, api) {
-          if (err) {
-            console.error(err);
-          } else {
-            var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
+        // var self = this;
+        // swaggerparser.validate(answers.serverSwaggerInputPath, function(err, api) {
+        //   if (err) {
+        //     console.error(err);
+        //   } else {
+        //     var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
 
-            performSDKGeneration(sdkName, "server_swift", fileContent, function() {
+        //     performSDKGeneration(sdkName, "server_swift", fileContent, function() {
 
-              extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
-                console.log("second");
-                if(sdkTargets.length > 0) {
-                  self.sdkTargets = sdkTargets;
-                }
-                if(sdkPackages.length > 0) {
-                  self.sdkPackages = sdkPackages;
-                }
-                done();
-              })
-            })
-          }
-        });
+        //       extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
+
+        //         if(sdkTargets.length > 0) {
+        //           self.sdkTargets = [sdkTargets];
+        //         }
+        //         if(sdkPackages.length > 0) {
+        //           self.sdkPackages = sdkPackages;
+        //         }
+        //         done();
+        //       })
+        //       // /Users/tlfrankl/iBM/OpenSource/generatorCode/generator-swiftserver/test/resources/petstore.yaml
+        //     })
+        //   }
+        // });
 
       }.bind(this));
     },
@@ -868,6 +875,50 @@ module.exports = generators.Base.extend({
     }
   },
 
+  generateSDKs: function() {
+
+    if(!this.iOSSwaggerFile && !this.serverSwaggerFiles) return;
+    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
+    var done = this.async();
+
+    if(this.iOSSwaggerFile) {
+
+      var fileContent = require("html-wiring").readFileAsString(this.iOSSwaggerFile);
+      performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
+        if(!this.serverSwaggerFiles) done();
+      })
+    } 
+    if(this.serverSwaggerFiles) {
+      for (var index = 0; index < this.serverSwaggerFiles.length; index++) {
+        var fileContent = require("html-wiring").readFileAsString(this.serverSwaggerFiles[index]);
+      
+        var self = this;
+        swaggerparser.validate(this.serverSwaggerFiles[index], function(err, api) {
+          if (err) {
+            console.error(err);
+          } else {
+            var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
+
+            performSDKGeneration(sdkName, "server_swift", fileContent, function() {
+
+              extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
+
+                if(sdkTargets.length > 0) {
+                  self.sdkTargets = [sdkTargets];
+                }
+                if(sdkPackages.length > 0) {
+                  self.sdkPackages = sdkPackages;
+                }
+                console.log("TARGETS: " + self.sdkTargets);
+                done();
+              })
+            })
+          }
+        });
+      }
+    }
+  },
+
   createSpecFromAnswers: function() {
     if (this.skipPrompting) return;
 
@@ -929,8 +980,9 @@ module.exports = generators.Base.extend({
     configureServerSDK: function() {
       if(!this.sdkTargets) return;
       var done = this.async();
+      console.log("tar: " + this.sdkTargets[0]);
       integrateServerSDK(this.sdkTargets[0], function() {
-        done();
+        // done();
       });
     },
 
