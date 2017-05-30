@@ -232,73 +232,64 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptiOSSwaggerInput: function() {
+    promptiOSSwaggerFile: function () {
       if (this.skipPrompting) return;
-
       var done = this.async();
+
       var prompts = [{
         name: 'iosSwaggerInput',
         type: 'confirm',
         message: 'Would you like to generate an iOS SDK from a Swagger file?',
-        default: false,
-      }];
-      this.prompt(prompts, function(answers) {
-        this.iosSwaggerInput = answers.iosSwaggerInput;
-        done();
-      }.bind(this));
-    },
-
-    promptiOSSwaggerFilename: function() {
-      if (this.skipPrompting) return;
-      if (!this.iosSwaggerInput) return;
-
-      var done = this.async();
-      var prompts = [{
-        name: 'iosSwaggerInputPath', 
+        default: false
+      }, {
+        when: function(props) { return props.iosSwaggerInput; },
+        name: 'iosSwaggerInputPath',
+        type: 'input',
         message: 'Enter Swagger yaml file path:',
         validate: validateFilePath
       }];
-      this.prompt(prompts, function(answers) {
-        this.iOSSwaggerFile = answers.iosSwaggerInputPath;
-        done();
 
+      this.prompt(prompts, function (answers) {
+        if (answers.iosSwaggerInput) {
+          this.iOSSwaggerFile = answers.iosSwaggerInputPath;
+        }
+        done();
       }.bind(this));
     },
 
-    promptServerSwaggerInput: function() {
+    promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return;
-
       var done = this.async();
+
       var prompts = [{
         name: 'serverSwaggerInput',
         type: 'confirm',
         message: 'Would you like to generate an Swift server SDK from a Swagger file?',
-        default: false,
-      }];
-      this.prompt(prompts, function(answers) {
-        this.serverSwaggerInput = answers.serverSwaggerInput;
-        done();
-      }.bind(this));
-    },
-
-    promptServerSwaggerFilename: function() {
-      if (this.skipPrompting) return;
-      if (!this.serverSwaggerInput) return;
-
-      var done = this.async();
-      var prompts = [{
-        name: 'serverSwaggerInputPath', 
+        default: false
+      }, {
+        when: function(props) { return props.serverSwaggerInput; },
+        name: 'serverSwaggerInputPath',
+        type: 'input',
         message: 'Enter Swagger yaml file path:',
         validate: validateFilePath
       }];
-      this.prompt(prompts, function(answers) {
-        if (this.serverSwaggerFiles === undefined) {
-          this.serverSwaggerFiles = [];
-        }
-        this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
-        done();
 
-      }.bind(this));
+      function promptUser() {
+        this.prompt(prompts, function (answers) {
+          console.log("input: " + answers.serverSwaggerInput);
+          console.log("file: " + answers.serverSwaggerInputPath);
+          if (answers.serverSwaggerInput) {
+            if (this.serverSwaggerFiles === undefined) {
+              this.serverSwaggerFiles = [];
+            }
+            this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
+            promptUser.call(this);
+          } else {
+            done();
+          }
+        }.bind(this));
+      };
+      promptUser.call(this);
     },
 
     promptCapabilities: function() {
@@ -865,7 +856,9 @@ module.exports = generators.Base.extend({
 
     function geniOS(thisObject, callback) {
       var fileContent = require("html-wiring").readFileAsString(thisObject.iOSSwaggerFile);
+      console.log("bbbb");
       performSDKGeneration(thisObject.appname + "_iOS_SDK", "ios_swift", fileContent, function () {
+        console.log("after");
         callback(thisObject)
       });
     }
