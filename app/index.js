@@ -876,24 +876,35 @@ module.exports = generators.Base.extend({
   },
 
   generateSDKs: function() {
-
     if(!this.iOSSwaggerFile && !this.serverSwaggerFiles) return;
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
     var done = this.async();
 
-    if(this.iOSSwaggerFile) {
-
-      var fileContent = require("html-wiring").readFileAsString(this.iOSSwaggerFile);
-      performSDKGeneration(this.appname + "_iOS_SDK", "ios_swift", fileContent, function() {
-        if(!this.serverSwaggerFiles) done();
+    // Cover the different cases
+    if(this.iOSSwaggerFile && this.serverSwaggerFiles === undefined) {
+      console.log("ios and no server");
+      geniOS(this, done);
+    } else if(this.iOSSwaggerFile && this.serverSwaggerFiles !== undefined) {
+      geniOS(this, function(thisObject) {
+        genServer(thisObject, done);
       })
-    } 
-    if(this.serverSwaggerFiles) {
-      for (var index = 0; index < this.serverSwaggerFiles.length; index++) {
-        var fileContent = require("html-wiring").readFileAsString(this.serverSwaggerFiles[index]);
+    } else if(!this.iOSSwaggerFile && this.serverSwaggerFiles !== undefined) {
+      genServer(this, done);
+    }
+
+    function geniOS(thisObject, callback) {
+      var fileContent = require("html-wiring").readFileAsString(thisObject.iOSSwaggerFile);
+      performSDKGeneration(thisObject.appname + "_iOS_SDK", "ios_swift", fileContent, function () {
+        callback(thisObject)
+      });
+    }
+
+    function genServer(thisObject, callback) {
+      for (var index = 0; index < thisObject.serverSwaggerFiles.length; index++) {
+        var fileContent = require("html-wiring").readFileAsString(thisObject.serverSwaggerFiles[index]);
       
-        var self = this;
-        swaggerparser.validate(this.serverSwaggerFiles[index], function(err, api) {
+        var self = thisObject;
+        swaggerparser.validate(thisObject.serverSwaggerFiles[index], function(err, api) {
           if (err) {
             console.error(err);
           } else {
@@ -909,8 +920,7 @@ module.exports = generators.Base.extend({
                 if(sdkPackages.length > 0) {
                   self.sdkPackages = sdkPackages;
                 }
-                console.log("TARGETS: " + self.sdkTargets);
-                done();
+                callback();
               })
             })
           }
@@ -921,7 +931,6 @@ module.exports = generators.Base.extend({
 
   createSpecFromAnswers: function() {
     if (this.skipPrompting) return;
-
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
     // some may only be available via non-prompting route.
     this.spec = {
@@ -976,19 +985,17 @@ module.exports = generators.Base.extend({
         this.options.testmode ? null : { local: require.resolve('../refresh')}
       );
     },
-
+    
     configureServerSDK: function() {
       if(!this.sdkTargets) return;
       var done = this.async();
-      console.log("tar: " + this.sdkTargets[0]);
       integrateServerSDK(this.sdkTargets[0], function() {
-        // done();
+        done();
       });
     },
 
     buildApp: function() {
       if (this.skipBuild || this.options['skip-build']) return;
-
       this.composeWith(
         'swiftserver:build',
         {
