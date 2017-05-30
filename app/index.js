@@ -276,8 +276,6 @@ module.exports = generators.Base.extend({
 
       function promptUser() {
         this.prompt(prompts, function (answers) {
-          console.log("input: " + answers.serverSwaggerInput);
-          console.log("file: " + answers.serverSwaggerInputPath);
           if (answers.serverSwaggerInput) {
             if (this.serverSwaggerFiles === undefined) {
               this.serverSwaggerFiles = [];
@@ -842,33 +840,31 @@ module.exports = generators.Base.extend({
     if(!this.iOSSwaggerFile && !this.serverSwaggerFiles) return;
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
     var done = this.async();
+    var self = this; // local copy to be used in callbacks
 
     // Cover the different cases
-    if(this.iOSSwaggerFile && this.serverSwaggerFiles === undefined) {
-      geniOS(this, done);
-    } else if(this.iOSSwaggerFile && this.serverSwaggerFiles !== undefined) {
-      geniOS(this, function(thisObject) {
-        genServer(thisObject, done);
+    if(self.iOSSwaggerFile && self.serverSwaggerFiles === undefined) {
+      geniOS(done);
+    } else if(self.iOSSwaggerFile && self.serverSwaggerFiles !== undefined) {
+      geniOS(function() {
+        genServer(done);
       })
-    } else if(!this.iOSSwaggerFile && this.serverSwaggerFiles !== undefined) {
-      genServer(this, done);
+    } else if(!self.iOSSwaggerFile && self.serverSwaggerFiles !== undefined) {
+      genServer(done);
     }
 
-    function geniOS(thisObject, callback) {
-      var fileContent = require("html-wiring").readFileAsString(thisObject.iOSSwaggerFile);
-      console.log("bbbb");
-      performSDKGeneration(thisObject.appname + "_iOS_SDK", "ios_swift", fileContent, function () {
-        console.log("after");
-        callback(thisObject)
+    function geniOS(callback) {
+      var fileContent = require("html-wiring").readFileAsString(self.iOSSwaggerFile);
+      performSDKGeneration(self.appname + "_iOS_SDK", "ios_swift", fileContent, function () {
+        callback();
       });
     }
 
-    function genServer(thisObject, callback) {
-      for (var index = 0; index < thisObject.serverSwaggerFiles.length; index++) {
-        var fileContent = require("html-wiring").readFileAsString(thisObject.serverSwaggerFiles[index]);
+    function genServer(callback) {
+      for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
+        var fileContent = require("html-wiring").readFileAsString(self.serverSwaggerFiles[index]);
       
-        var self = thisObject;
-        swaggerparser.validate(thisObject.serverSwaggerFiles[index], function(err, api) {
+        swaggerparser.validate(self.serverSwaggerFiles[index], function(err, api) {
           if (err) {
             console.error(err);
           } else {
