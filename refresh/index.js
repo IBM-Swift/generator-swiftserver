@@ -626,8 +626,13 @@ module.exports = generators.Base.extend({
   },
 
   parseFromSwagger: function() {
+    var done = this.async();
     if (this.fromSwagger) {
-      this.parsedSwagger = swaggerize.parse.call(this);
+      swaggerize.parse.call(this, function(api, parsed) {
+        this.api = api;
+        this.parsedSwagger = parsed;
+        done();
+      }.bind(this));
     } 
   },
 

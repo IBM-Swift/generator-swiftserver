@@ -198,7 +198,7 @@ function createEntities(api) {
 }
 
 function createRoutes(parsed) {
-  var tPath = this.templatePath('fromswagger', 'Routes.swift');
+  var tPath = this.templatePath('fromswagger', 'Routes.swift.hbr');
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
  
@@ -214,16 +214,19 @@ function createRoutes(parsed) {
   }.bind(this));
 }
 
-function parse() {
-  if (this.fromSwagger.indexOf('http') === 0) {
-    wreck.get(this.fromSwagger, function (err, res, body) {
-      this.api = loadApi.call(this, this.fromSwagger, body);
+function parse(callback) {
+  var httpPattern = new RegExp(/^https?:\/\/\S+/);
+  if (httpPattern.test(this.fromSwagger)) {
+    wreck.get(this.fromSwagger, function (err, res, payload) {
+      var api = loadApi.call(this, this.fromSwagger, payload);
+      var parsedSwagger = parseSwagger(api);
+      callback(api, parsedSwagger);
     }.bind(this));
   } else {
-    this.api = loadApi.call(this, this.fromSwagger);
+    var api = loadApi.call(this, this.fromSwagger);
+    var parsedSwagger = parseSwagger(api);
+    setImmediate(callback, api, parsedSwagger);
   }
-
-  return parseSwagger(this.api);
 }
 
 module.exports = {createRoutes, parse};

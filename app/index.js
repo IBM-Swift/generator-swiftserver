@@ -304,14 +304,20 @@ module.exports = generators.Base.extend({
           return response.trim();
         },
         validate: function(response) {
-          // permit paths starting with './' or '../' or '/' or 'http://' or 'https://'
-          var pathPattern = new RegExp(/^\/|\.\.?\/|^https?:\/\/\S+/);
+          // permit paths starting with 'filename' or '/' or './' or '../' or 'http://' or 'https://'
+          var pathPattern = new RegExp(/^\w+|^\/|^\.\.?\/|^https?:\/\/\S+/);
           return pathPattern.test(response);
         }
       }];
       this.prompt(prompts, function(answer) {
         if (answer.path) {
-          this.fromSwagger = path.resolve(this.initialWorkingDir, answer.path);
+          var httpPattern = new RegExp(/^https?:\/\/\S+/);
+
+          if (httpPattern.test(answer.path)) {
+            this.fromSwagger = answer.path;
+          } else {
+            this.fromSwagger = path.resolve(this.initialWorkingDir, answer.path);
+          }
         }
         done();
       }.bind(this));
