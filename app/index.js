@@ -259,7 +259,6 @@ module.exports = generators.Base.extend({
         validate: validateFilePath
       }];
       this.prompt(prompts, function(answers) {
-
         this.iOSSwaggerFile = answers.iosSwaggerInputPath;
         done();
 
@@ -293,38 +292,11 @@ module.exports = generators.Base.extend({
         validate: validateFilePath
       }];
       this.prompt(prompts, function(answers) {
-
         if (this.serverSwaggerFiles === undefined) {
           this.serverSwaggerFiles = [];
         }
         this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
         done();
-
-        // var fileContent = require("html-wiring").readFileAsString(answers.serverSwaggerInputPath);
-        
-        // var self = this;
-        // swaggerparser.validate(answers.serverSwaggerInputPath, function(err, api) {
-        //   if (err) {
-        //     console.error(err);
-        //   } else {
-        //     var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
-
-        //     performSDKGeneration(sdkName, "server_swift", fileContent, function() {
-
-        //       extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
-
-        //         if(sdkTargets.length > 0) {
-        //           self.sdkTargets = [sdkTargets];
-        //         }
-        //         if(sdkPackages.length > 0) {
-        //           self.sdkPackages = sdkPackages;
-        //         }
-        //         done();
-        //       })
-        //       // /Users/tlfrankl/iBM/OpenSource/generatorCode/generator-swiftserver/test/resources/petstore.yaml
-        //     })
-        //   }
-        // });
 
       }.bind(this));
     },
@@ -882,7 +854,6 @@ module.exports = generators.Base.extend({
 
     // Cover the different cases
     if(this.iOSSwaggerFile && this.serverSwaggerFiles === undefined) {
-      console.log("ios and no server");
       geniOS(this, done);
     } else if(this.iOSSwaggerFile && this.serverSwaggerFiles !== undefined) {
       geniOS(this, function(thisObject) {
