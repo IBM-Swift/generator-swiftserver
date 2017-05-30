@@ -280,7 +280,11 @@ module.exports = generators.Base.extend({
             if (this.serverSwaggerFiles === undefined) {
               this.serverSwaggerFiles = [];
             }
-            this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
+            if(!this.serverSwaggerFiles.includes(answers.serverSwaggerInputPath)) {
+              this.serverSwaggerFiles.push(answers.serverSwaggerInputPath);
+            } else {
+              this.log(chalk.yellow('This Swagger file is already being used'));
+            }
             promptUser.call(this);
           } else {
             done();
@@ -861,6 +865,7 @@ module.exports = generators.Base.extend({
     }
 
     function genServer(callback) {
+      var numFinished = 0;
       for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
         var fileContent = require("html-wiring").readFileAsString(self.serverSwaggerFiles[index]);
       
@@ -868,19 +873,24 @@ module.exports = generators.Base.extend({
           if (err) {
             console.error(err);
           } else {
-            var sdkName = api.info.title.replace(' ', '_') + "_ServerSDK";
-
+            var sdkName = api.info.title.replace(/ /g, '_') + "_ServerSDK";
             performSDKGeneration(sdkName, "server_swift", fileContent, function() {
 
               extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
 
                 if(sdkTargets.length > 0) {
-                  self.sdkTargets = [sdkTargets];
+                  if(self.sdkTargets === undefined) {
+                    self.sdkTargets = [];
+                  }
+                  self.sdkTargets.push(sdkTargets);
                 }
                 if(sdkPackages.length > 0) {
                   self.sdkPackages = sdkPackages;
                 }
-                callback();
+                numFinished += 1;
+                if(numFinished === self.serverSwaggerFiles.length) {
+                  callback();
+                }
               })
             })
           }
@@ -949,9 +959,16 @@ module.exports = generators.Base.extend({
     configureServerSDK: function() {
       if(!this.sdkTargets) return;
       var done = this.async();
-      integrateServerSDK(this.sdkTargets[0], function() {
-        done();
-      });
+
+      var numFinished = 0, length = this.sdkTargets.length; 
+      for (var index = 0; index < length; index++) {
+        integrateServerSDK(this.sdkTargets[index], function() {
+          numFinished += 1;
+          if(numFinished === length) {
+            done();
+          }
+        });
+      }
     },
 
     buildApp: function() {
