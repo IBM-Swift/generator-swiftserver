@@ -7,9 +7,13 @@ LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu imag
 EXPOSE 8080 1024 1025
 
 # Linux OS utils
-RUN apt-get update
+#RUN apt-get update
 
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/tools-utils.sh /root/utils/tools-utils.sh
 RUN chmod +x /root/utils/tools-utils.sh
 ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/common-utils.sh /root/utils/common-utils.sh
 RUN chmod +x /root/utils/common-utils.sh
+
+ARG bx_dev_userid=root
+RUN BX_DEV_USERID=$bx_dev_userid
+RUN if [ $bx_dev_userid != "root" ]; then useradd -ms /bin/bash $bx_dev_userid; fi
