@@ -63,6 +63,9 @@ This application has been generated with the following capabilities and services
 <%   if (watsonconversation) { -%>
 * [Watson Conversation](#watsonconversation)
 <%   } -%>
+<%   if (pushnotifications) { -%>
+* [Push Notifications](#pushnotifications)
+<%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)
 <%   } -%>
@@ -180,6 +183,14 @@ Boilerplate code for creating a client object for the Watson Conversation API is
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Watson Conversation client in the boilerplate code.
 
 More information about the Watson Conversation can be found in the [README](https://github.com/watson-developer-cloud/swift-sdk#conversation)
+<%   } -%>
+<%   if (pushnotifications) { -%>
+#### Push Notifications
+This application uses the [Bluemix Push notifications package](https://github.com/ibm-bluemix-mobile-services/bms-pushnotifications-serversdk-swift), which is a Swift server-side SDK for sending push notifications via the Bluemix Push Notifications services.
+
+Boilerplate code for creating a client object for the Push Notifications API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module.
+
+The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Push Notifications client in the boilerplate code.
 <%   } -%>
 <%   if (autoscale) { -%>
 #### Auto-scaling
