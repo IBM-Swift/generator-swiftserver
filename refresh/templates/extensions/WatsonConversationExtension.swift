@@ -4,10 +4,8 @@ import CloudFoundryConfig
 
 extension Conversation {
 
-   public convenience init(service: WatsonConversationService) {
+   public convenience init(service: WatsonConversationService, version: String) {
 
-        let version = "<%- service.version %>"
-            
         self.init(username: service.username, password: service.password, version: version)
         
     }
