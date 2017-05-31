@@ -61,10 +61,10 @@ This application has been generated with the following capabilities and services
 * [AppID](#appid)
 <%   } -%>
 <%   if (watsonconversation) { -%>
-* [Watson Conversation](#watsonconversation)
+* [Watson Conversation](#watson-conversation)
 <%   } -%>
 <%   if (alertnotification) { -%>
-* [Alert Notification](#alertnotification)
+* [Alert Notification](#alert-notification)
 <%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)
@@ -182,7 +182,7 @@ Boilerplate code for creating a client object for the Watson Conversation API is
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Watson Conversation client in the boilerplate code.
 
-More information about the Watson Conversation can be found in the [README](https://github.com/watson-developer-cloud/swift-sdk#conversation)
+More information about the Watson Conversation can be found in the [README](https://github.com/watson-developer-cloud/swift-sdk#conversation).
 <%   } -%>
 <%   if (alertnotification) { -%>
 #### Alert Notification
@@ -194,7 +194,7 @@ Boilerplate code for creating a client object for the Alert Notification API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Alert Notification client in the boilerplate code.
 
-A quick start guide to the IBM Alert Notification Service on Bluemix can be found [here].(https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/)
+A quick start guide to the IBM Alert Notification Service on Bluemix can be found [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/).
 <%   } -%>
 <%   if (autoscale) { -%>
 #### Auto-scaling
