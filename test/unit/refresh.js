@@ -187,150 +187,19 @@ describe('swiftserver:refresh', function () {
         "version": "0.0.0",
         "title": "<enter your title>"
       },
-      "definitions": {
-        "ResponseDefinition": {
-          "type": "object",
-          "properties": {
-            "text": {
-              "type": "string",
-              "description": ""
-            }
-          } 
-        }
-      },
+      "basePath": "/basepath",
       "paths": {
         "/persons": {
           "get": {
-            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
-            "parameters": [
-              {
-                "name": "size",
-                "in": "query",
-                "description": "Size of array",
-                "required": true,
-                "type": "number",
-                "format": "double"
-              },
-              {
-                "name": "employed",
-                "in": "query",
-                "description": "Size of array",
-                "required": true,
-                "type": "number",
-                "format": "double"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Successful response",
-                "schema": {
-                  "title": "ArrayOfPersons",
-                  "type": "array",
-                  "items": {
-                    "title": "Person",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "single": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Gets `Person` objects.",
           },
           "put": {
-            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
-            "parameters": [
-              {
-                "name": "size",
-                "in": "query",
-                "description": "Size of array",
-                "required": true,
-                "type": "number",
-                "format": "double"
-              },
-              {
-                "name": "employed",
-                "in": "query",
-                "description": "Size of array",
-                "required": true,
-                "type": "number",
-                "format": "double"
-              },
-              {
-                "schema": {
-                  "title": "BodyData",
-                  "type": "object",
-                  "properties": {
-                    "text": {
-                      "type": "string",
-                      "description": ""
-                    } 
-                  }
-                },
-                "required": true,
-                "name": "docs",
-                "in": "body"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Successful response",
-                "schema": {
-                  "title": "ArrayOfPersons",
-                  "type": "array",
-                  "items": {
-                    "title": "Person",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "type": "string"
-                      },
-                      "single": {
-                        "type": "boolean"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Gets `Person` objects.",
           }
         },
         "/dinosaurs": {
           "get": {
-            "description": "Gets `Person` objects.\nOptional query param of **size** determines\nsize of returned array\n",
-            "parameters": [
-              {
-                "name": "size",
-                "in": "query",
-                "description": "Size of array",
-                "required": true,
-                "type": "number",
-                "format": "double"
-              },
-              {
-                "schema": {
-                  "$ref": "#/definitions/ResponseDefinition"
-                },
-                "required": true,
-                "name": "docs",
-                "in": "body"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Successful response",
-                "schema": {
-                  "title": "ArrayOfPersons",
-                  "type": "number",
-                  "format": "double"
-                }
-              }
-            }
+            "description": "Gets `Person` objects.",
           }
         }
       }
@@ -391,12 +260,9 @@ describe('swiftserver:refresh', function () {
         `Sources/${executableModule}/main.swift`,
       ];
       assert.file(expectedSourceFiles);
-      assert.file(`Sources/${applicationModule}/Routes/SwaggerRoute.swift`);
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoute(');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions');
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(');
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"');
     });
   });
 
@@ -1745,6 +1611,7 @@ describe('Generated a web application for bluemix without services', function() 
             port: 4567
           }
         };
+      spec.fromSwagger = path.join( __dirname, "../../refresh/templates/common/productSwagger.yaml");
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
@@ -1773,19 +1640,19 @@ describe('Generated a web application for bluemix without services', function() 
     });
 
     it('defines example endpoints', function() {
-      var productRoutesFile = `Sources/${applicationModule}/Routes/ProductRoutes.swift`;
-      assert.file(productRoutesFile);
-      assert.fileContent(productRoutesFile, '"/products"');
-      assert.fileContent(productRoutesFile, '"/product/:id"');
-      assert.fileContent(productRoutesFile, 'send(json: [:])');
-      assert.fileContent(productRoutesFile, 'router.get(');
-      assert.fileContent(productRoutesFile, 'router.post(');
-      assert.fileContent(productRoutesFile, 'router.put(');
-      assert.fileContent(productRoutesFile, 'router.delete(');
+      var productsRoutesFile = `Sources/${applicationModule}/Routes/ProductsRoutes.swift`;
+      assert.file(productsRoutesFile);
+      assert.fileContent(productsRoutesFile, '"/products"');
+      assert.fileContent(productsRoutesFile, '"/products/:id"');
+      assert.fileContent(productsRoutesFile, 'send(json: [:])');
+      assert.fileContent(productsRoutesFile, 'router.get(');
+      assert.fileContent(productsRoutesFile, 'router.post(');
+      assert.fileContent(productsRoutesFile, 'router.put(');
+      assert.fileContent(productsRoutesFile, 'router.delete(');
     });
 
     it('init example endpoint routes', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes()');
     });
 
     it('hosts swagger definition', function() {
@@ -1804,6 +1671,7 @@ describe('Generated a web application for bluemix without services', function() 
     });
   });
 
+
   describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
 
     var runContext;
@@ -1821,6 +1689,7 @@ describe('Generated a web application for bluemix without services', function() 
             port: 4567
           }
         };
+      spec.fromSwagger = path.join( __dirname, "../../refresh/templates/common/productSwagger.yaml");
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec

@@ -71,10 +71,6 @@ public func initialize() throws {
 <% if (hostSwagger) { -%>
     initializeSwaggerRoute(path: ConfigurationManager.BasePath.project.path + "/definitions/<%- appName %>.yaml")
 <% } -%>
-<% if (exampleEndpoints) { -%>
-    initializeProductRoutes()
-<% } -%>
-
     router.get("/health") { request, response, _ in
         try response.send(json: ["status": "UP"]).end()
     }

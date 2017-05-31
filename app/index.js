@@ -235,7 +235,6 @@ module.exports = generators.Base.extend({
           case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
           case 'metrics':          return 'Embedded metrics dashboard';
           case 'docker':           return 'Docker files';
-          case 'exampleEndpoints': return 'Example endpoints';
           case 'fromSwagger':      return 'From Swagger';
           case 'bluemix':          return 'Bluemix cloud deployment';
           default:
@@ -254,8 +253,8 @@ module.exports = generators.Base.extend({
                                 'Bluemix cloud deployment'];
           case 'Bff':   return ['OpenAPI / Swagger endpoint',
                                 'Embedded metrics dashboard',
-                                'Example endpoints',
                                 'Static web file serving',
+                                'From Swagger',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
           default:
@@ -267,7 +266,6 @@ module.exports = generators.Base.extend({
       var defaults = choices.map(displayName);
 
       if (this.appType === 'scaffold') {
-        choices.unshift('exampleEndpoints');
         choices.unshift('fromSwagger');
         choices.unshift('hostSwagger');
         choices.unshift('web');
@@ -294,9 +292,16 @@ module.exports = generators.Base.extend({
       if (this.appType !== 'scaffold') return;
       if (!this.fromSwagger) return;
       var done = this.async();
+      var choices = {'customSwagger': 'Generate from a custom swagger file',
+                     'exampleEndpoints': 'Swagger example endpoints'};
 
       this.hostSwagger = true;
       var prompts = [{
+        name: 'swaggerChoice',
+        type: 'list',
+        message: 'Select type of generation:',
+        choices: [choices.customSwagger, choices.exampleEndpoints]
+      },{
         name: 'path',
         type: 'String',
         message: 'Provide the path to a swagger file:',
@@ -307,16 +312,22 @@ module.exports = generators.Base.extend({
           // permit paths starting with 'filename' or '/' or './' or '../' or 'http://' or 'https://'
           var pathPattern = new RegExp(/^\w+|^\/|^\.\.?\/|^https?:\/\/\S+/);
           return pathPattern.test(response);
-        }
+        },
+        when: function(question) {
+                return (question.swaggerChoice === choices.customSwagger);
+              }
       }];
-      this.prompt(prompts, function(answer) {
-        if (answer.path) {
+      this.prompt(prompts, function(answers) {
+        if (answers.swaggerChoice === choices.exampleEndpoints) {
+          this.exampleEndpoints = true;
+          this.fromSwagger = this.templatePath('..', '..', 'refresh', 'templates', 'common', 'productSwagger.yaml');
+        } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
 
-          if (httpPattern.test(answer.path)) {
-            this.fromSwagger = answer.path;
+          if (httpPattern.test(answers.path)) {
+            this.fromSwagger = answers.path;
           } else {
-            this.fromSwagger = path.resolve(this.initialWorkingDir, answer.path);
+            this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path);
           }
         }
         done();

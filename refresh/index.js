@@ -626,14 +626,14 @@ module.exports = generators.Base.extend({
   },
 
   parseFromSwagger: function() {
+    if (!this.fromSwagger) return;
+
     var done = this.async();
-    if (this.fromSwagger) {
-      swaggerize.parse.call(this, function(api, parsed) {
-        this.api = api;
-        this.parsedSwagger = parsed;
-        done();
-      }.bind(this));
-    } 
+    swaggerize.parse.call(this, function(loadedApi, parsed) {
+      this.loadedApi = loadedApi;
+      this.parsedSwagger = parsed;
+      done();
+    }.bind(this));
   },
 
   writing: {
@@ -693,7 +693,6 @@ module.exports = generators.Base.extend({
             web: this.web,
             hostSwagger: this.hostSwagger,
             parsedSwagger: this.parsedSwagger,
-            exampleEndpoints: this.exampleEndpoints
           }
         );
       });
@@ -742,18 +741,7 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
-      if (this.exampleEndpoints) {
-        this.fs.copy(
-          this.templatePath('common', 'ProductRoutes.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Routes', 'ProductRoutes.swift')
-        );
-        this.fs.copy(
-          this.templatePath('common', 'productSwagger.yaml'),
-          this.destinationPath('definitions', `${this.projectName}.yaml`)
-        );
-      }
-
-      if (this.web && (this.fromSwagger || this.exampleEndpoints)) {
+      if (this.web && this.fromSwagger) {
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
@@ -792,12 +780,12 @@ module.exports = generators.Base.extend({
     },
 
     createFromSwagger: function() {
-      if (this.fromSwagger) {
+      if (this.parsedSwagger) {
         swaggerize.createRoutes.call(this, this.parsedSwagger);
 
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
         this.conflicter.force = true;
-        this.fs.write(swaggerFilename, YAML.safeDump(this.api));
+        this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi));
       }
     },
 

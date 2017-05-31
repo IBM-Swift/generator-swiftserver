@@ -24,6 +24,7 @@ var enjoi = require('enjoi');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
 var YAML = require('js-yaml');
+var chalk = require('chalk');
 
 var builderUtils = require('swaggerize-routes/lib/utils');
 
@@ -120,7 +121,7 @@ function parseSwagger(api) {
 
         // process the responses. 200 and default are probably the only ones that make any sense.
         ['200', 'default'].forEach(function(responseType) {
-          if (api.paths[path][verb].responses[responseType]) {
+          if (api.paths[path][verb].responses && api.paths[path][verb].responses[responseType]) {
             var responses = api.paths[path][verb].responses;
             if (responses[responseType] && responses[responseType].schema) {
               if (responses[responseType].schema.$ref) {
@@ -178,25 +179,6 @@ function parseSwagger(api) {
   return parsed;
 }
 
-function createEntities(api) {
-  var tpath = this.templatePath('fromswagger', 'Entity.swift');
-  filesys.readFile(tpath, 'utf-8', function (err, data) {
-    var template = handlebars.compile(data);
-    var schemas = getSchemaDefinitions(api);
-
-    // walk the schemas and create entity objects from which we can build the templated code.
-    Object.keys(schemas).forEach(function(schema) {
-      var prototype = methParamsFromSchema(schemas[schema]);
-      var properties = methPropertiesFromSchema(schemas[schema]);
-
-      var sourceCode = template({entity: schema,
-                                 classorstruct: 'class',
-                                 prototype: prototype,
-                                 properties: properties});
-    });
-  });
-}
-
 function createRoutes(parsed) {
   var tPath = this.templatePath('fromswagger', 'Routes.swift.hbr');
   filesys.readFile(tPath, 'utf-8', function (err, data) {
@@ -218,14 +200,18 @@ function parse(callback) {
   var httpPattern = new RegExp(/^https?:\/\/\S+/);
   if (httpPattern.test(this.fromSwagger)) {
     wreck.get(this.fromSwagger, function (err, res, payload) {
-      var api = loadApi.call(this, this.fromSwagger, payload);
-      var parsedSwagger = parseSwagger(api);
-      callback(api, parsedSwagger);
+      if (err || (res && res.statusCode !== 200)) {
+        this.env.error(chalk.red("failed to load swagger from:" + this.fromSwagger));
+      }
+
+      var loadedApi = loadApi.call(this, this.fromSwagger, payload);
+      var parsedSwagger = parseSwagger(loadedApi);
+      callback(loadedApi, parsedSwagger);
     }.bind(this));
   } else {
-    var api = loadApi.call(this, this.fromSwagger);
-    var parsedSwagger = parseSwagger(api);
-    setImmediate(callback, api, parsedSwagger);
+    var loadedApi = loadApi.call(this, this.fromSwagger);
+    var parsedSwagger = parseSwagger(loadedApi);
+    setImmediate(callback, loadedApi, parsedSwagger);
   }
 }
 
