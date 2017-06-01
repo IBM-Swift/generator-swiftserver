@@ -61,13 +61,13 @@ This application has been generated with the following capabilities and services
 * [AppID](#appid)
 <%   } -%>
 <%   if (watsonconversation) { -%>
-* [Watson Conversation](#watsonconversation)
+* [Watson Conversation](#watson-conversation)
 <%   } -%>
 <%   if (alertnotification) { -%>
-* [Alert Notification](#alertnotification)
+* [Alert Notification](#alert-notification)
 <%   } -%>
 <%   if (pushnotifications) { -%>
-* [Push Notifications](#pushnotifications)
+* [Push Notifications](#push-notifications)
 <%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)

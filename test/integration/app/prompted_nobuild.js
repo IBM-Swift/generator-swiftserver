@@ -713,9 +713,9 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             'PushNotifications': [{
               credentials: {
-                'region': '',
-                'guid': '',
-                'secret': ''
+                'region': 'PN_REGION',
+                'guid': 'PN_GUID',
+                'secret': 'PN_SECRET'
               }
             }]
           }
