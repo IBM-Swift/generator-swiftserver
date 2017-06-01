@@ -23,6 +23,7 @@ var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
+var fs = require('fs');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
 
@@ -215,7 +216,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             appType: 'Scaffold a starter',
                             name: 'notes',
                             dir:  'notes',
-                            appPattern: 'Backend for frontend'
+                            appPattern: 'Backend for frontend',
+                            swaggerChoice: 'Swagger example endpoints'
                           });
       return runContext.toPromise();
     });
@@ -238,7 +240,7 @@ describe('Prompt and no build integration tests for app generator', function () 
 
     describe('Example endpoints', function() {
       it('created example endpoints', function() {
-        assert.file(`Sources/Application/Routes/ProductRoutes.swift`);
+        assert.file(`Sources/Application/Routes/ProductsRoutes.swift`);
       });
 
       it('created example swagger definition', function() {
@@ -293,6 +295,62 @@ describe('Prompt and no build integration tests for app generator', function () 
     describe('Bluemix cloud deployment + Docker files', function() {
       it('created bluemix dev CLI config file', function() {
         assert.file('cli-config.yml');
+      });
+    });
+  });
+
+  describe('BFF application with custom swagger', function() {
+    var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "basePath": "/basepath",
+      "paths": {
+        "/persons": {
+          "get": {
+            "description": "Gets `Person` objects.",
+          },
+          "put": {
+            "description": "Puts `Person` objects.",
+          }
+        },
+        "/dinosaurs": {
+          "get": {
+            "description": "Gets `Dinosaur` objects.",
+          }
+        }
+      }
+    };
+
+    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    var runContext;
+
+    before(function() {
+      runContext = helpers.run(appGeneratorPath)
+                          .inTmpDir(function(tmpDir) {
+                            var swaggerPath = path.join(tmpDir, "swagger.json");
+                            fs.writeFileSync(swaggerPath, JSON.stringify(swagger));
+                            this.answers.path = swaggerPath;
+                          })
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: 'notes',
+                            dir:  'notes',
+                            appPattern: 'Backend for frontend',
+                            swaggerChoice: 'Generate from a custom swagger file'
+                            // path is being set in the inTmpDir call
+                          })
+
+      return runContext.toPromise();
+    });
+
+    describe('Example endpoints', function() {
+      it('created example endpoints', function() {
+        assert.file(`Sources/Application/Routes/PersonsRoutes.swift`);
+        assert.file(`Sources/Application/Routes/DinosaursRoutes.swift`);
       });
     });
   });
