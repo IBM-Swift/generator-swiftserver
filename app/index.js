@@ -265,7 +265,7 @@ module.exports = generators.Base.extend({
       var prompts = [{
         name: 'serverSwaggerInput' + depth,
         type: 'confirm',
-        message: 'Would you like to generate an Swift server SDK from a Swagger file?',
+        message: 'Would you like to generate a Swift server SDK from a Swagger file?',
         default: false
       }, {
         when: function(props) { return props[Object.keys(props)[0]]; },
