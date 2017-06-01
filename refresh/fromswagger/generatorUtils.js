@@ -20,7 +20,7 @@ function baseName(thepath) {
 
 function convertToSwiftParameterFormat(thepath) {
   // take a swagger path and convert the parameters to swift format.
-  // i.e. convert "/path/to/{param1/{param2}" to "/path/to/:param1/:param2} 
+  // i.e. convert "/path/to/{param1}/{param2}" to "/path/to/:param1/:param2" 
   var newPath = thepath.replace(/{/g, ':');
   return newPath.replace(/}/g, '');
 }

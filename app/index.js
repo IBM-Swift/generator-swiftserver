@@ -303,7 +303,7 @@ module.exports = generators.Base.extend({
         choices: [choices.customSwagger, choices.exampleEndpoints]
       },{
         name: 'path',
-        type: 'String',
+        type: 'input',
         message: 'Provide the path to a swagger file:',
         filter: function(response) {
           return response.trim();
@@ -316,11 +316,19 @@ module.exports = generators.Base.extend({
         when: function(question) {
                 return (question.swaggerChoice === choices.customSwagger);
               }
+      },{
+        name: 'swaggerUI',
+        type: 'confirm',
+        message: 'Host the swagger UI'
       }];
       this.prompt(prompts, function(answers) {
+        this.swaggerUI = answers.swaggerUI;
+        if (this.swaggerUI === true) {
+          this.web = true;
+        }
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true;
-          this.fromSwagger = this.templatePath('..', '..', 'refresh', 'templates', 'common', 'productSwagger.yaml');
+          this.fromSwagger = true;
         } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
 
@@ -692,6 +700,7 @@ module.exports = generators.Base.extend({
       exampleEndpoints: this.exampleEndpoints || undefined,
       fromSwagger: this.fromSwagger || undefined,
       hostSwagger: this.hostSwagger || undefined,
+      swaggerUI: this.swaggerUI || undefined,
       services: this.services || {},
       crudservice: this.crudservice,
       capabilities: {

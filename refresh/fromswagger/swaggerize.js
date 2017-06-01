@@ -180,7 +180,7 @@ function parseSwagger(api) {
 }
 
 function createRoutes(parsed) {
-  var tPath = this.templatePath('fromswagger', 'Routes.swift.hbr');
+  var tPath = this.templatePath('fromswagger', 'Routes.swift.hbs');
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
  
@@ -201,17 +201,26 @@ function parse(callback) {
   if (httpPattern.test(this.fromSwagger)) {
     wreck.get(this.fromSwagger, function (err, res, payload) {
       if (err || (res && res.statusCode !== 200)) {
-        this.env.error(chalk.red("failed to load swagger from:" + this.fromSwagger));
+        this.env.error(chalk.red("failed to load swagger from: " + this.fromSwagger));
       }
 
-      var loadedApi = loadApi.call(this, this.fromSwagger, payload);
-      var parsedSwagger = parseSwagger(loadedApi);
-      callback(loadedApi, parsedSwagger);
+      try {
+        var loadedApi = loadApi.call(this, this.fromSwagger, payload);
+        callback(loadedApi, parseSwagger(loadedApi));
+      } catch (e) {
+        this.env.error(chalk.red("failed to parse swagger from: " + this.fromSwagger));
+      }
     }.bind(this));
   } else {
     var loadedApi = loadApi.call(this, this.fromSwagger);
-    var parsedSwagger = parseSwagger(loadedApi);
-    setImmediate(callback, loadedApi, parsedSwagger);
+    if (loadedApi === undefined) {
+      this.env.error(chalk.red("failed to load swagger from: " + this.fromSwagger));
+    }
+    try {
+      setImmediate(callback, loadedApi, parseSwagger(loadedApi));
+    } catch (e) {
+      this.env.error(chalk.red("failed to parse swagger from: " + this.fromSwagger));
+    }
   }
 }
 

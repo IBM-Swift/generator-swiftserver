@@ -196,8 +196,16 @@ module.exports = generators.Base.extend({
       // Generation from Swagger
       this.fromSwagger = this.spec.fromSwagger || undefined;
 
+      // Generation of example endpoints from the productSwagger.yaml example.
+      if (this.exampleEndpoints && this.fromSwagger === true) {
+        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
+      }
+
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true);
+
+      // Swagger UI
+      this.swaggerUI = (this.spec.swaggerUI === true);
 
       // Service configuration
       this.services = this.spec.services || {};
@@ -680,6 +688,10 @@ module.exports = generators.Base.extend({
       });
 
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
+				var resources;
+				if (this.parsedSwagger && this.parsedSwagger.resources) {
+          resources = Object.keys(this.parsedSwagger.resources);
+        }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
           filepath,
@@ -692,7 +704,7 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
             web: this.web,
             hostSwagger: this.hostSwagger,
-            parsedSwagger: this.parsedSwagger,
+            resources: resources
           }
         );
       });
@@ -741,7 +753,7 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
-      if (this.web && this.fromSwagger) {
+      if (this.web && this.swaggerUI) {
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
@@ -784,7 +796,6 @@ module.exports = generators.Base.extend({
         swaggerize.createRoutes.call(this, this.parsedSwagger);
 
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-        this.conflicter.force = true;
         this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi));
       }
     },
