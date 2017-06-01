@@ -1390,7 +1390,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to a push notifications service', function () {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(bluemixRegion: region, bluemixAppGuid: guid, bluemixAppSecret: secret)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService)');
     });
 
   });
