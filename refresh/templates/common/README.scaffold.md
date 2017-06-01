@@ -66,11 +66,8 @@ This application has been generated with the following capabilities and services
 <%   if (alertnotification) { -%>
 * [Alert Notification](#alert-notification)
 <%   } -%>
-<%   if (alertnotification) { -%>
-* [Alert Notification](#alertnotification)
-<%   } -%>
 <%   if (pushnotifications) { -%>
-* [Push Notifications](#pushnotifications)
+* [Push Notifications](#push-notifications)
 <%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)
