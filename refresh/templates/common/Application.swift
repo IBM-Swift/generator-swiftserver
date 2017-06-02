@@ -67,6 +67,10 @@ public func initialize() throws {
 <% if (exampleEndpoints) { -%>
     initializeProductRoutes()
 <% } -%>
+
+    router.get("/health") { request, response, _ in
+        try response.send(json: ["status": "UP"]).end()
+    }
 }
 
 public func run() throws {

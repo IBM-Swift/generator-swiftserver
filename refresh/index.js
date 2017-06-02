@@ -695,6 +695,22 @@ module.exports = generators.Base.extend({
         });
       }
 
+      this._ifNotExistsInProject(['Tests', this.applicationModule + 'Tests', 'RouteTests.swift'], (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('common', 'RouteTests.swift'),
+          filepath,
+          { applicationModule: this.applicationModule }
+        );
+      });
+
+      this._ifNotExistsInProject(['Tests', 'LinuxMain.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'LinuxMain.swift'),
+            filepath,
+            { applicationModule: this.applicationModule }
+          );
+      });
+
       if (this.hostSwagger) {
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
           this.fs.copyTpl(
@@ -747,7 +763,9 @@ module.exports = generators.Base.extend({
             cloudant: this.services.cloudant && this.services.cloudant.length > 0,
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
-            appid: this.services.appid && this.services.appid.length > 0
+            appid: this.services.appid && this.services.appid.length > 0,
+            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0,
+            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
@@ -981,6 +999,22 @@ module.exports = generators.Base.extend({
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'AppIDExtension.swift'),
+              filepath
+            );
+          });
+        }
+        if(serviceType === 'watsonconversation') {
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'WatsonConversationExtension.swift'),
+              filepath
+            );
+          });
+        }
+        if(serviceType === 'alertnotification') {
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'AlertNotificationExtension.swift'),
               filepath
             );
           });

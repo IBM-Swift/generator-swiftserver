@@ -76,12 +76,24 @@ describe('Prompt and no build integration tests for app generator', function () 
       assert.file('Sources/Application/Application.swift');
     });
 
+    it('created an RouteTests.swift file', function() {
+      assert.file('Tests/ApplicationTests/RouteTests.swift');
+    });
+
+    it('created an LinuxMain.swift file', function() {
+      assert.file('Tests/LinuxMain.swift');
+    });
+
     it('Package.swift contains Configuration dependency', function() {
       assert.fileContent('Package.swift', '/Configuration');
     });
 
     it('Application.swift references Configuration', function() {
       assert.fileContent('Sources/Application/Application.swift', 'import Configuration');
+    });
+
+    it('Application.swift contains a health endpoint', function() {
+      assert.fileContent('Sources/Application/Application.swift', '"/health"');
     });
 
     it('did not create NOTICES.txt', function() {
@@ -318,17 +330,19 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                             cloudantName: 'testCloudant',
                             redisName: 'testRedis',
                             objectstorageName: 'testObjectStorage',
-                            appIDName: 'testAppID'
+                            appIDName: 'testAppID',
+                            watsonConversationName: 'testWatsonConversation',
+                            alertNotificationName: 'testAlertNotification'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
+    it('config.json contains the correct values for cloudant, redis, objectstorage, appid, watsonconversation and alertnotification service names', function () {
       var expected = {
         vcap: {
           services: {
@@ -343,6 +357,12 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             AdvancedMobileAccess: [{
               name: 'testAppID'
+            }],
+            'WatsonConversation': [{
+              name: 'testWatsonConversation'
+            }],
+            'AlertNotification': [{
+              name: 'testAlertNotification'
             }]
           }
         }
@@ -362,8 +382,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -373,6 +393,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                            ['config.json', /\s\"name\":\s\"notes-Redis-\w{4}\",/],
                            ['config.json', /\s\"name\":\s\"notes-ObjectStorage-\w{4}\",/],
                            ['config.json', /\s\"name\":\s\"notes-AppID-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-WatsonConversation-\w{4}\",/],
+                           ['config.json', /\s\"name\":\s\"notes-AlertNotification-\w{4}\",/]
                          ]);
     });
   });
@@ -514,13 +536,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage and appid services', function () {
+    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage, appid, watsonconversation, and alertnotification services', function () {
       var expected = {
         vcap: {
           services: {
@@ -561,6 +583,20 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'tenantId': '',
                 'version': 3
               }
+            }],
+            'WatsonConversation': [{
+              credentials: {
+                'username': '',
+                'password': '',
+                'url': ''
+              }
+            }],
+            'AlertNotification': [{
+              credentials: {
+                'name': '',
+                'password': '',
+                'url': ''
+              }
             }]
           }
         }
@@ -580,8 +616,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                             cloudantHost: 'bluemix.cloudant',
                             cloudantPort: 443,
                             cloudantSecured: true,
@@ -596,7 +632,13 @@ describe('Prompt and no build integration tests for app generator', function () 
                             objectstoragePassword: 'password',
                             appidTenantId: 'TENANT_ID',
                             appidClientId: 'CLIENT_ID',
-                            appidSecret: 'APP_ID_SECRET'
+                            appidSecret: 'APP_ID_SECRET',
+                            watsonConversationUsername: 'WC_USERNAME',
+                            watsonConversationPassword: 'WC_PASSWORD',
+                            watsonConversationUrl: 'WC_URL',
+                            alertNotificationUsername: 'AN_USERNAME',
+                            alertNotificationPassword: 'AN_PASSWORD',
+                            alertNotificationUrl: 'AN_URL'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -642,6 +684,20 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'tenantId': 'TENANT_ID',
                 'version': 3
               }
+            }],
+            'WatsonConversation': [{
+              credentials: {
+                'username': 'WC_USERNAME',
+                'password': 'WC_PASSWORD',
+                'url': 'WC_URL'
+              }
+            }],
+            'AlertNotification': [{
+              credentials: {
+                'name': 'AN_USERNAME',
+                'password': 'AN_PASSWORD',
+                'url': 'AN_URL'
+              }
             }]
           }
         }
@@ -661,12 +717,14 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir: 'notes',
                             appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID'],
+                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification'],
+                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification'],
                             cloudantName: 'cloudantService',
                             redisName: 'redisService',
                             objectstorageName: 'objStoreService',
-                            appIDName: 'appIDService'
+                            appIDName: 'appIDService',
+                            watsonConversationName: 'watsonConversationService',
+                            alertNotificationName: 'alertNotificationService'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -685,6 +743,14 @@ describe('Prompt and no build integration tests for app generator', function () 
 
     it('sets the correct plan for appID', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"Graduated tier" "appIDService"')
+    });
+
+    it('sets the correct plan for watson conversation', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Free" "watsonConversationService"')
+    });
+
+    it('sets the correct plan for alert notification', function () {
+      assert.fileContent('.bluemix/pipeline.yml', '"Authorized Users" "alertNotificationService"')
     });
   });
 

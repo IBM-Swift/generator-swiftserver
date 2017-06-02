@@ -1,3 +1,18 @@
+2017-06-01, Version 2.2.0
+=========================
+
+* Rework service.version variable extraction (#216)
+* Readme for Alert Notification (#215)
+* Improve integration tests for new services (#211)
+* Add initial health endpoint (#208)
+* Increase mocha default timeout for test stability (#212)
+* Fix docker using root user on Linux (#185)
+* Improve support for debugging with docker (#210)
+* Fix minor issues in watson tests (#209)
+* Add Alert notification service (#206)
+* Added Tests folder with a basic test example to common files (#202)
+* Add Watson conversation service (#205)
+
 2017-05-12, Version 2.1.0
 =========================
 

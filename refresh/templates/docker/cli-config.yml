@@ -1,3 +1,4 @@
+version : 0.0.2
 container-name-run : "<%- cleanAppName.toLowerCase() %>-swift-run"
 container-name-tools : "<%- cleanAppName.toLowerCase() %>-swift-tools"
 image-name-run : "<%- cleanAppName.toLowerCase() %>-swiftrun"
@@ -12,4 +13,4 @@ test-cmd : "/root/utils/tools-utils.sh test"
 container-path-run : "/root/project"
 container-path-tools : "/root/project"
 container-port-map : "8080:8080"
-container-port-map-debug : "1024:1024,1025:1025"
+container-port-map-debug : "2048:1024,2049:1025"

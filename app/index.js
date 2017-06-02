@@ -316,7 +316,7 @@ module.exports = generators.Base.extend({
       if (!this.bluemix) return;
       var done = this.async();
 
-      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling'];
+      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification'];
 
       var prompts = [{
         name: 'services',
@@ -337,6 +337,12 @@ module.exports = generators.Base.extend({
         }
         if (answers.services.indexOf('AppID') !== -1) {
           this._addService('appid',  { name: generateServiceName(this.appname, 'AppID') });
+        }
+        if (answers.services.indexOf('Watson Conversation') !== -1) {
+          this._addService('watsonconversation',  { name: generateServiceName(this.appname, 'WatsonConversation') });
+        }
+        if (answers.services.indexOf('Alert Notification') !== -1) {
+          this._addService('alertnotification',  { name: generateServiceName(this.appname, 'AlertNotification') });
         }
         if (answers.services.indexOf('Auto-scaling') !== -1) {
           this.autoscale = generateServiceName(this.appname, 'AutoScaling');
@@ -385,10 +391,12 @@ module.exports = generators.Base.extend({
       var self = this;
       function serviceDisplayType(serviceType) {
         switch (serviceType) {
-          case 'cloudant':      return 'Cloudant / CouchDB';
-          case 'redis':         return 'Redis';
-          case 'objectstorage': return 'Object Storage';
-          case 'appid':         return 'AppID';
+          case 'cloudant':            return 'Cloudant / CouchDB';
+          case 'redis':               return 'Redis';
+          case 'objectstorage':       return 'Object Storage';
+          case 'appid':               return 'AppID';
+          case 'watsonconversation':  return 'Watson Conversation';
+          case 'alertnotification':  return 'Alert Notification';
           default:
             self.env.error(chalk.red(`Internal error: unknown service type ${serviceType}`));
         }
@@ -486,6 +494,62 @@ module.exports = generators.Base.extend({
           host: answers.redisHost || undefined,
           port: answers.redisPort || undefined,
           password: answers.redisPassword || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureWatsonConversation: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.watsonconversation) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Watson Conversation');
+      var prompts = [
+        { name: 'watsonConversationName', message: 'Enter name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'watsonConversationUsername', message: 'Enter username (blank for none):' },
+        { name: 'watsonConversationPassword', message: 'Enter password:', type: 'password' },
+        { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' },
+        { name: 'watsonConversationVersion', message: 'Enter version (blank for none):' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name;
+        this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version;
+        this.services.watsonconversation[0].credentials = {
+          username: answers.watsonConversationUsername || undefined,
+          password: answers.watsonConversationPassword || undefined,
+          url: answers.watsonConversationUrl || undefined
+        };
+        done();
+      }.bind(this));
+    },
+
+    promptConfigureAlertNotification: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.alertnotification) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Alert Notification');
+      var prompts = [
+        { name: 'alertNotificationName', message: 'Enter service name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'alertNotificationUsername', message: 'Enter username (blank for none):' },
+        { name: 'alertNotificationPassword', message: 'Enter password:', type: 'password' },
+        { name: 'alertNotificationUrl', message: 'Enter url (blank for none):' }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.alertnotification[0].name = answers.alertNotificationName || this.services.alertnotification[0].name;
+        this.services.alertnotification[0].credentials = {
+          name: answers.alertNotificationUsername || undefined,
+          password: answers.alertNotificationPassword || undefined,
+          url: answers.alertNotificationUrl || undefined
         };
         done();
       }.bind(this));

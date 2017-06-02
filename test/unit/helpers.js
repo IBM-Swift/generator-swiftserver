@@ -169,7 +169,9 @@ describe('helpers', function () {
       var services = {cloudant:[{credentials:{}}],
                       redis:[{credentials:{}}],
                       objectstorage:[{credentials:{}}],
-                      appid:[{credentials:{}}]
+                      appid:[{credentials:{}}],
+                      watsonconversation:[{credentials:{}}],
+                      alertnotification:[{credentials:{}}]
                      };
       var expected = {vcap:{services:{"cloudantNoSQLDB":[{label:"cloudantNoSQLDB",
                                                           tags:[],
@@ -201,7 +203,19 @@ describe('helpers', function () {
                                                                             profilesUrl:"",
                                                                             secret:"",
                                                                             tenantId:"",
-                                                                            version:3}}]
+                                                                            version:3}}],
+                                      "WatsonConversation":[{label:"WatsonConversation",
+                                                             tags:[],
+                                                             plan:"Free",
+                                                             credentials:{username:"",
+                                                                          password:"",
+                                                                          url:""}}],
+                                      "AlertNotification":[{label:"AlertNotification",
+                                                            tags:[],
+                                                            plan:"Authorized Users",
+                                                            credentials:{name:"",
+                                                                         password:"",
+                                                                         url:""}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -237,7 +251,17 @@ describe('helpers', function () {
                                            profilesUrl:"profilesUrl",
                                            secret:"secret",
                                            tenantId:"tenantId",
-                                           version:1}}]
+                                           version:1}}],
+                      watsonconversation:[{label:"testwatsonconversation",
+                                           plan:"free",
+                                           credentials:{username:'username',
+                                                        password:'password',
+                                                        url:"https://api.watson"}}],
+                      alertnotification:[{label:"testalertnotification",
+                                          plan:"authorizedusers",
+                                          credentials:{name:'username',
+                                                       password:'password',
+                                                       url:"https://api.alerts"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
                                                      tags:[],
@@ -272,7 +296,18 @@ describe('helpers', function () {
                                                                profilesUrl:"profilesUrl",
                                                                secret:"secret",
                                                                tenantId:"tenantId",
-                                                               version:1}}]
+                                                               version:1}}],
+                                      testwatsonconversation:[{label:"testwatsonconversation",
+                                                               tags:[],
+                                                               plan:"free",
+                                                               credentials:{username:'username',
+                                                                            password:'password',
+                                                                            url:"https://api.watson"}}],
+                                      testalertnotification:[{label:"testalertnotification",
+                                                              tags:[],
+                                                              credentials:{name:'username',
+                                                                           password:'password',
+                                                                           url:"https://api.alerts"}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -297,6 +332,14 @@ describe('helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('appid'), 'AdvancedMobileAccess');
     });
 
+    it('get label for watsonconversation', function() {
+      assert.equal(helpers.getBluemixServiceLabel('watsonconversation'), 'WatsonConversation');
+    });
+
+    it('get label for alertnotification', function() {
+      assert.equal(helpers.getBluemixServiceLabel('alertnotification'), 'AlertNotification');
+    });
+
     it('get label for unrecognised value', function() {
       assert.equal(helpers.getBluemixServiceLabel('unrecognised'), 'unrecognised');
     });
@@ -317,6 +360,14 @@ describe('helpers', function () {
 
     it('get default plan for appid', function() {
       assert.equal(helpers.getBluemixDefaultPlan('appid'), 'Graduated tier');
+    });
+
+    it('get default plan for watsonconversation', function() {
+      assert.equal(helpers.getBluemixDefaultPlan('watsonconversation'), 'Free');
+    });
+
+    it('get default plan for alertnotification', function() {
+      assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'Authorized Users');
     });
 
     it('get default plan for unrecognised value', function() {

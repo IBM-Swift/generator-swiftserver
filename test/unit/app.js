@@ -323,7 +323,7 @@ describe('swiftserver:app', function () {
 
   describe('An invalid application name is supplied via the command line. ' +
            'The current directory is also an invalid application name format ' +
-           'which cannot be santized. ' +
+           'which cannot be sanitized. ' +
            'Ensure that we fall back to the default name of "app".',
             function () {
 
