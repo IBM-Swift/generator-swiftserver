@@ -233,9 +233,11 @@ module.exports = generators.Base.extend({
         switch (property) {
           case 'web':              return 'Static web file serving';
           case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
+          case 'swaggerUI':        return 'Swagger UI';
           case 'metrics':          return 'Embedded metrics dashboard';
           case 'docker':           return 'Docker files';
           case 'fromSwagger':      return 'From Swagger';
+          case 'endpoints':        return 'Generate endpoints';
           case 'bluemix':          return 'Bluemix cloud deployment';
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`));
@@ -252,9 +254,10 @@ module.exports = generators.Base.extend({
                                 'Docker files',
                                 'Bluemix cloud deployment'];
           case 'Bff':   return ['OpenAPI / Swagger endpoint',
+                                'Swagger UI',
                                 'Embedded metrics dashboard',
                                 'Static web file serving',
-                                'From Swagger',
+                                'Generate endpoints',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
           default:
@@ -266,8 +269,7 @@ module.exports = generators.Base.extend({
       var defaults = choices.map(displayName);
 
       if (this.appType === 'scaffold') {
-        choices.unshift('fromSwagger');
-        choices.unshift('hostSwagger');
+        choices.unshift('swaggerUI');
         choices.unshift('web');
         defaults = defaultCapabilities(this.appPattern);
       }
@@ -283,23 +285,51 @@ module.exports = generators.Base.extend({
         choices.forEach(function(choice) {
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
         }.bind(this));
+        if (this.swaggerUI) {
+          this.web = true;
+        }
         done();
       }.bind(this));
     },
 
-    promptFromSwagger: function() {
+    promptGenerateEndpoints: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
-      if (!this.fromSwagger) return;
       var done = this.async();
-      var choices = {'customSwagger': 'Generate from a custom swagger file',
-                     'exampleEndpoints': 'Swagger example endpoints'};
+      var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file'];
+
+      var prompts = [{
+        name: 'endpoints',
+        type: 'checkbox',
+        message: 'Select endpoints to generate:',
+        choices: choices
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.endpoints) {
+          if (answers.endpoints.indexOf('Swagger file serving endpoint') !== -1) {
+            this.hostSwagger = true;
+          }
+          if (answers.endpoints.indexOf('Endpoints from swagger file') !== -1) {
+            this.swaggerEndpoints = true;
+          }
+        }
+        done();
+      }.bind(this));
+    },
+
+    promptSwaggerEndpoints: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      if (!this.swaggerEndpoints) return;
+      var done = this.async();
+      var choices = {'customSwagger': 'Custom swagger file',
+                     'exampleEndpoints': 'Example swagger file'};
 
       this.hostSwagger = true;
       var prompts = [{
         name: 'swaggerChoice',
         type: 'list',
-        message: 'Select type of generation:',
+        message: 'Swagger file to use:',
         choices: [choices.customSwagger, choices.exampleEndpoints]
       },{
         name: 'path',
@@ -316,16 +346,8 @@ module.exports = generators.Base.extend({
         when: function(question) {
                 return (question.swaggerChoice === choices.customSwagger);
               }
-      },{
-        name: 'swaggerUI',
-        type: 'confirm',
-        message: 'Host the swagger UI'
       }];
       this.prompt(prompts, function(answers) {
-        this.swaggerUI = answers.swaggerUI;
-        if (this.swaggerUI === true) {
-          this.web = true;
-        }
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true;
           this.fromSwagger = true;

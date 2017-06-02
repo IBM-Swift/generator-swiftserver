@@ -741,6 +741,7 @@ module.exports = generators.Base.extend({
       });
 
       if (this.hostSwagger) {
+        this.fs.write(this.destinationPath('definitions','.keep'), '');
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'SwaggerRoute.swift'),

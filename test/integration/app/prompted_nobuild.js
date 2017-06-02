@@ -217,7 +217,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir:  'notes',
                             appPattern: 'Backend for frontend',
-                            swaggerChoice: 'Swagger example endpoints'
+                            endpoints: 'Endpoints from swagger file',
+                            swaggerChoice: 'Example swagger file'
                           });
       return runContext.toPromise();
     });
@@ -340,7 +341,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             name: 'notes',
                             dir:  'notes',
                             appPattern: 'Backend for frontend',
-                            swaggerChoice: 'Generate from a custom swagger file'
+                            endpoints: 'Endpoints from swagger file',
+                            swaggerChoice: 'Custom swagger file'
                             // path is being set in the inTmpDir call
                           })
 
