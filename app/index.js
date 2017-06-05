@@ -253,11 +253,9 @@ module.exports = generators.Base.extend({
                                 'Embedded metrics dashboard',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
-          case 'Bff':   return ['OpenAPI / Swagger endpoint',
-                                'Swagger UI',
+          case 'Bff':   return ['Swagger UI',
                                 'Embedded metrics dashboard',
                                 'Static web file serving',
-                                'Generate endpoints',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
           default:
@@ -330,7 +328,8 @@ module.exports = generators.Base.extend({
         name: 'swaggerChoice',
         type: 'list',
         message: 'Swagger file to use:',
-        choices: [choices.customSwagger, choices.exampleEndpoints]
+        choices: [choices.customSwagger, choices.exampleEndpoints],
+        default: []
       },{
         name: 'path',
         type: 'input',
