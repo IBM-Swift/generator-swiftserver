@@ -22,7 +22,7 @@ public class AdapterFactory {
       return <%- model.classname %>CloudantAdapter(ConnectionProperties(
           host:     service.host,
           port:     Int16(service.port),
-          secured:  true, // FIXME Fix CloudConfiguration
+          secured:  service.secured,
           username: service.username,
           password: service.password
       ))
