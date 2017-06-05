@@ -189,7 +189,7 @@ More information about the Watson Conversation can be found in the [README](http
 <%   } -%>
 <%   if (alertnotification) { -%>
 #### Alert Notification
-This application uses the [Alert Notification SDK package](https://github.com/IBM-Swift/alert-notification-sdk), which allows Swift developers to utilize the Alert Notifications Bluemix service in their applications, allowing for the proactive remediation of issues for applications running on the Bluemix cloud. Alerts and messages can be created, received and deleted through the use of this SDK.
+This application uses the [Alert Notification Service SDK package](https://github.com/IBM-Swift/alert-notification-sdk), which allows Swift developers to utilize the Alert Notifications Bluemix service in their applications, allowing for the proactive remediation of issues for applications running on the Bluemix cloud. Alerts and messages can be created, received and deleted through the use of this SDK.
 
 This SDK is for the consumption/usage of the Alert Notification service and not for administration of the service. Adding users, groups, notification policies, etc. should be done through the Bluemix dashboard.
 
@@ -197,7 +197,7 @@ Boilerplate code for creating a client object for the Alert Notification API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Alert Notification client in the boilerplate code.
 
-More information about the Alert Notification Service can be found [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/)
+A quick start guide to the IBM Alert Notification Service on Bluemix can be found  [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/)
 <%   } -%>
 <%   if (pushnotifications) { -%>
 #### Push Notifications
