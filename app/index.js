@@ -31,6 +31,7 @@ var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
 var validateFilePath = helpers.validateFilePath;
 var generateServiceName = helpers.generateServiceName;
+var ignoreFile = helpers.ignoreFile;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
 var sdkHelper = require('../lib/sdkGenHelper');
@@ -866,8 +867,8 @@ module.exports = generators.Base.extend({
     }
 
     function geniOS(callback) {
-      var fileContent = require("html-wiring").readFileAsString(self.iOSSwaggerFile);
-      performSDKGeneration(self.appname + "_iOS_SDK", "ios_swift", fileContent, function () {
+      var fileContent = require('html-wiring').readFileAsString(self.iOSSwaggerFile);
+      performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', fileContent, function () {
         callback();
       });
     }
@@ -875,14 +876,14 @@ module.exports = generators.Base.extend({
     function genServer(callback) {
       var numFinished = 0;
       for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-        var fileContent = require("html-wiring").readFileAsString(self.serverSwaggerFiles[index]);
+        var fileContent = require('html-wiring').readFileAsString(self.serverSwaggerFiles[index]);
       
         swaggerparser.validate(self.serverSwaggerFiles[index], function(err, api) {
           if (err) {
             console.error(err);
           } else {
-            var sdkName = api.info.title.replace(/ /g, '_') + "_ServerSDK";
-            performSDKGeneration(sdkName, "server_swift", fileContent, function() {
+            var sdkName = api.info.title.replace(/ /g, '_') + '_ServerSDK';
+            performSDKGeneration(sdkName, 'server_swift', fileContent, function() {
 
               extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
 
@@ -965,6 +966,10 @@ module.exports = generators.Base.extend({
     },
     
     configureServerSDK: function() {
+      if(this.iOSSwaggerFile) {
+        ignoreFile('/' + this.appname + '_iOS_SDK*');
+      }
+
       if(!this.sdkTargets) return;
       var done = this.async();
 
