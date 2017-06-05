@@ -20,7 +20,6 @@ var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var fs = require('fs');
 var format = require('util').format;
-var tmp = require('tmp');
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
                      '.yo-rc.json', 'LICENSE', 'README.md'];
@@ -280,7 +279,7 @@ describe('swiftserver:refresh', function () {
           bluemix: false,
           web: true,
           hostSwagger: true,
-          fromSwagger: tmp.tmpNameSync(),
+          fromSwagger: 'unknown_file_!"£$',
           config: {
             logger: 'helium',
             port: 4567
