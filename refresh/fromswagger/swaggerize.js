@@ -40,37 +40,6 @@ function loadApi(apiPath, content) {
     return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
 }
 
-function methParamsFromSchema(schema) {
-  var params = '';
-  Object.keys(schema.properties).forEach(function(prop) {
-    params += prop + ': ' + genUtils.getTypeFromSwaggerProperty(schema.properties[prop]);
-    if (schema.required && schema.required.indexOf(prop) >= 0) {
-      params += ', ';
-    } else {
-      params += '?, ';
-    }
-  });
-
-  return params.substring(0, params.length -2);
-}
-
-function methPropertiesFromSchema(schema) {
-  var properties = [];
-  var property = '';
-  Object.keys(schema.properties).forEach(function(prop) {
-    property = {name: prop,
-                type: genUtils.getTypeFromSwaggerProperty(schema.properties[prop]),
-                required: ''
-               }
-    if (!schema.required || schema.required && schema.required.indexOf(prop) == -1) {
-      property['required'] = '?';
-    }
-    properties.push(property);
-  });
-
-  return properties;
-}
-
 function parseSwagger(api) {
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
   var resources = {}
