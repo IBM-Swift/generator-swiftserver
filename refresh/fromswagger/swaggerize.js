@@ -17,8 +17,6 @@ var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
 var wreck = require('wreck');
-var memFs = require('mem-fs');
-var editor = require('mem-fs-editor');
 var enjoi = require('enjoi');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
@@ -28,8 +26,6 @@ var chalk = require('chalk');
 var builderUtils = require('swaggerize-routes/lib/utils');
 
 var filesys = require('fs');
-var store = memFs.create();
-var fs = editor.create(store);
 
 var path = require('path');
 var process = require('process');
