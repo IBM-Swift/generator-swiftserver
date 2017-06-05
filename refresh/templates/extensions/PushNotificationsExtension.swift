@@ -4,17 +4,12 @@ import CloudFoundryConfig
 
 extension PushNotifications {
 
-   public convenience init(service: PushNotificationsService) {
-
-        let regionVar = "<%- service.region %>"
-        var region: String
-
-        regionVar.isEmpty ? (region = PushNotifications.Region.US_SOUTH) : (region = regionVar)
+   public init(service: PushSDKService, region: String) {
 
         self.init(
             bluemixRegion: region,
-            bluemixAppGuid: "<%- service.guid %>", 
-            bluemixAppSecret: "<%- service.secret %>" )
+            bluemixAppGuid: service.appGuid, 
+            bluemixAppSecret: service.appSecret )
         
     }
 }

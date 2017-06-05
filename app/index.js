@@ -571,16 +571,16 @@ module.exports = generators.Base.extend({
         { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
           when: (answers) => this.bluemix
         },
-        { name: 'pushNotificationsRegion', message: 'Enter Bluemix region (blank for default):' },
+        { name: 'pushNotificationsRegion', message: 'Enter Bluemix region (blank for default of us_south):' },
         { name: 'pushNotificationsGuid', message: 'Enter app GUID:' },
-        { name: 'pushNotificationsSecret', message: 'Enter secret:', type: 'password' }
+        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' }
       ];
       this.prompt(prompts, function(answers) {
         this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
         this.services.pushnotifications[0].credentials = {
           region: answers.pushNotificationsRegion || undefined,
-          guid: answers.pushNotificationsGuid || undefined,
-          secret: answers.pushNotificationsSecret || undefined
+          appGuid: answers.pushNotificationsGuid || undefined,
+          appSecret: answers.pushNotificationsAppSecret || undefined
         };
         done();
       }.bind(this));

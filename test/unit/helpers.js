@@ -217,12 +217,12 @@ describe('helpers', function () {
                                                             credentials:{name:"",
                                                                          password:"",
                                                                          url:""}}],
-                                      "PushNotifications":[{label:"PushNotifications",
+                                      "imfpush":[{label:"imfpush",
                                                             tags:[],
                                                             plan:"Basic",
                                                             credentials:{region:"",
-                                                                         guid:"",
-                                                                         secret:""}}]
+                                                                         appGuid:"",
+                                                                         appSecret:""}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -269,11 +269,11 @@ describe('helpers', function () {
                                           credentials:{name:'username',
                                                        password:'password',
                                                        url:"https://api.alerts"}}],
-                      pushnotifications:[{label:"testpushnotifications",
+                      imfpush:[{label:"testpushnotifications",
                                           plan:"basic",
                                           credentials:{region:"ng.bluemix.net",
-                                                       guid:"guid",
-                                                       secret:"secret"}}]
+                                                       appGuid:"guid",
+                                                       appSecret:"secret"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
                                                      tags:[],
@@ -323,8 +323,8 @@ describe('helpers', function () {
                                       testpushnotifications:[{label:"testpushnotifications",
                                                               plan:"basic",
                                                               credentials:{region:"ng.bluemix.net",
-                                                                           guid:"guid",
-                                                                           secret:"secret"}}]
+                                                                           appGuid:"guid",
+                                                                           appSecret:"secret"}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -358,7 +358,7 @@ describe('helpers', function () {
     });
 
     it('get label for pushnotifications', function() {
-      assert.equal(helpers.getBluemixServiceLabel('pushnotifications'), 'PushNotifications');
+      assert.equal(helpers.getBluemixServiceLabel('pushnotifications'), 'imfpush');
     });
 
     it('get label for unrecognised value', function() {
@@ -392,7 +392,7 @@ describe('helpers', function () {
     });
 
     it('get default plan for pushnotifications', function() {
-      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'Basic');
+      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'Lite');
     });
 
     it('get default plan for unrecognised value', function() {

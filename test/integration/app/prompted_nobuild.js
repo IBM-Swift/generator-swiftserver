@@ -606,8 +606,8 @@ describe('Prompt and no build integration tests for app generator', function () 
             'PushNotifications': [{
               credentials: {
                 'region': '',
-                'guid': '',
-                'secret': ''
+                'appGuid': '',
+                'appSecret': ''
               }
             }]
           }
@@ -650,7 +650,10 @@ describe('Prompt and no build integration tests for app generator', function () 
                             watsonConversationUrl: 'WC_URL',
                             alertNotificationUsername: 'AN_USERNAME',
                             alertNotificationPassword: 'AN_PASSWORD',
-                            alertNotificationUrl: 'AN_URL'
+                            alertNotificationUrl: 'AN_URL',
+                            pushNotificationsRegion: 'PN_REGION',
+                            pushNotificationAppGuid: 'PN_APP_GUID',
+                            pushNotificationAppSecret: 'PN_APP_SECRET'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -714,8 +717,8 @@ describe('Prompt and no build integration tests for app generator', function () 
             'PushNotifications': [{
               credentials: {
                 'region': 'PN_REGION',
-                'guid': 'PN_GUID',
-                'secret': 'PN_SECRET'
+                'appGuid': 'PN_APP_GUID',
+                'appSecret': 'PN_APP_SECRET'
               }
             }]
           }
