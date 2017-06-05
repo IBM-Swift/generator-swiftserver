@@ -605,8 +605,8 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             imfpush: [{
               credentials: {
-                'appGuid': '',
-                'appSecret': ''
+                appGuid: '',
+                appSecret: ''
               }
             }]
           }
@@ -714,8 +714,8 @@ describe('Prompt and no build integration tests for app generator', function () 
             }],
             imfpush: [{
               credentials: {
-                'appGuid': 'PN_APP_GUID',
-                'appSecret': 'PN_APP_SECRET'
+                appGuid: 'PN_APP_GUID',
+                appSecret: 'PN_APP_SECRET'
               }
             }]
           }

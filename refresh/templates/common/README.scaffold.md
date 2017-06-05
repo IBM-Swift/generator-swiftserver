@@ -197,7 +197,7 @@ Boilerplate code for creating a client object for the Alert Notification API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Alert Notification client in the boilerplate code.
 
-A quick start guide to the IBM Alert Notification Service on Bluemix can be found  [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/)
+A quick start guide to the IBM Alert Notification Service on Bluemix can be found  [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/).
 <%   } -%>
 <%   if (pushnotifications) { -%>
 #### Push Notifications
