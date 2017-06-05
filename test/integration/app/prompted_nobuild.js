@@ -365,7 +365,7 @@ describe('Prompt and no build integration tests for app generator', function () 
             'AlertNotification': [{
               name: 'testAlertNotification'
             }],
-            'PushNotifications': [{
+            imfpush: [{
               name: 'testPushNotifications'
             }]
           }
@@ -603,9 +603,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'url': ''
               }
             }],
-            'PushNotifications': [{
+            imfpush: [{
               credentials: {
-                'region': '',
                 'appGuid': '',
                 'appSecret': ''
               }
@@ -651,9 +650,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             alertNotificationUsername: 'AN_USERNAME',
                             alertNotificationPassword: 'AN_PASSWORD',
                             alertNotificationUrl: 'AN_URL',
-                            pushNotificationsRegion: 'PN_REGION',
-                            pushNotificationAppGuid: 'PN_APP_GUID',
-                            pushNotificationAppSecret: 'PN_APP_SECRET'
+                            pushNotificationsAppGuid: 'PN_APP_GUID',
+                            pushNotificationsAppSecret: 'PN_APP_SECRET'
                           });
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
@@ -714,9 +712,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                 'url': 'AN_URL'
               }
             }],
-            'PushNotifications': [{
+            imfpush: [{
               credentials: {
-                'region': 'PN_REGION',
                 'appGuid': 'PN_APP_GUID',
                 'appSecret': 'PN_APP_SECRET'
               }
@@ -777,7 +774,7 @@ describe('Prompt and no build integration tests for app generator', function () 
     });
 
     it('sets the correct plan for push notifications', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Basic" "pushNotificationsService"')
+      assert.fileContent('.bluemix/pipeline.yml', '"Lite" "pushNotificationsService"')
     });
   });
 

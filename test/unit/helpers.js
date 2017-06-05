@@ -219,9 +219,8 @@ describe('helpers', function () {
                                                                          url:""}}],
                                       "imfpush":[{label:"imfpush",
                                                             tags:[],
-                                                            plan:"Basic",
-                                                            credentials:{region:"",
-                                                                         appGuid:"",
+                                                            plan:"Lite",
+                                                            credentials:{appGuid:"",
                                                                          appSecret:""}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
@@ -269,10 +268,9 @@ describe('helpers', function () {
                                           credentials:{name:'username',
                                                        password:'password',
                                                        url:"https://api.alerts"}}],
-                      imfpush:[{label:"testpushnotifications",
-                                          plan:"basic",
-                                          credentials:{region:"ng.bluemix.net",
-                                                       appGuid:"guid",
+                      pushnotifications:[{label:"testpushnotifications",
+                                          plan:"lite",
+                                          credentials:{appGuid:"guid",
                                                        appSecret:"secret"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
@@ -321,9 +319,8 @@ describe('helpers', function () {
                                                                            password:'password',
                                                                            url:"https://api.alerts"}}],
                                       testpushnotifications:[{label:"testpushnotifications",
-                                                              plan:"basic",
-                                                              credentials:{region:"ng.bluemix.net",
-                                                                           appGuid:"guid",
+                                                              plan:"lite",
+                                                              credentials:{appGuid:"guid",
                                                                            appSecret:"secret"}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
