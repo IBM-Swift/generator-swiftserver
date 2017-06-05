@@ -17,7 +17,6 @@ var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
 var wreck = require('wreck');
-var mkdirp = require('mkdirp');
 var memFs = require('mem-fs');
 var editor = require('mem-fs-editor');
 var enjoi = require('enjoi');
