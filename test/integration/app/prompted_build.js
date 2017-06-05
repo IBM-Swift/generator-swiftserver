@@ -124,6 +124,10 @@ describe('Prompt and build integration tests for app generator', function () {
       assert.file('notes_iOS_SDK.zip');
     });
 
+    it('modified .gitignore to include the generated iOS SDK', function() {
+      assert.fileContent('.gitignore', '/notes_iOS_SDK*');
+    });
+
     it('deleted a server SDK zip file', function() {
       assert.noFile('Swagger_Petstore_ServerSDK.zip');
     });
