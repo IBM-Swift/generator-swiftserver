@@ -178,7 +178,7 @@ describe('helpers', function () {
                                                           tags:[],
                                                           plan:"Lite",
                                                           credentials:{host:"localhost",
-                                                                       port:6984}}],
+                                                                       port:5984}}],
                                       "compose-for-redis":[{label:"compose-for-redis",
                                                             tags:[],
                                                             plan:"Standard",
