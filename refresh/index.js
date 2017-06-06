@@ -243,14 +243,23 @@ module.exports = generators.Base.extend({
         this.capabilities.metrics = true;
       }
 
+      // Web+hostSwagger+exampleEndpoints implies swaggerui
+      // TODO: We should have a separate option for swaggerui in the prompts,
+      //       then swaggerui should imply web and hostSwagger
+      if (this.web && this.hostSwagger && this.exampleEndpoints) {
+        this.swaggerui = true;
+      }
+      // CRUD generation implies SwaggerUI
+      if (this.appType === 'crud') {
+        this.hostSwagger = true;
+        this.swaggerui = true;
+        this.web = true;
+      }
+
       // Set the names of the modules
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application';
       this.executableModule = this.projectName;
-
-      if (this.appType === 'crud') {
-        this.hostSwagger = true;
-      }
     },
 
     setDestinationRootFromSpec: function() {
@@ -753,7 +762,16 @@ module.exports = generators.Base.extend({
         });
       }
 
-      if (this.web) {
+      if (this.swaggerui) {
+        this.fs.copy(
+          this.templatePath('common', 'swagger-ui/**/*'),
+          this.destinationPath('public', 'explorer')
+        );
+        this.fs.copy(
+          this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
+          this.destinationPath('NOTICES.txt')
+        );
+      } else if (this.web) {
         this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
