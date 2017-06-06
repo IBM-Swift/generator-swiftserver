@@ -189,6 +189,11 @@ describe('swiftserver:refresh', function () {
       },
       "basePath": "/basepath",
       "paths": {
+        "*": {
+          "get": {
+            "description": "Gets `Person` objects.",
+          },
+        },
         "/persons": {
           "get": {
             "description": "Gets `Person` objects.",
@@ -200,7 +205,41 @@ describe('swiftserver:refresh', function () {
         "/dinosaurs": {
           "get": {
             "description": "Gets `Dinosaur` objects.",
+            "responses": {
+              "200": {
+                "description": "dinosaurs response",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/dinosaur"
+                  }
+                }
+              },
+              "default": {
+                "description": "default dinosaurs response",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/dinosaur"
+                  }
+                }
+              }
+            }
           }
+        }
+      },
+      "definitions": {
+        "dinosaur": {
+          "type": "object",
+          "required": ["name", "email"],
+          "properties": {
+            "name": {
+              "type": "string",
+            },
+            "email": {
+              "type": "string",
+            }
+          } 
         }
       }
     };
