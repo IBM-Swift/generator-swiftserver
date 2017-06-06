@@ -193,11 +193,8 @@ module.exports = generators.Base.extend({
       // Example endpoints
       this.exampleEndpoints = (this.spec.exampleEndpoints === true);
 
-      // Generation from Swagger
-      this.fromSwagger = this.spec.fromSwagger || undefined;
-
       // Generation of example endpoints from the productSwagger.yaml example.
-      if (this.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
+      if (this.spec.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
         this.fromSwagger = this.spec.fromSwagger;
       }
       if (this.exampleEndpoints) {
