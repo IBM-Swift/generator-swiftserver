@@ -552,7 +552,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                 url: '',
                 username: '',
                 password: '',
-                port: 6984
+                port: 5984
               }
             }],
             'compose-for-redis': [{
