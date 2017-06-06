@@ -380,6 +380,29 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
+    promptServicesForCRUDBluemix: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'crud') return;
+      if (!this.bluemix) return;
+      var done = this.async();
+
+      var choices = ['Auto-scaling'];
+
+      var prompts = [{
+        name: 'services',
+        type: 'checkbox',
+        message: 'Generate boilerplate for Bluemix services:',
+        choices: choices,
+        default: []
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.services.indexOf('Auto-scaling') !== -1) {
+          this.autoscale = generateServiceName(this.appname, 'AutoScaling');
+        }
+        done();
+      }.bind(this));
+    },
+
     // NOTE(tunniclm): This part of the prompting assumes there can only
     // be one of each type of service.
     promptConfigureServices: function() {
