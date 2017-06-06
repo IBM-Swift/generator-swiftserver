@@ -26,11 +26,10 @@ var rimraf = require('rimraf');
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
 
-module.exports = generators.Base.extend({
-  constructor: function() {
-    generators.Base.apply(this, arguments);
-  },
+var util = require('util');
+var swaggerize = require('./fromswagger/swaggerize');
 
+module.exports = generators.Base.extend({
   constructor: function() {
     generators.Base.apply(this,arguments);
 
@@ -190,8 +189,22 @@ module.exports = generators.Base.extend({
       // Example endpoints
       this.exampleEndpoints = (this.spec.exampleEndpoints === true);
 
+      // Generation of example endpoints from the productSwagger.yaml example.
+      if (this.spec.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
+        this.fromSwagger = this.spec.fromSwagger;
+      }
+      if (this.exampleEndpoints) {
+        if (this.fromSwagger) {
+          this.env.error('Only one of: swagger file and example endpoints allowed');
+        }
+        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
+      }
+
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true);
+
+      // Swagger UI
+      this.swaggerUI = (this.spec.swaggerUI === true);
 
       // Service configuration
       this.services = this.spec.services || {};
@@ -226,16 +239,16 @@ module.exports = generators.Base.extend({
         this.capabilities.metrics = true;
       }
 
-      // Web+hostSwagger+exampleEndpoints implies swaggerui
-      // TODO: We should have a separate option for swaggerui in the prompts,
-      //       then swaggerui should imply web and hostSwagger
-      if (this.web && this.hostSwagger && this.exampleEndpoints) {
-        this.swaggerui = true;
+      // SwaggerUI imples web and hostSwagger
+      if (this.swaggerUI) {
+        this.hostSwagger = true;
+        this.web = true;
       }
+
       // CRUD generation implies SwaggerUI
       if (this.appType === 'crud') {
         this.hostSwagger = true;
-        this.swaggerui = true;
+        this.swaggerUI = true;
         this.web = true;
       }
 
@@ -628,6 +641,17 @@ module.exports = generators.Base.extend({
     this.swagger = swagger;
   },
 
+  parseFromSwagger: function() {
+    if (!this.fromSwagger) return;
+
+    var done = this.async();
+    swaggerize.parse.call(this, function(loadedApi, parsed) {
+      this.loadedApi = loadedApi;
+      this.parsedSwagger = parsed;
+      done();
+    }.bind(this));
+  },
+
   writing: {
     createCommonFiles: function() {
 
@@ -672,6 +696,10 @@ module.exports = generators.Base.extend({
       });
 
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
+        var resources;
+        if (this.parsedSwagger && this.parsedSwagger.resources) {
+          resources = Object.keys(this.parsedSwagger.resources);
+        }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
           filepath,
@@ -684,7 +712,7 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
             web: this.web,
             hostSwagger: this.hostSwagger,
-            exampleEndpoints: this.exampleEndpoints
+            resources: resources
           }
         );
       });
@@ -721,6 +749,7 @@ module.exports = generators.Base.extend({
       });
 
       if (this.hostSwagger) {
+        this.fs.write(this.destinationPath('definitions','.keep'), '');
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'SwaggerRoute.swift'),
@@ -729,7 +758,7 @@ module.exports = generators.Base.extend({
         });
       }
 
-      if (this.swaggerui) {
+      if (this.swaggerUI) {
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
@@ -738,19 +767,10 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
           this.destinationPath('NOTICES.txt')
         );
-      } else if (this.web) {
-        this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
-      if (this.exampleEndpoints) {
-        this.fs.copy(
-          this.templatePath('common', 'ProductRoutes.swift'),
-          this.destinationPath('Sources', this.applicationModule, 'Routes', 'ProductRoutes.swift')
-        );
-        this.fs.copy(
-          this.templatePath('common', 'productSwagger.yaml'),
-          this.destinationPath('definitions', `${this.projectName}.yaml`)
-        );
+      if (this.web) {
+        this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
       if (this.appType !== 'crud') {
@@ -777,6 +797,15 @@ module.exports = generators.Base.extend({
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
+      }
+    },
+
+    createFromSwagger: function() {
+      if (this.parsedSwagger) {
+        swaggerize.createRoutes.call(this, this.parsedSwagger);
+
+        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
+        this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi));
       }
     },
 

@@ -90,6 +90,9 @@ module.exports = generators.Base.extend({
         }
       }
 
+      // save the initial directory for use by the fromSwagger processing.
+      this.initialWorkingDir = process.cwd();
+
       if (this.appname === null) {
         // Fall back to name of current working directory
         // Normalize if it contains special characters
@@ -230,9 +233,11 @@ module.exports = generators.Base.extend({
         switch (property) {
           case 'web':              return 'Static web file serving';
           case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
+          case 'swaggerUI':        return 'Swagger UI';
           case 'metrics':          return 'Embedded metrics dashboard';
           case 'docker':           return 'Docker files';
-          case 'exampleEndpoints': return 'Example endpoints';
+          case 'fromSwagger':      return 'From Swagger';
+          case 'endpoints':        return 'Generate endpoints';
           case 'bluemix':          return 'Bluemix cloud deployment';
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`));
@@ -248,9 +253,8 @@ module.exports = generators.Base.extend({
                                 'Embedded metrics dashboard',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
-          case 'Bff':   return ['OpenAPI / Swagger endpoint',
+          case 'Bff':   return ['Swagger UI',
                                 'Embedded metrics dashboard',
-                                'Example endpoints',
                                 'Static web file serving',
                                 'Docker files',
                                 'Bluemix cloud deployment'];
@@ -263,8 +267,7 @@ module.exports = generators.Base.extend({
       var defaults = choices.map(displayName);
 
       if (this.appType === 'scaffold') {
-        choices.unshift('exampleEndpoints');
-        choices.unshift('hostSwagger');
+        choices.unshift('swaggerUI');
         choices.unshift('web');
         defaults = defaultCapabilities(this.appPattern);
       }
@@ -280,6 +283,78 @@ module.exports = generators.Base.extend({
         choices.forEach(function(choice) {
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
         }.bind(this));
+        done();
+      }.bind(this));
+    },
+
+    promptGenerateEndpoints: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      var done = this.async();
+      var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file'];
+
+      var prompts = [{
+        name: 'endpoints',
+        type: 'checkbox',
+        message: 'Select endpoints to generate:',
+        choices: choices
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.endpoints) {
+          if (answers.endpoints.indexOf('Swagger file serving endpoint') !== -1) {
+            this.hostSwagger = true;
+          }
+          if (answers.endpoints.indexOf('Endpoints from swagger file') !== -1) {
+            this.swaggerEndpoints = true;
+          }
+        }
+        done();
+      }.bind(this));
+    },
+
+    promptSwaggerEndpoints: function() {
+      if (this.skipPrompting) return;
+      if (this.appType !== 'scaffold') return;
+      if (!this.swaggerEndpoints) return;
+      var done = this.async();
+      var choices = {'customSwagger': 'Custom swagger file',
+                     'exampleEndpoints': 'Example swagger file'};
+
+      this.hostSwagger = true;
+      var prompts = [{
+        name: 'swaggerChoice',
+        type: 'list',
+        message: 'Swagger file to use:',
+        choices: [choices.customSwagger, choices.exampleEndpoints],
+        default: []
+      },{
+        name: 'path',
+        type: 'input',
+        message: 'Provide the path to a swagger file:',
+        filter: function(response) {
+          return response.trim();
+        },
+        validate: function(response) {
+          // permit paths starting with 'filename' or '/' or './' or '../' or 'http://' or 'https://'
+          var pathPattern = new RegExp(/^\w+|^\/|^\.\.?\/|^https?:\/\/\S+/);
+          return pathPattern.test(response);
+        },
+        when: function(question) {
+                return (question.swaggerChoice === choices.customSwagger);
+              }
+      }];
+      this.prompt(prompts, function(answers) {
+        if (answers.swaggerChoice === choices.exampleEndpoints) {
+          this.exampleEndpoints = true;
+        } else if (answers.path) {
+          var httpPattern = new RegExp(/^https?:\/\/\S+/);
+
+          if (httpPattern.test(answers.path)) {
+            this.fromSwagger = answers.path;
+          } else {
+            this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path);
+          }
+        }
         done();
       }.bind(this));
     },
@@ -663,7 +738,9 @@ module.exports = generators.Base.extend({
       docker: this.docker || undefined,
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
+      fromSwagger: this.fromSwagger || undefined,
       hostSwagger: this.hostSwagger || undefined,
+      swaggerUI: this.swaggerUI || undefined,
       services: this.services || {},
       crudservice: this.crudservice,
       capabilities: {
