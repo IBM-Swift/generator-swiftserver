@@ -31,10 +31,6 @@ var swaggerize = require('./fromswagger/swaggerize');
 
 module.exports = generators.Base.extend({
   constructor: function() {
-    generators.Base.apply(this, arguments);
-  },
-
-  constructor: function() {
     generators.Base.apply(this,arguments);
 
     // Allow the user to specify where the specification file is
@@ -243,16 +239,16 @@ module.exports = generators.Base.extend({
         this.capabilities.metrics = true;
       }
 
-      // Web+hostSwagger+exampleEndpoints implies swaggerui
-      // TODO: We should have a separate option for swaggerui in the prompts,
-      //       then swaggerui should imply web and hostSwagger
-      if (this.web && this.hostSwagger && this.exampleEndpoints) {
-        this.swaggerui = true;
+      // SwaggerUI imples web and hostSwagger
+      if (this.swaggerUI) {
+        this.hostSwagger = true;
+        this.web = true;
       }
+
       // CRUD generation implies SwaggerUI
       if (this.appType === 'crud') {
         this.hostSwagger = true;
-        this.swaggerui = true;
+        this.swaggerUI = true;
         this.web = true;
       }
 
@@ -762,7 +758,7 @@ module.exports = generators.Base.extend({
         });
       }
 
-      if (this.swaggerui) {
+      if (this.swaggerUI) {
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
@@ -771,20 +767,10 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
           this.destinationPath('NOTICES.txt')
         );
-      } else if (this.web) {
-        this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
-      if (this.swaggerUI) {
-        this.web = true;
-        this.fs.copy(
-          this.templatePath('common', 'swagger-ui/**/*'),
-          this.destinationPath('public', 'explorer')
-        );
-        this.fs.copy(
-          this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
-          this.destinationPath('NOTICES.txt')
-        );
+      if (this.web) {
+        this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
       if (this.appType !== 'crud') {
