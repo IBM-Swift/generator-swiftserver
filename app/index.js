@@ -283,9 +283,6 @@ module.exports = generators.Base.extend({
         choices.forEach(function(choice) {
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
         }.bind(this));
-        if (this.swaggerUI) {
-          this.web = true;
-        }
         done();
       }.bind(this));
     },
@@ -349,7 +346,6 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true;
-          this.fromSwagger = true;
         } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
 

@@ -181,7 +181,7 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a Bff application from a Swagger document', function () {
 
-    var swagger = {
+  var swagger = {
       "swagger": "2.0",
       "info": {
         "version": "0.0.0",
@@ -1740,7 +1740,6 @@ describe('Generated a web application for bluemix without services', function() 
             port: 4567
           }
         };
-      spec.fromSwagger = path.join( __dirname, "../../refresh/templates/common/productSwagger.yaml");
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec
@@ -1819,7 +1818,6 @@ describe('Generated a web application for bluemix without services', function() 
             port: 4567
           }
         };
-      spec.fromSwagger = path.join( __dirname, "../../refresh/templates/common/productSwagger.yaml");
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
         .withOptions({
           specObj: spec

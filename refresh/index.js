@@ -197,7 +197,13 @@ module.exports = generators.Base.extend({
       this.fromSwagger = this.spec.fromSwagger || undefined;
 
       // Generation of example endpoints from the productSwagger.yaml example.
-      if (this.exampleEndpoints && this.fromSwagger === true) {
+      if (this.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
+        this.fromSwagger = this.spec.fromSwagger;
+      }
+      if (this.exampleEndpoints) {
+        if (this.fromSwagger) {
+          this.env.error('Only one of: swagger file and example endpoints allowed');
+        }
         this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
       }
 
@@ -688,8 +694,8 @@ module.exports = generators.Base.extend({
       });
 
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-				var resources;
-				if (this.parsedSwagger && this.parsedSwagger.resources) {
+        var resources;
+        if (this.parsedSwagger && this.parsedSwagger.resources) {
           resources = Object.keys(this.parsedSwagger.resources);
         }
         this.fs.copyTpl(
@@ -754,7 +760,8 @@ module.exports = generators.Base.extend({
         this.fs.write(this.destinationPath('public','.keep'), '');
       }
 
-      if (this.web && this.swaggerUI) {
+      if (this.swaggerUI) {
+        this.web = true;
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
