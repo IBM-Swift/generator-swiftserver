@@ -31,7 +31,7 @@ paths:
         200:
           $ref: '#/responses/getOneProduct'
 
-  /product/{id}:
+  /products/{id}:
     get:
       tags:
         - products

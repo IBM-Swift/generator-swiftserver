@@ -1,3 +1,10 @@
+2017-06-07, Version 2.3.0
+=========================
+
+* Generate from swagger (#218)
+* Add SwaggerUI and Autoscaling service to the CRUD flow (#221)
+* Support local cloudant for dev when packaging for Bluemix (#217)
+
 2017-06-01, Version 2.2.0
 =========================
 
