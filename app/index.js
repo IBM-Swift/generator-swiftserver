@@ -233,76 +233,6 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptiOSSwaggerFile: function () {
-      if (this.skipPrompting) return;
-      var done = this.async();
-
-      var prompts = [{
-        name: 'iosSwaggerInput',
-        type: 'confirm',
-        message: 'Would you like to generate an iOS SDK from a Swagger file?',
-        default: false
-      }, {
-        when: function(props) { return props.iosSwaggerInput; },
-        name: 'iosSwaggerInputPath',
-        type: 'input',
-        message: 'Enter Swagger yaml file path:',
-        validate: validateFilePath
-      }];
-
-      this.prompt(prompts, function (answers) {
-        if (answers.iosSwaggerInput) {
-          this.iOSSwaggerFile = answers.iosSwaggerInputPath;
-        }
-        done();
-      }.bind(this));
-    },
-
-    promptSwiftServerSwaggerFiles: function () {
-      if (this.skipPrompting) return;
-      var done = this.async();
-
-      var depth = 0;
-      var prompts = [{
-        name: 'serverSwaggerInput' + depth,
-        type: 'confirm',
-        message: 'Would you like to generate a Swift server SDK from a Swagger file?',
-        default: false
-      }, {
-        when: function(props) { return props[Object.keys(props)[0]]; },
-        name: 'serverSwaggerInputPath' + depth,
-        type: 'input',
-        message: 'Enter Swagger yaml file path:',
-        validate: validateFilePath
-      }];
-
-      
-      function promptUser() {
-
-        this.prompt(prompts, function (answers) {
-          // Creating and accessing dynamic answer keys for yeoman-test compatability.
-          // It needs unique keys in order to simulate the generation of multiple swagger file paths.
-          if (answers['serverSwaggerInput' + depth]) {
-            if (this.serverSwaggerFiles === undefined) {
-              this.serverSwaggerFiles = [];
-            }
-            if(!this.serverSwaggerFiles.includes(answers['serverSwaggerInputPath' + depth])) {
-              this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
-            } else {
-              this.log(chalk.yellow('This Swagger file is already being used'));
-            }
-            depth += 1;
-            prompts[0].name = prompts[0].name.slice(0, -1) + depth;
-            prompts[1].name = prompts[1].name.slice(0, -1) + depth;
-            promptUser.call(this);
-          } else {
-            done();
-          }
-        }.bind(this));
-      };
-      promptUser.call(this);
-    },
-
     promptCapabilities: function() {
       if (this.skipPrompting) return;
       var done = this.async();
@@ -436,6 +366,78 @@ module.exports = generators.Base.extend({
         }
         done();
       }.bind(this));
+    },
+
+    promptiOSSwaggerFile: function () {
+      if (this.skipPrompting) return;
+      var done = this.async();
+
+      var prompts = [{
+        name: 'iosSwaggerInput',
+        type: 'confirm',
+        message: 'Would you like to generate an iOS SDK from a Swagger file?',
+        default: false
+      }, {
+        when: (answers) => answers.iosSwaggerInput && !this.fromSwagger && !this.exampleEndpoints,
+        name: 'iosSwaggerInputPath',
+        type: 'input',
+        message: 'Enter Swagger yaml file path:',
+        validate: validateFilePath
+      }];
+
+      this.prompt(prompts, function (answers) {
+        if (answers.iosSwaggerInput && !this.fromSwagger && !this.exampleEndpoints) {
+          this.iOSSwaggerFile = answers.iosSwaggerInputPath;
+        } else if (this.fromSwagger) {
+          this.iOSSwaggerFile = this.fromSwagger;
+        }
+        done();
+      }.bind(this));
+    },
+
+    promptSwiftServerSwaggerFiles: function () {
+      if (this.skipPrompting) return;
+      var done = this.async();
+
+      var depth = 0;
+      var prompts = [{
+        name: 'serverSwaggerInput' + depth,
+        type: 'confirm',
+        message: 'Would you like to generate a Swift server SDK from a Swagger file?',
+        default: false
+      }, {
+        when: function(props) { return props[Object.keys(props)[0]]; },
+        name: 'serverSwaggerInputPath' + depth,
+        type: 'input',
+        message: 'Enter Swagger yaml file path:',
+        validate: validateFilePath
+      }];
+
+      
+      function promptUser() {
+
+        this.prompt(prompts, function (answers) {
+          // Creating and accessing dynamic answer keys for yeoman-test compatability.
+          // It needs unique keys in order to simulate the generation of multiple swagger file paths.
+          if (answers['serverSwaggerInput' + depth]) {
+            if (this.serverSwaggerFiles === undefined) {
+              this.serverSwaggerFiles = [];
+            }
+            if(!this.serverSwaggerFiles.includes(answers['serverSwaggerInputPath' + depth])) {
+              this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
+            } else {
+              this.log(chalk.yellow('This Swagger file is already being used'));
+            }
+            depth += 1;
+            prompts[0].name = prompts[0].name.slice(0, -1) + depth;
+            prompts[1].name = prompts[1].name.slice(0, -1) + depth;
+            promptUser.call(this);
+          } else {
+            done();
+          }
+        }.bind(this));
+      };
+      promptUser.call(this);
     },
 
     promptServicesForScaffoldLocal: function() {
