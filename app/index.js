@@ -23,6 +23,7 @@ var fs = require('fs');
 var swaggerparser = require('swagger-parser');
 var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
+var swaggerize = require('../refresh/fromswagger/swaggerize');
 
 var helpers = require('../lib/helpers');
 var validateDirName = helpers.validateDirName;
@@ -333,7 +334,7 @@ module.exports = generators.Base.extend({
       var prompts = [{
         name: 'swaggerChoice',
         type: 'list',
-        message: 'Swagger file to use:',
+        message: 'Swagger file to use to create endpoints and companion iOS SDK:',
         choices: [choices.customSwagger, choices.exampleEndpoints],
         default: []
       },{
@@ -354,7 +355,8 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answers) {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
-          this.exampleEndpoints = true;
+          // this.exampleEndpoints = true;
+          this.fromSwagger = path.join(__dirname, '../refresh/templates/common/productSwagger.yaml');
         } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
 
@@ -368,7 +370,7 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptiOSSwaggerFile: function () {
+    /*promptiOSSwaggerFile: function () {
       if (this.skipPrompting) return;
       var done = this.async();
 
@@ -388,12 +390,12 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function (answers) {
         if (answers.iosSwaggerInput && !this.fromSwagger && !this.exampleEndpoints) {
           this.iOSSwaggerFile = answers.iosSwaggerInputPath;
-        } else if (this.fromSwagger) {
+        } else if (answers.iosSwaggerInput && this.fromSwagger) {
           this.iOSSwaggerFile = this.fromSwagger;
         }
         done();
       }.bind(this));
-    },
+    },*/
 
     promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return;
@@ -852,26 +854,27 @@ module.exports = generators.Base.extend({
   },
 
   generateSDKs: function() {
-    if(!this.iOSSwaggerFile && !this.serverSwaggerFiles) return;
+    if(!this.fromSwagger && !this.serverSwaggerFiles) return;
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
     var done = this.async();
     var self = this; // local copy to be used in callbacks
 
     // Cover the different cases
-    if(self.iOSSwaggerFile && self.serverSwaggerFiles === undefined) {
+    if(self.fromSwagger && self.serverSwaggerFiles === undefined) {
       geniOS(done);
-    } else if(self.iOSSwaggerFile && self.serverSwaggerFiles !== undefined) {
+    } else if(self.fromSwagger && self.serverSwaggerFiles !== undefined) {
       geniOS(function() {
         genServer(done);
       })
-    } else if(!self.iOSSwaggerFile && self.serverSwaggerFiles !== undefined) {
+    } else if(!self.fromSwagger && self.serverSwaggerFiles !== undefined) {
       genServer(done);
     }
 
     function geniOS(callback) {
-      var fileContent = require('html-wiring').readFileAsString(self.iOSSwaggerFile);
-      performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', fileContent, function () {
-        callback();
+      swaggerize.parse.call(self, function(loadedApi, parsed) {
+        performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
+          callback();
+        });
       });
     }
 
@@ -968,7 +971,7 @@ module.exports = generators.Base.extend({
     },
     
     configureServerSDK: function() {
-      if(this.iOSSwaggerFile) {
+      if(this.fromSwagger) {
         ignoreFile('/' + this.appname + '_iOS_SDK*');
       }
 
