@@ -1,6 +1,6 @@
 {
   "name": "generator-swiftserver",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
@@ -25,7 +25,12 @@
     "chalk": "^1.1.0",
     "debug": "^2.2.0",
     "js-yaml": "^3.4.2",
-    "yeoman-generator": "^0.21.1"
+    "yeoman-generator": "^0.21.1",
+    "handlebars": "^4.0.5",
+    "wreck": "^6.0.0",
+    "enjoi": "^1.0.1",
+    "swagger-schema-official": "^2.0.0-",
+    "swaggerize-routes": "^1.0.0"
   },
   "devDependencies": {
     "codecov": "^2.1.0",

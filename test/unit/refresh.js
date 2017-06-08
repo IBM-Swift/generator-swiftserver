@@ -46,6 +46,7 @@ var expectedBluemixFiles = ['manifest.yml',
                             '.bluemix/toolchain.yml',
                             '.bluemix/deploy.json'];
 
+
 describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
@@ -175,6 +176,222 @@ describe('swiftserver:refresh', function () {
         [expected[1], 'title: ' + appName],
         [expected[1], `${modelName}:`]
       ]);
+    });
+  });
+
+  describe('Generate a Bff application from a Swagger document', function () {
+
+  var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "basePath": "/basepath",
+      "paths": {
+        "*": {
+          "get": {
+            "description": "Gets `Person` objects.",
+          },
+        },
+        "/persons": {
+          "get": {
+            "description": "Gets `Person` objects.",
+          },
+          "put": {
+            "description": "Puts `Person` objects.",
+          }
+        },
+        "/dinosaurs": {
+          "get": {
+            "description": "Gets `Dinosaur` objects.",
+            "responses": {
+              "200": {
+                "description": "dinosaurs response",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/dinosaur"
+                  }
+                }
+              },
+              "default": {
+                "description": "default dinosaurs response",
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/dinosaur"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "definitions": {
+        "dinosaur": {
+          "type": "object",
+          "required": ["name", "email"],
+          "properties": {
+            "name": {
+              "type": "string",
+            },
+            "email": {
+              "type": "string",
+            }
+          } 
+        }
+      }
+    };
+
+    var runContext;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          bluemix: false,
+          web: true,
+          hostSwagger: true,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .inTmpDir(function(tmpDir) {
+          spec.fromSwagger = path.join(tmpDir, "swagger.json");
+          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
+        })
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+
+    if('generated the correct config file', function() {
+      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}});
+    });
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles);
+    });
+
+    it('installs the swagger file to be hosted', function () {
+      var expectedFiles = [
+        `definitions/${executableModule}.yaml`,
+      ];
+
+      assert.file(expectedFiles);
+    });
+
+    it('generates the swift files', function() {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/DinosaursRoutes.swift`,
+        `Sources/${applicationModule}/Routes/PersonsRoutes.swift`,
+        `Sources/${applicationModule}/Routes/SwaggerRoute.swift`,
+        `Sources/${executableModule}/main.swift`,
+      ];
+      assert.file(expectedSourceFiles);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"');
+    });
+  });
+
+  describe('Generate a Bff application from an invalid Swagger path', function () {
+
+    var runContext;
+    var error;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          bluemix: false,
+          web: true,
+          hostSwagger: true,
+          fromSwagger: 'unknown_file_!"£$',
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error');
+      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+  });
+
+  describe('Generate a Bff application from an invalid Swagger document', function () {
+
+    var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "basePath": "/basepath",
+      "xxxx": {
+      }
+    };
+
+    var runContext;
+    var error;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          bluemix: false,
+          web: true,
+          hostSwagger: true,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .inTmpDir(function(tmpDir) {
+          spec.fromSwagger = path.join(tmpDir, "swagger.json");
+          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
+        })
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error');
+      assert(error.match('failed to parse swagger from:'), 'failed to parse swagger from:');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
     });
   });
 
@@ -1604,19 +1821,19 @@ describe('Generated a web application for bluemix without services', function() 
     });
 
     it('defines example endpoints', function() {
-      var productRoutesFile = `Sources/${applicationModule}/Routes/ProductRoutes.swift`;
-      assert.file(productRoutesFile);
-      assert.fileContent(productRoutesFile, '"/products"');
-      assert.fileContent(productRoutesFile, '"/product/:id"');
-      assert.fileContent(productRoutesFile, 'send(json: [:])');
-      assert.fileContent(productRoutesFile, 'router.get(');
-      assert.fileContent(productRoutesFile, 'router.post(');
-      assert.fileContent(productRoutesFile, 'router.put(');
-      assert.fileContent(productRoutesFile, 'router.delete(');
+      var productsRoutesFile = `Sources/${applicationModule}/Routes/ProductsRoutes.swift`;
+      assert.file(productsRoutesFile);
+      assert.fileContent(productsRoutesFile, '"/products"');
+      assert.fileContent(productsRoutesFile, '"/products/:id"');
+      assert.fileContent(productsRoutesFile, 'send(json: [:])');
+      assert.fileContent(productsRoutesFile, 'router.get(');
+      assert.fileContent(productsRoutesFile, 'router.post(');
+      assert.fileContent(productsRoutesFile, 'router.put(');
+      assert.fileContent(productsRoutesFile, 'router.delete(');
     });
 
     it('init example endpoint routes', function() {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductRoutes()');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes()');
     });
 
     it('hosts swagger definition', function() {
@@ -1635,6 +1852,7 @@ describe('Generated a web application for bluemix without services', function() 
     });
   });
 
+
   describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
 
     var runContext;
@@ -1646,6 +1864,7 @@ describe('Generated a web application for bluemix without services', function() 
           appName: appName,
           web: true,
           hostSwagger: true,
+          swaggerUI: true,
           exampleEndpoints: true,
           config: {
             logger: 'helium',
