@@ -341,14 +341,8 @@ module.exports = generators.Base.extend({
         name: 'path',
         type: 'input',
         message: 'Provide the path to a swagger file:',
-        filter: function(response) {
-          return response.trim();
-        },
-        validate: function(response) {
-          // permit paths starting with 'filename' or '/' or './' or '../' or 'http://' or 'https://'
-          var pathPattern = new RegExp(/^\w+|^\/|^\.\.?\/|^https?:\/\/\S+/);
-          return pathPattern.test(response);
-        },
+        filter: function(response) { return response.trim(); },
+        validate: validateFilePath,
         when: function(question) {
                 return (question.swaggerChoice === choices.customSwagger);
               }
@@ -370,33 +364,6 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    /*promptiOSSwaggerFile: function () {
-      if (this.skipPrompting) return;
-      var done = this.async();
-
-      var prompts = [{
-        name: 'iosSwaggerInput',
-        type: 'confirm',
-        message: 'Would you like to generate an iOS SDK from a Swagger file?',
-        default: false
-      }, {
-        when: (answers) => answers.iosSwaggerInput && !this.fromSwagger && !this.exampleEndpoints,
-        name: 'iosSwaggerInputPath',
-        type: 'input',
-        message: 'Enter Swagger yaml file path:',
-        validate: validateFilePath
-      }];
-
-      this.prompt(prompts, function (answers) {
-        if (answers.iosSwaggerInput && !this.fromSwagger && !this.exampleEndpoints) {
-          this.iOSSwaggerFile = answers.iosSwaggerInputPath;
-        } else if (answers.iosSwaggerInput && this.fromSwagger) {
-          this.iOSSwaggerFile = this.fromSwagger;
-        }
-        done();
-      }.bind(this));
-    },*/
-
     promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return;
       var done = this.async();
@@ -412,9 +379,9 @@ module.exports = generators.Base.extend({
         name: 'serverSwaggerInputPath' + depth,
         type: 'input',
         message: 'Enter Swagger yaml file path:',
-        validate: validateFilePath
+        filter: function(response) { return response.trim(); },
+        validate: validateFilePath,
       }];
-
       
       function promptUser() {
 
