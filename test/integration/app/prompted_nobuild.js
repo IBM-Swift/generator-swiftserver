@@ -206,7 +206,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application', function() {
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(300000); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -312,20 +312,68 @@ describe('Prompt and no build integration tests for app generator', function () 
         "/persons": {
           "get": {
             "description": "Gets `Person` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Person"
+                }
+              }
+            }
           },
           "put": {
             "description": "Puts `Person` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Person"
+                }
+              }
+            }
           }
         },
         "/dinosaurs": {
           "get": {
             "description": "Gets `Dinosaur` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Dinosaur"
+                }
+              }
+            }
+          }
+        }
+      },
+      "definitions": {
+        "Dinosaur": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "Person": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            }
           }
         }
       }
     };
 
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(300000); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -333,6 +381,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                           .inTmpDir(function(tmpDir) {
                             var swaggerPath = path.join(tmpDir, "swagger.json");
                             fs.writeFileSync(swaggerPath, JSON.stringify(swagger));
+                            console.log("path: " + swaggerPath);
                             this.answers.path = swaggerPath;
                           })
                           .withOptions({ 'skip-build': true })
