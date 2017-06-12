@@ -381,7 +381,6 @@ describe('Prompt and no build integration tests for app generator', function () 
                           .inTmpDir(function(tmpDir) {
                             var swaggerPath = path.join(tmpDir, "swagger.json");
                             fs.writeFileSync(swaggerPath, JSON.stringify(swagger));
-                            console.log("path: " + swaggerPath);
                             this.answers.path = swaggerPath;
                           })
                           .withOptions({ 'skip-build': true })

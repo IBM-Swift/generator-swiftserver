@@ -20,7 +20,6 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
-var swaggerparser = require('swagger-parser');
 var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
 var swaggerize = require('../refresh/fromswagger/swaggerize');
@@ -838,7 +837,7 @@ module.exports = generators.Base.extend({
     }
 
     function geniOS(callback) {
-      swaggerize.parse.call(self, function(loadedApi, parsed) {
+      swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
         performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
           callback();
         });
@@ -848,14 +847,14 @@ module.exports = generators.Base.extend({
     function genServer(callback) {
       var numFinished = 0;
       for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-        var fileContent = require('html-wiring').readFileAsString(self.serverSwaggerFiles[index]);
       
-        swaggerparser.validate(self.serverSwaggerFiles[index], function(err, api) {
-          if (err) {
+        swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
+
+          if (loadedApi['info']['title'] == undefined) {
             console.error(err);
           } else {
-            var sdkName = api.info.title.replace(/ /g, '_') + '_ServerSDK';
-            performSDKGeneration(sdkName, 'server_swift', fileContent, function() {
+            var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+            performSDKGeneration(sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
 
               extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
 
