@@ -192,12 +192,6 @@ module.exports = generators.Base.extend({
       if (this.spec.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
         this.fromSwagger = this.spec.fromSwagger;
       }
-      if (this.exampleEndpoints) {
-        if (this.fromSwagger) {
-          this.env.error('Only one of: swagger file and example endpoints allowed');
-        }
-        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
-      }
 
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true);

@@ -26,12 +26,13 @@ var rimraf = require('rimraf');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
 var testResourcesPath = path.join(__dirname, '../../../test/resources');
+var buildTimeout = 300000;
 
 describe('Prompt and build integration tests for app generator', function () {
 
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -55,7 +56,7 @@ describe('Prompt and build integration tests for app generator', function () {
 
   describe('Web application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -76,7 +77,7 @@ describe('Prompt and build integration tests for app generator', function () {
 
   describe('CRUD application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -99,15 +100,15 @@ describe('Prompt and build integration tests for app generator', function () {
 
   describe('Starter with generated SDK integration', function () {
     var runContext;
-
+    var appName = 'notes';
     before(function () {
       // Swift build is slow so we need to set a longer timeout for the test
-      this.timeout(300000);
+      this.timeout(buildTimeout);
       runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
+                            name: appName,
+                            dir: appName,
                             appPattern: 'Basic',
                             endpoints: 'Endpoints from swagger file',
                             swaggerChoice: 'Custom swagger file',
@@ -121,12 +122,20 @@ describe('Prompt and build integration tests for app generator', function () {
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/' + appName);
+    });
+
+    it('generates an .xcodeproj file', function () {
+      assert.file(appName + '.xcodeproj');
+    });
+
     it('created a iOS SDK zip file', function() {
-      assert.file('notes_iOS_SDK.zip');
+      assert.file(appName + '_iOS_SDK.zip');
     });
 
     it('modified .gitignore to include the generated iOS SDK', function() {
-      assert.fileContent('.gitignore', '/notes_iOS_SDK*');
+      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*');
     });
 
     it('deleted a server SDK zip file', function() {
@@ -160,7 +169,6 @@ describe('Prompt and build integration tests for app generator', function () {
     it('modified Package.swift to include the second server SDK module', function() {
       assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK');
     });
-
   });
 
 });

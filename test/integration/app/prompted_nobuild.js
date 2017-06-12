@@ -26,6 +26,7 @@ var rimraf = require('rimraf');
 var fs = require('fs');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
+var extendedTimeout = 300000
 
 describe('Prompt and no build integration tests for app generator', function () {
 
@@ -206,7 +207,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application', function() {
-    this.timeout(300000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -373,7 +374,7 @@ describe('Prompt and no build integration tests for app generator', function () 
       }
     };
 
-    this.timeout(300000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {

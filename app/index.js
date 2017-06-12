@@ -348,7 +348,7 @@ module.exports = generators.Base.extend({
       }];
       this.prompt(prompts, function(answers) {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
-          // this.exampleEndpoints = true;
+          this.exampleEndpoints = true;
           this.fromSwagger = path.join(__dirname, '../refresh/templates/common/productSwagger.yaml');
         } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
@@ -399,6 +399,7 @@ module.exports = generators.Base.extend({
             depth += 1;
             prompts[0].name = prompts[0].name.slice(0, -1) + depth;
             prompts[1].name = prompts[1].name.slice(0, -1) + depth;
+            prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?';
             promptUser.call(this);
           } else {
             done();
