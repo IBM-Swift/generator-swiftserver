@@ -500,7 +500,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'An object of model property name/value pairs',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
@@ -533,7 +533,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'An object of model property name/value pairs',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
@@ -592,7 +592,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'Model instance data',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
