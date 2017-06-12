@@ -118,24 +118,26 @@ function parseSwagger(api) {
     foundNewRef = false;
     // now parse the schemas for child references.
     Object.keys(refs).forEach(function(schema) {
-      var properties = refs[schema].properties;
-      Object.keys(properties).forEach(function(property) {
-        if (properties[property].$ref) {
-          // this property contains a definition reference.
-          var name = genUtils.getRefName(properties[property].$ref);
-          if (!refs[name]) {
-            refs[name] = api.definitions[name];
-            foundNewRef = true;
+      if (refs[schema].properties) {
+        var properties = refs[schema].properties;
+        Object.keys(properties).forEach(function(property) {
+          if (properties[property].$ref) {
+            // this property contains a definition reference.
+            var name = genUtils.getRefName(properties[property].$ref);
+            if (!refs[name]) {
+              refs[name] = api.definitions[name];
+              foundNewRef = true;
+            }
+          } else if (properties[property].items && properties[property].items.$ref) {
+            // this property contains a definition reference.
+            var name = genUtils.getRefName(properties[property].items.$ref);
+            if (!refs[name]) {
+              refs[name] = api.definitions[name];
+              foundNewRef = true;
+            }
           }
-        } else if (properties[property].items && properties[property].items.$ref) {
-          // this property contains a definition reference.
-          var name = genUtils.getRefName(properties[property].items.$ref);
-          if (!refs[name]) {
-            refs[name] = api.definitions[name];
-            foundNewRef = true;
-          }
-        }
-      });
+        });
+      }
     });
   } while (foundNewRef);
 
