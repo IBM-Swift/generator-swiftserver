@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var debug = require('debug')('refresh/fromSwagger/swaggerize');
+var debug = require('debug')('refresh:fromSwagger:swaggerize');
 var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
@@ -35,7 +35,7 @@ function loadApi(apiPath, content) {
   debug('in loadApi');
   // load from YAML or JSON file into a JS object.
   'use strict';
-  if (apiPath.indexOf('.yaml') === apiPath.length - 5 || apiPath.indexOf('.yml') === apiPath.length - 4) {
+  if (apiPath.endsWith('.yaml') || apiPath.endsWith('.yml')) {
     /*jslint node: true, stupid: true */
     debug('loading YAML');
     return YAML.load(content || this.fs.read(apiPath));
