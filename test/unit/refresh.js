@@ -1707,7 +1707,7 @@ describe('swiftserver:refresh', function () {
         services: {
           pushnotifications: [{
             name: "myPushNotificationsService",
-            region: "eu-gb.bluemix.net"
+            region: "UK"
           }]
         }
       };
@@ -1739,7 +1739,7 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to a push notifications service', function () {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: "eu-gb.bluemix.net")');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: PushNotifications.Region.UK)');
     });
 
   });

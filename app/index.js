@@ -665,11 +665,6 @@ module.exports = generators.Base.extend({
 
       this.log();
       this.log('Configure Push Notifications');
-
-      // Bluemix region constants
-      var US_SOUTH = "ng.bluemix.net"
-      var UK = "eu-gb.bluemix.net"
-      var SYDNEY = "au-syd.bluemix.net"
       
       var prompts = [
         { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
@@ -692,11 +687,11 @@ module.exports = generators.Base.extend({
           appSecret: answers.pushNotificationsAppSecret || undefined
         };
         switch (answers.pushNotificationsRegion) {
-          case 'US South':        this.services.pushnotifications[0].region = US_SOUTH; break;
-          case 'United Kingdom':  this.services.pushnotifications[0].region = UK; break;
-          case 'Sydney':          this.services.pushnotifications[0].region = SYDNEY; break;
+          case 'US South':        this.services.pushnotifications[0].region = 'US_SOUTH'; break;
+          case 'United Kingdom':  this.services.pushnotifications[0].region = 'UK'; break;
+          case 'Sydney':          this.services.pushnotifications[0].region = 'SYDNEY'; break;
           default:
-            this.services.pushnotifications[0].region = US_SOUTH;
+            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
         }
         done();
       }.bind(this));
