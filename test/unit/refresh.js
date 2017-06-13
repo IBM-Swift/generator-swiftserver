@@ -1609,11 +1609,11 @@ describe('swiftserver:refresh', function () {
     });
 
     it('creates the boilerplate to connect to a push notifications service', function () {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'let region = "eu-gb.bluemix.net".isEmpty ? PushNotifications.Region.US_SOUTH : "eu-gb.bluemix.net"');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'let pushNotificationsService = try manager.getPushSDKService(name: "myPushNotificationsService")');
     });
 
     it('creates the boilerplate to connect to a push notifications service', function () {
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: region)');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: "eu-gb.bluemix.net")');
     });
 
   });

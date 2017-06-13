@@ -669,17 +669,29 @@ module.exports = generators.Base.extend({
         { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
           when: (answers) => this.bluemix
         },
-        { name: 'pushNotificationsRegion', message: 'Enter Bluemix region (blank for default of us_south):' },
         { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
-        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' }
+        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' },
+        {
+          name: 'pushNotificationsRegion',
+          type: 'list',
+          message: 'Enter Bluemix region:',
+          choices: [ 'US South', 'United Kingdom', 'Sydney' ],
+          default: 'US South'
+        }
       ];
       this.prompt(prompts, function(answers) {
         this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
-        this.services.pushnotifications[0].region = answers.pushNotificationsRegion || this.services.pushnotifications[0].region;
         this.services.pushnotifications[0].credentials = {
           appGuid: answers.pushNotificationsAppGuid || undefined,
           appSecret: answers.pushNotificationsAppSecret || undefined
         };
+        switch (answers.pushNotificationsRegion) {
+          case 'US South':        this.services.pushnotifications[0].region = 'ng.bluemix.net'; break;
+          case 'United Kingdom':  this.services.pushnotifications[0].region = 'eu-gb.bluemix.net'; break;
+          case 'Sydney':          this.services.pushnotifications[0].region = 'au-syd.bluemix.net'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
+        }
         done();
       }.bind(this));
     },
