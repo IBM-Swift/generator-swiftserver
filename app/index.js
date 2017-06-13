@@ -34,10 +34,6 @@ var generateServiceName = helpers.generateServiceName;
 var ignoreFile = helpers.ignoreFile;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
-var sdkHelper = require('../lib/sdkGenHelper');
-var performSDKGeneration = sdkHelper.performSDKGeneration;
-var extractNewContent = sdkHelper.extractNewContent;
-var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 
 module.exports = generators.Base.extend({
@@ -349,7 +345,6 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true;
-          this.fromSwagger = path.join(__dirname, '../refresh/templates/common/productSwagger.yaml');
         } else if (answers.path) {
           var httpPattern = new RegExp(/^https?:\/\/\S+/);
 
@@ -820,65 +815,65 @@ module.exports = generators.Base.extend({
     }
   },
 
-  generateSDKs: function() {
-    if(!this.fromSwagger && !this.serverSwaggerFiles) return;
-    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-    var done = this.async();
-    var self = this; // local copy to be used in callbacks
+  // generateSDKs: function() {
+  //   if(!this.fromSwagger && !this.serverSwaggerFiles) return;
+  //   this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
+  //   var done = this.async();
+  //   var self = this; // local copy to be used in callbacks
 
-    // Cover the different cases
-    if(self.fromSwagger && self.serverSwaggerFiles === undefined) {
-      geniOS(done);
-    } else if(self.fromSwagger && self.serverSwaggerFiles !== undefined) {
-      geniOS(function() {
-        genServer(done);
-      })
-    } else if(!self.fromSwagger && self.serverSwaggerFiles !== undefined) {
-      genServer(done);
-    }
+  //   // Cover the different cases
+  //   if(self.fromSwagger && self.serverSwaggerFiles === undefined) {
+  //     geniOS(done);
+  //   } else if(self.fromSwagger && self.serverSwaggerFiles !== undefined) {
+  //     geniOS(function() {
+  //       genServer(done);
+  //     })
+  //   } else if(!self.fromSwagger && self.serverSwaggerFiles !== undefined) {
+  //     genServer(done);
+  //   }
 
-    function geniOS(callback) {
-      swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-        performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
-          callback();
-        });
-      });
-    }
+  //   function geniOS(callback) {
+  //     swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
+  //       performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
+  //         callback();
+  //       });
+  //     });
+  //   }
 
-    function genServer(callback) {
-      var numFinished = 0;
-      for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
+  //   function genServer(callback) {
+  //     var numFinished = 0;
+  //     for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
       
-        swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
+  //       swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
 
-          if (loadedApi['info']['title'] == undefined) {
-            this.env.error(chalk.red(err));
-          } else {
-            var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-            performSDKGeneration(sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
+  //         if (loadedApi['info']['title'] == undefined) {
+  //           this.env.error(chalk.red(err));
+  //         } else {
+  //           var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+  //           performSDKGeneration(sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
 
-              extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
+  //             extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
 
-                if(sdkTargets.length > 0) {
-                  if(self.sdkTargets === undefined) {
-                    self.sdkTargets = [];
-                  }
-                  self.sdkTargets.push(sdkTargets);
-                }
-                if(sdkPackages.length > 0) {
-                  self.sdkPackages = sdkPackages;
-                }
-                numFinished += 1;
-                if(numFinished === self.serverSwaggerFiles.length) {
-                  callback();
-                }
-              })
-            })
-          }
-        });
-      }
-    }
-  },
+  //               if(sdkTargets.length > 0) {
+  //                 if(self.sdkTargets === undefined) {
+  //                   self.sdkTargets = [];
+  //                 }
+  //                 self.sdkTargets.push(sdkTargets);
+  //               }
+  //               if(sdkPackages.length > 0) {
+  //                 self.sdkPackages = sdkPackages;
+  //               }
+  //               numFinished += 1;
+  //               if(numFinished === self.serverSwaggerFiles.length) {
+  //                 callback();
+  //               }
+  //             })
+  //           })
+  //         }
+  //       });
+  //     }
+  //   }
+  // },
 
   createSpecFromAnswers: function() {
     if (this.skipPrompting) return;
@@ -892,6 +887,7 @@ module.exports = generators.Base.extend({
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
       fromSwagger: this.fromSwagger || undefined,
+      serverSwaggerFiles: this.serverSwaggerFiles || undefined,
       hostSwagger: this.hostSwagger || undefined,
       swaggerUI: this.swaggerUI || undefined,
       services: this.services || {},
@@ -938,22 +934,22 @@ module.exports = generators.Base.extend({
     },
     
     configureServerSDK: function() {
-      if(this.fromSwagger) {
-        ignoreFile('/' + this.appname + '_iOS_SDK*');
-      }
+      // if(this.fromSwagger) {
+      //   ignoreFile('/' + this.appname + '_iOS_SDK*');
+      // }
 
-      if(!this.sdkTargets) return;
-      var done = this.async();
+      // if(!this.sdkTargets) return;
+      // var done = this.async();
 
-      var numFinished = 0, length = this.sdkTargets.length; 
-      for (var index = 0; index < length; index++) {
-        integrateServerSDK(this.sdkTargets[index], function() {
-          numFinished += 1;
-          if(numFinished === length) {
-            done();
-          }
-        });
-      }
+      // var numFinished = 0, length = this.sdkTargets.length; 
+      // for (var index = 0; index < length; index++) {
+      //   integrateServerSDK(this.sdkTargets[index], function() {
+      //     numFinished += 1;
+      //     if(numFinished === length) {
+      //       done();
+      //     }
+      //   });
+      // }
     },
 
     buildApp: function() {
