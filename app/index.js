@@ -690,7 +690,7 @@ module.exports = generators.Base.extend({
           case 'United Kingdom':  this.services.pushnotifications[0].region = 'eu-gb.bluemix.net'; break;
           case 'Sydney':          this.services.pushnotifications[0].region = 'au-syd.bluemix.net'; break;
           default:
-            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
+            this.services.pushnotifications[0].region = 'ng.bluemix.net';
         }
         done();
       }.bind(this));
