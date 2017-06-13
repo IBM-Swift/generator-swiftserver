@@ -684,6 +684,24 @@ module.exports = generators.Base.extend({
         this.fs.writeJSON(filepath, configToWrite);
       });
 
+      // Write out the auth.json, this won't be regenerated again
+      this._ifNotExistsInProject('auth.json', (filepath) => {
+        var authToWrite;
+        if(this.bluemix) {
+          authToWrite = helpers.generateBluemixAuth(this.services);
+        } else {
+          authToWrite = helpers.generateLocalAuth(this.services);
+        }
+        this.fs.writeJSON(
+          filepath,
+          authToWrite
+        );
+      }
+
+      // Remove references to username and password/credentials
+      // before writing the spec file
+      this.services = helpers.removeCredentials(this.services);
+
       this._ifNotExistsInProject('.swift-version', (filepath) => {
         this.fs.copy(this.templatePath('common','swift-version'),
                      filepath);

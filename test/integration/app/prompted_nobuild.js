@@ -510,7 +510,7 @@ describe('Prompt and no build integration tests for app generator', function () 
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct default service credentials for cloudant and redis credentials', function () {
+    it('config.json contains the correct default service config for cloudant and redis credentials', function () {
       var expected = {
         services: {
           cloudant: [{
@@ -560,28 +560,21 @@ describe('Prompt and no build integration tests for app generator', function () 
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct service credentials for cloudant and redis credentials', function () {
+    it('auth.json contains the correct service credentials for cloudant and redis credentials', function () {
       var expected = {
         services: {
           cloudant: [{
             name: 'couchdb',
-            type: 'cloudant',
-            host: 'cloudy.ibm.com',
-            port: 4568,
-            secured: true,
             username: 'admin',
             password: 'password'
           }],
           'redis': [{
             name: 'redis',
-            type: 'redis',
-            host: 'reducto.ibm.com',
-            port: 4569,
             password: 'gimble'
           }],
         }
       };
-      assert.jsonFileContent('config.json', expected);
+      assert.jsonFileContent('auth.json', expected);
     });
   });
 
@@ -602,7 +595,7 @@ describe('Prompt and no build integration tests for app generator', function () 
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage, appid, watsonconversation, and alertnotification services', function () {
+    it('auth.json contains the correct default service credentials for cloudant, redis, objectstorage, appid, watsonconversation, and alertnotification services', function () {
       var expected = {
         vcap: {
           services: {
@@ -661,7 +654,7 @@ describe('Prompt and no build integration tests for app generator', function () 
           }
         }
       };
-      assert.jsonFileContent('config.json', expected);
+      assert.jsonFileContent('auth.json', expected);
     });
   });
 
@@ -703,7 +696,7 @@ describe('Prompt and no build integration tests for app generator', function () 
       return runContext.toPromise();                        // Get a Promise back when the generator finishes
     });
 
-    it('config.json contains the credentials specified by the user', function () {
+    it('auth.json contains the credentials specified by the user', function () {
       var expected = {
         vcap: {
           services: {
@@ -762,7 +755,7 @@ describe('Prompt and no build integration tests for app generator', function () 
           }
         }
       };
-      assert.jsonFileContent('config.json', expected);
+      assert.jsonFileContent('auth.json', expected);
     });
   });
 
