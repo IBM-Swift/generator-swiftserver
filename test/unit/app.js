@@ -813,6 +813,7 @@ describe('swiftserver:app', function () {
         docker: undefined,
         web: undefined,
         hostSwagger: undefined,
+        swaggerUI: undefined,
         capabilities: {},
         services: {}
       };
