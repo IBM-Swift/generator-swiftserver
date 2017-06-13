@@ -406,7 +406,8 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         pushnotifications: [{
-          name: "myPushNotificationsService"
+          name: "myPushNotificationsService",
+          region: "UK"
         }]
       }
     };
