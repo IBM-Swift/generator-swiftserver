@@ -29,7 +29,7 @@ var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
-var validateFilePath = helpers.validateFilePath;
+var validateFilePathOrURL = helpers.validateFilePathOrURL;
 var generateServiceName = helpers.generateServiceName;
 var ignoreFile = helpers.ignoreFile;
 var actions = require('../lib/actions');
@@ -341,7 +341,7 @@ module.exports = generators.Base.extend({
         type: 'input',
         message: 'Provide the path to a swagger file:',
         filter: function(response) { return response.trim(); },
-        validate: validateFilePath,
+        validate: validateFilePathOrURL,
         when: function(question) {
                 return (question.swaggerChoice === choices.customSwagger);
               }
@@ -379,7 +379,7 @@ module.exports = generators.Base.extend({
         type: 'input',
         message: 'Enter Swagger yaml file path:',
         filter: function(response) { return response.trim(); },
-        validate: validateFilePath,
+        validate: validateFilePathOrURL,
       }];
       
       function promptUser() {
@@ -852,7 +852,7 @@ module.exports = generators.Base.extend({
         swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
 
           if (loadedApi['info']['title'] == undefined) {
-            console.error(err);
+            this.env.error(chalk.red(err));
           } else {
             var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
             performSDKGeneration(sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
