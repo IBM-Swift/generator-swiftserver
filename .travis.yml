@@ -4,6 +4,7 @@ branches:
   only:
     - master
     - develop
+    - /^issue.*$/
 node_js:
   - '4'
   - '6'
