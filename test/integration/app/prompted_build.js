@@ -129,46 +129,6 @@ describe('Prompt and build integration tests for app generator', function () {
     it('generates an .xcodeproj file', function () {
       assert.file(appName + '.xcodeproj');
     });
-
-    it('created a iOS SDK zip file', function() {
-      assert.file(appName + '_iOS_SDK.zip');
-    });
-
-    it('modified .gitignore to include the generated iOS SDK', function() {
-      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*');
-    });
-
-    it('deleted a server SDK zip file', function() {
-      assert.noFile('Swagger_Petstore_ServerSDK.zip');
-    });
-
-    it('unzipped server SDK folder was deleted', function() {
-      assert.noFile('Swagger_Petstore_ServerSDK/README.md');
-    });
-
-    it('created Pet model from swagger file', function() {
-      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift');
-    });
-
-    it('modified Package.swift to include server SDK module', function() {
-      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK');
-    });
-
-    it('deleted the second server SDK zip file', function() {
-      assert.noFile('Swagger_Petstore_Two_ServerSDK.zip');
-    });
-
-    it('unzipped the second server SDK folder was deleted', function() {
-      assert.noFile('Swagger_Petstore_Two_ServerSDK/README.md');
-    });
-
-    it('created Pet model from the second swagger file', function() {
-      assert.file('Sources/Swagger_Petstore_Two_ServerSDK/Pet.swift');
-    });
-
-    it('modified Package.swift to include the second server SDK module', function() {
-      assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK');
-    });
   });
 
 });
