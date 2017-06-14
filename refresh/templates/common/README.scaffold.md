@@ -66,6 +66,9 @@ This application has been generated with the following capabilities and services
 <%   if (alertnotification) { -%>
 * [Alert Notification](#alert-notification)
 <%   } -%>
+<%   if (pushnotifications) { -%>
+* [Push Notifications](#push-notifications)
+<%   } -%>
 <%   if (autoscale) { -%>
 * [Auto-scaling](#auto-scaling)
 <%   } -%>
@@ -194,7 +197,15 @@ Boilerplate code for creating a client object for the Alert Notification API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Alert Notification client in the boilerplate code.
 
-A quick start guide to the IBM Alert Notification Service on Bluemix can be found [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/).
+A quick start guide to the IBM Alert Notification Service on Bluemix can be found  [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/).
+<%   } -%>
+<%   if (pushnotifications) { -%>
+#### Push Notifications
+This application uses the [Bluemix Push notifications package](https://github.com/ibm-bluemix-mobile-services/bms-pushnotifications-serversdk-swift), which is a Swift server-side SDK for sending push notifications via the Bluemix Push Notifications services.
+
+Boilerplate code for creating a client object for the Push Notifications API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module.
+
+The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Push Notifications client in the boilerplate code.
 <%   } -%>
 <%   if (autoscale) { -%>
 #### Auto-scaling

@@ -1690,6 +1690,59 @@ describe('swiftserver:refresh', function () {
 
   });
 
+  describe('Generated a web application with push notifications for bluemix', function () {
+
+    var runContext;
+
+    before(function () {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {
+          pushnotifications: [{
+            name: "myPushNotificationsService",
+            region: "UK"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function () {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the Push Notifications extensions required by bluemix', function () {
+      assert.file(`Sources/${applicationModule}/Extensions/PushNotificationsExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixPushNotifications');
+    });
+
+    it('initialises push notifications', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var pushNotifications: PushNotifications?');
+    });
+
+    it('creates the boilerplate to connect to a push notifications service', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'let pushNotificationsService = try manager.getPushSDKService(name: "myPushNotificationsService")');
+    });
+
+    it('creates the boilerplate to connect to a push notifications service', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: PushNotifications.Region.UK)');
+    });
+
+  });
 
 describe('Generated a web application for bluemix without services', function() {
 
