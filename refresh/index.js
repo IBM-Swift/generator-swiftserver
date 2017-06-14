@@ -676,8 +676,7 @@ module.exports = generators.Base.extend({
       this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
       var done = this.async();
       var self = this; // local copy to be used in callbacks
-      console.log("fromSwagger: " + this.fromSwagger);
-      console.log("serverSwaggerFiles: " + this.serverSwaggerFiles.length);
+
       // Cover the different cases
       if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
         geniOS(done);
