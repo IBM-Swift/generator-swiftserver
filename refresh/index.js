@@ -29,7 +29,9 @@ var util = require('util');
 var swaggerize = require('./fromswagger/swaggerize');
 var sdkHelper = require('../lib/sdkGenHelper');
 var performSDKGeneration = sdkHelper.performSDKGeneration;
-var extractNewContent = sdkHelper.extractNewContent;
+var getiOSSDK = sdkHelper.getiOSSDK;
+var getServerSDK = sdkHelper.getServerSDK;
+// var extractNewContent = sdkHelper.extractNewContent;
 var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 module.exports = generators.Base.extend({
@@ -79,6 +81,63 @@ module.exports = generators.Base.extend({
       this.log(chalk.cyan('   exists ') + relativeFilepath);
     } else {
       cb.call(this, filepath);
+    }
+  },
+
+  default: {
+    generateSDKs: function() {
+      // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
+      // this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
+      // console.log("fromSwagger: " + this.fromSwagger);
+      // console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
+
+      if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
+      this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
+      var done = this.async();
+      var self = this; // local copy to be used in callbacks
+
+      // Cover the different cases
+      if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
+        geniOS(done);
+      } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+        geniOS(function() {
+          genServer(done);
+        })
+      } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+        genServer(done);
+      }
+
+      function geniOS(callback) {
+        swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
+          performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
+            getiOSSDK(self.appname + '_iOS_SDK', generatedID, callback);
+          });
+        });
+      }
+
+      function genServer(callback) {
+        var numFinished = 0;
+        for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
+        
+          swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
+
+            if (loadedApi['info']['title'] == undefined) {
+              this.env.error(chalk.red(err));
+            } else {
+              var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+              performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function(generatedID) {
+                getServerSDK.call(self, sdkName, generatedID, function() {
+
+                  numFinished += 1;
+                  if(numFinished === self.serverSwaggerFiles.length) {
+                    callback();
+                  }
+                });
+              })
+            }
+          });
+        }
+      }
     }
   },
 
@@ -671,66 +730,6 @@ module.exports = generators.Base.extend({
   },
 
   writing: {
-    generateSDKs: function() {
-      if(!this.fromSwagger && !this.serverSwaggerFiles) return;
-      this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-      var done = this.async();
-      var self = this; // local copy to be used in callbacks
-
-      // Cover the different cases
-      if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
-        geniOS(done);
-      } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-        geniOS(function() {
-          genServer(done);
-        })
-      } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-        genServer(done);
-      }
-
-      function geniOS(callback) {
-        swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-          performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
-            callback();
-          });
-        });
-      }
-
-      function genServer(callback) {
-        var numFinished = 0;
-        for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-        
-          swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
-
-            if (loadedApi['info']['title'] == undefined) {
-              this.env.error(chalk.red(err));
-            } else {
-              var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-              performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
-
-                extractNewContent.call(self, sdkName, function(sdkTargets, sdkPackages) {
-
-                  if(sdkTargets.length > 0) {
-                    if(self.sdkTargets === undefined) {
-                      self.sdkTargets = [];
-                    }
-                    self.sdkTargets.push(sdkTargets);
-                  }
-                  if(sdkPackages.length > 0) {
-                    self.sdkPackages = sdkPackages;
-                  }
-                  numFinished += 1;
-                  if(numFinished === self.serverSwaggerFiles.length) {
-                    callback();
-                  }
-                })
-              })
-            }
-          });
-        }
-      }
-    },
-
     createCommonFiles: function() {
 
       // Check if we should create generator metadata files
@@ -1267,9 +1266,9 @@ module.exports = generators.Base.extend({
     },
 
     writeServerSDKConnection: function() {
-      if(this.fromSwagger) {
-        ignoreFile('/' + this.appname + '_iOS_SDK*');
-      }
+      // if(this.fromSwagger) {
+      //   ignoreFile('/' + this.appname + '_iOS_SDK*');
+      // }
       return; // TODO: remove after testing
       if(!this.sdkTargets) return;
       var done = this.async();
