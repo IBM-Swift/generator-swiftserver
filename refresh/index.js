@@ -500,7 +500,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'An object of model property name/value pairs',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
@@ -533,7 +533,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'An object of model property name/value pairs',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
@@ -592,7 +592,7 @@ module.exports = generators.Base.extend({
               'name': 'data',
               'in': 'body',
               'description': 'Model instance data',
-              'required': false,
+              'required': true,
               'schema': {
                 '$ref': '#/definitions/' + modelName
               }
@@ -793,7 +793,8 @@ module.exports = generators.Base.extend({
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
             appid: this.services.appid && this.services.appid.length > 0,
             watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0,
-            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0
+            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0,
+            pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
           }
         );
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
@@ -1052,6 +1053,14 @@ module.exports = generators.Base.extend({
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'AlertNotificationExtension.swift'),
+              filepath
+            );
+          });
+        }
+        if(serviceType === 'pushnotifications') {
+          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PushNotificationsExtension.swift'], (filepath) => {
+            this.fs.copy(
+              this.templatePath('extensions', 'PushNotificationsExtension.swift'),
               filepath
             );
           });

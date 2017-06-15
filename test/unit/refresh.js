@@ -189,58 +189,87 @@ describe('swiftserver:refresh', function () {
       },
       "basePath": "/basepath",
       "paths": {
-        "*": {
-          "get": {
-            "description": "Gets `Person` objects.",
-          },
-        },
         "/persons": {
           "get": {
             "description": "Gets `Person` objects.",
-          },
-          "put": {
-            "description": "Puts `Person` objects.",
+            "parameters": [
+              {
+                "name": "ages",
+                "in": "query",
+                "required": "true",
+                "schema": {
+                  "items": {
+                    "$ref": "#/definitions/age"
+                  }
+                }
+              }
+            ],
+            "responses": {
+              "default": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/age"
+                  }
+                }
+              },
+              "200": {
+                "schema": {
+                  "$ref": "#/definitions/age"
+                }
+              }
+            }
           }
         },
         "/dinosaurs": {
           "get": {
             "description": "Gets `Dinosaur` objects.",
-            "responses": {
-              "200": {
-                "description": "dinosaurs response",
+            "parameters": [
+              {
+                "name": "dino",
+                "in": "query",
+                "required": "true",
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/dinosaur"
-                  }
-                }
-              },
-              "default": {
-                "description": "default dinosaurs response",
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/dinosaur"
-                  }
+                  "$ref": "#/definitions/dino"
                 }
               }
-            }
+            ]
           }
         }
       },
       "definitions": {
-        "dinosaur": {
+        "age": {
           "type": "object",
-          "required": ["name", "email"],
+          "required": ["age"],
           "properties": {
-            "name": {
-              "type": "string",
-            },
-            "email": {
-              "type": "string",
+            "age": {
+              "type": "string"
             }
           } 
-        }
+        },
+        "dino": {
+          "type": "object",
+          "required": ["age"],
+          "properties": {
+            "age": {
+              "$ref": "#/definitions/age"
+            },
+            "ages": {
+              "items": {
+                "$ref": "#/definitions/newage"
+              }
+            }
+          } 
+        },
+        "newage": {
+          "type": "object",
+          "required": ["age"],
+          "properties": {
+            "age": {
+              "type": "string"
+            }
+          } 
+        },
       }
     };
 
@@ -251,8 +280,6 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'scaffold',
           appName: appName,
-          bluemix: false,
-          web: true,
           hostSwagger: true,
           config: {
             logger: 'helium',
@@ -305,7 +332,7 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a Bff application from an invalid Swagger path', function () {
+  describe('Generate scaffolded app from an invalid swagger path', function () {
 
     var runContext;
     var error;
@@ -315,9 +342,6 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'scaffold',
           appName: appName,
-          bluemix: false,
-          web: true,
-          hostSwagger: true,
           fromSwagger: 'unknown_file_!"£$',
           config: {
             logger: 'helium',
@@ -343,7 +367,7 @@ describe('swiftserver:refresh', function () {
     });
   });
 
-  describe('Generate a Bff application from an invalid Swagger document', function () {
+  describe('Generate scaffolded app from a non-conforming swagger document', function () {
 
     var swagger = {
       "swagger": "2.0",
@@ -364,9 +388,6 @@ describe('swiftserver:refresh', function () {
         var spec = {
           appType: 'scaffold',
           appName: appName,
-          bluemix: false,
-          web: true,
-          hostSwagger: true,
           config: {
             logger: 'helium',
             port: 4567
@@ -387,7 +408,112 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error');
-      assert(error.match('failed to parse swagger from:'), 'failed to parse swagger from:');
+      assert(error.match('does not conform to swagger specification:'), 'does not conform to swagger specification:');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+  });
+
+  describe('Generate scaffolded app from a conforming swagger document with invalid path', function () {
+
+    var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "basePath": "/basepath",
+      "paths": {
+        "*": {
+          "get": {
+            "description": "Gets `Person` objects.",
+          }
+        }
+      }
+    };
+
+    var runContext;
+    var error;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .inTmpDir(function(tmpDir) {
+          spec.fromSwagger = path.join(tmpDir, "swagger.json");
+          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
+        })
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error when no resources are found', function () {
+      assert(error, 'Should throw an error');
+      assert(error.match('no resources'), 'no resources');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+  });
+
+  describe('Generate scaffolded app from swagger where there are paths but no methods', function () {
+
+    var swagger = {
+      "swagger": "2.0",
+      "info": {
+        "version": "0.0.0",
+        "title": "<enter your title>"
+      },
+      "basePath": "/basepath",
+      "paths": {
+        "cheese": {
+        }
+      }
+    };
+
+    var runContext;
+    var error;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .inTmpDir(function(tmpDir) {
+          spec.fromSwagger = path.join(tmpDir, "swagger.json");
+          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
+        })
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error when no resources are found', function () {
+      assert(error, 'Should throw an error');
+      assert(error.match('no resources'), 'no resources');
     });
 
     after(function() {
@@ -1564,6 +1690,59 @@ describe('swiftserver:refresh', function () {
 
   });
 
+  describe('Generated a web application with push notifications for bluemix', function () {
+
+    var runContext;
+
+    before(function () {
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: true,
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        },
+        services: {
+          pushnotifications: [{
+            name: "myPushNotificationsService",
+            region: "UK"
+          }]
+        }
+      };
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    after(function () {
+      runContext.cleanTestDirectory();
+    });
+
+    it('generates the Push Notifications extensions required by bluemix', function () {
+      assert.file(`Sources/${applicationModule}/Extensions/PushNotificationsExtension.swift`)
+    });
+
+    it('imports the correct modules in Application.swift', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import BluemixPushNotifications');
+    });
+
+    it('initialises push notifications', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'internal var pushNotifications: PushNotifications?');
+    });
+
+    it('creates the boilerplate to connect to a push notifications service', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'let pushNotificationsService = try manager.getPushSDKService(name: "myPushNotificationsService")');
+    });
+
+    it('creates the boilerplate to connect to a push notifications service', function () {
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'pushNotifications = PushNotifications(service: pushNotificationsService, region: PushNotifications.Region.UK)');
+    });
+
+  });
 
 describe('Generated a web application for bluemix without services', function() {
 

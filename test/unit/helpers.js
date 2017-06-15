@@ -171,7 +171,8 @@ describe('helpers', function () {
                       objectstorage:[{credentials:{}}],
                       appid:[{credentials:{}}],
                       watsonconversation:[{credentials:{}}],
-                      alertnotification:[{credentials:{}}]
+                      alertnotification:[{credentials:{}}],
+                      pushnotifications:[{credentials:{}}]
                      };
       var expected = {vcap:{services:{"cloudantNoSQLDB":[{label:"cloudantNoSQLDB",
                                                           tags:[],
@@ -215,7 +216,12 @@ describe('helpers', function () {
                                                             plan:"Authorized Users",
                                                             credentials:{name:"",
                                                                          password:"",
-                                                                         url:""}}]
+                                                                         url:""}}],
+                                      "imfpush":[{label:"imfpush",
+                                                            tags:[],
+                                                            plan:"Lite",
+                                                            credentials:{appGuid:"",
+                                                                         appSecret:""}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -261,7 +267,11 @@ describe('helpers', function () {
                                           plan:"authorizedusers",
                                           credentials:{name:'username',
                                                        password:'password',
-                                                       url:"https://api.alerts"}}]
+                                                       url:"https://api.alerts"}}],
+                      pushnotifications:[{label:"testpushnotifications",
+                                          plan:"lite",
+                                          credentials:{appGuid:"guid",
+                                                       appSecret:"secret"}}]
                      };
       var expected = {vcap:{services:{testcloudant:[{label:"testcloudant",
                                                      tags:[],
@@ -307,7 +317,11 @@ describe('helpers', function () {
                                                               tags:[],
                                                               credentials:{name:'username',
                                                                            password:'password',
-                                                                           url:"https://api.alerts"}}]
+                                                                           url:"https://api.alerts"}}],
+                                      testpushnotifications:[{label:"testpushnotifications",
+                                                              plan:"lite",
+                                                              credentials:{appGuid:"guid",
+                                                                           appSecret:"secret"}}]
                      }}};
       var config = helpers.generateCloudConfig({}, services);
       assert.objectContent(config, expected);
@@ -340,6 +354,10 @@ describe('helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('alertnotification'), 'AlertNotification');
     });
 
+    it('get label for pushnotifications', function() {
+      assert.equal(helpers.getBluemixServiceLabel('pushnotifications'), 'imfpush');
+    });
+
     it('get label for unrecognised value', function() {
       assert.equal(helpers.getBluemixServiceLabel('unrecognised'), 'unrecognised');
     });
@@ -368,6 +386,10 @@ describe('helpers', function () {
 
     it('get default plan for alertnotification', function() {
       assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'Authorized Users');
+    });
+
+    it('get default plan for pushnotifications', function() {
+      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'Lite');
     });
 
     it('get default plan for unrecognised value', function() {

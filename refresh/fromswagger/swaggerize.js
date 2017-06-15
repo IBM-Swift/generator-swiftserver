@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var debug = require('debug')('refresh:fromSwagger:swaggerize');
 var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
@@ -31,16 +32,31 @@ var path = require('path');
 var process = require('process');
 
 function loadApi(apiPath, content) {
-    'use strict';
-    if (apiPath.indexOf('.yaml') === apiPath.length - 5 ||
-            apiPath.indexOf('.yml') === apiPath.length - 4) {
-        /*jslint node: true, stupid: true */
-        return YAML.load(content || this.fs.read(apiPath));
+  debug('in loadApi');
+  // load from YAML or JSON file into a JS object.
+  'use strict';
+  if (apiPath.endsWith('.yaml') || apiPath.endsWith('.yml')) {
+    /*jslint node: true, stupid: true */
+    debug('loading YAML');
+    return YAML.load(content || this.fs.read(apiPath));
+  }
+  debug('loading JSON');
+  return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
+}
+
+function validate(api) {
+  debug('in validate');
+  // validate against the swagger schema.
+  'use strict';
+  enjoi(apischema).validate(api, function (error, value) {
+    if (error) {
+      this.env.error(chalk.red(this.fromSwagger, 'does not conform to swagger specification:\n', error));
     }
-    return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
+  }.bind(this));
 }
 
 function parseSwagger(api) {
+  debug('in parseSwagger');
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
   var resources = {}
   var refs = [];
@@ -53,16 +69,18 @@ function parseSwagger(api) {
       return;
     }
 
+    debug('path:', path, 'becomes resource:', resource);
     // for each path, walk the method verbs
     builderUtils.verbs.forEach(function(verb) {
       if (api.paths[path][verb]) {
-       if (!resources[resource]) {
-         resources[resource] = [];
-       }
+        if (!resources[resource]) {
+          resources[resource] = [];
+        } 
 
-       // save the method and the path in the resources list.
-       resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)});
-       // process the parameters
+        debug('parsing verb:', verb);
+        // save the method and the path in the resources list.
+        resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)});
+        // process the parameters
         if (api.paths[path][verb].parameters) {
           var parameters = api.paths[path][verb].parameters;
 
@@ -118,32 +136,39 @@ function parseSwagger(api) {
     foundNewRef = false;
     // now parse the schemas for child references.
     Object.keys(refs).forEach(function(schema) {
-      var properties = refs[schema].properties;
-      Object.keys(properties).forEach(function(property) {
-        if (properties[property].$ref) {
-          // this property contains a definition reference.
-          var name = genUtils.getRefName(properties[property].$ref);
-          if (!refs[name]) {
-            refs[name] = api.definitions[name];
-            foundNewRef = true;
+      if (refs[schema] && refs[schema].properties) {
+        var properties = refs[schema].properties;
+        Object.keys(properties).forEach(function(property) {
+          if (properties[property].$ref) {
+            // this property contains a definition reference.
+            var name = genUtils.getRefName(properties[property].$ref);
+            if (!refs[name]) {
+              refs[name] = api.definitions[name];
+              foundNewRef = true;
+            }
+          } else if (properties[property].items && properties[property].items.$ref) {
+            // this property contains a definition reference.
+            var name = genUtils.getRefName(properties[property].items.$ref);
+            if (!refs[name]) {
+              refs[name] = api.definitions[name];
+              foundNewRef = true;
+            }
           }
-        } else if (properties[property].items && properties[property].items.$ref) {
-          // this property contains a definition reference.
-          var name = genUtils.getRefName(properties[property].items.$ref);
-          if (!refs[name]) {
-            refs[name] = api.definitions[name];
-            foundNewRef = true;
-          }
-        }
-      });
+        });
+      }
     });
   } while (foundNewRef);
+
+  if (Object.keys(resources).length === 0) {
+    this.env.error("no resources");
+  }
 
   var parsed = {basepath: basePath, resources: resources, refs: refs};
   return parsed;
 }
 
 function createRoutes(parsed) {
+  debug('in createRoutes');
   var tPath = this.templatePath('fromswagger', 'Routes.swift.hbs');
   filesys.readFile(tPath, 'utf-8', function (err, data) {
     var template = handlebars.compile(data);
@@ -161,29 +186,52 @@ function createRoutes(parsed) {
 }
 
 function parse(callback) {
+  debug('in parse');
   var httpPattern = new RegExp(/^https?:\/\/\S+/);
+  var loadedApi;
   if (httpPattern.test(this.fromSwagger)) {
+    // handle the swagger loading from a URL.
+    debug('loading swagger from url:', this.fromSwagger);
     wreck.get(this.fromSwagger, function (err, res, payload) {
       if (err || (res && res.statusCode !== 200)) {
-        this.env.error(chalk.red("failed to load swagger from: " + this.fromSwagger));
+        debug('get request returned status:', res.statusCode);
+        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, 'status:', res.statusCode));
       }
-
       try {
-        var loadedApi = loadApi.call(this, this.fromSwagger, payload);
-        callback(loadedApi, parseSwagger(loadedApi));
+        loadedApi = loadApi.call(this, this.fromSwagger, payload);
       } catch (e) {
-        this.env.error(chalk.red("failed to parse swagger from: " + this.fromSwagger));
+        debug('cannot read file contents', this.fromSwagger);
+        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, e));
+      }
+      validate.call(this, loadedApi);
+      debug('successfully validated against schema');
+      try {
+        callback(loadedApi, parseSwagger.call(this, loadedApi));
+      } catch (e) {
+        this.env.error(chalk.red('failed to parse swagger from:', this.fromSwagger, e));
       }
     }.bind(this));
   } else {
-    var loadedApi = loadApi.call(this, this.fromSwagger);
-    if (loadedApi === undefined) {
-      this.env.error(chalk.red("failed to load swagger from: " + this.fromSwagger));
-    }
+    // handle the swagger loading from a file.
+    debug('loading swagger from file:', this.fromSwagger);
     try {
-      setImmediate(callback, loadedApi, parseSwagger(loadedApi));
+      loadedApi = loadApi.call(this, this.fromSwagger);
+      if (loadedApi === undefined) {
+        // when file exists but cannot read content.
+        debug('cannot read file contents', this.fromSwagger);
+        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger));
+      }
     } catch (e) {
-      this.env.error(chalk.red("failed to parse swagger from: " + this.fromSwagger));
+      // when file doesn't exist.
+      debug('file does not exist', this.fromSwagger);
+      this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, e));
+    }
+    validate.call(this, loadedApi);
+    debug('successfully validated against schema');
+    try {
+      setImmediate(callback, loadedApi, parseSwagger.call(this, loadedApi));
+    } catch (e) {
+      this.env.error(chalk.red('failed to parse swagger from:', this.fromSwagger, e));
     }
   }
 }

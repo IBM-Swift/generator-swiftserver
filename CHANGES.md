@@ -1,3 +1,13 @@
+2017-06-15, Version 2.4.0
+=========================
+
+* Fix second non-root user has privilege failure (#227)
+* Push SDK generator (#219)
+* Data models should be required for POST, PUT and PATCH verbs (#226)
+* Allow feature branches to be built by travis (#220)
+* Improve code coverage and debug for Swagger parsing (#224)
+* Fix undefined reference (#223)
+
 2017-06-07, Version 2.3.0
 =========================
 
