@@ -702,46 +702,6 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
-    promptConfigurePushNotifications: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.pushnotifications) return;
-      var done = this.async();
-
-      this.log();
-      this.log('Configure Push Notifications');
-      
-      var prompts = [
-        { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
-          when: (answers) => this.bluemix
-        },
-        { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
-        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' },
-        {
-          name: 'pushNotificationsRegion',
-          type: 'list',
-          message: 'Enter Bluemix region:',
-          choices: [ 'US South', 'United Kingdom', 'Sydney' ],
-          default: 'US South'
-        }
-      ];
-      this.prompt(prompts, function(answers) {
-        this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
-        this.services.pushnotifications[0].credentials = {
-          appGuid: answers.pushNotificationsAppGuid || undefined,
-          appSecret: answers.pushNotificationsAppSecret || undefined
-        };
-        switch (answers.pushNotificationsRegion) {
-          case 'US South':        this.services.pushnotifications[0].region = 'US_SOUTH'; break;
-          case 'United Kingdom':  this.services.pushnotifications[0].region = 'UK'; break;
-          case 'Sydney':          this.services.pushnotifications[0].region = 'SYDNEY'; break;
-          default:
-            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
-        }
-        done();
-      }.bind(this));
-    },
-
     promptConfigureObjectStorage: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
@@ -815,66 +775,6 @@ module.exports = generators.Base.extend({
     }
   },
 
-  // generateSDKs: function() {
-  //   if(!this.fromSwagger && !this.serverSwaggerFiles) return;
-  //   this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-  //   var done = this.async();
-  //   var self = this; // local copy to be used in callbacks
-
-  //   // Cover the different cases
-  //   if(self.fromSwagger && self.serverSwaggerFiles === undefined) {
-  //     geniOS(done);
-  //   } else if(self.fromSwagger && self.serverSwaggerFiles !== undefined) {
-  //     geniOS(function() {
-  //       genServer(done);
-  //     })
-  //   } else if(!self.fromSwagger && self.serverSwaggerFiles !== undefined) {
-  //     genServer(done);
-  //   }
-
-  //   function geniOS(callback) {
-  //     swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-  //       performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function () {
-  //         callback();
-  //       });
-  //     });
-  //   }
-
-  //   function genServer(callback) {
-  //     var numFinished = 0;
-  //     for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-      
-  //       swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
-
-  //         if (loadedApi['info']['title'] == undefined) {
-  //           this.env.error(chalk.red(err));
-  //         } else {
-  //           var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-  //           performSDKGeneration(sdkName, 'server_swift', JSON.stringify(loadedApi), function() {
-
-  //             extractNewContent(sdkName, function(sdkTargets, sdkPackages) {
-
-  //               if(sdkTargets.length > 0) {
-  //                 if(self.sdkTargets === undefined) {
-  //                   self.sdkTargets = [];
-  //                 }
-  //                 self.sdkTargets.push(sdkTargets);
-  //               }
-  //               if(sdkPackages.length > 0) {
-  //                 self.sdkPackages = sdkPackages;
-  //               }
-  //               numFinished += 1;
-  //               if(numFinished === self.serverSwaggerFiles.length) {
-  //                 callback();
-  //               }
-  //             })
-  //           })
-  //         }
-  //       });
-  //     }
-  //   }
-  // },
-
   createSpecFromAnswers: function() {
     if (this.skipPrompting) return;
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
@@ -896,8 +796,6 @@ module.exports = generators.Base.extend({
         metrics: this.metrics || undefined,
         autoscale: this.autoscale || undefined
       },
-      sdkTargets: this.sdkTargets || undefined,
-      sdkPackages: this.sdkPackages || undefined,
       config: {
         logger: 'helium',
         port: 8080
@@ -931,25 +829,6 @@ module.exports = generators.Base.extend({
         },
         this.options.testmode ? null : { local: require.resolve('../refresh')}
       );
-    },
-    
-    configureServerSDK: function() {
-      // if(this.fromSwagger) {
-      //   ignoreFile('/' + this.appname + '_iOS_SDK*');
-      // }
-
-      // if(!this.sdkTargets) return;
-      // var done = this.async();
-
-      // var numFinished = 0, length = this.sdkTargets.length; 
-      // for (var index = 0; index < length; index++) {
-      //   integrateServerSDK(this.sdkTargets[index], function() {
-      //     numFinished += 1;
-      //     if(numFinished === length) {
-      //       done();
-      //     }
-      //   });
-      // }
     },
 
     buildApp: function() {

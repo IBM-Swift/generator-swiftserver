@@ -88,8 +88,8 @@ module.exports = generators.Base.extend({
     generateSDKs: function() {
       // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
       // this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
-      // console.log("fromSwagger: " + this.fromSwagger);
-      // console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
+      console.log("fromSwagger: " + this.fromSwagger);
+      console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
 
       if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
       this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
@@ -110,7 +110,12 @@ module.exports = generators.Base.extend({
       function geniOS(callback) {
         swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
           performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
-            getiOSSDK(self.appname + '_iOS_SDK', generatedID, callback);
+            getiOSSDK(self.appname + '_iOS_SDK', generatedID, function() {
+              	if(self.itemsToIgnore === undefined) {
+					        self.itemsToIgnore = [];
+				        }
+                self.itemsToIgnore.push('/' + this.appname + '_iOS_SDK*');
+            });
           });
         });
       }
@@ -323,12 +328,6 @@ module.exports = generators.Base.extend({
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application';
       this.executableModule = this.projectName;
-      
-      // Target dependencies to add to the applicationModule
-      this.sdkTargets = this.spec.sdkTargets || [];
-
-      // Package dependeicies to add the Package.swift file
-      this.sdkPackages = this.spec.sdkPackages || '';
     },
 
     setDestinationRootFromSpec: function() {
@@ -1265,7 +1264,7 @@ module.exports = generators.Base.extend({
       });
     },
 
-    writeServerSDKConnection: function() {
+    writeSDKFiles: function() {
       // if(this.fromSwagger) {
       //   ignoreFile('/' + this.appname + '_iOS_SDK*');
       // }
