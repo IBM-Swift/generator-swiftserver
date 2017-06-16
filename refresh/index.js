@@ -87,9 +87,7 @@ module.exports = generators.Base.extend({
   default: {
     generateSDKs: function() {
       // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
-      this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
-      console.log("fromSwagger: " + this.fromSwagger);
-      console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
+      this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml', '/Users/tlfrankl/ibm/OpenSource/generatorCode/testThree.yaml'];
 
       if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
       this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
@@ -133,7 +131,6 @@ module.exports = generators.Base.extend({
               var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
               performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function(generatedID) {
                 getServerSDK.call(self, sdkName, generatedID, function() {
-
                   numFinished += 1;
                   if(numFinished === self.serverSwaggerFiles.length) {
                     callback();
@@ -1284,14 +1281,12 @@ module.exports = generators.Base.extend({
     },
 
     writeSDKFiles: function() {
-      console.log("write sdk");
-      return; // TODO: remove after testing
       if(!this.sdkTargets) return;
       var done = this.async();
 
-      var numFinished = 0, length = this.sdkTargets.length; 
+      var numFinished = 0, length = this.sdkRootPaths.length; 
       for (var index = 0; index < length; index++) {
-        integrateServerSDK.call(this, this.sdkTargets[index], function() {
+        integrateServerSDK.call(this, this.sdkRootPaths[index], function() {
           numFinished += 1;
           if(numFinished === length) {
             done();
