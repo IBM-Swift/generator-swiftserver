@@ -31,7 +31,6 @@ var sdkHelper = require('../lib/sdkGenHelper');
 var performSDKGeneration = sdkHelper.performSDKGeneration;
 var getiOSSDK = sdkHelper.getiOSSDK;
 var getServerSDK = sdkHelper.getServerSDK;
-// var extractNewContent = sdkHelper.extractNewContent;
 var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 module.exports = generators.Base.extend({
@@ -86,9 +85,6 @@ module.exports = generators.Base.extend({
 
   default: {
     generateSDKs: function() {
-      // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
-      this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml', '/Users/tlfrankl/ibm/OpenSource/generatorCode/testThree.yaml'];
-
       if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
       this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
       var done = this.async();

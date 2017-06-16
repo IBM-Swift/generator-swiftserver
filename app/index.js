@@ -20,9 +20,7 @@ var generators = require('yeoman-generator');
 var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
-var Rsync = require('rsync');
 var debug = require('debug')('generator-swiftserver:app');
-var swaggerize = require('../refresh/fromswagger/swaggerize');
 
 var helpers = require('../lib/helpers');
 var validateDirName = helpers.validateDirName;
@@ -31,7 +29,6 @@ var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
 var validateFilePathOrURL = helpers.validateFilePathOrURL;
 var generateServiceName = helpers.generateServiceName;
-var ignoreFile = helpers.ignoreFile;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
 
