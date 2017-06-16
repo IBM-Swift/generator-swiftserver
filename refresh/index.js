@@ -86,7 +86,7 @@ module.exports = generators.Base.extend({
 
   default: {
     generateSDKs: function() {
-      // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
+      this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
       // this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
       console.log("fromSwagger: " + this.fromSwagger);
       console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
@@ -114,7 +114,9 @@ module.exports = generators.Base.extend({
               	if(self.itemsToIgnore === undefined) {
 					        self.itemsToIgnore = [];
 				        }
-                self.itemsToIgnore.push('/' + this.appname + '_iOS_SDK*');
+                self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
+                console.log("calllback...." + self.itemsToIgnore);
+                callback();
             });
           });
         });
@@ -328,6 +330,12 @@ module.exports = generators.Base.extend({
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application';
       this.executableModule = this.projectName;
+
+      // Target dependencies to add to the applicationModule
+      this.sdkTargets = [];
+
+      // Package dependencies to add the Package.swift file
+      this.sdkPackages = '';
     },
 
     setDestinationRootFromSpec: function() {
@@ -746,7 +754,11 @@ module.exports = generators.Base.extend({
 
       // Check if there is a .gitignore, create one if there isn't
       this._ifNotExistsInProject('.gitignore', (filepath) => {
-        this.fs.copy(this.templatePath('common', 'gitignore'), filepath);
+        this.fs.copyTpl(
+          this.templatePath('common', 'gitignore'),
+          filepath,
+          { itemsToIgnore: this.itemsToIgnore }
+        );
       });
 
       // Check if there is a config.json, create one if there isn't
@@ -1265,9 +1277,7 @@ module.exports = generators.Base.extend({
     },
 
     writeSDKFiles: function() {
-      // if(this.fromSwagger) {
-      //   ignoreFile('/' + this.appname + '_iOS_SDK*');
-      // }
+      console.log("write sdk");
       return; // TODO: remove after testing
       if(!this.sdkTargets) return;
       var done = this.async();
