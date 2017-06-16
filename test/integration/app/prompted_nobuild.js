@@ -408,7 +408,6 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('Starter with generated iOS and Swift Server SDK', function() {
-    // TODO: ensure this test passes, currently blocked
     this.timeout(extendedTimeout);
     var runContext;
     var appName = 'notes';
