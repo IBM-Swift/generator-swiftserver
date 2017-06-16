@@ -1,0 +1,97 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.0.0",
+    "title": "<enter your title>"
+  },
+  "basePath": "/basepath",
+  "paths": {
+    "/persons": {
+      "get": {
+        "description": "Gets `Person` objects.",
+        "parameters": [
+          {
+            "name": "ages",
+            "in": "query",
+            "required": "true",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/age"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/age"
+              }
+            }
+          },
+          "200": {
+            "schema": {
+              "$ref": "#/definitions/age"
+            }
+          }
+        }
+      }
+    },
+    "/dinosaurs": {
+      "get": {
+        "description": "Gets `Dinosaur` objects.",
+        "parameters": [
+          {
+            "name": "dino",
+            "in": "query",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/dino"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "age": {
+      "type": "object",
+      "required": [
+        "age"
+      ],
+      "properties": {
+        "age": {
+          "type": "string"
+        }
+      }
+    },
+    "dino": {
+      "type": "object",
+      "required": [
+        "age"
+      ],
+      "properties": {
+        "age": {
+          "$ref": "#/definitions/age"
+        },
+        "ages": {
+          "items": {
+            "$ref": "#/definitions/newage"
+          }
+        }
+      }
+    },
+    "newage": {
+      "type": "object",
+      "required": [
+        "age"
+      ],
+      "properties": {
+        "age": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
