@@ -1,6 +1,7 @@
 import Foundation
 import Kitura
 import LoggerAPI
+import Health
 import Configuration
 <% if (appType === 'crud') { -%>
 import <%- generatedModule %>
@@ -71,8 +72,11 @@ public func initialize() throws {
 <% if (hostSwagger) { -%>
     initializeSwaggerRoute(path: ConfigurationManager.BasePath.project.path + "/definitions/<%- appName %>.yaml")
 <% } -%>
+    let health = Health()
+    
     router.get("/health") { request, response, _ in
-        try response.send(json: ["status": "UP"]).end()
+        let status = health.status.toDictionary()
+        try response.send(json: status).end()
     }
 }
 
