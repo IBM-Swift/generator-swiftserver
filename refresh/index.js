@@ -21,7 +21,6 @@ var path = require('path');
 var chalk = require('chalk');
 var YAML = require('js-yaml');
 var debug = require('debug')('generator-swiftserver:refresh');
-var rimraf = require('rimraf');
 
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
