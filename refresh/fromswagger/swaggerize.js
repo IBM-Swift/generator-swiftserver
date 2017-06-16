@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+'use strict';
 var debug = require('debug')('refresh:fromSwagger:swaggerize');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
@@ -65,7 +66,6 @@ function loadFile(filePath) {
 }
 
 function loadApi(apiPath) {
-  'use strict';
   debug('in loadApi');
   var content;
   var loaded;
@@ -94,7 +94,6 @@ function loadApi(apiPath) {
 function validate(api) {
   debug('in validate');
   // validate against the swagger schema.
-  'use strict';
   enjoi(apischema).validate(api, function (error, value) {
     if (error) {
       this.env.error(chalk.red(this.fromSwagger, 'does not conform to swagger specification:\n', error));
