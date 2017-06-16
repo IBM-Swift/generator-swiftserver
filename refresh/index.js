@@ -85,9 +85,6 @@ module.exports = generators.Base.extend({
 
   default: {
     generateSDKs: function() {
-      this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
-      this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml', '/Users/tlfrankl/ibm/OpenSource/generatorCode/testThree.yaml'];
-
       if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
       this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
       var done = this.async();
@@ -106,7 +103,7 @@ module.exports = generators.Base.extend({
 
       function geniOS(callback) {
         swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-          performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
+          performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
             getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
               	if(self.itemsToIgnore === undefined) {
 					        self.itemsToIgnore = [];
@@ -331,11 +328,17 @@ module.exports = generators.Base.extend({
         this.sdkTargets = [];
       }
 
+      // Temporary paths to Server SDKs
+      if(this.sdkRootPaths === undefined) {
+        this.sdkRootPaths = [];
+      }
+
       // Package dependencies to add the Package.swift file
       if(this.sdkPackages === undefined) {
         this.sdkPackages = '';
       }
 
+      // Files or folders to be ignored in a git repo
       if(this.itemsToIgnore === undefined) {
         this.itemsToIgnore = [];
       }
@@ -1280,7 +1283,7 @@ module.exports = generators.Base.extend({
     },
 
     writeSDKFiles: function() {
-      if(!this.sdkTargets) return;
+      if(this.sdkTargets.length <= 0) return;
       var done = this.async();
 
       var numFinished = 0, length = this.sdkRootPaths.length; 
