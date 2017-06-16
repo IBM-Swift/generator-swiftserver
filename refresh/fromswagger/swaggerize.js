@@ -40,7 +40,7 @@ function loadHttp(URI) {
   }.bind(this))
   .catch(function(err) {
     debug('get request returned err:', err);
-    this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, 'err:', err));
+    this.env.error(chalk.red('failed to load swagger from:', URI, 'err:', err));
   }.bind(this));
 }
 
@@ -91,12 +91,12 @@ function loadApi(apiPath) {
   });
 }
 
-function validate(api) {
+function validate(api, apiPath) {
   debug('in validate');
   // validate against the swagger schema.
   enjoi(apischema).validate(api, function (error, value) {
     if (error) {
-      this.env.error(chalk.red(this.fromSwagger, 'does not conform to swagger specification:\n', error));
+      this.env.error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
     }
   }.bind(this));
 }
@@ -236,7 +236,7 @@ function parse(swaggerPath) {
   var parsePromise = function() {
     return loadApi.call(this, swaggerPath)
                   .then(function(loaded) {
-                    validate.call(this, loaded);
+                    validate.call(this, loaded, swaggerPath);
                     debug('successfully validated against schema');
                     try {
                       return {'loaded': loaded, 'parsed': parseSwagger.call(this, loaded)};
