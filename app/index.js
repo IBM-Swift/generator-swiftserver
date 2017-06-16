@@ -699,6 +699,46 @@ module.exports = generators.Base.extend({
       }.bind(this));
     },
 
+    promptConfigurePushNotifications: function() {
+      if (this.skipPrompting) return;
+      if (!this.servicesToConfigure) return;
+      if (!this.servicesToConfigure.pushnotifications) return;
+      var done = this.async();
+
+      this.log();
+      this.log('Configure Push Notifications');
+      
+      var prompts = [
+        { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
+          when: (answers) => this.bluemix
+        },
+        { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
+        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' },
+        {
+          name: 'pushNotificationsRegion',
+          type: 'list',
+          message: 'Enter Bluemix region:',
+          choices: [ 'US South', 'United Kingdom', 'Sydney' ],
+          default: 'US South'
+        }
+      ];
+      this.prompt(prompts, function(answers) {
+        this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
+        this.services.pushnotifications[0].credentials = {
+          appGuid: answers.pushNotificationsAppGuid || undefined,
+          appSecret: answers.pushNotificationsAppSecret || undefined
+        };
+        switch (answers.pushNotificationsRegion) {
+          case 'US South':        this.services.pushnotifications[0].region = 'US_SOUTH'; break;
+          case 'United Kingdom':  this.services.pushnotifications[0].region = 'UK'; break;
+          case 'Sydney':          this.services.pushnotifications[0].region = 'SYDNEY'; break;
+          default:
+            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
+        }
+        done();
+      }.bind(this));
+    },
+
     promptConfigureObjectStorage: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
