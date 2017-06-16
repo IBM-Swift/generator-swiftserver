@@ -104,7 +104,7 @@ module.exports = generators.Base.extend({
       function geniOS(callback) {
         swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
           performSDKGeneration(self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
-            getiOSSDK(self.appname + '_iOS_SDK', generatedID, function() {
+            getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
               	if(self.itemsToIgnore === undefined) {
 					        self.itemsToIgnore = [];
 				        }
