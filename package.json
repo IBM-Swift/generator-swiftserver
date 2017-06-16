@@ -34,7 +34,7 @@
     "swaggerize-routes": "^1.0.0",
     "rsync": "^0.6.1",
     "swagger-parser": "^3.4.1",
-    "unzip": "^0.1.11"
+    "unzip2": "^0.2.5"
   },
   "devDependencies": {
     "codecov": "^2.1.0",
