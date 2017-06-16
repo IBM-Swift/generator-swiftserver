@@ -7,9 +7,9 @@ let package = Package(
       Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- generatedModule %>") ]),
 <% } _%>
       Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ]),
-<%_ for(var i=0; i < sdkTargets.length; i++) { _%>
-      Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- sdkTargets[i] %>") ]),
-<% } -%>
+<% Object.keys(sdkTargets).forEach(function(target) { -%>
+      Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- sdkTargets[target] %>") ]),
+<% }); -%>
     ],
     dependencies: [
         .Package(url: "https://github.com/IBM-Swift/Kitura.git",             majorVersion: 1, minor: 7),

@@ -86,8 +86,8 @@ module.exports = generators.Base.extend({
 
   default: {
     generateSDKs: function() {
-      this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
-      // this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
+      // this.fromSwagger = '/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml';
+      this.serverSwaggerFiles = ['/Users/tlfrankl/ibm/OpenSource/generatorCode/petstore.yaml'];
       console.log("fromSwagger: " + this.fromSwagger);
       console.log("serverSwaggerFiles: " + this.serverSwaggerFiles);
 
@@ -115,7 +115,6 @@ module.exports = generators.Base.extend({
 					        self.itemsToIgnore = [];
 				        }
                 self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
-                console.log("calllback...." + self.itemsToIgnore);
                 callback();
             });
           });
@@ -332,10 +331,18 @@ module.exports = generators.Base.extend({
       this.executableModule = this.projectName;
 
       // Target dependencies to add to the applicationModule
-      this.sdkTargets = [];
+      if(this.sdkTargets === undefined) {
+        this.sdkTargets = [];
+      }
 
       // Package dependencies to add the Package.swift file
-      this.sdkPackages = '';
+      if(this.sdkPackages === undefined) {
+        this.sdkPackages = '';
+      }
+
+      if(this.itemsToIgnore === undefined) {
+        this.itemsToIgnore = [];
+      }
     },
 
     setDestinationRootFromSpec: function() {
