@@ -181,98 +181,6 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a Bff application from a Swagger document', function () {
 
-  var swagger = {
-      "swagger": "2.0",
-      "info": {
-        "version": "0.0.0",
-        "title": "<enter your title>"
-      },
-      "basePath": "/basepath",
-      "paths": {
-        "/persons": {
-          "get": {
-            "description": "Gets `Person` objects.",
-            "parameters": [
-              {
-                "name": "ages",
-                "in": "query",
-                "required": "true",
-                "schema": {
-                  "items": {
-                    "$ref": "#/definitions/age"
-                  }
-                }
-              }
-            ],
-            "responses": {
-              "default": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/age"
-                  }
-                }
-              },
-              "200": {
-                "schema": {
-                  "$ref": "#/definitions/age"
-                }
-              }
-            }
-          }
-        },
-        "/dinosaurs": {
-          "get": {
-            "description": "Gets `Dinosaur` objects.",
-            "parameters": [
-              {
-                "name": "dino",
-                "in": "query",
-                "required": "true",
-                "schema": {
-                  "$ref": "#/definitions/dino"
-                }
-              }
-            ]
-          }
-        }
-      },
-      "definitions": {
-        "age": {
-          "type": "object",
-          "required": ["age"],
-          "properties": {
-            "age": {
-              "type": "string"
-            }
-          } 
-        },
-        "dino": {
-          "type": "object",
-          "required": ["age"],
-          "properties": {
-            "age": {
-              "$ref": "#/definitions/age"
-            },
-            "ages": {
-              "items": {
-                "$ref": "#/definitions/newage"
-              }
-            }
-          } 
-        },
-        "newage": {
-          "type": "object",
-          "required": ["age"],
-          "properties": {
-            "age": {
-              "type": "string"
-            }
-          } 
-        },
-      }
-    };
-
     var runContext;
 
     before(function () {
@@ -281,16 +189,13 @@ describe('swiftserver:refresh', function () {
           appType: 'scaffold',
           appName: appName,
           hostSwagger: true,
+          fromSwagger: path.join( __dirname, '../resources/person_dino.json'),
           config: {
             logger: 'helium',
             port: 4567
           }
         };
       runContext = helpers.run(path.join( __dirname, '../../refresh'))
-        .inTmpDir(function(tmpDir) {
-          spec.fromSwagger = path.join(tmpDir, "swagger.json");
-          fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger));
-        })
         .withOptions({
           specObj: spec
         })
@@ -343,6 +248,91 @@ describe('swiftserver:refresh', function () {
           appType: 'scaffold',
           appName: appName,
           fromSwagger: 'unknown_file_!"£$',
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function(err) {
+        error = err.message;
+      });
+    });
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error');
+      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+    });
+  });
+
+  describe('Generate scaffolded app from an valid swagger URL', function () {
+
+    var runContext;
+    var error;
+    var server;
+
+    before(function () {
+        var http = require('http');
+        var swagger = fs.readFileSync(path.join( __dirname, '../resources/person_dino.json'), 'utf8');
+        server = http.createServer(function(request, response) {
+          response.writeHead(200, {'Content-Type': 'application/json' });
+          response.end(swagger);
+        }).listen(8080);
+
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          fromSwagger: 'http://localhost:8080/stuff',
+          config: {
+            logger: 'helium',
+            port: 4567
+          }
+        };
+      runContext = helpers.run(path.join( __dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise();
+    });
+
+    it('generates the swift files', function() {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/DinosaursRoutes.swift`,
+        `Sources/${applicationModule}/Routes/PersonsRoutes.swift`,
+        `Sources/${executableModule}/main.swift`,
+      ];
+      assert.file(expectedSourceFiles);
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(');
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"');
+    });
+
+    after(function() {
+      runContext.cleanTestDirectory();
+      server.close();
+    });
+  });
+
+  describe('Generate scaffolded app from an invalid swagger URL', function () {
+
+    var runContext;
+    var error;
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+        var spec = {
+          appType: 'scaffold',
+          appName: appName,
+          fromSwagger: 'http://nothing/here',
           config: {
             logger: 'helium',
             port: 4567
