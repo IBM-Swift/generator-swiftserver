@@ -686,7 +686,7 @@ module.exports = generators.Base.extend({
   },
 
   generateSDKs: function() {
-    if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
+    if(!this.fromSwagger && this.serverSwaggerFiles.length <= 0) return;
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
     var done = this.async();
     var self = this; // local copy to be used in callbacks
@@ -703,27 +703,31 @@ module.exports = generators.Base.extend({
     }
 
     function geniOS(callback) {
-      swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-        performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
+      swaggerize.parse.call(self, self.fromSwagger)
+      .then((response) => {
+        performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(response.loaded), function (generatedID) {
           getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
               self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
               callback();
           });
         });
+      })
+      .catch(function(e) {
+        done(e);
       });
     }
 
     function genServer(callback) {
       var numFinished = 0;
       for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-      
-        swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
-
-          if (loadedApi['info']['title'] == undefined) {
-            this.env.error(chalk.red(err));
+        
+        swaggerize.parse.call(self, self.serverSwaggerFiles[index])
+        .then((response) => {
+          if (response.loaded['info']['title'] == undefined) {
+            self.env.error(chalk.red('Could not extract title from Swagger API.'));
           } else {
-            var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-            performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function(generatedID) {
+            var sdkName = response.loaded['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+            performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(response.loaded), function(generatedID) {
               getServerSDK.call(self, sdkName, generatedID, function() {
                 numFinished += 1;
                 if(numFinished === self.serverSwaggerFiles.length) {
@@ -732,6 +736,9 @@ module.exports = generators.Base.extend({
               });
             })
           }
+        })
+        .catch(function(e) {
+          done(e);
         });
       }
     }
