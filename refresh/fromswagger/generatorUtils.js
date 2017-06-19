@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-path = require('path');
+'use strict';
+var path = require('path');
 
 function baseName(thepath) {
   // get the base file name without extension from a full path.

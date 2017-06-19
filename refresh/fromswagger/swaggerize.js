@@ -13,44 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+'use strict';
 var debug = require('debug')('refresh:fromSwagger:swaggerize');
-var util = require('util');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
-var wreck = require('wreck');
 var enjoi = require('enjoi');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
 var YAML = require('js-yaml');
 var chalk = require('chalk');
-
-var builderUtils = require('swaggerize-routes/lib/utils');
-
 var filesys = require('fs');
+var Promise = require('bluebird');
+var Request = require('request');
+var request = Promise.promisify(Request);
+var setImmediatePromise = Promise.promisify(setImmediate);
 
-var path = require('path');
-var process = require('process');
-
-function loadApi(apiPath, content) {
-  debug('in loadApi');
+function loadHttp(URI) {
+  debug('in loadHttp');
   // load from YAML or JSON file into a JS object.
-  'use strict';
-  if (apiPath.endsWith('.yaml') || apiPath.endsWith('.yml')) {
-    /*jslint node: true, stupid: true */
-    debug('loading YAML');
-    return YAML.load(content || this.fs.read(apiPath));
-  }
-  debug('loading JSON');
-  return content ? JSON.parse(content) : this.fs.readJSON(apiPath);
+  return request({method: 'GET', uri: URI}).then(function(result) {
+    if (result && result.statusCode != 200) {
+      debug('get request returned status:', result.statusCode);
+      this.env.error(chalk.red('failed to load swagger from:', URI, 'status:', result.statusCode));
+    }
+    return result.body;
+  }.bind(this))
+  .catch(function(err) {
+    debug('get request returned err:', err);
+    this.env.error(chalk.red('failed to load swagger from:', URI, 'err:', err));
+  }.bind(this));
 }
 
-function validate(api) {
+function loadFile(filePath) {
+  debug('in loadFile');
+  // load from YAML or JSON file into a JS object.
+  return setImmediatePromise().then(function() {
+    let loaded;
+    try {
+      loaded = this.fs.read(filePath);
+      if (loaded === undefined) {
+        // when file exists but cannot read content.
+        debug('cannot read file contents', filePath);
+        this.env.error(chalk.red('failed to load swagger from:', filePath));
+      }
+    } catch (e) {
+      // when file doesn't exist.
+      debug('file does not exist', this.filePath);
+      this.env.error(chalk.red('failed to load swagger from:', filePath, e));
+    }
+    return loaded;
+  }.bind(this));
+}
+
+function loadApi(apiPath) {
+  debug('in loadApi');
+  var content;
+  var loaded;
+  var load = function() {
+    if (/^https?:\/\/\S+/.test(apiPath)) {
+      // handle the swagger loading from a URL.
+      debug('loading swagger from url:', apiPath);
+      return loadHttp.call(this, apiPath);
+    }
+    debug('loading swagger from file:', apiPath);
+    return loadFile.call(this, apiPath);
+  }.bind(this);
+
+  return load().then(function(result) {
+    if (apiPath.endsWith('.yaml') || apiPath.endsWith('.yml')) {
+      debug('loaded YAML', result);
+      loaded = YAML.load(result);
+    } else {
+      debug('loaded JSON', result);
+      loaded = JSON.parse(result);
+    }
+    return loaded;
+  });
+}
+
+function validate(api, apiPath) {
   debug('in validate');
   // validate against the swagger schema.
-  'use strict';
   enjoi(apischema).validate(api, function (error, value) {
     if (error) {
-      this.env.error(chalk.red(this.fromSwagger, 'does not conform to swagger specification:\n', error));
+      this.env.error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
     }
   }.bind(this));
 }
@@ -185,55 +231,23 @@ function createRoutes(parsed) {
   }.bind(this));
 }
 
-function parse(callback) {
+function parse(swaggerPath) {
   debug('in parse');
-  var httpPattern = new RegExp(/^https?:\/\/\S+/);
-  var loadedApi;
-  if (httpPattern.test(this.fromSwagger)) {
-    // handle the swagger loading from a URL.
-    debug('loading swagger from url:', this.fromSwagger);
-    wreck.get(this.fromSwagger, function (err, res, payload) {
-      if (err || (res && res.statusCode !== 200)) {
-        debug('get request returned status:', res.statusCode);
-        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, 'status:', res.statusCode));
-      }
-      try {
-        loadedApi = loadApi.call(this, this.fromSwagger, payload);
-      } catch (e) {
-        debug('cannot read file contents', this.fromSwagger);
-        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, e));
-      }
-      validate.call(this, loadedApi);
-      debug('successfully validated against schema');
-      try {
-        callback(loadedApi, parseSwagger.call(this, loadedApi));
-      } catch (e) {
-        this.env.error(chalk.red('failed to parse swagger from:', this.fromSwagger, e));
-      }
-    }.bind(this));
-  } else {
-    // handle the swagger loading from a file.
-    debug('loading swagger from file:', this.fromSwagger);
-    try {
-      loadedApi = loadApi.call(this, this.fromSwagger);
-      if (loadedApi === undefined) {
-        // when file exists but cannot read content.
-        debug('cannot read file contents', this.fromSwagger);
-        this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger));
-      }
-    } catch (e) {
-      // when file doesn't exist.
-      debug('file does not exist', this.fromSwagger);
-      this.env.error(chalk.red('failed to load swagger from:', this.fromSwagger, e));
-    }
-    validate.call(this, loadedApi);
-    debug('successfully validated against schema');
-    try {
-      setImmediate(callback, loadedApi, parseSwagger.call(this, loadedApi));
-    } catch (e) {
-      this.env.error(chalk.red('failed to parse swagger from:', this.fromSwagger, e));
-    }
-  }
+  var parsePromise = function() {
+    return loadApi.call(this, swaggerPath)
+                  .then(function(loaded) {
+                    validate.call(this, loaded, swaggerPath);
+                    debug('successfully validated against schema');
+                    try {
+                      return {'loaded': loaded, 'parsed': parseSwagger.call(this, loaded)};
+                    } catch (e) {
+                      this.env.error(chalk.red('failed to parse swagger from:', swaggerPath, e));
+                    }
+                  }.bind(this))}.bind(this);
+
+  return parsePromise().then(function(response) {
+    return response;
+  }).bind(this);
 }
 
 module.exports = {createRoutes, parse};
