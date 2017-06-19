@@ -9,30 +9,17 @@
     "/persons": {
       "get": {
         "description": "Gets `Person` objects.",
-        "parameters": [
-          {
-            "name": "ages",
-            "in": "query",
-            "required": "true",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/age"
-              }
-            }
-          }
+        "produces": [
+          "application/json"
         ],
         "responses": {
-          "default": {
+          "200": {
+            "description": "A list of Persons",
             "schema": {
               "type": "array",
               "items": {
                 "$ref": "#/definitions/age"
               }
-            }
-          },
-          "200": {
-            "schema": {
-              "$ref": "#/definitions/age"
             }
           }
         }
@@ -41,16 +28,20 @@
     "/dinosaurs": {
       "get": {
         "description": "Gets `Dinosaur` objects.",
-        "parameters": [
-          {
-            "name": "dino",
-            "in": "query",
-            "required": "true",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of Dinosaurs",
             "schema": {
-              "$ref": "#/definitions/dino"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/dino"
+              }
             }
           }
-        ]
+        }
       }
     }
   },
