@@ -300,9 +300,7 @@ describe('swiftserver:refresh', function () {
         .withOptions({
           specObj: spec
         })
-      return runContext.toPromise().catch(function(err) {
-        error = err.message;
-      });
+      return runContext.toPromise();
     });
 
     it('generates the swift files', function() {
