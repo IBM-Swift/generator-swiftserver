@@ -83,63 +83,6 @@ module.exports = generators.Base.extend({
     }
   },
 
-  default: {
-    generateSDKs: function() {
-      if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
-      this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-      var done = this.async();
-      var self = this; // local copy to be used in callbacks
-
-      // Cover the different cases
-      if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
-        geniOS(done);
-      } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-        geniOS(function() {
-          genServer(done);
-        })
-      } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-        genServer(done);
-      }
-
-      function geniOS(callback) {
-        swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
-          performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
-            getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
-              	if(self.itemsToIgnore === undefined) {
-					        self.itemsToIgnore = [];
-				        }
-                self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
-                callback();
-            });
-          });
-        });
-      }
-
-      function genServer(callback) {
-        var numFinished = 0;
-        for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-        
-          swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
-
-            if (loadedApi['info']['title'] == undefined) {
-              this.env.error(chalk.red(err));
-            } else {
-              var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-              performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function(generatedID) {
-                getServerSDK.call(self, sdkName, generatedID, function() {
-                  numFinished += 1;
-                  if(numFinished === self.serverSwaggerFiles.length) {
-                    callback();
-                  }
-                });
-              })
-            }
-          });
-        }
-      }
-    }
-  },
-
   initializing: {
     config: function() {
       if(!this.options.singleShot) {
@@ -740,6 +683,58 @@ module.exports = generators.Base.extend({
       .catch(function(e) {
         done(e);
       });
+  },
+
+  generateSDKs: function() {
+    if(!this.fromSwagger && this.serverSwaggerFiles <= 0) return;
+    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
+    var done = this.async();
+    var self = this; // local copy to be used in callbacks
+
+    // Cover the different cases
+    if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
+      geniOS(done);
+    } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+      geniOS(function() {
+        genServer(done);
+      })
+    } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+      genServer(done);
+    }
+
+    function geniOS(callback) {
+      swaggerize.parse.call(self, self.fromSwagger, function(loadedApi, parsed) {
+        performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(loadedApi), function (generatedID) {
+          getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
+              self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
+              callback();
+          });
+        });
+      });
+    }
+
+    function genServer(callback) {
+      var numFinished = 0;
+      for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
+      
+        swaggerize.parse.call(self, self.serverSwaggerFiles[index], function(loadedApi, parsed) {
+
+          if (loadedApi['info']['title'] == undefined) {
+            this.env.error(chalk.red(err));
+          } else {
+            var sdkName = loadedApi['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+            performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(loadedApi), function(generatedID) {
+              getServerSDK.call(self, sdkName, generatedID, function() {
+                numFinished += 1;
+                if(numFinished === self.serverSwaggerFiles.length) {
+                  callback();
+                }
+              });
+            })
+          }
+        });
+      }
+    }
   },
 
   writing: {
