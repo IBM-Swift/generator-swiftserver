@@ -6,10 +6,14 @@ LABEL Description="Template Dockerfile that extends the ibmcom/swift-ubuntu-runt
 # EXPOSE {{PORT}}
 EXPOSE 8080
 
-# Linux OS utils
-#RUN apt-get update
+# Default user if not provided
+ARG bx_dev_user=root
+ARG bx_dev_userid=1000
 
-ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/run-utils.sh /root/utils/run-utils.sh
-RUN chmod +x /root/utils/run-utils.sh
-ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/common-utils.sh /root/utils/common-utils.sh
-RUN chmod +x /root/utils/common-utils.sh
+# Add utils files
+ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/run-utils.sh /swift-utils/run-utils.sh
+ADD https://raw.githubusercontent.com/IBM-Swift/swift-ubuntu-docker/master/utils/common-utils.sh /swift-utils/common-utils.sh
+RUN chmod -R 555 /swift-utils
+
+# Create user if not root
+RUN if [ $bx_dev_user != "root" ]; then useradd -ms /bin/bash -u $bx_dev_userid $bx_dev_user; fi
