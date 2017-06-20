@@ -8,12 +8,14 @@ branches:
 node_js:
   - '4'
   - '6'
+  - '8'
 os:
   - linux
   - osx
 dist: trusty
 osx_image: xcode8
 before_install:
+    - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
     - git clone https://github.com/IBM-Swift/Package-Builder.git
 script:
