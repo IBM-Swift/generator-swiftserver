@@ -75,7 +75,7 @@ public func initialize() throws {
     let health = Health()
     
     router.get("/health") { request, response, _ in
-        let status = health.status.toDictionary()
+        let status = health.status.toSimpleDictionary()
         try response.send(json: status).end()
     }
 }
