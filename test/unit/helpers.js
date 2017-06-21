@@ -205,7 +205,7 @@ describe('helpers', function () {
                                                                             secret:"",
                                                                             tenantId:"",
                                                                             version:3}}],
-                                      "WatsonConversation":[{label:"WatsonConversation",
+                                      "conversation":[{label:"conversation",
                                                              tags:[],
                                                              plan:"Free",
                                                              credentials:{username:"",
@@ -347,7 +347,7 @@ describe('helpers', function () {
     });
 
     it('get label for watsonconversation', function() {
-      assert.equal(helpers.getBluemixServiceLabel('watsonconversation'), 'WatsonConversation');
+      assert.equal(helpers.getBluemixServiceLabel('watsonconversation'), 'conversation');
     });
 
     it('get label for alertnotification', function() {
