@@ -29,6 +29,14 @@ script:
   - npm run coverage
   - npm run report-coverage
 
+jobs:
+  include:
+  - stage: Review
+    node_js: '6'
+    script: "./review.sh"
+  - stage: Releases
+    language: ruby
+    script: "./release.sh"
 env:
   global:
     - CXX=g++-4.8
