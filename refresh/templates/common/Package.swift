@@ -3,14 +3,14 @@ import PackageDescription
 let package = Package(
     name: "<%- executableModule %>",
     targets: [
-<% if (appType === 'crud') { -%>
-      Target(name: "<%- applicationModule %>", dependencies: [ .Target(name: "<%- generatedModule %>") ]),
-<% } _%>
       Target(name: "<%- executableModule %>", dependencies: [ .Target(name: "<%- applicationModule %>") ]),
-<% if (sdkTargets.length > 0) { -%>
+<% if (sdkTargets.length > 0 || appType === 'crud') { -%>
       Target(name: "<%- applicationModule %>", dependencies: [
+<% if (appType === 'crud') { -%>
+            .Target(name: "<%- generatedModule %>"),
+<% } _%>
 <% Object.keys(sdkTargets).forEach(function(target) { -%>
-       .Target(name: "<%- sdkTargets[target] %>"),
+            .Target(name: "<%- sdkTargets[target] %>"),
 <% }); -%>
       ]),
 <% } _%>

@@ -32,7 +32,7 @@
     "enjoi": "^1.0.1",
     "swagger-schema-official": "^2.0.0-",
     "swaggerize-routes": "^1.0.0",
-    "rsync": "^0.6.1",
+    "rimraf": "^2.5.2",
     "swagger-parser": "^3.4.1",
     "unzip2": "^0.2.5"
   },
@@ -41,7 +41,6 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "nyc": "^10.1.2",
-    "rimraf": "^2.5.2",
     "yeoman-assert": "^2.2.1",
     "yeoman-test": "^1.5.1"
   },
