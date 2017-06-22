@@ -420,7 +420,9 @@ module.exports = generators.Base.extend({
           this._addService('alertnotification',  { name: generateServiceName(this.appname, 'AlertNotification') });
         }
         if (answers.services.indexOf('Push Notifications') !== -1) {
-          this._addService('pushnotifications',  { name: generateServiceName(this.appname, 'PushNotifications') });
+          this._addService('pushnotifications',  { 
+            name:   generateServiceName(this.appname, 'PushNotifications'),
+            region: "US_SOUTH" });
         }
         if (answers.services.indexOf('Auto-scaling') !== -1) {
           this.autoscale = generateServiceName(this.appname, 'AutoScaling');
