@@ -21,7 +21,6 @@ var path = require('path');
 var chalk = require('chalk');
 var YAML = require('js-yaml');
 var debug = require('debug')('generator-swiftserver:refresh');
-var rimraf = require('rimraf');
 
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
@@ -645,11 +644,15 @@ module.exports = generators.Base.extend({
     if (!this.fromSwagger) return;
 
     var done = this.async();
-    swaggerize.parse.call(this, function(loadedApi, parsed) {
-      this.loadedApi = loadedApi;
-      this.parsedSwagger = parsed;
-      done();
-    }.bind(this));
+    swaggerize.parse.call(this, this.fromSwagger)
+      .then((response) => {
+        this.loadedApi = response.loaded;
+        this.parsedSwagger = response.parsed;
+        done();
+      })
+      .catch(function(e) {
+        done(e);
+      });
   },
 
   writing: {
