@@ -536,7 +536,7 @@ describe('Prompt and no build integration tests for app generator', function () 
             AdvancedMobileAccess: [{
               name: 'testAppID'
             }],
-            'WatsonConversation': [{
+            conversation: [{
               name: 'testWatsonConversation'
             }],
             'AlertNotification': [{
@@ -745,39 +745,39 @@ describe('Prompt and no build integration tests for app generator', function () 
             'Object-Storage': [{
               credentials: {
                 'auth_url': '',
-                'project': '',
-                'projectId': '',
-                'region': '',
-                'userId': '',
-                'username': '',
-                'password': '',
-                'domainId': '',
-                'domainName': '',
-                'role': ''
+                project: '',
+                projectId: '',
+                region: '',
+                userId: '',
+                username: '',
+                password: '',
+                domainId: '',
+                domainName: '',
+                role: ''
               }
             }],
             AdvancedMobileAccess: [{
               credentials: {
-                'clientId': '',
-                'oauthServerUrl': '',
-                'profilesUrl': '',
-                'secret': '',
-                'tenantId': '',
-                'version': 3
+                clientId: '',
+                oauthServerUrl: '',
+                profilesUrl: '',
+                secret: '',
+                tenantId: '',
+                version: 3
               }
             }],
-            'WatsonConversation': [{
+            conversation: [{
               credentials: {
-                'username': '',
-                'password': '',
-                'url': ''
+                username: '',
+                password: '',
+                url: ''
               }
             }],
-            'AlertNotification': [{
+            AlertNotification: [{
               credentials: {
-                'name': '',
-                'password': '',
-                'url': ''
+                name: '',
+                password: '',
+                url: ''
               }
             }],
             imfpush: [{
@@ -854,39 +854,39 @@ describe('Prompt and no build integration tests for app generator', function () 
             'Object-Storage': [{
               credentials: {
                 'auth_url': '',
-                'project': '',
-                'projectId': 'PROJECT_ID',
-                'region': 'earth',
-                'userId': 'USER_ID',
-                'username': '',
-                'password': 'password',
-                'domainId': '',
-                'domainName': '',
-                'role': ''
+                project: '',
+                projectId: 'PROJECT_ID',
+                region: 'earth',
+                userId: 'USER_ID',
+                username: '',
+                password: 'password',
+                domainId: '',
+                domainName: '',
+                role: ''
               }
             }],
             AdvancedMobileAccess: [{
               credentials: {
-                'clientId': 'CLIENT_ID',
-                'oauthServerUrl': '',
-                'profilesUrl': '',
-                'secret': 'APP_ID_SECRET',
-                'tenantId': 'TENANT_ID',
-                'version': 3
+                clientId: 'CLIENT_ID',
+                oauthServerUrl: '',
+                profilesUrl: '',
+                secret: 'APP_ID_SECRET',
+                tenantId: 'TENANT_ID',
+                version: 3
               }
             }],
-            'WatsonConversation': [{
+            conversation: [{
               credentials: {
-                'username': 'WC_USERNAME',
-                'password': 'WC_PASSWORD',
-                'url': 'WC_URL'
+                username: 'WC_USERNAME',
+                password: 'WC_PASSWORD',
+                url: 'WC_URL'
               }
             }],
-            'AlertNotification': [{
+            AlertNotification: [{
               credentials: {
-                'name': 'AN_USERNAME',
-                'password': 'AN_PASSWORD',
-                'url': 'AN_URL'
+                name: 'AN_USERNAME',
+                password: 'AN_PASSWORD',
+                url: 'AN_URL'
               }
             }],
             imfpush: [{
