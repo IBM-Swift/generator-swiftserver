@@ -383,7 +383,7 @@ module.exports = generators.Base.extend({
             if (this.serverSwaggerFiles === undefined) {
               this.serverSwaggerFiles = [];
             }
-            if(!this.serverSwaggerFiles.includes(answers['serverSwaggerInputPath' + depth])) {
+            if(this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
               this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
             } else {
               this.log(chalk.yellow('This Swagger file is already being used'));
