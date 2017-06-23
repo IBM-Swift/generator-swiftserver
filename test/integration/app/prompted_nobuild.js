@@ -95,6 +95,18 @@ describe('Prompt and no build integration tests for app generator', function () 
       assert.fileContent('Sources/Application/Application.swift', 'import Configuration');
     });
 
+    it('Package.swift contains Health dependency', function() {
+      assert.fileContent('Package.swift', '/Health');
+    });
+
+    it('Application.swift imports the Health module', function() {
+      assert.fileContent('Sources/Application/Application.swift', 'import Health');
+    });
+
+    it('Application.swift declares a Health instance', function() {
+      assert.fileContent('Sources/Application/Application.swift', 'let health = Health()');
+    });
+
     it('Application.swift contains a health endpoint', function() {
       assert.fileContent('Sources/Application/Application.swift', '"/health"');
     });
