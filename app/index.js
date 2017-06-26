@@ -27,9 +27,11 @@ var validateDirName = helpers.validateDirName;
 var validateAppName = helpers.validateAppName;
 var validateCredential = helpers.validateRequiredCredential;
 var validatePort = helpers.validatePort;
+var validateFilePathOrURL = helpers.validateFilePathOrURL;
 var generateServiceName = helpers.generateServiceName;
 var actions = require('../lib/actions');
 var ensureEmptyDirectory = actions.ensureEmptyDirectory;
+
 
 module.exports = generators.Base.extend({
 
@@ -324,21 +326,15 @@ module.exports = generators.Base.extend({
       var prompts = [{
         name: 'swaggerChoice',
         type: 'list',
-        message: 'Swagger file to use:',
+        message: 'Swagger file to use to create endpoints and companion iOS SDK:',
         choices: [choices.customSwagger, choices.exampleEndpoints],
         default: []
       },{
         name: 'path',
         type: 'input',
         message: 'Provide the path to a swagger file:',
-        filter: function(response) {
-          return response.trim();
-        },
-        validate: function(response) {
-          // permit paths starting with 'filename' or '/' or './' or '../' or 'http://' or 'https://'
-          var pathPattern = new RegExp(/^\w+|^\/|^\.\.?\/|^https?:\/\/\S+/);
-          return pathPattern.test(response);
-        },
+        filter: function(response) { return response.trim(); },
+        validate: validateFilePathOrURL,
         when: function(question) {
                 return (question.swaggerChoice === choices.customSwagger);
               }
@@ -357,6 +353,52 @@ module.exports = generators.Base.extend({
         }
         done();
       }.bind(this));
+    },
+
+    promptSwiftServerSwaggerFiles: function () {
+      if (this.skipPrompting) return;
+      var done = this.async();
+
+      var depth = 0;
+      var prompts = [{
+        name: 'serverSwaggerInput' + depth,
+        type: 'confirm',
+        message: 'Would you like to generate a Swift server SDK from a Swagger file?',
+        default: false
+      }, {
+        when: function(props) { return props[Object.keys(props)[0]]; },
+        name: 'serverSwaggerInputPath' + depth,
+        type: 'input',
+        message: 'Enter Swagger yaml file path:',
+        filter: function(response) { return response.trim(); },
+        validate: validateFilePathOrURL,
+      }];
+      
+      function promptUser() {
+
+        this.prompt(prompts, function (answers) {
+          // Creating and accessing dynamic answer keys for yeoman-test compatability.
+          // It needs unique keys in order to simulate the generation of multiple swagger file paths.
+          if (answers['serverSwaggerInput' + depth]) {
+            if (this.serverSwaggerFiles === undefined) {
+              this.serverSwaggerFiles = [];
+            }
+            if(this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
+              this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
+            } else {
+              this.log(chalk.yellow('This Swagger file is already being used'));
+            }
+            depth += 1;
+            prompts[0].name = prompts[0].name.slice(0, -1) + depth;
+            prompts[1].name = prompts[1].name.slice(0, -1) + depth;
+            prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?';
+            promptUser.call(this);
+          } else {
+            done();
+          }
+        }.bind(this));
+      };
+      promptUser.call(this);
     },
 
     promptServicesForScaffoldLocal: function() {
@@ -774,7 +816,6 @@ module.exports = generators.Base.extend({
 
   createSpecFromAnswers: function() {
     if (this.skipPrompting) return;
-
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
     // some may only be available via non-prompting route.
     this.spec = {
@@ -785,6 +826,7 @@ module.exports = generators.Base.extend({
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
       fromSwagger: this.fromSwagger || undefined,
+      serverSwaggerFiles: this.serverSwaggerFiles || undefined,
       hostSwagger: this.hostSwagger || undefined,
       swaggerUI: this.swaggerUI || undefined,
       services: this.services || {},
@@ -830,7 +872,6 @@ module.exports = generators.Base.extend({
 
     buildApp: function() {
       if (this.skipBuild || this.options['skip-build']) return;
-
       this.composeWith(
         'swiftserver:build',
         {

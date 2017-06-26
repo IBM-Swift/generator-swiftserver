@@ -26,6 +26,8 @@ var rimraf = require('rimraf');
 var fs = require('fs');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
+var testResourcesPath = path.join(__dirname, '../../../test/resources');
+var extendedTimeout = 300000
 
 describe('Prompt and no build integration tests for app generator', function () {
 
@@ -218,7 +220,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application', function() {
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -324,20 +326,68 @@ describe('Prompt and no build integration tests for app generator', function () 
         "/persons": {
           "get": {
             "description": "Gets `Person` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Person"
+                }
+              }
+            }
           },
           "put": {
             "description": "Puts `Person` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Person"
+                }
+              }
+            }
           }
         },
         "/dinosaurs": {
           "get": {
             "description": "Gets `Dinosaur` objects.",
+            "responses": {
+              "200": {
+                "description": "pet response",
+                "schema": {
+                  "$ref": "#/definitions/Dinosaur"
+                }
+              }
+            }
+          }
+        }
+      },
+      "definitions": {
+        "Dinosaur": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "Person": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            }
           }
         }
       }
     };
 
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -366,6 +416,73 @@ describe('Prompt and no build integration tests for app generator', function () 
         assert.file(`Sources/Application/Routes/PersonsRoutes.swift`);
         assert.file(`Sources/Application/Routes/DinosaursRoutes.swift`);
       });
+    });
+  });
+
+  describe('Starter with generated iOS and Swift Server SDK', function() {
+    this.timeout(extendedTimeout);
+    var runContext;
+    var appName = 'notes';
+
+    before(function() {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                          appType: 'Scaffold a starter',
+                            name: appName,
+                            dir: appName,
+                            appPattern: 'Basic',
+                            endpoints: 'Endpoints from swagger file',
+                            swaggerChoice: 'Custom swagger file',
+                            path: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput0: true,
+                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput1: true,
+                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
+                            serverSwaggerInput2: false
+                          })
+
+      return runContext.toPromise();
+    });
+
+    it('created a iOS SDK zip file', function() {
+      assert.file(appName + '_iOS_SDK.zip');
+    });
+
+    it('modified .gitignore to include the generated iOS SDK', function() {
+      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*');
+    });
+
+    it('deleted a server SDK zip file', function() {
+      assert.noFile('Swagger_Petstore_ServerSDK.zip');
+    });
+
+    it('unzipped server SDK folder was deleted', function() {
+      assert.noFile('Swagger_Petstore_ServerSDK/README.md');
+    });
+
+    it('created Pet model from swagger file', function() {
+      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift');
+    });
+
+    it('modified Package.swift to include server SDK module', function() {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK');
+    });
+
+    it('deleted the second server SDK zip file', function() {
+      assert.noFile('Swagger_Petstore_Two_ServerSDK.zip');
+    });
+
+    it('unzipped the second server SDK folder was deleted', function() {
+      assert.noFile('Swagger_Petstore_Two_ServerSDK/README.md');
+    });
+
+    it('created Pet model from the second swagger file', function() {
+      assert.file('Sources/Swagger_Petstore_Two_ServerSDK/Pet.swift');
+    });
+
+    it('modified Package.swift to include the second server SDK module', function() {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK');
     });
   });
 

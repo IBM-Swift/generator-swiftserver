@@ -25,12 +25,14 @@ var helpers = require('yeoman-test');
 var rimraf = require('rimraf');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
+var testResourcesPath = path.join(__dirname, '../../../test/resources');
+var buildTimeout = 300000;
 
 describe('Prompt and build integration tests for app generator', function () {
 
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -54,7 +56,7 @@ describe('Prompt and build integration tests for app generator', function () {
 
   describe('Web application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -75,7 +77,7 @@ describe('Prompt and build integration tests for app generator', function () {
 
   describe('CRUD application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(buildTimeout);
     var runContext;
 
     before(function () {
@@ -93,6 +95,39 @@ describe('Prompt and build integration tests for app generator', function () {
     });
     it('generates an .xcodeproj file', function () {
       assert.file('notes.xcodeproj');
+    });
+  });
+
+  describe('Starter with generated SDK integration', function () {
+    var runContext;
+    var appName = 'notes';
+    before(function () {
+      // Swift build is slow so we need to set a longer timeout for the test
+      this.timeout(buildTimeout);
+      runContext = helpers.run(appGeneratorPath)
+                          .withPrompts({
+                            appType: 'Scaffold a starter',
+                            name: appName,
+                            dir: appName,
+                            appPattern: 'Basic',
+                            endpoints: 'Endpoints from swagger file',
+                            swaggerChoice: 'Custom swagger file',
+                            path: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput0: true,
+                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput1: true,
+                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
+                            serverSwaggerInput2: false
+                          });
+      return runContext.toPromise();                        // Get a Promise back when the generator finishes
+    });
+
+    it('compiles the application', function () {
+      assert.file(process.cwd()+'/.build/debug/' + appName);
+    });
+
+    it('generates an .xcodeproj file', function () {
+      assert.file(appName + '.xcodeproj');
     });
   });
 

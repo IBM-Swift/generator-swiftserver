@@ -27,6 +27,11 @@ var actions = require('../lib/actions');
 
 var util = require('util');
 var swaggerize = require('./fromswagger/swaggerize');
+var sdkHelper = require('../lib/sdkGenHelper');
+var performSDKGeneration = sdkHelper.performSDKGeneration;
+var getiOSSDK = sdkHelper.getiOSSDK;
+var getServerSDK = sdkHelper.getServerSDK;
+var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 module.exports = generators.Base.extend({
   constructor: function() {
@@ -192,12 +197,16 @@ module.exports = generators.Base.extend({
       if (this.spec.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
         this.fromSwagger = this.spec.fromSwagger;
       }
+
       if (this.exampleEndpoints) {
         if (this.fromSwagger) {
           this.env.error('Only one of: swagger file and example endpoints allowed');
         }
         this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
       }
+
+      // Swagger file paths for server SDKs
+      this.serverSwaggerFiles = this.spec.serverSwaggerFiles || [];
 
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true);
@@ -209,6 +218,7 @@ module.exports = generators.Base.extend({
       this.services = this.spec.services || {};
       // Ensure every service has a credentials object to
       // make life easier for templates
+
       Object.keys(this.services).forEach(function(serviceType) {
         this.services[serviceType].forEach(function(service, index) {
           // TODO: Further checking that service name is valid?
@@ -255,6 +265,26 @@ module.exports = generators.Base.extend({
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application';
       this.executableModule = this.projectName;
+
+      // Target dependencies to add to the applicationModule
+      if(this.sdkTargets === undefined) {
+        this.sdkTargets = [];
+      }
+
+      // Temporary paths to Server SDKs
+      if(this.sdkRootPaths === undefined) {
+        this.sdkRootPaths = [];
+      }
+
+      // Package dependencies to add the Package.swift file
+      if(this.sdkPackages === undefined) {
+        this.sdkPackages = '';
+      }
+
+      // Files or folders to be ignored in a git repo
+      if(this.itemsToIgnore === undefined) {
+        this.itemsToIgnore = [];
+      }
     },
 
     setDestinationRootFromSpec: function() {
@@ -655,6 +685,65 @@ module.exports = generators.Base.extend({
       });
   },
 
+  generateSDKs: function() {
+    if(!this.fromSwagger && this.serverSwaggerFiles.length <= 0) return;
+    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
+    var done = this.async();
+    var self = this; // local copy to be used in callbacks
+
+    // Cover the different cases
+    if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
+      geniOS(done);
+    } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+      geniOS(function() {
+        genServer(done);
+      })
+    } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
+      genServer(done);
+    }
+
+    function geniOS(callback) {
+      swaggerize.parse.call(self, self.fromSwagger)
+      .then((response) => {
+        performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(response.loaded), function (generatedID) {
+          getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
+              self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
+              callback();
+          });
+        });
+      })
+      .catch(function(e) {
+        done(e);
+      });
+    }
+
+    function genServer(callback) {
+      var numFinished = 0;
+      for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
+        
+        swaggerize.parse.call(self, self.serverSwaggerFiles[index])
+        .then((response) => {
+          if (response.loaded['info']['title'] == undefined) {
+            self.env.error(chalk.red('Could not extract title from Swagger API.'));
+          } else {
+            var sdkName = response.loaded['info']['title'].replace(/ /g, '_') + '_ServerSDK';
+            performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(response.loaded), function(generatedID) {
+              getServerSDK.call(self, sdkName, generatedID, function() {
+                numFinished += 1;
+                if(numFinished === self.serverSwaggerFiles.length) {
+                  callback();
+                }
+              });
+            })
+          }
+        })
+        .catch(function(e) {
+          done(e);
+        });
+      }
+    }
+  },
+
   writing: {
     createCommonFiles: function() {
 
@@ -673,7 +762,11 @@ module.exports = generators.Base.extend({
 
       // Check if there is a .gitignore, create one if there isn't
       this._ifNotExistsInProject('.gitignore', (filepath) => {
-        this.fs.copy(this.templatePath('common', 'gitignore'), filepath);
+        this.fs.copyTpl(
+          this.templatePath('common', 'gitignore'),
+          filepath,
+          { itemsToIgnore: this.itemsToIgnore }
+        );
       });
 
       // Check if there is a config.json, create one if there isn't
@@ -1184,9 +1277,26 @@ module.exports = generators.Base.extend({
             bluemix: this.bluemix,
             services: this.services,
             capabilities: this.capabilities,
+            sdkTargets: this.sdkTargets,
+            sdkPackages: this.sdkPackages
           }
         )
       });
+    },
+
+    writeSDKFiles: function() {
+      if(this.sdkTargets.length <= 0) return;
+      var done = this.async();
+
+      var numFinished = 0, length = this.sdkRootPaths.length; 
+      for (var index = 0; index < length; index++) {
+        integrateServerSDK.call(this, this.sdkRootPaths[index], function() {
+          numFinished += 1;
+          if(numFinished === length) {
+            done();
+          }
+        });
+      }
     }
   },
 });
