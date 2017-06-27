@@ -166,7 +166,7 @@ module.exports = generators.Base.extend({
       this.prompt(prompts, function(answers) {
         if (answers.dir !== '.') {
           this.destinationSet = true;
-          this.destinationRoot(answers.dir);
+          this.destinationRoot(path.resolve(answers.dir));
         }
         done();
       }.bind(this));
