@@ -1,3 +1,12 @@
+2017-06-21, Version 2.4.1
+=========================
+
+* Update Watson Conversation service label (#231)
+* Fix bug with non-root docker user support (#234)
+* Add node 8 to Travis builds
+* Add unit tests for http swagger retrieval (#230)
+* Remove unused rimraf require (#229)
+
 2017-06-15, Version 2.4.0
 =========================
 

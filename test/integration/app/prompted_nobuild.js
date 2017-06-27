@@ -26,6 +26,8 @@ var rimraf = require('rimraf');
 var fs = require('fs');
 
 var appGeneratorPath = path.join(__dirname, '../../../app');
+var testResourcesPath = path.join(__dirname, '../../../test/resources');
+var extendedTimeout = 300000
 
 describe('Prompt and no build integration tests for app generator', function () {
 
@@ -91,6 +93,18 @@ describe('Prompt and no build integration tests for app generator', function () 
 
     it('Application.swift references Configuration', function() {
       assert.fileContent('Sources/Application/Application.swift', 'import Configuration');
+    });
+
+    it('Package.swift contains Health dependency', function() {
+      assert.fileContent('Package.swift', '/Health');
+    });
+
+    it('Application.swift imports the Health module', function() {
+      assert.fileContent('Sources/Application/Application.swift', 'import Health');
+    });
+
+    it('Application.swift declares a Health instance', function() {
+      assert.fileContent('Sources/Application/Application.swift', 'let health = Health()');
     });
 
     it('Application.swift contains a health endpoint', function() {
@@ -206,7 +220,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application', function() {
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -301,7 +315,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application with custom swagger', function() {
-    this.timeout(4000); // NOTE: prevent failures on Travis macOS
+    this.timeout(extendedTimeout); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
@@ -325,6 +339,73 @@ describe('Prompt and no build integration tests for app generator', function () 
         assert.file(`Sources/Application/Routes/PersonsRoutes.swift`);
         assert.file(`Sources/Application/Routes/DinosaursRoutes.swift`);
       });
+    });
+  });
+
+  describe('Starter with generated iOS and Swift Server SDK', function() {
+    this.timeout(extendedTimeout);
+    var runContext;
+    var appName = 'notes';
+
+    before(function() {
+      runContext = helpers.run(appGeneratorPath)
+                          .withOptions({ 'skip-build': true })
+                          .withPrompts({
+                          appType: 'Scaffold a starter',
+                            name: appName,
+                            dir: appName,
+                            appPattern: 'Basic',
+                            endpoints: 'Endpoints from swagger file',
+                            swaggerChoice: 'Custom swagger file',
+                            path: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput0: true,
+                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
+                            serverSwaggerInput1: true,
+                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
+                            serverSwaggerInput2: false
+                          })
+
+      return runContext.toPromise();
+    });
+
+    it('created a iOS SDK zip file', function() {
+      assert.file(appName + '_iOS_SDK.zip');
+    });
+
+    it('modified .gitignore to include the generated iOS SDK', function() {
+      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*');
+    });
+
+    it('deleted a server SDK zip file', function() {
+      assert.noFile('Swagger_Petstore_ServerSDK.zip');
+    });
+
+    it('unzipped server SDK folder was deleted', function() {
+      assert.noFile('Swagger_Petstore_ServerSDK/README.md');
+    });
+
+    it('created Pet model from swagger file', function() {
+      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift');
+    });
+
+    it('modified Package.swift to include server SDK module', function() {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK');
+    });
+
+    it('deleted the second server SDK zip file', function() {
+      assert.noFile('Swagger_Petstore_Two_ServerSDK.zip');
+    });
+
+    it('unzipped the second server SDK folder was deleted', function() {
+      assert.noFile('Swagger_Petstore_Two_ServerSDK/README.md');
+    });
+
+    it('created Pet model from the second swagger file', function() {
+      assert.file('Sources/Swagger_Petstore_Two_ServerSDK/Pet.swift');
+    });
+
+    it('modified Package.swift to include the second server SDK module', function() {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK');
     });
   });
 
@@ -390,7 +471,7 @@ describe('Prompt and no build integration tests for app generator', function () 
             AdvancedMobileAccess: [{
               name: 'testAppID'
             }],
-            'WatsonConversation': [{
+            conversation: [{
               name: 'testWatsonConversation'
             }],
             'AlertNotification': [{
@@ -599,39 +680,39 @@ describe('Prompt and no build integration tests for app generator', function () 
             'Object-Storage': [{
               credentials: {
                 'auth_url': '',
-                'project': '',
-                'projectId': '',
-                'region': '',
-                'userId': '',
-                'username': '',
-                'password': '',
-                'domainId': '',
-                'domainName': '',
-                'role': ''
+                project: '',
+                projectId: '',
+                region: '',
+                userId: '',
+                username: '',
+                password: '',
+                domainId: '',
+                domainName: '',
+                role: ''
               }
             }],
             AdvancedMobileAccess: [{
               credentials: {
-                'clientId': '',
-                'oauthServerUrl': '',
-                'profilesUrl': '',
-                'secret': '',
-                'tenantId': '',
-                'version': 3
+                clientId: '',
+                oauthServerUrl: '',
+                profilesUrl: '',
+                secret: '',
+                tenantId: '',
+                version: 3
               }
             }],
-            'WatsonConversation': [{
+            conversation: [{
               credentials: {
-                'username': '',
-                'password': '',
-                'url': ''
+                username: '',
+                password: '',
+                url: ''
               }
             }],
-            'AlertNotification': [{
+            AlertNotification: [{
               credentials: {
-                'name': '',
-                'password': '',
-                'url': ''
+                name: '',
+                password: '',
+                url: ''
               }
             }],
             imfpush: [{
@@ -708,39 +789,39 @@ describe('Prompt and no build integration tests for app generator', function () 
             'Object-Storage': [{
               credentials: {
                 'auth_url': '',
-                'project': '',
-                'projectId': 'PROJECT_ID',
-                'region': 'earth',
-                'userId': 'USER_ID',
-                'username': '',
-                'password': 'password',
-                'domainId': '',
-                'domainName': '',
-                'role': ''
+                project: '',
+                projectId: 'PROJECT_ID',
+                region: 'earth',
+                userId: 'USER_ID',
+                username: '',
+                password: 'password',
+                domainId: '',
+                domainName: '',
+                role: ''
               }
             }],
             AdvancedMobileAccess: [{
               credentials: {
-                'clientId': 'CLIENT_ID',
-                'oauthServerUrl': '',
-                'profilesUrl': '',
-                'secret': 'APP_ID_SECRET',
-                'tenantId': 'TENANT_ID',
-                'version': 3
+                clientId: 'CLIENT_ID',
+                oauthServerUrl: '',
+                profilesUrl: '',
+                secret: 'APP_ID_SECRET',
+                tenantId: 'TENANT_ID',
+                version: 3
               }
             }],
-            'WatsonConversation': [{
+            conversation: [{
               credentials: {
-                'username': 'WC_USERNAME',
-                'password': 'WC_PASSWORD',
-                'url': 'WC_URL'
+                username: 'WC_USERNAME',
+                password: 'WC_PASSWORD',
+                url: 'WC_URL'
               }
             }],
-            'AlertNotification': [{
+            AlertNotification: [{
               credentials: {
-                'name': 'AN_USERNAME',
-                'password': 'AN_PASSWORD',
-                'url': 'AN_URL'
+                name: 'AN_USERNAME',
+                password: 'AN_PASSWORD',
+                url: 'AN_URL'
               }
             }],
             imfpush: [{
