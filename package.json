@@ -29,7 +29,7 @@
     "handlebars": "^4.0.5",
     "bluebird": "^3.5.0",
     "request": "^2.81.0",
-    "enjoi": "^1.0.1",
+    "swagger-parser": "^3.4.0",
     "swagger-schema-official": "^2.0.0-",
     "swaggerize-routes": "^1.0.0"
   },

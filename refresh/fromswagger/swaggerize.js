@@ -17,7 +17,7 @@
 var debug = require('debug')('refresh:fromSwagger:swaggerize');
 var genUtils = require('./generatorUtils');
 var handlebars = require('handlebars');
-var enjoi = require('enjoi');
+var SwaggerParser = require('swagger-parser');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
 var YAML = require('js-yaml');
@@ -91,14 +91,18 @@ function loadApi(apiPath) {
   });
 }
 
-function validate(api, apiPath) {
+function validate(loaded, swaggerPath) {
   debug('in validate');
   // validate against the swagger schema.
-  enjoi(apischema).validate(api, function (error, value) {
-    if (error) {
-      this.env.error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
-    }
-  }.bind(this));
+  return SwaggerParser.validate(loaded)
+    .then(function(api) {
+      debug('validate success');
+      return loaded;
+    })
+    .catch(function(err) {
+      debug('validate error', err);
+      this.env.error(chalk.red(swaggerPath, 'does not conform to swagger specification:'));
+    }.bind(this));
 }
 
 function parseSwagger(api) {
@@ -110,10 +114,6 @@ function parseSwagger(api) {
 
   Object.keys(api.paths).forEach(function(path) {
     var resource = genUtils.resourceNameFromPath(path);
-    if (resource === "*") {
-      // ignore a resource of '*' as a default route for this is set up in the template.
-      return;
-    }
 
     debug('path:', path, 'becomes resource:', resource);
     // for each path, walk the method verbs
@@ -235,15 +235,17 @@ function parse(swaggerPath) {
   debug('in parse');
   var parsePromise = function() {
     return loadApi.call(this, swaggerPath)
-                  .then(function(loaded) {
-                    validate.call(this, loaded, swaggerPath);
-                    debug('successfully validated against schema');
-                    try {
-                      return {'loaded': loaded, 'parsed': parseSwagger.call(this, loaded)};
-                    } catch (e) {
-                      this.env.error(chalk.red('failed to parse swagger from:', swaggerPath, e));
-                    }
-                  }.bind(this))}.bind(this);
+           .then(function(loaded) {
+             return validate.call(this, loaded, swaggerPath)
+             .then(function(loaded) {
+               debug('successfully validated against schema');
+               return {'loaded': loaded, 'parsed': parseSwagger.call(this, loaded)};
+             }.bind(this))
+             .catch(function(err) {
+               this.env.error(chalk.red('failed to parse swagger from:', swaggerPath, err));
+             }.bind(this));
+           }.bind(this))
+  }.bind(this);
 
   return parsePromise().then(function(response) {
     return response;

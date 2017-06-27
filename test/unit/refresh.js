@@ -416,11 +416,6 @@ describe('swiftserver:refresh', function () {
       },
       "basePath": "/basepath",
       "paths": {
-        "*": {
-          "get": {
-            "description": "Gets `Person` objects.",
-          }
-        }
       }
     };
 
@@ -470,7 +465,7 @@ describe('swiftserver:refresh', function () {
       },
       "basePath": "/basepath",
       "paths": {
-        "cheese": {
+        "/cheese": {
         }
       }
     };

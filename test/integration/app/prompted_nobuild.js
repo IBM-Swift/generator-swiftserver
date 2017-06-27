@@ -301,40 +301,11 @@ describe('Prompt and no build integration tests for app generator', function () 
   });
 
   describe('BFF application with custom swagger', function() {
-    var swagger = {
-      "swagger": "2.0",
-      "info": {
-        "version": "0.0.0",
-        "title": "<enter your title>"
-      },
-      "basePath": "/basepath",
-      "paths": {
-        "/persons": {
-          "get": {
-            "description": "Gets `Person` objects.",
-          },
-          "put": {
-            "description": "Puts `Person` objects.",
-          }
-        },
-        "/dinosaurs": {
-          "get": {
-            "description": "Gets `Dinosaur` objects.",
-          }
-        }
-      }
-    };
-
     this.timeout(4000); // NOTE: prevent failures on Travis macOS
     var runContext;
 
     before(function() {
       runContext = helpers.run(appGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var swaggerPath = path.join(tmpDir, "swagger.json");
-                            fs.writeFileSync(swaggerPath, JSON.stringify(swagger));
-                            this.answers.path = swaggerPath;
-                          })
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -342,8 +313,8 @@ describe('Prompt and no build integration tests for app generator', function () 
                             dir:  'notes',
                             appPattern: 'Backend for frontend',
                             endpoints: 'Endpoints from swagger file',
-                            swaggerChoice: 'Custom swagger file'
-                            // path is being set in the inTmpDir call
+                            swaggerChoice: 'Custom swagger file',
+                            path: path.join( __dirname, '../../resources/person_dino.json')
                           })
 
       return runContext.toPromise();
