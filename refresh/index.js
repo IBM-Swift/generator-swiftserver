@@ -290,7 +290,7 @@ module.exports = generators.Base.extend({
     setDestinationRootFromSpec: function() {
       if(!this.options.destinationSet && !this.existingProject) {
         // Check if we have a directory specified, else use the default one
-        this.destinationRoot(this.spec.appDir || 'swiftserver')
+        this.destinationRoot(path.resolve(this.spec.appDir || 'swiftserver'));
       }
     },
 
