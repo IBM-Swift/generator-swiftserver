@@ -294,12 +294,14 @@ module.exports = generators.Base.extend({
       if (this.appType !== 'scaffold') return;
       var done = this.async();
       var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file'];
+      var defaults = this.appPattern === 'Bff' ? choices : undefined
 
       var prompts = [{
         name: 'endpoints',
         type: 'checkbox',
         message: 'Select endpoints to generate:',
-        choices: choices
+        choices: choices,
+        default: defaults
       }];
       this.prompt(prompts, function(answers) {
         if (answers.endpoints) {
