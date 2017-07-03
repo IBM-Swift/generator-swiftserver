@@ -22,7 +22,6 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 var fs = require('fs')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
@@ -581,13 +580,13 @@ describe('Prompt and no build integration tests for app generator', function () 
     })
 
     it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
-      assert.fileContent([ ['config.json', /\s\"name\":\s\"notes-Cloudant-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-Redis-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-ObjectStorage-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-AppID-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-WatsonConversation-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-AlertNotification-\w{4}\",/],
-                           ['config.json', /\s\"name\":\s\"notes-PushNotifications-\w{4}\",/]
+      assert.fileContent([ ['config.json', /\s"name":\s"notes-Cloudant-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-Redis-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-ObjectStorage-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-AppID-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-WatsonConversation-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-AlertNotification-\w{4}",/],
+                           ['config.json', /\s"name":\s"notes-PushNotifications-\w{4}",/]
       ])
     })
   })

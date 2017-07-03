@@ -22,14 +22,9 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 var fs = require('fs')
 
 var modelGeneratorPath = path.join(__dirname, '../../../model')
-
-var dependentGenerators = [
-  [helpers.createDummyGenerator(), 'swiftserver:property']
-]
 
 describe('Prompt and no build integration tests for model generator', function () {
   describe('Prompt model when not in a generator', function () {
@@ -58,8 +53,8 @@ describe('Prompt and no build integration tests for model generator', function (
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
-                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmp_yorc, '{}')
+                            var tmpYorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmpYorc, '{}')
                             var spec = {
                               appName: 'test',
                               appType: 'scaffold'
@@ -85,15 +80,14 @@ describe('Prompt and no build integration tests for model generator', function (
 
   describe('Create a new model, creating a new model json file and update the spec.json', function () {
     var runContext
-    var error
 
     before(function () {
       runContext = helpers.run(modelGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
-                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmp_yorc, '{}')
+                            var tmpYorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmpYorc, '{}')
                             var spec = {
                               appName: 'test',
                               appType: 'crud',

@@ -22,7 +22,6 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var testResourcesPath = path.join(__dirname, '../../../test/resources')

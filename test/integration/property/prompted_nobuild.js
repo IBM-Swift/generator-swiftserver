@@ -22,7 +22,6 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 var fs = require('fs')
 
 var propertyGeneratorPath = path.join(__dirname, '../../../property')
@@ -54,8 +53,8 @@ describe('Prompt and no build integration tests for property generator', functio
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
-                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmp_yorc, '{}')
+                            var tmpYorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmpYorc, '{}')
                             var spec = {
                               appType: 'scaffold'
                             }
@@ -82,8 +81,8 @@ describe('Prompt and no build integration tests for property generator', functio
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
-                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmp_yorc, '{}')
+                            var tmpYorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmpYorc, '{}')
                             var spec = {
                               appType: 'crud'
                             }
@@ -109,8 +108,8 @@ describe('Prompt and no build integration tests for property generator', functio
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
-                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmp_yorc, '{}')
+                            var tmpYorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmpYorc, '{}')
                             var spec = {
                               appType: 'crud',
                               appName: 'test',
