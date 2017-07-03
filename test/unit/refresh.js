@@ -200,7 +200,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('generated the correct config file', function () {
-      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}})
+      assert.jsonFileContent('config.json', {logger: 'helium', port: 4567})
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -523,7 +523,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('generated the correct config file', function () {
-      assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}})
+      assert.jsonFileContent('config.json', { vcap: { services: {} } })
     })
 
     it('generates the expected files in the root of the project', function () {
