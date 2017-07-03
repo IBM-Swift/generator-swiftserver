@@ -20,7 +20,6 @@ var debug = require('debug')('generator-swiftserver:refresh')
 var generators = require('yeoman-generator')
 var fs = require('fs')
 var path = require('path')
-var util = require('util')
 var Promise = require('bluebird')
 var chalk = require('chalk')
 var YAML = require('js-yaml')
@@ -35,7 +34,6 @@ var sdkHelper = require('../lib/sdkGenHelper')
 var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
 var getClientSDKAsync = sdkHelper.getClientSDKAsync
 var getServerSDKAsync = sdkHelper.getServerSDKAsync
-var integrateServerSDK = sdkHelper.integrateServerSDK
 
 module.exports = generators.Base.extend({
   constructor: function () {
@@ -153,7 +151,7 @@ module.exports = generators.Base.extend({
       if (!this.spec.appType) {
         this.env.error(chalk.red('Property appType is missing from the specification'))
       }
-      if (['crud', 'scaffold'].indexOf(this.spec.appType) == -1) {
+      if (['crud', 'scaffold'].indexOf(this.spec.appType) === -1) {
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
@@ -191,7 +189,7 @@ module.exports = generators.Base.extend({
       }
 
       // Clean app name (for containers and other uses)
-      this.cleanAppName = helpers.sanitizeAppName(this.bluemix && this.bluemix.name || this.projectName)
+      this.cleanAppName = helpers.sanitizeAppName((this.bluemix && this.bluemix.name) || this.projectName)
 
       // Docker configuration
       this.docker = (this.spec.docker === true)
@@ -465,7 +463,6 @@ module.exports = generators.Base.extend({
     this.models.forEach(function (model) {
       var modelName = model['name']
       var modelNamePlural = model['plural']
-      var modelProperties = model['properties']
       var collectivePath = `/${modelNamePlural}`
       var singlePath = `/${modelNamePlural}/{id}`
 
@@ -901,7 +898,7 @@ module.exports = generators.Base.extend({
     },
 
     createCRUD: function () {
-      if (this.appType != 'crud') return
+      if (this.appType !== 'crud') return
 
       if (this.bluemix) {
         if (!this.fs.exists(this.destinationPath('README.md'))) {
@@ -1169,7 +1166,7 @@ module.exports = generators.Base.extend({
           if (folder.startsWith('.')) return
           if (!fs.statSync(this.destinationPath('Sources', folder)).isDirectory()) return
           var files = fs.readdirSync(this.destinationPath('Sources', folder))
-          if (files.indexOf('main.swift') != -1) {
+          if (files.indexOf('main.swift') !== -1) {
             foundMainSwift = true
           }
         }.bind(this))
