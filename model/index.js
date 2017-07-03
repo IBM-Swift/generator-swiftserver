@@ -17,7 +17,6 @@
 'use strict'
 var generators = require('yeoman-generator')
 
-var chalk = require('chalk')
 var debug = require('debug')('generator-swiftserver:model')
 
 var actions = require('../lib/actions')
@@ -132,7 +131,7 @@ module.exports = generators.Base.extend({
           'skip-build': this.options['skip-build']
         }
       },
-      this.options.testmode ? null : { local: require.resolve('../property')}
+      this.options.testmode ? null : { local: require.resolve('../property') }
     )
   }
 })
