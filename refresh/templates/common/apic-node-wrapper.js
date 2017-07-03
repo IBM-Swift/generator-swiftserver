@@ -19,6 +19,7 @@ var fs = require('fs')
 var path = require('path')
 var util = require('util')
 var net = require('net')
+var debug = require('debug')('generator-swiftserver:refresh:apic-node-wrapper')
 
 module.exports = new EventEmitter()
 function getRandomUnusedPort (tries, avoidPort, cb) {
@@ -28,13 +29,16 @@ function getRandomUnusedPort (tries, avoidPort, cb) {
   dummyServer.listen(0, () => {
     var port = dummyServer.address().port
     dummyServer.close()
-    if (port == avoidPort) {
+    if (port === avoidPort) {
       getRandomUnusedPort(tries - 1, avoidPort, cb)
       return
     }
     cb(port)
   })
-  dummyServer.on('error', (err) => { getRandomUnusedPort(tries - 1, avoidPort, cb) })
+  dummyServer.on('error', (err) => {
+    debug(`Error when trying to use default port: ${err}`)
+    getRandomUnusedPort(tries - 1, avoidPort, cb)
+  })
 }
 function exitChild (code) {
   if (swiftServerProcess) {
@@ -55,8 +59,8 @@ var swiftServerProcess = null
 var projectDir = __dirname
 var sourcesDir = path.join(projectDir, 'Sources')
 var mainModules = fs.readdirSync(sourcesDir)
-                    .filter((file) => fs.readdirSync(path.join(sourcesDir, file)).indexOf('main.swift') != -1)
-if (mainModules.length == 0) {
+                    .filter((file) => fs.readdirSync(path.join(sourcesDir, file)).indexOf('main.swift') !== -1)
+if (mainModules.length === 0) {
   console.error('Failed to find main module for project')
   process.exit(2)
 } else if (mainModules.length > 1) {
