@@ -18,22 +18,21 @@
  * Tests here do not stub out the subgenerators, so for the app generator
  * the real build and refresh subgenerators get called.
  */
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var rimraf = require('rimraf');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var rimraf = require('rimraf')
 
-var appGeneratorPath = path.join(__dirname, '../../../app');
-var buildGeneratorPath = path.join(__dirname, '../../../build');
+var appGeneratorPath = path.join(__dirname, '../../../app')
+var buildGeneratorPath = path.join(__dirname, '../../../build')
 
 describe('Spec option and build integration tests for app generator', function () {
-
   describe('A CRUD application with a cloudant service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'crud',
@@ -45,52 +44,52 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         cloudant: [{
-          name: "myCloudantService"
+          name: 'myCloudantService'
         }]
       },
-      "models": [
+      'models': [
         {
-          "name": 'todo',
-          "plural": 'todos',
-          "classname": 'Todo',
-          "properties": {
-            "id": {
-              "type": "string",
-              "id": true
+          'name': 'todo',
+          'plural': 'todos',
+          'classname': 'Todo',
+          'properties': {
+            'id': {
+              'type': 'string',
+              'id': true
             },
-            "title": {
-              "type": "string"
+            'title': {
+              'type': 'string'
             }
           }
         }
       ],
-      crudservice: "myCloudantService"
-    };
+      crudservice: 'myCloudantService'
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
       return runContext.toPromise()
-                        .then(function(dir) {
+                        .then(function (dir) {
                           return helpers.run(buildGeneratorPath)
-                                        .cd(dir + "/swiftserver")
-                                        .toPromise();
-                        });
-    });
+                                        .cd(dir + '/swiftserver')
+                                        .toPromise()
+                        })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('A CRUD application with metrics and autoscaling is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'crud',
@@ -102,51 +101,51 @@ describe('Spec option and build integration tests for app generator', function (
       },
       capabilities: {
         metrics: true,
-        autoscale: "myAutoScalingService"
+        autoscale: 'myAutoScalingService'
       },
-      "models": [
+      'models': [
         {
-          "name": 'todo',
-          "plural": 'todos',
-          "classname": 'Todo',
-          "properties": {
-            "id": {
-              "type": "string",
-              "id": true
+          'name': 'todo',
+          'plural': 'todos',
+          'classname': 'Todo',
+          'properties': {
+            'id': {
+              'type': 'string',
+              'id': true
             },
-            "title": {
-              "type": "string"
+            'title': {
+              'type': 'string'
             }
           }
         }
       ],
-      crudService: "myCloudantService"
-    };
+      crudService: 'myCloudantService'
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
       return runContext.toPromise()
-                       .then(function(dir) {
+                       .then(function (dir) {
                          return helpers.run(buildGeneratorPath)
-                                       .cd(dir + "/swiftserver")
-                                       .toPromise();
-                       });
-    });
+                                       .cd(dir + '/swiftserver')
+                                       .toPromise()
+                       })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with a cloudant service and is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -159,35 +158,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         cloudant: [{
-          name: "myCloudantService"
+          name: 'myCloudantService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
       return runContext.toPromise()
-                       .then(function(dir) {
+                       .then(function (dir) {
                          return helpers.run(buildGeneratorPath)
-                                       .cd(dir + "/swiftserver")
-                                       .toPromise();
-                       });
-    });
+                                       .cd(dir + '/swiftserver')
+                                       .toPromise()
+                       })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with a redis service and is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -200,35 +199,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         redis: [{
-          name: "myRedisService"
+          name: 'myRedisService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with an appid service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -241,35 +240,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         appid: [{
-          name: "myAppIDService"
+          name: 'myAppIDService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with an object storage service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -282,35 +281,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         objectstorage: [{
-          name: "mObjectStorageService"
+          name: 'mObjectStorageService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with a watson conversation service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -323,35 +322,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         watsonconversation: [{
-          name: "myWatsonConversationService"
+          name: 'myWatsonConversationService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with an alert notification service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -364,36 +363,35 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         alertnotification: [{
-          name: "myAlertNotificationService"
+          name: 'myAlertNotificationService'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  
-  });
+      assert.file('.build/debug/todo')
+    })
+  })
 
   describe('Web application with a push notifications service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000);
+    this.timeout(300000)
 
-    var runContext;
+    var runContext
 
     var spec = {
       appType: 'scaffold',
@@ -406,30 +404,28 @@ describe('Spec option and build integration tests for app generator', function (
       },
       services: {
         pushnotifications: [{
-          name: "myPushNotificationsService",
-          region: "UK"
+          name: 'myPushNotificationsService',
+          region: 'UK'
         }]
       }
-    };
+    }
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
-                          });
+                          })
 
-        return runContext.toPromise()
-                         .then(function(dir) {
+      return runContext.toPromise()
+                         .then(function (dir) {
                            return helpers.run(buildGeneratorPath)
-                                         .cd(dir + "/swiftserver")
-                                         .toPromise();
-                         });
-    });
+                                         .cd(dir + '/swiftserver')
+                                         .toPromise()
+                         })
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/todo');
-    });
-  
-  });
-
-});
+      assert.file('.build/debug/todo')
+    })
+  })
+})

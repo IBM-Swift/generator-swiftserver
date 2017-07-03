@@ -18,92 +18,91 @@
  * Tests here do not stub out the subgenerators, so for the app generator
  * the real build and refresh subgenerators get called.
  */
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var rimraf = require('rimraf');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var rimraf = require('rimraf')
 
-var appGeneratorPath = path.join(__dirname, '../../../app');
-var testResourcesPath = path.join(__dirname, '../../../test/resources');
-var buildTimeout = 300000;
+var appGeneratorPath = path.join(__dirname, '../../../app')
+var testResourcesPath = path.join(__dirname, '../../../test/resources')
+var buildTimeout = 300000
 
 describe('Prompt and build integration tests for app generator', function () {
-
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout);
-    var runContext;
+    this.timeout(buildTimeout)
+    var runContext
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
                             name: 'notes',
-                            dir:  'notes',
+                            dir: 'notes',
                             capabilities: []
-                          });
-      return runContext.toPromise();
-    });
+                          })
+      return runContext.toPromise()
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/notes');
-    });
+      assert.file('.build/debug/notes')
+    })
     it('generates an .xcodeproj file', function () {
-      assert.file('notes.xcodeproj');
-    });
-  });
+      assert.file('notes.xcodeproj')
+    })
+  })
 
   describe('Web application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout);
-    var runContext;
+    this.timeout(buildTimeout)
+    var runContext
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
                             name: 'notes',
-                            dir:  'notes',
-                            capabilities: ['Static web file serving'],
-                          });
-      return runContext.toPromise();
-    });
+                            dir: 'notes',
+                            capabilities: ['Static web file serving']
+                          })
+      return runContext.toPromise()
+    })
 
     it('compiles the application', function () {
-      assert.file('.build/debug/notes');
-    });
-  });
+      assert.file('.build/debug/notes')
+    })
+  })
 
   describe('CRUD application @full', function () {
     // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout);
-    var runContext;
+    this.timeout(buildTimeout)
+    var runContext
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Generate a CRUD application',
                             name: 'notes',
-                            dir:  'notes'
-                          });
-        return runContext.toPromise();
-    });
+                            dir: 'notes'
+                          })
+      return runContext.toPromise()
+    })
 
     it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/notes');
-    });
+      assert.file(process.cwd() + '/.build/debug/notes')
+    })
     it('generates an .xcodeproj file', function () {
-      assert.file('notes.xcodeproj');
-    });
-  });
+      assert.file('notes.xcodeproj')
+    })
+  })
 
   describe('Starter with generated SDK integration', function () {
-    var runContext;
-    var appName = 'notes';
+    var runContext
+    var appName = 'notes'
     before(function () {
       // Swift build is slow so we need to set a longer timeout for the test
-      this.timeout(buildTimeout);
+      this.timeout(buildTimeout)
       runContext = helpers.run(appGeneratorPath)
                           .withPrompts({
                             appType: 'Scaffold a starter',
@@ -118,17 +117,16 @@ describe('Prompt and build integration tests for app generator', function () {
                             serverSwaggerInput1: true,
                             serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
                             serverSwaggerInput2: false
-                          });
-      return runContext.toPromise();                        // Get a Promise back when the generator finishes
-    });
+                          })
+      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+    })
 
     it('compiles the application', function () {
-      assert.file(process.cwd()+'/.build/debug/' + appName);
-    });
+      assert.file(process.cwd() + '/.build/debug/' + appName)
+    })
 
     it('generates an .xcodeproj file', function () {
-      assert.file(appName + '.xcodeproj');
-    });
-  });
-
-});
+      assert.file(appName + '.xcodeproj')
+    })
+  })
+})

@@ -14,76 +14,74 @@
  * limitations under the License.
  */
 
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var rimraf = require('rimraf');
-var fs = require('fs');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var rimraf = require('rimraf')
+var fs = require('fs')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:property']
-];
+]
 
 // Files which we assert are created each time the model generator is run.
 var expected = [
   'models/MyModel.json',
   'Sources/Generated/MyModel.swift'
-];
+]
 
 var modelJsonPath = 'models/MyModel.json'
 
 describe('swiftserver:model', function () {
-
-  describe('Basic model test. '+
+  describe('Basic model test. ' +
            'Check the spec object is correct.', function () {
-
-    this.timeout(10000);
-    var runContext;
+    this.timeout(10000)
+    var runContext
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
-        runContext = helpers.run(path.join( __dirname, '../../model'))
+      runContext = helpers.run(path.join(__dirname, '../../model'))
           .withOptions({ testmode: true })
           .withGenerators(dependentGenerators) // Stub subgenerators
           .inTmpDir(function (tmpDir) {
-            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
-            fs.writeFileSync(tmpFile, "");
+            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')    // Created to make the dir a kitura project
+            fs.writeFileSync(tmpFile, '')
             var spec = {
-              appName: "modelTestDir",
-              appType: "crud"
+              appName: 'modelTestDir',
+              appType: 'crud'
             }
-            var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
-            fs.writeFileSync(tmpSpec, JSON.stringify(spec));
-            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
-            fs.writeFileSync(tmp_yorc, "{}");
+            var tmpSpec = path.join(tmpDir, 'spec.json')           // Created so there is an appName for the models
+            fs.writeFileSync(tmpSpec, JSON.stringify(spec))
+            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
+            fs.writeFileSync(tmp_yorc, '{}')
           })
           .withPrompts({                       // Mock the prompt answers
             name: 'MyModel',
             plural: 'MyModels'
-          });
-          return runContext.toPromise();      // Get a Promise back when the generator finishes
-    });
+          })
+      return runContext.toPromise()      // Get a Promise back when the generator finishes
+    })
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
 
     it('generates the expected spec object', function () {
-      var model = runContext.generator.model;
+      var model = runContext.generator.model
       var modelObject = {
         name: 'MyModel',
         plural: 'MyModels',
         classname: 'MyModel',
         properties: {
-          "id": {
-            "type": "string",
-            "id": true
+          'id': {
+            'type': 'string',
+            'id': true
           }
         }
       }
       assert.objectContent(model, modelObject)
-    });
-  });
-});
+    })
+  })
+})

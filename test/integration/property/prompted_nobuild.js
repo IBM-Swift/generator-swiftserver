@@ -18,100 +18,99 @@
  * Tests here do not stub out the subgenerators, so for the app generator
  * the real build and refresh subgenerators get called.
  */
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var rimraf = require('rimraf');
-var fs = require('fs');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var rimraf = require('rimraf')
+var fs = require('fs')
 
-var propertyGeneratorPath = path.join(__dirname, '../../../property');
+var propertyGeneratorPath = path.join(__dirname, '../../../property')
 
-describe('Prompt and no build integration tests for property generator', function() {
+describe('Prompt and no build integration tests for property generator', function () {
+  describe('Prompt property when not in a project', function () {
+    var runContext
+    var error
 
-  describe('Prompt property when not in a project', function() {
-    var runContext;
-    var error;
-
-    before(function(){
+    before(function () {
       runContext = helpers.run(propertyGeneratorPath)
-      return runContext.toPromise().catch(function(err){
-        error = err.message;
-      });
-    });
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
 
-    it('aborts generator with an error', function() {
-      assert(error, 'Should throw an error');
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
       assert(error.match('This is not a Swift Server Generator project directory.*$'), 'Specified directory is not a project and should have thrown an error')
-    });
-  });
+    })
+  })
 
-  describe('Prompt property when not in a CRUD project', function() {
-    var runContext;
-    var error;
+  describe('Prompt property when not in a CRUD project', function () {
+    var runContext
+    var error
 
-    before(function(){
+    before(function () {
       runContext = helpers.run(propertyGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
-                            fs.writeFileSync(tmpFile, "");
-                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
-                            fs.writeFileSync(tmp_yorc, "{}");
+                          .inTmpDir(function (tmpDir) {
+                            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
+                            fs.writeFileSync(tmpFile, '')
+                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmp_yorc, '{}')
                             var spec = {
                               appType: 'scaffold'
-                            };
-                            fs.writeFileSync('spec.json', JSON.stringify(spec));
+                            }
+                            fs.writeFileSync('spec.json', JSON.stringify(spec))
                           })
-      return runContext.toPromise().catch(function(err){
-        error = err.message;
-      });
-    });
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
 
-    it('aborts generator with an error', function() {
-      assert(error, 'Should throw an error');
-      var expectedError = 'The \\S+?:property generator is not compatible with non-CRUD application types';
-      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`);
-    });
-  });
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      var expectedError = 'The \\S+?:property generator is not compatible with non-CRUD application types'
+      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`)
+    })
+  })
 
-  describe('Prompt property when there are no models', function() {
-    var runContext;
-    var error;
+  describe('Prompt property when there are no models', function () {
+    var runContext
+    var error
 
-    before(function(){
+    before(function () {
       runContext = helpers.run(propertyGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
-                            fs.writeFileSync(tmpFile, "");
-                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
-                            fs.writeFileSync(tmp_yorc, "{}");
+                          .inTmpDir(function (tmpDir) {
+                            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
+                            fs.writeFileSync(tmpFile, '')
+                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmp_yorc, '{}')
                             var spec = {
                               appType: 'crud'
-                            };
-                            fs.writeFileSync('spec.json', JSON.stringify(spec));
+                            }
+                            fs.writeFileSync('spec.json', JSON.stringify(spec))
                           })
-      return runContext.toPromise().catch(function(err){
-        error = err.message;
-      });
-    });
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
 
-    it('aborts generator with an error', function() {
-      assert(error, 'Should throw an error');
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
       assert.strictEqual(error, 'There are no models to update (no models directory).')
-    });
-  });
+    })
+  })
 
   describe('Prompt to add properties to a model gets added to the correct model' +
-           ' and updates the spec.json', function() {
-    var runContext;
+           ' and updates the spec.json', function () {
+    var runContext
 
-    before(function() {
+    before(function () {
       runContext = helpers.run(propertyGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
-                            fs.writeFileSync(tmpFile, "");
-                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
-                            fs.writeFileSync(tmp_yorc, "{}");
+                          .inTmpDir(function (tmpDir) {
+                            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
+                            fs.writeFileSync(tmpFile, '')
+                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmp_yorc, '{}')
                             var spec = {
                               appType: 'crud',
                               appName: 'test',
@@ -120,29 +119,29 @@ describe('Prompt and no build integration tests for property generator', functio
                                 plural: 'MyModels',
                                 classname: 'MyModel',
                                 properties: {
-                                  "id": {
-                                    "type": "string",
-                                    "id": true
+                                  'id': {
+                                    'type': 'string',
+                                    'id': true
                                   }
                                 }
                               }],
                               config: {}
-                            };
-                            fs.writeFileSync(path.join(tmpDir, 'spec.json'), JSON.stringify(spec));
+                            }
+                            fs.writeFileSync(path.join(tmpDir, 'spec.json'), JSON.stringify(spec))
                             var model =
-                            {
-                              name: 'MyModel',
-                              plural: 'MyModels',
-                              classname: 'MyModel',
-                              properties: {
-                                "id": {
-                                  "type": "string",
-                                  "id": true
+                              {
+                                name: 'MyModel',
+                                plural: 'MyModels',
+                                classname: 'MyModel',
+                                properties: {
+                                  'id': {
+                                    'type': 'string',
+                                    'id': true
+                                  }
                                 }
                               }
-                            }
-                            fs.mkdirSync(path.join(tmpDir,'models'));
-                            fs.writeFileSync(path.join(tmpDir,'models','MyModel.json'), JSON.stringify(model));
+                            fs.mkdirSync(path.join(tmpDir, 'models'))
+                            fs.writeFileSync(path.join(tmpDir, 'models', 'MyModel.json'), JSON.stringify(model))
                           })
                           .withPrompts({
                             model: 'MyModel',
@@ -152,14 +151,14 @@ describe('Prompt and no build integration tests for property generator', functio
                             default: 'false'
                           })
                           .withOptions({ 'skip-build': true })
-      return runContext.toPromise();
-    });
+      return runContext.toPromise()
+    })
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
 
-    it('adds the properties to the spec.json', function() {
+    it('adds the properties to the spec.json', function () {
       const exp = {
         models: [
           {
@@ -167,41 +166,40 @@ describe('Prompt and no build integration tests for property generator', functio
             plural: 'MyModels',
             classname: 'MyModel',
             properties: {
-              "id": {
-                "type": "string",
-                "id": true
+              'id': {
+                'type': 'string',
+                'id': true
               },
-              "book": {
-                "type": "boolean",
-                "required": true,
-                "default": false
+              'book': {
+                'type': 'boolean',
+                'required': true,
+                'default': false
               }
             }
           }
         ]
-      };
-      assert.jsonFileContent('spec.json', exp);
-    });
+      }
+      assert.jsonFileContent('spec.json', exp)
+    })
 
-    it('adds the properties to the model file', function() {
+    it('adds the properties to the model file', function () {
       var expected = {
         name: 'MyModel',
         plural: 'MyModels',
         classname: 'MyModel',
         properties: {
-          "id": {
-            "type": "string",
-            "id": true
+          'id': {
+            'type': 'string',
+            'id': true
           },
-          "book": {
-            "type": "boolean",
-            "required": true,
-            "default": false
+          'book': {
+            'type': 'boolean',
+            'required': true,
+            'default': false
           }
         }
-      };
-      assert.jsonFileContent(path.join(process.cwd(), 'models', 'MyModel.json'), expected);
-    });
-  });
-
-});
+      }
+      assert.jsonFileContent(path.join(process.cwd(), 'models', 'MyModel.json'), expected)
+    })
+  })
+})

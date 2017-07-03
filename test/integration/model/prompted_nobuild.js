@@ -18,138 +18,136 @@
  * Tests here do not stub out the subgenerators, so for the app generator
  * the real build and refresh subgenerators get called.
  */
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var rimraf = require('rimraf');
-var fs = require('fs');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var rimraf = require('rimraf')
+var fs = require('fs')
 
-var modelGeneratorPath = path.join(__dirname, '../../../model');
+var modelGeneratorPath = path.join(__dirname, '../../../model')
 
 var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:property']
-];
+]
 
-describe('Prompt and no build integration tests for model generator', function() {
+describe('Prompt and no build integration tests for model generator', function () {
+  describe('Prompt model when not in a generator', function () {
+    var runContext
+    var error
 
-  describe('Prompt model when not in a generator', function() {
-    var runContext;
-    var error;
-
-    before(function(){
+    before(function () {
       runContext = helpers.run(modelGeneratorPath)
-      return runContext.toPromise().catch(function(err){
-        error = err.message;
-      });
-    });
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
 
-    it('aborts generator with an error', function() {
-      assert(error, 'Should throw an error');
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
       assert(error.match('This is not a Swift Server Generator project directory.*$'), 'Specified directory is not a project and should have thrown an error')
-    });
-  });
+    })
+  })
 
-  describe('Prompt for model when not a CRUD app type', function() {
+  describe('Prompt for model when not a CRUD app type', function () {
+    var runContext
+    var error
 
-    var runContext;
-    var error;
-
-    before(function() {
+    before(function () {
       runContext = helpers.run(modelGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
-                            fs.writeFileSync(tmpFile, "");
-                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
-                            fs.writeFileSync(tmp_yorc, "{}");
+                          .inTmpDir(function (tmpDir) {
+                            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
+                            fs.writeFileSync(tmpFile, '')
+                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmp_yorc, '{}')
                             var spec = {
                               appName: 'test',
                               appType: 'scaffold'
-                            };
-                            var pathToConfig = path.join(tmpDir, 'spec.json');
-                            fs.writeFileSync(pathToConfig, JSON.stringify(spec));
-                          });
-      return runContext.toPromise().catch(function(err) {
-        error = err.message;
-      });
-    });
+                            }
+                            var pathToConfig = path.join(tmpDir, 'spec.json')
+                            fs.writeFileSync(pathToConfig, JSON.stringify(spec))
+                          })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
 
-    it('aborts generator with an error', function(){
-      assert(error, 'Should throw an error');
-      var expectedError = 'The \\S+?:model generator is not compatible with non-CRUD application types';
-      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`);
-    });
-  });
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      var expectedError = 'The \\S+?:model generator is not compatible with non-CRUD application types'
+      assert(error.match(expectedError), `Error was: "${error}", it should be: "${expectedError}"`)
+    })
+  })
 
-  describe('Create a new model, creating a new model json file and update the spec.json', function() {
-    var runContext;
-    var error;
+  describe('Create a new model, creating a new model json file and update the spec.json', function () {
+    var runContext
+    var error
 
-    before(function(){
+    before(function () {
       runContext = helpers.run(modelGeneratorPath)
-                          .inTmpDir(function(tmpDir) {
-                            var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");
-                            fs.writeFileSync(tmpFile, "");
-                            var tmp_yorc = path.join(tmpDir, ".yo-rc.json");
-                            fs.writeFileSync(tmp_yorc, "{}");
+                          .inTmpDir(function (tmpDir) {
+                            var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
+                            fs.writeFileSync(tmpFile, '')
+                            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')
+                            fs.writeFileSync(tmp_yorc, '{}')
                             var spec = {
                               appName: 'test',
                               appType: 'crud',
                               config: {}
-                            };
-                            var pathToConfig = path.join(tmpDir, 'spec.json');
-                            fs.writeFileSync(pathToConfig, JSON.stringify(spec));
+                            }
+                            var pathToConfig = path.join(tmpDir, 'spec.json')
+                            fs.writeFileSync(pathToConfig, JSON.stringify(spec))
                           })
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
-                            name: "MyModel",
-                            plural: "MyModels"
-                          });
-      return runContext.toPromise();
-    });
+                            name: 'MyModel',
+                            plural: 'MyModels'
+                          })
+      return runContext.toPromise()
+    })
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
 
-    it('creates a model', function() {
-      assert.file('models/MyModel.json');
-    });
+    it('creates a model', function () {
+      assert.file('models/MyModel.json')
+    })
 
-    it('Creates the correct model file with the correct information', function() {
+    it('Creates the correct model file with the correct information', function () {
       const expected = {
         name: 'MyModel',
         plural: 'MyModels',
         classname: 'MyModel',
         properties: {
-          "id": {
-            "type": "string",
-            "id": true
+          'id': {
+            'type': 'string',
+            'id': true
           }
         }
       }
-      assert.jsonFileContent(path.join(process.cwd(), 'models','MyModel.json'), expected);
-    });
+      assert.jsonFileContent(path.join(process.cwd(), 'models', 'MyModel.json'), expected)
+    })
 
-    it('updates the spec.json with the model', function() {
+    it('updates the spec.json with the model', function () {
       var expected = {
         models: [{
           name: 'MyModel',
           plural: 'MyModels',
           classname: 'MyModel',
           properties: {
-            "id": {
-              "type": "string",
-              "id": true
+            'id': {
+              'type': 'string',
+              'id': true
             }
           }
         }]
-      };
-      assert.jsonFileContent('spec.json', expected);
-    });
-  });
-});
+      }
+      assert.jsonFileContent('spec.json', expected)
+    })
+  })
+})

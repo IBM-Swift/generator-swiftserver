@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-'use strict';
+'use strict'
 
-var debug = require('debug')('generator-swiftserver:refresh');
-var generators = require('yeoman-generator');
-var fs = require('fs');
-var path = require('path');
-var util = require('util');
-var Promise = require('bluebird');
-var chalk = require('chalk');
-var YAML = require('js-yaml');
-var rimraf = require('rimraf');
-var handlebars = require('handlebars');
+var debug = require('debug')('generator-swiftserver:refresh')
+var generators = require('yeoman-generator')
+var fs = require('fs')
+var path = require('path')
+var util = require('util')
+var Promise = require('bluebird')
+var chalk = require('chalk')
+var YAML = require('js-yaml')
+var rimraf = require('rimraf')
+var handlebars = require('handlebars')
 
-var helpers = require('../lib/helpers');
-var actions = require('../lib/actions');
+var helpers = require('../lib/helpers')
+var actions = require('../lib/actions')
 
-var swaggerize = require('./fromswagger/swaggerize');
-var sdkHelper = require('../lib/sdkGenHelper');
-var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync;
-var getClientSDKAsync = sdkHelper.getClientSDKAsync;
-var getServerSDKAsync = sdkHelper.getServerSDKAsync;
-var integrateServerSDK = sdkHelper.integrateServerSDK;
+var swaggerize = require('./fromswagger/swaggerize')
+var sdkHelper = require('../lib/sdkGenHelper')
+var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
+var getClientSDKAsync = sdkHelper.getClientSDKAsync
+var getServerSDKAsync = sdkHelper.getServerSDKAsync
+var integrateServerSDK = sdkHelper.integrateServerSDK
 
 module.exports = generators.Base.extend({
-  constructor: function() {
-    generators.Base.apply(this,arguments);
+  constructor: function () {
+    generators.Base.apply(this, arguments)
 
     // Allow the user to specify where the specification file is
     this.option('specfile', {
@@ -57,9 +57,9 @@ module.exports = generators.Base.extend({
     })
 
     this.fs.copyHbs = (from, to, params) => {
-      var template = handlebars.compile(this.fs.read(from));
-      this.fs.write(to, template(params));
-    };
+      var template = handlebars.compile(this.fs.read(from))
+      this.fs.write(to, template(params))
+    }
   },
 
   // Check if the given file exists, print a log message if it does and execute
@@ -77,265 +77,265 @@ module.exports = generators.Base.extend({
   //
   // @callback ifNotExistsInProjectCallback
   // @param {string} filepath - absolute filepath of file to check
-  _ifNotExistsInProject: function(fileInProject, cb) {
-    var filepath;
-    if (typeof(fileInProject) === 'string') {
-      filepath = this.destinationPath(fileInProject);
+  _ifNotExistsInProject: function (fileInProject, cb) {
+    var filepath
+    if (typeof (fileInProject) === 'string') {
+      filepath = this.destinationPath(fileInProject)
     } else {
-      filepath = this.destinationPath.apply(this, fileInProject);
+      filepath = this.destinationPath.apply(this, fileInProject)
     }
     if (this.fs.exists(this.destinationPath(filepath))) {
-      const relativeFilepath = path.relative(this.destinationRoot(), filepath);
-      this.log(chalk.cyan('   exists ') + relativeFilepath);
+      const relativeFilepath = path.relative(this.destinationRoot(), filepath)
+      this.log(chalk.cyan('   exists ') + relativeFilepath)
     } else {
-      cb.call(this, filepath);
+      cb.call(this, filepath)
     }
   },
 
   initializing: {
-    config: function() {
-      if(!this.options.singleShot) {
-        this.generatorVersion = require('../package.json').version;
-        this.config.defaults({ version: this.generatorVersion });
+    config: function () {
+      if (!this.options.singleShot) {
+        this.generatorVersion = require('../package.json').version
+        this.config.defaults({ version: this.generatorVersion })
 
         // Ensure generator major version match
         // TODO Use node-semver? Strip leading non-digits?
-        var generatorMajorVersion = this.generatorVersion.split('.')[0];
-        var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0];
+        var generatorMajorVersion = this.generatorVersion.split('.')[0]
+        var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0]
         if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
-          this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`);
+          this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`)
         }
       }
     },
 
-    readSpec: function() {
-      this.existingProject = false;
+    readSpec: function () {
+      this.existingProject = false
 
-      if(this.options.specfile) {
+      if (this.options.specfile) {
         debug('attempting to read the spec from file')
         try {
-          this.spec = this.fs.readJSON(this.options.specfile);
-          this.existingProject = false;
+          this.spec = this.fs.readJSON(this.options.specfile)
+          this.existingProject = false
         } catch (err) {
-          this.env.error(chalk.red(err));
+          this.env.error(chalk.red(err))
         }
       }
 
-      if(this.options.spec) {
+      if (this.options.spec) {
         debug('attempting to read the spec from cli')
         try {
-          this.spec = JSON.parse(this.options.spec);
+          this.spec = JSON.parse(this.options.spec)
         } catch (err) {
-          this.env.error(chalk.red(err));
+          this.env.error(chalk.red(err))
         }
       }
 
       // Getting an object from the generators
-      if(this.options.specObj) {
-        this.spec = this.options.specObj;
+      if (this.options.specObj) {
+        this.spec = this.options.specObj
       }
 
       // If we haven't receieved some sort of spec we attempt to read the spec.json
-      if(!this.spec) {
+      if (!this.spec) {
         try {
-          this.spec = this.fs.readJSON(this.destinationPath('spec.json'));
-          this.existingProject = true;
+          this.spec = this.fs.readJSON(this.destinationPath('spec.json'))
+          this.existingProject = true
         } catch (err) {
           this.env.error(chalk.red('Cannot read the spec.json: ', err))
         }
       }
 
       if (!this.spec) {
-        this.env.error(chalk.red('No specification for this project'));
+        this.env.error(chalk.red('No specification for this project'))
       }
 
       // App type
       if (!this.spec.appType) {
-        this.env.error(chalk.red('Property appType is missing from the specification'));
+        this.env.error(chalk.red('Property appType is missing from the specification'))
       }
       if (['crud', 'scaffold'].indexOf(this.spec.appType) == -1) {
-        this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`));
+        this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
-      this.appType = this.spec.appType;
+      this.appType = this.spec.appType
 
       // App name
       if (this.spec.appName) {
-          this.projectName = this.spec.appName;
+        this.projectName = this.spec.appName
       } else {
-          this.env.error(chalk.red('Property appName missing from the specification'));
+        this.env.error(chalk.red('Property appName missing from the specification'))
       }
 
       // Bluemix configuration
       if (this.spec.bluemix === true) {
-        this.bluemix = {};
-      } else if (typeof(this.spec.bluemix) === 'object') {
-        this.bluemix = {};
-        if (typeof(this.spec.bluemix.name) === 'string') {
-          this.bluemix.name = this.spec.bluemix.name;
+        this.bluemix = {}
+      } else if (typeof (this.spec.bluemix) === 'object') {
+        this.bluemix = {}
+        if (typeof (this.spec.bluemix.name) === 'string') {
+          this.bluemix.name = this.spec.bluemix.name
         }
-        if (typeof(this.spec.bluemix.host) === 'string') {
-          this.bluemix.host = this.spec.bluemix.host;
+        if (typeof (this.spec.bluemix.host) === 'string') {
+          this.bluemix.host = this.spec.bluemix.host
         }
-        if (typeof(this.spec.bluemix.domain) === 'string') {
-          this.bluemix.domain = this.spec.bluemix.domain;
+        if (typeof (this.spec.bluemix.domain) === 'string') {
+          this.bluemix.domain = this.spec.bluemix.domain
         }
-        if (typeof(this.spec.bluemix.memory) === 'string') {
-          this.bluemix.memory = this.spec.bluemix.memory;
+        if (typeof (this.spec.bluemix.memory) === 'string') {
+          this.bluemix.memory = this.spec.bluemix.memory
         }
-        if (typeof(this.spec.bluemix.diskQuota) === 'string') {
-          this.bluemix.diskQuota = this.spec.bluemix.diskQuota;
+        if (typeof (this.spec.bluemix.diskQuota) === 'string') {
+          this.bluemix.diskQuota = this.spec.bluemix.diskQuota
         }
-        if (typeof(this.spec.bluemix.instances) === 'number') {
-          this.bluemix.instances = this.spec.bluemix.instances;
+        if (typeof (this.spec.bluemix.instances) === 'number') {
+          this.bluemix.instances = this.spec.bluemix.instances
         }
       }
 
       // Clean app name (for containers and other uses)
-      this.cleanAppName = helpers.sanitizeAppName(this.bluemix && this.bluemix.name || this.projectName);
+      this.cleanAppName = helpers.sanitizeAppName(this.bluemix && this.bluemix.name || this.projectName)
 
       // Docker configuration
-      this.docker = (this.spec.docker === true);
+      this.docker = (this.spec.docker === true)
 
       // Web configuration
-      this.web = (this.spec.web === true);
+      this.web = (this.spec.web === true)
 
       // Example endpoints
-      this.exampleEndpoints = (this.spec.exampleEndpoints === true);
+      this.exampleEndpoints = (this.spec.exampleEndpoints === true)
 
       // Generation of example endpoints from the productSwagger.yaml example.
-      if (this.spec.fromSwagger && typeof(this.spec.fromSwagger) === 'string') {
-        this.fromSwagger = this.spec.fromSwagger;
+      if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
+        this.fromSwagger = this.spec.fromSwagger
       }
 
       if (this.exampleEndpoints) {
         if (this.fromSwagger) {
-          this.env.error('Only one of: swagger file and example endpoints allowed');
+          this.env.error('Only one of: swagger file and example endpoints allowed')
         }
-        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml');
+        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml')
       }
 
       // Swagger file paths for server SDKs
-      this.serverSwaggerFiles = this.spec.serverSwaggerFiles || [];
+      this.serverSwaggerFiles = this.spec.serverSwaggerFiles || []
 
       // Swagger hosting
-      this.hostSwagger = (this.spec.hostSwagger === true);
+      this.hostSwagger = (this.spec.hostSwagger === true)
 
       // Swagger UI
-      this.swaggerUI = (this.spec.swaggerUI === true);
+      this.swaggerUI = (this.spec.swaggerUI === true)
 
       // Service configuration
-      this.services = this.spec.services || {};
+      this.services = this.spec.services || {}
       // Ensure every service has a credentials object to
       // make life easier for templates
 
-      Object.keys(this.services).forEach(function(serviceType) {
-        this.services[serviceType].forEach(function(service, index) {
+      Object.keys(this.services).forEach(function (serviceType) {
+        this.services[serviceType].forEach(function (service, index) {
           // TODO: Further checking that service name is valid?
           if (!service.name) {
-            this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`));
+            this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
           }
-          service.credentials = service.credentials || {};
-        }.bind(this));
-      }.bind(this));
+          service.credentials = service.credentials || {}
+        }.bind(this))
+      }.bind(this))
 
       // Capability configuration
-      this.capabilities = this.spec.capabilities || {};
+      this.capabilities = this.spec.capabilities || {}
 
       // Metrics
       this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
 
       // Autoscaling
       if (this.capabilities.autoscale === true) {
-        this.capabilities.autoscale = `${this.projectName}ScalingService`;
-      } else if(typeof(this.capabilities.autoscale) !== 'string') {
-        this.capabilities.autoscale = undefined;
+        this.capabilities.autoscale = `${this.projectName}ScalingService`
+      } else if (typeof (this.capabilities.autoscale) !== 'string') {
+        this.capabilities.autoscale = undefined
       }
 
       // Autoscaling implies monitoring and Bluemix
       if (this.capabilities.autoscale) {
-        this.bluemix = true;
-        this.capabilities.metrics = true;
+        this.bluemix = true
+        this.capabilities.metrics = true
       }
 
       // SwaggerUI imples web and hostSwagger
       if (this.swaggerUI) {
-        this.hostSwagger = true;
-        this.web = true;
+        this.hostSwagger = true
+        this.web = true
       }
 
       // CRUD generation implies SwaggerUI
       if (this.appType === 'crud') {
-        this.hostSwagger = true;
-        this.swaggerUI = true;
-        this.web = true;
+        this.hostSwagger = true
+        this.swaggerUI = true
+        this.web = true
       }
 
       // Set the names of the modules
       this.generatedModule = 'Generated'
-      this.applicationModule = 'Application';
-      this.executableModule = this.projectName;
+      this.applicationModule = 'Application'
+      this.executableModule = this.projectName
 
       // Target dependencies to add to the applicationModule
-      this.sdkTargets = [];
+      this.sdkTargets = []
 
       // Package dependencies to add the Package.swift file
-      this.sdkPackages = '';
+      this.sdkPackages = ''
 
       // Files or folders to be ignored in a git repo
-      this.itemsToIgnore = [];
+      this.itemsToIgnore = []
     },
 
-    setDestinationRootFromSpec: function() {
-      if(!this.options.destinationSet && !this.existingProject) {
+    setDestinationRootFromSpec: function () {
+      if (!this.options.destinationSet && !this.existingProject) {
         // Check if we have a directory specified, else use the default one
-        this.destinationRoot(path.resolve(this.spec.appDir || 'swiftserver'));
+        this.destinationRoot(path.resolve(this.spec.appDir || 'swiftserver'))
       }
     },
 
-    ensureInProject: function() {
+    ensureInProject: function () {
       if (this.existingProject) {
-        actions.ensureInProject.call(this);
+        actions.ensureInProject.call(this)
       } else {
-        actions.ensureEmptyDirectory.call(this);
+        actions.ensureEmptyDirectory.call(this)
       }
     },
 
-    readModels: function() {
-      if(this.appType !== 'crud') return;
+    readModels: function () {
+      if (this.appType !== 'crud') return
 
       // Start with the models from the spec
-      var modelMap = {};
+      var modelMap = {}
       if (this.spec.models) {
         this.spec.models.forEach((model) => {
           if (model.name) {
-            modelMap[model.name] = model;
+            modelMap[model.name] = model
           } else {
-            this.log('Failed to process model in spec: model name missing');
+            this.log('Failed to process model in spec: model name missing')
           }
-        });
+        })
       }
 
       // Update the spec with any changes from the model .json files
       try {
         var modelFiles = fs.readdirSync(this.destinationPath('models'))
-                           .filter((name) => name.endsWith('.json'));
-        modelFiles.forEach(function(modelFile) {
+                           .filter((name) => name.endsWith('.json'))
+        modelFiles.forEach(function (modelFile) {
           try {
-            debug('reading model json:', this.destinationPath('models', modelFile));
-            var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile));
-            var model = JSON.parse(modelJSON);
+            debug('reading model json:', this.destinationPath('models', modelFile))
+            var modelJSON = fs.readFileSync(this.destinationPath('models', modelFile))
+            var model = JSON.parse(modelJSON)
             // Only add models if they aren't being modified/added
             if (model.name) {
-              modelMap[model.name] = model;
+              modelMap[model.name] = model
             } else {
-              this.log(`Failed to process model file ${modelFile}: model name missing`);
+              this.log(`Failed to process model file ${modelFile}: model name missing`)
             }
           } catch (_) {
             // Failed to read model file
-            this.log(`Failed to process model file ${modelFile}`);
+            this.log(`Failed to process model file ${modelFile}`)
           }
-        }.bind(this));
-        if (modelFiles.length === 0){
+        }.bind(this))
+        if (modelFiles.length === 0) {
           debug('no files in the model directory')
         }
       } catch (_) {
@@ -346,23 +346,23 @@ module.exports = generators.Base.extend({
       // Add any models we need to update
       if (this.options.model) {
         if (this.options.model.name) {
-          modelMap[this.options.model.name] = this.options.model;
+          modelMap[this.options.model.name] = this.options.model
         } else {
-          this.env.error(chalk.red('Failed to update model: name missing'));
+          this.env.error(chalk.red('Failed to update model: name missing'))
         }
       }
 
-      this.models = Object.keys(modelMap).map((modelName) => modelMap[modelName]);
+      this.models = Object.keys(modelMap).map((modelName) => modelMap[modelName])
     },
 
-    loadProjectInfo: function() {
+    loadProjectInfo: function () {
       // TODO(tunniclm): Improve how we set these values
-      this.projectVersion = '1.0.0';
+      this.projectVersion = '1.0.0'
     }
   },
 
-  buildProduct: function() {
-    if (!this.options.apic) return;
+  buildProduct: function () {
+    if (!this.options.apic) return
     this.product = {
       'product': '1.0.0',
       'info': {
@@ -394,11 +394,11 @@ module.exports = generators.Base.extend({
           }
         }
       }
-    };
+    }
   },
 
-  buildSwagger: function() {
-    if (this.appType !== 'crud') return;
+  buildSwagger: function () {
+    if (this.appType !== 'crud') return
     var swagger = {
       'swagger': '2.0',
       'info': {
@@ -414,12 +414,12 @@ module.exports = generators.Base.extend({
 
       'paths': {},
       'definitions': {}
-    };
+    }
 
     if (this.options.apic) {
-      swagger['info']['x-ibm-name'] = this.projectName;
-      swagger['schemes'] = ['https'];
-      swagger['host'] = '$(catalog.host)';
+      swagger['info']['x-ibm-name'] = this.projectName
+      swagger['schemes'] = ['https']
+      swagger['host'] = '$(catalog.host)'
       swagger['securityDefinitions'] = {
         'clientIdHeader': {
           'type': 'apiKey',
@@ -431,11 +431,11 @@ module.exports = generators.Base.extend({
           'in': 'header',
           'name': 'X-IBM-Client-Secret'
         }
-      };
+      }
       swagger['security'] = [{
         'clientIdHeader': [],
         'clientSecretHeader': []
-      }];
+      }]
       swagger['x-ibm-configuration'] = {
         'testable': true,
         'enforced': true,
@@ -459,29 +459,28 @@ module.exports = generators.Base.extend({
             }
           }]
         }
-      };
+      }
     }
 
-    this.models.forEach(function(model) {
-      var modelName = model['name'];
-      var modelNamePlural = model['plural'];
-      var modelProperties = model['properties'];
-      var collectivePath = `/${modelNamePlural}`;
-      var singlePath = `/${modelNamePlural}/{id}`;
+    this.models.forEach(function (model) {
+      var modelName = model['name']
+      var modelNamePlural = model['plural']
+      var modelProperties = model['properties']
+      var collectivePath = `/${modelNamePlural}`
+      var singlePath = `/${modelNamePlural}/{id}`
 
       // tunniclm: Generate definitions
-      var swaggerProperties = {};
-      var requiredProperties = [];
+      var swaggerProperties = {}
+      var requiredProperties = []
       for (var propName in model['properties']) {
         swaggerProperties[propName] = {
           'type': model['properties'][propName]['type']
-        };
-        if (typeof model['properties'][propName]['format'] !== 'undefined')
-        {
-          swaggerProperties[propName]['format'] = model['properties'][propName]['format'];
+        }
+        if (typeof model['properties'][propName]['format'] !== 'undefined') {
+          swaggerProperties[propName]['format'] = model['properties'][propName]['format']
         }
         if (model['properties'][propName]['required'] === true) {
-          requiredProperties.push(propName);
+          requiredProperties.push(propName)
         }
       }
       swagger['definitions'][modelName] = {
@@ -489,7 +488,7 @@ module.exports = generators.Base.extend({
         'additionalProperties': false
       }
       if (requiredProperties.length > 0) {
-        swagger['definitions'][modelName]['required'] = requiredProperties;
+        swagger['definitions'][modelName]['required'] = requiredProperties
       }
 
       // tunniclm: Generate paths
@@ -505,7 +504,7 @@ module.exports = generators.Base.extend({
               'description': 'Model id',
               'required': true,
               'type': 'string',
-              'format': 'JSON',
+              'format': 'JSON'
             }
           ],
           'responses': {
@@ -608,7 +607,7 @@ module.exports = generators.Base.extend({
           },
           'deprecated': false
         }
-      };
+      }
       swagger['paths'][collectivePath] = {
         'post': {
           'tags': [modelName],
@@ -663,87 +662,86 @@ module.exports = generators.Base.extend({
           },
           'deprecated': false
         }
-      };
-    });
-    this.swagger = swagger;
+      }
+    })
+    this.swagger = swagger
   },
 
-  parseFromSwagger: function() {
-    if (!this.fromSwagger) return;
+  parseFromSwagger: function () {
+    if (!this.fromSwagger) return
 
     return swaggerize.parse(this.fs, this.fromSwagger)
       .then(response => {
-        this.loadedApi = response.loaded;
-        this.parsedSwagger = response.parsed;
-      });
+        this.loadedApi = response.loaded
+        this.parsedSwagger = response.parsed
+      })
   },
 
-  generateSDKs: function() {
-    var shouldGenerateClient = (!!this.fromSwagger);
-    var shouldGenerateServer = (this.serverSwaggerFiles.length > 0);
-    if (!shouldGenerateClient && !shouldGenerateServer) return;
+  generateSDKs: function () {
+    var shouldGenerateClient = (!!this.fromSwagger)
+    var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
+    if (!shouldGenerateClient && !shouldGenerateServer) return
 
-    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-    var generationTasks = [];
-    if (shouldGenerateClient) generationTasks.push(generateClientAsync.call(this));
-    if (shouldGenerateServer) generationTasks.push(generateServerAsync.call(this));
-    return Promise.all(generationTasks);
+    this.log(chalk.green('Generating SDK(s) from swagger file(s)...'))
+    var generationTasks = []
+    if (shouldGenerateClient) generationTasks.push(generateClientAsync.call(this))
+    if (shouldGenerateServer) generationTasks.push(generateServerAsync.call(this))
+    return Promise.all(generationTasks)
 
-    function generateClientAsync() {
-      var clientSDKName = `${this.projectName}_iOS_SDK`;
+    function generateClientAsync () {
+      var clientSDKName = `${this.projectName}_iOS_SDK`
       return performSDKGenerationAsync(clientSDKName, 'ios_swift', JSON.stringify(this.loadedApi))
         .then(generatedID => getClientSDKAsync(clientSDKName, generatedID))
         .then(() => {
-          this.itemsToIgnore.push(`/${clientSDKName}*`);
-        });
+          this.itemsToIgnore.push(`/${clientSDKName}*`)
+        })
     }
 
-    function generateServerAsync() {
+    function generateServerAsync () {
       return Promise.map(this.serverSwaggerFiles, file => {
         return swaggerize.parse(this.fs, file)
           .then(response => {
             if (response.loaded.info.title === undefined) {
-              this.env.error(chalk.red('Could not extract title from Swagger API.'));
+              this.env.error(chalk.red('Could not extract title from Swagger API.'))
             }
 
-            var serverSDKName = response.loaded.info.title.replace(/ /g, '_') + '_ServerSDK';
+            var serverSDKName = response.loaded.info.title.replace(/ /g, '_') + '_ServerSDK'
             return performSDKGenerationAsync(serverSDKName, 'server_swift', JSON.stringify(response.loaded))
               .then(generatedID => getServerSDKAsync(serverSDKName, generatedID))
               .then(sdk => {
-                this.sdkTargets.push(serverSDKName);
+                this.sdkTargets.push(serverSDKName)
                 if (sdk.packages.length > 0) {
                   // Since all of the projects generated by the SDK generation
-                  // service will have the same pacakge dependencies, it is ok 
+                  // service will have the same pacakge dependencies, it is ok
                   // (for now) to overwrite with the latest set.
-                  this.sdkPackages = sdk.packages;
+                  this.sdkPackages = sdk.packages
                 }
                 // Copy SDK's Sources directory into the project's
                 // Sources directory
                 this.fs.copy(path.join(sdk.tempDir, sdk.dirname, 'Sources'),
-                             this.destinationPath('Sources', serverSDKName));
+                             this.destinationPath('Sources', serverSDKName))
 
                 // Clean up the SDK's temp directory
-                rimraf.sync(sdk.tempDir);
-              });
-          });
-      });
+                rimraf.sync(sdk.tempDir)
+              })
+          })
+      })
     }
   },
 
   writing: {
-    createCommonFiles: function() {
-
+    createCommonFiles: function () {
       // Check if we should create generator metadata files
-      if(!this.options.singleShot) {
+      if (!this.options.singleShot) {
         // Root directory
-        this.config.save();
+        this.config.save()
 
         // Check if there is a .swiftservergenerator-project, create one if there isn't
         this._ifNotExistsInProject('.swiftservergenerator-project', (filepath) => {
           // NOTE(tunniclm): Write a zero-byte file to mark this as a valid project
           // directory
-          this.fs.write(filepath, '');
-        });
+          this.fs.write(filepath, '')
+        })
       }
 
       // Check if there is a .gitignore, create one if there isn't
@@ -752,35 +750,35 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'gitignore'),
           filepath,
           { itemsToIgnore: this.itemsToIgnore }
-        );
-      });
+        )
+      })
 
       // Check if there is a config.json, create one if there isn't
       this._ifNotExistsInProject('config.json', (filepath) => {
-        var configToWrite;
-        if(this.bluemix) {
-          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services);
+        var configToWrite
+        if (this.bluemix) {
+          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services)
         } else {
-          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services);
+          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services)
         }
-        this.fs.writeJSON(filepath, configToWrite);
-      });
+        this.fs.writeJSON(filepath, configToWrite)
+      })
 
       this._ifNotExistsInProject('.swift-version', (filepath) => {
-        this.fs.copy(this.templatePath('common','swift-version'),
-                     filepath);
-      });
+        this.fs.copy(this.templatePath('common', 'swift-version'),
+                     filepath)
+      })
 
       this._ifNotExistsInProject('LICENSE', (filepath) => {
         this.fs.copy(
           this.templatePath('common', 'LICENSE_for_generated_code'),
-                            filepath);
-      });
+                            filepath)
+      })
 
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-        var resources;
+        var resources
         if (this.parsedSwagger && this.parsedSwagger.resources) {
-          resources = Object.keys(this.parsedSwagger.resources);
+          resources = Object.keys(this.parsedSwagger.resources)
         }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
@@ -796,22 +794,22 @@ module.exports = generators.Base.extend({
             hostSwagger: this.hostSwagger,
             resources: resources
           }
-        );
-      });
+        )
+      })
 
       // Check if there is a spec.json, if there isn't create one
-      if(this.spec) {
+      if (this.spec) {
         this._ifNotExistsInProject('spec.json', (filepath) => {
-          this.fs.writeJSON(filepath, this.spec);
-        });
+          this.fs.writeJSON(filepath, this.spec)
+        })
       }
 
       // Check if there is a index.js, create one if there isn't
       if (this.options.apic) {
         this._ifNotExistsInProject('index.js', (filepath) => {
           this.fs.copy(this.templatePath('common', 'apic-node-wrapper.js'),
-                       filepath);
-        });
+                       filepath)
+        })
       }
 
       this._ifNotExistsInProject(['Tests', this.applicationModule + 'Tests', 'RouteTests.swift'], (filepath) => {
@@ -819,40 +817,40 @@ module.exports = generators.Base.extend({
           this.templatePath('common', 'RouteTests.swift'),
           filepath,
           { applicationModule: this.applicationModule }
-        );
-      });
+        )
+      })
 
       this._ifNotExistsInProject(['Tests', 'LinuxMain.swift'], (filepath) => {
-          this.fs.copyTpl(
+        this.fs.copyTpl(
             this.templatePath('common', 'LinuxMain.swift'),
             filepath,
             { applicationModule: this.applicationModule }
-          );
-      });
+          )
+      })
 
       if (this.hostSwagger) {
-        this.fs.write(this.destinationPath('definitions','.keep'), '');
+        this.fs.write(this.destinationPath('definitions', '.keep'), '')
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'SwaggerRoute.swift'),
             filepath
-          );
-        });
+          )
+        })
       }
 
       if (this.swaggerUI) {
         this.fs.copy(
           this.templatePath('common', 'swagger-ui/**/*'),
           this.destinationPath('public', 'explorer')
-        );
+        )
         this.fs.copy(
           this.templatePath('common', 'NOTICES_for_generated_swaggerui'),
           this.destinationPath('NOTICES.txt')
-        );
+        )
       }
 
       if (this.web) {
-        this.fs.write(this.destinationPath('public','.keep'), '');
+        this.fs.write(this.destinationPath('public', '.keep'), '')
       }
 
       if (this.appType !== 'crud') {
@@ -878,12 +876,12 @@ module.exports = generators.Base.extend({
             alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0,
             pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
           }
-        );
-        this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '');
+        )
+        this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
     },
 
-    createFromSwagger: function() {
+    createFromSwagger: function () {
       if (this.parsedSwagger) {
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
           this.fs.copyHbs(
@@ -894,175 +892,174 @@ module.exports = generators.Base.extend({
               routes: this.parsedSwagger.resources[resource],
               basepath: this.parsedSwagger.basepath
             }
-          );
-        });
+          )
+        })
 
-        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-        this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi));
+        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
+        this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi))
       }
     },
 
-    createCRUD: function() {
-      if(this.appType != "crud") return;
+    createCRUD: function () {
+      if (this.appType != 'crud') return
 
       if (this.bluemix) {
-        if(!this.fs.exists(this.destinationPath('README.md'))) {
+        if (!this.fs.exists(this.destinationPath('README.md'))) {
           this.fs.copy(
             this.templatePath('bluemix', 'README.md'),
             this.destinationPath('README.md')
-          );
+          )
         }
       }
 
       // Add the models to the spec
-      this.spec.models = this.models;
-      this.fs.writeJSON(this.destinationPath('spec.json'), this.spec);
+      this.spec.models = this.models
+      this.fs.writeJSON(this.destinationPath('spec.json'), this.spec)
 
       // Check if there is a models folder, create one if there isn't
-      if(!this.fs.exists(this.destinationPath('models', '.keep'))) {
-        this.fs.write(this.destinationPath('models', '.keep'), '');
+      if (!this.fs.exists(this.destinationPath('models', '.keep'))) {
+        this.fs.write(this.destinationPath('models', '.keep'), '')
       }
-      this.models.forEach(function(model) {
-        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`);
-        this.fs.writeJSON(modelMetadataFilename, model, null, 2);
-      }.bind(this));
+      this.models.forEach(function (model) {
+        var modelMetadataFilename = this.destinationPath('models', `${model.name}.json`)
+        this.fs.writeJSON(modelMetadataFilename, model, null, 2)
+      }.bind(this))
 
       // Get the CRUD service for persistence
-      function getService(services, serviceName) {
-        var serviceDef = null;
-        Object.keys(services).forEach(function(serviceType) {
-          if (serviceDef) return;
-          services[serviceType].forEach(function(service) {
+      function getService (services, serviceName) {
+        var serviceDef = null
+        Object.keys(services).forEach(function (serviceType) {
+          if (serviceDef) return
+          services[serviceType].forEach(function (service) {
             if (service.name && (service.name === serviceName)) {
               serviceDef = {
                 service: service,
                 type: serviceType
               }
-              return;
             }
-          });
-        });
-        return serviceDef;
+          })
+        })
+        return serviceDef
       }
 
-      var crudService;
+      var crudService
       if (this.spec.crudservice) {
-        crudService = getService(this.services, this.spec.crudservice);
+        crudService = getService(this.services, this.spec.crudservice)
       } else {
-        crudService = { type: '__memory__' };
+        crudService = { type: '__memory__' }
       }
 
       this.fs.copyTpl(
         this.templatePath('crud', 'CRUDResources.swift'),
         this.destinationPath('Sources', this.generatedModule, 'CRUDResources.swift'),
         { models: this.models }
-      );
+      )
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
         { models: this.models, crudService: crudService, bluemix: this.bluemix }
-      );
+      )
       this.fs.copy(
         this.templatePath('crud', 'AdapterError.swift'),
         this.destinationPath('Sources', this.generatedModule, 'AdapterError.swift')
-      );
+      )
       this.fs.copy(
         this.templatePath('crud', 'ModelError.swift'),
         this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
-      );
-      this.models.forEach(function(model) {
+      )
+      this.models.forEach(function (model) {
         this.fs.copyTpl(
           this.templatePath('crud', 'Resource.swift'),
           this.destinationPath('Sources', this.generatedModule, `${model.classname}Resource.swift`),
           { model: model }
-        );
+        )
         this.fs.copyTpl(
           this.templatePath('crud', 'Adapter.swift'),
           this.destinationPath('Sources', this.generatedModule, `${model.classname}Adapter.swift`),
           { model: model }
-        );
+        )
         switch (crudService.type) {
-        case 'cloudant':
-          this.fs.copyTpl(
+          case 'cloudant':
+            this.fs.copyTpl(
             this.templatePath('crud', 'CloudantAdapter.swift'),
             this.destinationPath('Sources', this.generatedModule, `${model.classname}CloudantAdapter.swift`),
             { model: model }
-          );
-          break;
-        case '__memory__':
-          this.fs.copyTpl(
+          )
+            break
+          case '__memory__':
+            this.fs.copyTpl(
             this.templatePath('crud', 'MemoryAdapter.swift'),
             this.destinationPath('Sources', this.generatedModule, `${model.classname}MemoryAdapter.swift`),
             { model: model }
-          );
-          break;
+          )
+            break
         }
-        function optional(propertyName) {
-          var required = (model.properties[propertyName].required === true);
-          var identifier = (model.properties[propertyName].id === true);
-          return !required || identifier;
+        function optional (propertyName) {
+          var required = (model.properties[propertyName].required === true)
+          var identifier = (model.properties[propertyName].id === true)
+          return !required || identifier
         }
-        function convertJSTypeToSwiftyJSONType(jsType) {
+        function convertJSTypeToSwiftyJSONType (jsType) {
           switch (jsType) {
-            case 'boolean': return 'bool';
-            case 'object':  return 'dictionary';
-            default:        return jsType;
+            case 'boolean': return 'bool'
+            case 'object': return 'dictionary'
+            default: return jsType
           }
         }
-        function convertJSTypeToSwiftyJSONProperty(jsType) {
+        function convertJSTypeToSwiftyJSONProperty (jsType) {
           switch (jsType) {
-            case 'boolean': return 'bool';
-            case 'array':   return 'arrayObject';
-            case 'object':  return 'dictionaryObject';
-            default:        return jsType;
+            case 'boolean': return 'bool'
+            case 'array': return 'arrayObject'
+            case 'object': return 'dictionaryObject'
+            default: return jsType
           }
         }
         var propertyInfos = Object.keys(model.properties).map(
           (propertyName) => ({
-              name: propertyName,
-              jsType: model.properties[propertyName].type,
-              swiftyJSONType: convertJSTypeToSwiftyJSONType(model.properties[propertyName].type),
-              swiftyJSONProperty: convertJSTypeToSwiftyJSONProperty(model.properties[propertyName].type),
-              swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
+            name: propertyName,
+            jsType: model.properties[propertyName].type,
+            swiftyJSONType: convertJSTypeToSwiftyJSONType(model.properties[propertyName].type),
+            swiftyJSONProperty: convertJSTypeToSwiftyJSONProperty(model.properties[propertyName].type),
+            swiftType: helpers.convertJSTypeToSwift(model.properties[propertyName].type,
                                                       optional(propertyName)),
-              optional: optional(propertyName)
+            optional: optional(propertyName)
           })
-        );
+        )
         this.fs.copyTpl(
           this.templatePath('crud', 'Model.swift'),
           this.destinationPath('Sources', this.generatedModule, `${model.classname}.swift`),
           { model: model, propertyInfos: propertyInfos, helpers: helpers }
-        );
-      }.bind(this));
+        )
+      }.bind(this))
       if (this.product) {
-        var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`);
-        var productFilename = this.destinationPath(productRelativeFilename);
+        var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`)
+        var productFilename = this.destinationPath(productRelativeFilename)
         if (this.fs.exists(productFilename)) {
           // Do not overwrite this file if it already exists
-          this.log(chalk.red('exists, not modifying ') + productRelativeFilename);
+          this.log(chalk.red('exists, not modifying ') + productRelativeFilename)
         } else {
-          this.fs.write(productFilename, YAML.safeDump(this.product));
+          this.fs.write(productFilename, YAML.safeDump(this.product))
         }
       }
       if (this.swagger) {
-        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
-        this.conflicter.force = true;
-        this.fs.write(swaggerFilename, YAML.safeDump(this.swagger));
+        var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
+        this.conflicter.force = true
+        this.fs.write(swaggerFilename, YAML.safeDump(this.swagger))
       }
     },
 
-    createConfigFiles: function() {
-      if(this.bluemix) return;
+    createConfigFiles: function () {
+      if (this.bluemix) return
 
       // Only create these files if we are running locally
-      Object.keys(this.services).forEach(function(serviceType) {
-        if(serviceType === 'cloudant') {
+      Object.keys(this.services).forEach(function (serviceType) {
+        if (serviceType === 'cloudant') {
           this.fs.copy(
             this.templatePath('local', 'CloudantConfig.swift'),
             this.destinationPath('Sources', this.applicationModule, 'CloudantConfig.swift')
           )
         }
-        if(serviceType === 'redis') {
+        if (serviceType === 'redis') {
           this.fs.copy(
             this.templatePath('local', 'RedisConfig.swift'),
             this.destinationPath('Sources', this.applicationModule, 'RedisConfig.swift')
@@ -1071,154 +1068,154 @@ module.exports = generators.Base.extend({
       }.bind(this))
     },
 
-    createExtensionFiles: function() {
-      if(!this.bluemix) {
+    createExtensionFiles: function () {
+      if (!this.bluemix) {
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift'], (filepath) => {
           // Add the extension for the configuration manager
           this.fs.copy(
             this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
             filepath
-          );
-        });
-        return;
+          )
+        })
+        return
       }
 
       // Create all the extension files
-      Object.keys(this.services).forEach(function(serviceType) {
-        if(serviceType === 'cloudant') {
+      Object.keys(this.services).forEach(function (serviceType) {
+        if (serviceType === 'cloudant') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'CouchDBExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'mysql') {
+        if (serviceType === 'mysql') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'MySQLExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'MySQLExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'postgresql') {
+        if (serviceType === 'postgresql') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PostgreSQLExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'PostgreSQLExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'redis') {
+        if (serviceType === 'redis') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'RedisExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'objectstorage') {
+        if (serviceType === 'objectstorage') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'ObjStorageExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'appid') {
+        if (serviceType === 'appid') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'AppIDExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'watsonconversation') {
+        if (serviceType === 'watsonconversation') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'WatsonConversationExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'alertnotification') {
+        if (serviceType === 'alertnotification') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'AlertNotificationExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-        if(serviceType === 'pushnotifications') {
+        if (serviceType === 'pushnotifications') {
           this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PushNotificationsExtension.swift'], (filepath) => {
             this.fs.copy(
               this.templatePath('extensions', 'PushNotificationsExtension.swift'),
               filepath
-            );
-          });
+            )
+          })
         }
-      }.bind(this));
+      }.bind(this))
     },
 
-    writeMainSwift: function() {
+    writeMainSwift: function () {
       // Adding the main.swift file by searching for it in the folders
       // and adding it if it is not there.
-      var foundMainSwift = false;
-      if(fs.existsSync(this.destinationPath('Sources'))) {
+      var foundMainSwift = false
+      if (fs.existsSync(this.destinationPath('Sources'))) {
         // Read all the folders in the Sources directory
-        var folders = fs.readdirSync(this.destinationPath('Sources'));
+        var folders = fs.readdirSync(this.destinationPath('Sources'))
         // Read all the files in each folder
-        folders.forEach(function(folder) {
-          if(folder.startsWith('.')) return;
-          if(!fs.statSync(this.destinationPath('Sources', folder)).isDirectory()) return;
-          var files = fs.readdirSync(this.destinationPath('Sources', folder));
-          if(files.indexOf("main.swift") != -1) {
-            foundMainSwift = true;
+        folders.forEach(function (folder) {
+          if (folder.startsWith('.')) return
+          if (!fs.statSync(this.destinationPath('Sources', folder)).isDirectory()) return
+          var files = fs.readdirSync(this.destinationPath('Sources', folder))
+          if (files.indexOf('main.swift') != -1) {
+            foundMainSwift = true
           }
-        }.bind(this));
+        }.bind(this))
       }
 
-      if(!foundMainSwift) {
+      if (!foundMainSwift) {
         this.fs.copyTpl(
           this.templatePath('common', 'main.swift'),
           this.destinationPath('Sources', this.executableModule, 'main.swift'),
           { applicationModule: this.applicationModule }
-        );
+        )
       }
     },
 
-    writeDockerFiles: function() {
-      if (!this.docker) return;
+    writeDockerFiles: function () {
+      if (!this.docker) return
 
       this._ifNotExistsInProject('.dockerignore', (filepath) => {
         this.fs.copy(this.templatePath('docker', 'dockerignore'),
-                     filepath);
-      });
+                     filepath)
+      })
       this._ifNotExistsInProject('Dockerfile-tools', (filepath) => {
         this.fs.copy(this.templatePath('docker', 'Dockerfile-tools'),
-                     filepath);
-      });
+                     filepath)
+      })
       this._ifNotExistsInProject('Dockerfile', (filepath) => {
         this.fs.copy(this.templatePath('docker', 'Dockerfile'),
-                     filepath);
-      });
+                     filepath)
+      })
       this._ifNotExistsInProject('cli-config.yml', (filepath) => {
         this.fs.copyTpl(
           this.templatePath('docker', 'cli-config.yml'),
           filepath,
           { cleanAppName: this.cleanAppName,
             executableName: this.executableModule }
-        );
-      });
+        )
+      })
     },
 
-    writeBluemixDeploymentFiles: function() {
-      if (!this.bluemix) return;
+    writeBluemixDeploymentFiles: function () {
+      if (!this.bluemix) return
 
       // Check if there is a .cfignore, create one if there isn't
       if (!this.fs.exists(this.destinationPath('.cfignore'))) {
         this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'));
+                     this.destinationPath('.cfignore'))
       }
 
       this._ifNotExistsInProject('manifest.yml', (filepath) => {
@@ -1231,8 +1228,8 @@ module.exports = generators.Base.extend({
             capabilities: this.capabilities,
             hostSwagger: this.hostSwagger,
             bluemix: this.bluemix }
-        );
-      });
+        )
+      })
 
       this._ifNotExistsInProject(['.bluemix', 'pipeline.yml'], (filepath) => {
         this.fs.copyTpl(
@@ -1242,24 +1239,24 @@ module.exports = generators.Base.extend({
             services: this.services,
             capabilities: this.capabilities,
             helpers: helpers }
-        );
-      });
+        )
+      })
 
       this._ifNotExistsInProject(['.bluemix', 'toolchain.yml'], (filepath) => {
         this.fs.copyTpl(
           this.templatePath('bluemix', 'toolchain.yml'),
           filepath,
           { appName: this.projectName }
-        );
-      });
+        )
+      })
 
       this._ifNotExistsInProject(['.bluemix', 'deploy.json'], (filepath) => {
         this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
-                     filepath);
-      });
+                     filepath)
+      })
     },
 
-    writePackageSwift: function() {
+    writePackageSwift: function () {
       // Check if there is a Package.swift, create one if there isn't
       this._ifNotExistsInProject('Package.swift', (filepath) => {
         this.fs.copyTpl(
@@ -1277,7 +1274,7 @@ module.exports = generators.Base.extend({
             sdkPackages: this.sdkPackages
           }
         )
-      });
+      })
     }
   }
-});
+})
