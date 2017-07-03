@@ -15,22 +15,26 @@
  */
 
 'use strict';
+
+var debug = require('debug')('generator-swiftserver:refresh');
 var generators = require('yeoman-generator');
 var fs = require('fs');
 var path = require('path');
+var util = require('util');
+var Promise = require('bluebird');
 var chalk = require('chalk');
 var YAML = require('js-yaml');
-var debug = require('debug')('generator-swiftserver:refresh');
+var rimraf = require('rimraf');
+var handlebars = require('handlebars');
 
 var helpers = require('../lib/helpers');
 var actions = require('../lib/actions');
 
-var util = require('util');
 var swaggerize = require('./fromswagger/swaggerize');
 var sdkHelper = require('../lib/sdkGenHelper');
-var performSDKGeneration = sdkHelper.performSDKGeneration;
-var getiOSSDK = sdkHelper.getiOSSDK;
-var getServerSDK = sdkHelper.getServerSDK;
+var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync;
+var getClientSDKAsync = sdkHelper.getClientSDKAsync;
+var getServerSDKAsync = sdkHelper.getServerSDKAsync;
 var integrateServerSDK = sdkHelper.integrateServerSDK;
 
 module.exports = generators.Base.extend({
@@ -51,6 +55,11 @@ module.exports = generators.Base.extend({
       hide: true,
       type: String
     })
+
+    this.fs.copyHbs = (from, to, params) => {
+      var template = handlebars.compile(this.fs.read(from));
+      this.fs.write(to, template(params));
+    };
   },
 
   // Check if the given file exists, print a log message if it does and execute
@@ -267,24 +276,13 @@ module.exports = generators.Base.extend({
       this.executableModule = this.projectName;
 
       // Target dependencies to add to the applicationModule
-      if(this.sdkTargets === undefined) {
-        this.sdkTargets = [];
-      }
-
-      // Temporary paths to Server SDKs
-      if(this.sdkRootPaths === undefined) {
-        this.sdkRootPaths = [];
-      }
+      this.sdkTargets = [];
 
       // Package dependencies to add the Package.swift file
-      if(this.sdkPackages === undefined) {
-        this.sdkPackages = '';
-      }
+      this.sdkPackages = '';
 
       // Files or folders to be ignored in a git repo
-      if(this.itemsToIgnore === undefined) {
-        this.itemsToIgnore = [];
-      }
+      this.itemsToIgnore = [];
     },
 
     setDestinationRootFromSpec: function() {
@@ -673,74 +671,62 @@ module.exports = generators.Base.extend({
   parseFromSwagger: function() {
     if (!this.fromSwagger) return;
 
-    var done = this.async();
-    swaggerize.parse.call(this, this.fromSwagger)
-      .then((response) => {
+    return swaggerize.parse(this.fs, this.fromSwagger)
+      .then(response => {
         this.loadedApi = response.loaded;
         this.parsedSwagger = response.parsed;
-        done();
-      })
-      .catch(function(e) {
-        done(e);
       });
   },
 
   generateSDKs: function() {
-    if(!this.fromSwagger && this.serverSwaggerFiles.length <= 0) return;
+    var shouldGenerateClient = (!!this.fromSwagger);
+    var shouldGenerateServer = (this.serverSwaggerFiles.length > 0);
+    if (!shouldGenerateClient && !shouldGenerateServer) return;
+
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'));
-    var done = this.async();
-    var self = this; // local copy to be used in callbacks
+    var generationTasks = [];
+    if (shouldGenerateClient) generationTasks.push(generateClientAsync.call(this));
+    if (shouldGenerateServer) generationTasks.push(generateServerAsync.call(this));
+    return Promise.all(generationTasks);
 
-    // Cover the different cases
-    if(self.fromSwagger && self.serverSwaggerFiles.length <= 0) {
-      geniOS(done);
-    } else if(self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-      geniOS(function() {
-        genServer(done);
-      })
-    } else if(!self.fromSwagger && self.serverSwaggerFiles.length > 0) {
-      genServer(done);
-    }
-
-    function geniOS(callback) {
-      swaggerize.parse.call(self, self.fromSwagger)
-      .then((response) => {
-        performSDKGeneration.call(self, self.appname + '_iOS_SDK', 'ios_swift', JSON.stringify(response.loaded), function (generatedID) {
-          getiOSSDK.call(self, self.appname + '_iOS_SDK', generatedID, function() {
-              self.itemsToIgnore.push('/' + self.appname + '_iOS_SDK*');
-              callback();
-          });
+    function generateClientAsync() {
+      var clientSDKName = `${this.projectName}_iOS_SDK`;
+      return performSDKGenerationAsync(clientSDKName, 'ios_swift', JSON.stringify(this.loadedApi))
+        .then(generatedID => getClientSDKAsync(clientSDKName, generatedID))
+        .then(() => {
+          this.itemsToIgnore.push(`/${clientSDKName}*`);
         });
-      })
-      .catch(function(e) {
-        done(e);
-      });
     }
 
-    function genServer(callback) {
-      var numFinished = 0;
-      for (var index = 0; index < self.serverSwaggerFiles.length; index++) {
-        
-        swaggerize.parse.call(self, self.serverSwaggerFiles[index])
-        .then((response) => {
-          if (response.loaded['info']['title'] == undefined) {
-            self.env.error(chalk.red('Could not extract title from Swagger API.'));
-          } else {
-            var sdkName = response.loaded['info']['title'].replace(/ /g, '_') + '_ServerSDK';
-            performSDKGeneration.call(self, sdkName, 'server_swift', JSON.stringify(response.loaded), function(generatedID) {
-              getServerSDK.call(self, sdkName, generatedID, function() {
-                numFinished += 1;
-                if(numFinished === self.serverSwaggerFiles.length) {
-                  callback();
+    function generateServerAsync() {
+      return Promise.map(this.serverSwaggerFiles, file => {
+        return swaggerize.parse(this.fs, file)
+          .then(response => {
+            if (response.loaded.info.title === undefined) {
+              this.env.error(chalk.red('Could not extract title from Swagger API.'));
+            }
+
+            var serverSDKName = response.loaded.info.title.replace(/ /g, '_') + '_ServerSDK';
+            return performSDKGenerationAsync(serverSDKName, 'server_swift', JSON.stringify(response.loaded))
+              .then(generatedID => getServerSDKAsync(serverSDKName, generatedID))
+              .then(sdk => {
+                this.sdkTargets.push(serverSDKName);
+                if (sdk.packages.length > 0) {
+                  // Since all of the projects generated by the SDK generation
+                  // service will have the same pacakge dependencies, it is ok 
+                  // (for now) to overwrite with the latest set.
+                  this.sdkPackages = sdk.packages;
                 }
+                // Copy SDK's Sources directory into the project's
+                // Sources directory
+                this.fs.copy(path.join(sdk.tempDir, sdk.dirname, 'Sources'),
+                             this.destinationPath('Sources', serverSDKName));
+
+                // Clean up the SDK's temp directory
+                rimraf.sync(sdk.tempDir);
               });
-            })
-          }
-        })
-        .catch(function(e) {
-          done(e);
-        });
-      }
+          });
+      });
     }
   },
 
@@ -899,7 +885,17 @@ module.exports = generators.Base.extend({
 
     createFromSwagger: function() {
       if (this.parsedSwagger) {
-        swaggerize.createRoutes.call(this, this.parsedSwagger);
+        Object.keys(this.parsedSwagger.resources).forEach(resource => {
+          this.fs.copyHbs(
+            this.templatePath('fromswagger', 'Routes.swift.hbs'),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
+            {
+              resource: resource,
+              routes: this.parsedSwagger.resources[resource],
+              basepath: this.parsedSwagger.basepath
+            }
+          );
+        });
 
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`);
         this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi));
@@ -1282,21 +1278,6 @@ module.exports = generators.Base.extend({
           }
         )
       });
-    },
-
-    writeSDKFiles: function() {
-      if(this.sdkTargets.length <= 0) return;
-      var done = this.async();
-
-      var numFinished = 0, length = this.sdkRootPaths.length; 
-      for (var index = 0; index < length; index++) {
-        integrateServerSDK.call(this, this.sdkRootPaths[index], function() {
-          numFinished += 1;
-          if(numFinished === length) {
-            done();
-          }
-        });
-      }
     }
-  },
+  }
 });

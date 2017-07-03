@@ -80,7 +80,6 @@ module.exports = generators.Base.extend({
           this.env.error('There are no models to update (no files in the models directory).');
         }
 
-        var done = this.async();
         var prompts = [
           {
             name: 'model',
@@ -89,80 +88,83 @@ module.exports = generators.Base.extend({
             choices: results
           }
         ];
-        this.prompt(prompts, function(answers) {
-            this.model = this.fs.readJSON(this.destinationPath('models', `${answers.model}.json`));
-            done();
-        }.bind(this));
+        return this.prompt(prompts).then((answers) => {
+          this.model = this.fs.readJSON(this.destinationPath('models', `${answers.model}.json`));
+        });
       } else {
         this.env.error('There are no models to update (no models directory).');
       }
     },
 
     promptProperty: function() {
-      var done = this.async();
-
+      var notLast = (answers) => !this.options.repeatMultiple || answers.propertyName;
       var prompts = [
         {
           name: 'propertyName',
           message: 'Enter the property name:',
           validate: (name) => (this.options.repeatMultiple && !name) ||
                               validatePropertyName(name)
+        },
+        {
+          name: 'type',
+          message: 'Property type:',
+          type: 'list',
+          choices: ['string', 'number', 'boolean', 'object', 'array'],
+          when: notLast
+        },
+        {
+          name: 'required',
+          message: 'Required?',
+          type: 'confirm',
+          default: false,
+          when: notLast
+        },
+        {
+          name: 'default',
+          message: 'Default?',
+          type: 'confirm',
+          default: false,
+          when: notLast
+        },
+        { // This prompt for non-booleans
+          name: 'defaultValue',
+          message: 'Default value:',
+          validate: (value, answers) => validateDefaultValue(answers.type, value),
+          when: (answers) => notLast(answers) && answers.default && answers.type !== 'boolean'
+        },
+        { // This prompt for booleans
+          name: 'defaultValue',
+          message: 'Default value:',
+          type: 'list',
+          choices: ['true', 'false'],
+          validate: (value, answers) => validateDefaultValue(answers.type, value),
+          when: (answers) => notLast(answers) && answers.default && answers.type === 'boolean'
         }
       ];
-      this.prompt(prompts, function(answers) {
+
+      // Declaring a function to handle the answering of these prompts so that
+      // we can repeat them until the user responds that they do not want to
+      // add any more properties
+      var handleAnswers = (answers) => {
         if (this.options.repeatMultiple && !answers.propertyName) {
           // Sentinel blank value to end looping
-          done();
           return;
         }
 
-        var parameterPrompts = [
-          {
-            name: 'type',
-            message: 'Property type:',
-            type: 'list',
-            choices: ['string', 'number', 'boolean', 'object', 'array']
-          },
-          {
-            name: 'required',
-            message: 'Required?',
-            type: 'confirm',
-            default: false
-          }
-        ];
-        this.prompt(parameterPrompts, function(parameters) {
-          this.model.properties[answers.propertyName] = { type: parameters.type };
-          this.model.properties[answers.propertyName].required = parameters.required ? true : undefined;
-
-          var defaultPrompts = [
-            {
-              name: 'default',
-              message: 'Default?',
-              type: 'confirm',
-              default: false
-            },
-            {
-              name: 'defaultValue',
-              message: 'Default value:',
-              when: (defaultAnswers) => defaultAnswers.default,
-              validate: (value) => validateDefaultValue(parameters.type, value)
-            }
-          ];
-          if (parameters.type === 'boolean') {
-            defaultPrompts[1].type = 'list';
-            defaultPrompts[1].choices = ['true', 'false'];
-          }
-          this.prompt(defaultPrompts, function(defaultAnswers) {
-            if (defaultAnswers.default) {
-              this.model.properties[answers.propertyName].default = convertDefaultValue(parameters.type, defaultAnswers.defaultValue);
-            }
-            if (this.options.repeatMultiple) {
-              this.env.runLoop.add('prompting', this.prompting.promptProperty.bind(this));
-            }
-            done();
-          }.bind(this));
-        }.bind(this));
-      }.bind(this));
+        this.model.properties[answers.propertyName] = { type: answers.type };
+        this.model.properties[answers.propertyName].required = answers.required ? true : undefined;
+        if (answers.default) {
+          this.model.properties[answers.propertyName].default = convertDefaultValue(answers.type, answers.defaultValue);
+        }
+        if (this.options.repeatMultiple) {
+          // Now we have processed the response, we need to ask if the user
+          // wants to add any more properties. We do this by returning a new
+          // promise here, which will be resolved before the promise
+          // in which it is nested is resolved.
+          return this.prompt(prompts).then(handleAnswers);
+        }
+      };
+      return this.prompt(prompts).then(handleAnswers);
     }
   },
 

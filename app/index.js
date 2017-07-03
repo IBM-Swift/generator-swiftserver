@@ -124,7 +124,6 @@ module.exports = generators.Base.extend({
       if (this.skipPrompting) return;
       if (this.skipPromptingAppName) { return; }
 
-      var done = this.async();
       var prompts = [
         {
           name: 'name',
@@ -133,10 +132,9 @@ module.exports = generators.Base.extend({
           validate: validateAppName
         }
       ];
-      this.prompt(prompts, function(props) {
+      return this.prompt(prompts).then((props) => {
         this.appname = props.name;
-        done();
-      }.bind(this));
+      });
     },
 
     /*
@@ -154,7 +152,6 @@ module.exports = generators.Base.extend({
         return;
       }
 
-      var done = this.async();
       var prompts = [
         {
           name: 'dir',
@@ -163,13 +160,12 @@ module.exports = generators.Base.extend({
           validate: validateDirName
         }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.dir !== '.') {
           this.destinationSet = true;
           this.destinationRoot(path.resolve(answers.dir));
         }
-        done();
-      }.bind(this));
+      });
     },
 
     ensureEmptyDirectory: function() {
@@ -180,22 +176,20 @@ module.exports = generators.Base.extend({
     promptAppType: function() {
       if (this.skipPrompting) return;
 
-      var done = this.async();
       var prompts = [{
         name: 'appType',
         type: 'list',
         message: 'Select type of project:',
         choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         switch (answers.appType) {
           case 'Scaffold a starter':          this.appType = 'scaffold'; break;
           case 'Generate a CRUD application': this.appType = 'crud'; break;
           default:
             this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`));
         }
-        done();
-      }.bind(this));
+      });
     },
 
     /*
@@ -206,7 +200,6 @@ module.exports = generators.Base.extend({
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
 
-      var done = this.async();
       var prompts = [{
         name: 'appPattern',
         type: 'list',
@@ -214,7 +207,7 @@ module.exports = generators.Base.extend({
         choices: [ 'Basic', 'Web', 'Backend for frontend' ],
         default: 'Basic'
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         switch (answers.appPattern) {
           case 'Basic':                this.appPattern = 'Basic'; break;
           case 'Web':                  this.appPattern = 'Web'; break;
@@ -222,13 +215,11 @@ module.exports = generators.Base.extend({
           default:
             this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`));
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptCapabilities: function() {
       if (this.skipPrompting) return;
-      var done = this.async();
 
       var self = this;
       function displayName(property) {
@@ -281,18 +272,17 @@ module.exports = generators.Base.extend({
         choices: choices.map(displayName),
         default: defaults
       }];
-      this.prompt(prompts, function(answers) {
-        choices.forEach(function(choice) {
+      return this.prompt(prompts).then((answers) => {
+        choices.forEach((choice) => {
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
-        }.bind(this));
-        done();
-      }.bind(this));
+        });
+      });
     },
 
     promptGenerateEndpoints: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
-      var done = this.async();
+
       var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file'];
       var defaults = this.appPattern === 'Bff' ? choices : undefined;
 
@@ -303,7 +293,7 @@ module.exports = generators.Base.extend({
         choices: choices,
         default: defaults
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.endpoints) {
           if (answers.endpoints.indexOf('Swagger file serving endpoint') !== -1) {
             this.hostSwagger = true;
@@ -312,15 +302,14 @@ module.exports = generators.Base.extend({
             this.swaggerEndpoints = true;
           }
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptSwaggerEndpoints: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
       if (!this.swaggerEndpoints) return;
-      var done = this.async();
+
       var choices = {'customSwagger': 'Custom swagger file',
                      'exampleEndpoints': 'Example swagger file'};
 
@@ -341,7 +330,7 @@ module.exports = generators.Base.extend({
                 return (question.swaggerChoice === choices.customSwagger);
               }
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true;
         } else if (answers.path) {
@@ -353,13 +342,11 @@ module.exports = generators.Base.extend({
             this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path);
           }
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return;
-      var done = this.async();
 
       var depth = 0;
       var prompts = [{
@@ -376,38 +363,42 @@ module.exports = generators.Base.extend({
         validate: validateFilePathOrURL,
       }];
       
-      function promptUser() {
+      // Declaring a function to handle the answering of these prompts so that
+      // we can repeat them until the user responds that they do not want to
+      // generate any more SDKs
+      var handleAnswers = (answers) => {
+        // Creating and accessing dynamic answer keys for yeoman-test compatability.
+        // It needs unique keys in order to simulate the generation of multiple swagger file paths.
+        if (!answers['serverSwaggerInput' + depth]) {
+          // Sentinel blank value to end looping
+          return;
+        }
 
-        this.prompt(prompts, function (answers) {
-          // Creating and accessing dynamic answer keys for yeoman-test compatability.
-          // It needs unique keys in order to simulate the generation of multiple swagger file paths.
-          if (answers['serverSwaggerInput' + depth]) {
-            if (this.serverSwaggerFiles === undefined) {
-              this.serverSwaggerFiles = [];
-            }
-            if(this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
-              this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
-            } else {
-              this.log(chalk.yellow('This Swagger file is already being used'));
-            }
-            depth += 1;
-            prompts[0].name = prompts[0].name.slice(0, -1) + depth;
-            prompts[1].name = prompts[1].name.slice(0, -1) + depth;
-            prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?';
-            promptUser.call(this);
-          } else {
-            done();
-          }
-        }.bind(this));
+        if (this.serverSwaggerFiles === undefined) {
+          this.serverSwaggerFiles = [];
+        }
+        if(this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
+          this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
+        } else {
+          this.log(chalk.yellow('This Swagger file is already being used'));
+        }
+        depth += 1;
+        prompts[0].name = prompts[0].name.slice(0, -1) + depth;
+        prompts[1].name = prompts[1].name.slice(0, -1) + depth;
+        prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?';
+        // Now we have processed the response, we need to ask if the user
+        // wants to add any more SDKs. We do this by returning a new
+        // promise here, which will be resolved before the promise
+        // in which it is nested is resolved.
+        return this.prompt(prompts).then(handleAnswers);
       };
-      promptUser.call(this);
+      return this.prompt(prompts).then(handleAnswers);
     },
 
     promptServicesForScaffoldLocal: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
       if (this.bluemix) return;
-      var done = this.async();
 
       var choices = ['CouchDB', 'Redis'];
 
@@ -418,22 +409,20 @@ module.exports = generators.Base.extend({
         choices: choices,
         default: []
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('CouchDB') !== -1) {
           this._addService('cloudant', { name: 'couchdb' });
         }
         if (answers.services.indexOf('Redis') !== -1) {
           this._addService('redis', { name: 'redis' });
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptServicesForScaffoldBluemix: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'scaffold') return;
       if (!this.bluemix) return;
-      var done = this.async();
 
       var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications'];
 
@@ -444,7 +433,7 @@ module.exports = generators.Base.extend({
         choices: choices,
         default: []
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('Cloudant') !== -1) {
           this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') });
         }
@@ -471,8 +460,7 @@ module.exports = generators.Base.extend({
         if (answers.services.indexOf('Auto-scaling') !== -1) {
           this.autoscale = generateServiceName(this.appname, 'AutoScaling');
         }
-        done();
-      }.bind(this));
+      });
     },
 
     /*
@@ -483,7 +471,7 @@ module.exports = generators.Base.extend({
     promptDataStoreForCRUD: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'crud') return;
-      var done = this.async();
+
       var prompts = [
         {
           name: 'store',
@@ -493,22 +481,20 @@ module.exports = generators.Base.extend({
           filter: (store) => store.split(" ")[0]
         }
       ];
-      this.prompt(prompts, function(answer) {
+      return this.prompt(prompts).then((answer) => {
         // NOTE(tunniclm): no need to do anything for memory it is the default
         // if no crudservice is passed to the refresh generator
         if (answer.store === 'Cloudant') {
           this._addService('cloudant', { name: 'crudDataStore' });
           this.crudservice = 'crudDataStore';
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptServicesForCRUDBluemix: function() {
       if (this.skipPrompting) return;
       if (this.appType !== 'crud') return;
       if (!this.bluemix) return;
-      var done = this.async();
 
       var choices = ['Auto-scaling'];
 
@@ -519,12 +505,11 @@ module.exports = generators.Base.extend({
         choices: choices,
         default: []
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('Auto-scaling') !== -1) {
           this.autoscale = generateServiceName(this.appname, 'AutoScaling');
         }
-        done();
-      }.bind(this));
+      });
     },
 
     // NOTE(tunniclm): This part of the prompting assumes there can only
@@ -533,7 +518,6 @@ module.exports = generators.Base.extend({
       if (this.skipPrompting) return;
       if (!this.services) return;
       if (Object.keys(this.services).length == 0) return;
-      var done = this.async();
 
       var self = this;
       function serviceDisplayType(serviceType) {
@@ -558,21 +542,19 @@ module.exports = generators.Base.extend({
         choices: choices.map(serviceDisplayType),
         default: []
       }];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.servicesToConfigure = {};
-        choices.forEach(function(serviceType) {
+        choices.forEach((serviceType) => {
           this.servicesToConfigure[serviceType] =
             (answers.configure.indexOf(serviceDisplayType(serviceType)) !== -1);
-        }.bind(this));
-        done();
-      }.bind(this));
+        });
+      });
     },
 
     promptConfigureCloudant: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.cloudant) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Cloudant / CouchDB');
@@ -602,7 +584,7 @@ module.exports = generators.Base.extend({
           validate: (password) => validateCredential(password)
         }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.cloudant[0].name = answers.cloudantName || this.services.cloudant[0].name;
         this.services.cloudant[0].credentials = {
           host: answers.cloudantHost || undefined,
@@ -611,15 +593,13 @@ module.exports = generators.Base.extend({
           username: answers.cloudantUsername || undefined,
           password: answers.cloudantPassword || undefined
         };
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigureRedis: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.redis) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Redis');
@@ -636,22 +616,20 @@ module.exports = generators.Base.extend({
         },
         { name: 'redisPassword', message: 'Enter password:', type: 'password' }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.redis[0].name = answers.redisName || this.services.redis[0].name;
         this.services.redis[0].credentials = {
           host: answers.redisHost || undefined,
           port: answers.redisPort || undefined,
           password: answers.redisPassword || undefined
         };
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigureWatsonConversation: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.watsonconversation) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Watson Conversation');
@@ -664,7 +642,7 @@ module.exports = generators.Base.extend({
         { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' },
         { name: 'watsonConversationVersion', message: 'Enter version (blank for none):' }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name;
         this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version;
         this.services.watsonconversation[0].credentials = {
@@ -672,15 +650,13 @@ module.exports = generators.Base.extend({
           password: answers.watsonConversationPassword || undefined,
           url: answers.watsonConversationUrl || undefined
         };
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigureAlertNotification: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.alertnotification) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Alert Notification');
@@ -692,22 +668,20 @@ module.exports = generators.Base.extend({
         { name: 'alertNotificationPassword', message: 'Enter password:', type: 'password' },
         { name: 'alertNotificationUrl', message: 'Enter url (blank for none):' }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.alertnotification[0].name = answers.alertNotificationName || this.services.alertnotification[0].name;
         this.services.alertnotification[0].credentials = {
           name: answers.alertNotificationUsername || undefined,
           password: answers.alertNotificationPassword || undefined,
           url: answers.alertNotificationUrl || undefined
         };
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigurePushNotifications: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.pushnotifications) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Push Notifications');
@@ -726,7 +700,7 @@ module.exports = generators.Base.extend({
           default: 'US South'
         }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
         this.services.pushnotifications[0].credentials = {
           appGuid: answers.pushNotificationsAppGuid || undefined,
@@ -739,15 +713,13 @@ module.exports = generators.Base.extend({
           default:
             this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
         }
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigureObjectStorage: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.objectstorage) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure Object Storage');
@@ -768,7 +740,7 @@ module.exports = generators.Base.extend({
         { name: 'objectstorageUserId',     message: 'Enter user ID:' },
         { name: 'objectstoragePassword',   message: 'Enter password:', type: 'password' }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.objectstorage[0].name = answers.objectstorageName || this.services.objectstorage[0].name;
         this.services.objectstorage[0].credentials = {
           /*
@@ -784,15 +756,13 @@ module.exports = generators.Base.extend({
           userId:    answers.objectstorageUserId || undefined,
           password:  answers.objectstoragePassword || undefined
         };
-        done();
-      }.bind(this));
+      });
     },
 
     promptConfigureAppID: function() {
       if (this.skipPrompting) return;
       if (!this.servicesToConfigure) return;
       if (!this.servicesToConfigure.appid) return;
-      var done = this.async();
 
       this.log();
       this.log('Configure AppID');
@@ -804,15 +774,14 @@ module.exports = generators.Base.extend({
         { name: 'appidClientId', message: 'Enter client ID:' },
         { name: 'appidSecret',   message: 'Enter secret:', type: 'password' }
       ];
-      this.prompt(prompts, function(answers) {
+      return this.prompt(prompts).then((answers) => {
         this.services.appid[0].name = answers.appIDName || this.services.appid[0].name;
         this.services.appid[0].credentials = {
           tenantId: answers.appidTenantId || undefined,
           clientId: answers.appidClientId || undefined,
           secret:   answers.appidSecret || undefined
         };
-        done();
-      }.bind(this));
+      });
     }
   },
 
