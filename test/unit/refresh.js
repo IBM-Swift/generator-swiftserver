@@ -1734,7 +1734,7 @@ describe('swiftserver:refresh', function () {
 
   });
 
-describe('Generated a web application for bluemix without services', function() {
+  describe('Generated a web application for bluemix without services', function() {
 
     var runContext;
 
