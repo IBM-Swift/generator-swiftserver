@@ -4,10 +4,10 @@
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
-    "test": "mocha 'test/unit/**/*.js'",
-    "testint": "mocha 'test/integration/**/*.js'",
-    "testintfast": "mocha 'test/integration/**/*nobuild*.js'",
-    "coverage": "nyc mocha --grep @full --invert 'test/**/*.js'",
+    "test": "standard --env mocha && mocha 'test/unit/**/*.js'",
+    "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
+    "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
+    "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
   "repository": {
