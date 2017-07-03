@@ -19,7 +19,6 @@ var generators = require('yeoman-generator')
 
 var chalk = require('chalk')
 var path = require('path')
-var fs = require('fs')
 var debug = require('debug')('generator-swiftserver:app')
 
 var helpers = require('../lib/helpers')
@@ -30,7 +29,6 @@ var validatePort = helpers.validatePort
 var validateFilePathOrURL = helpers.validateFilePathOrURL
 var generateServiceName = helpers.generateServiceName
 var actions = require('../lib/actions')
-var ensureEmptyDirectory = actions.ensureEmptyDirectory
 
 module.exports = generators.Base.extend({
 
@@ -97,7 +95,7 @@ module.exports = generators.Base.extend({
       if (this.appname === null) {
         // Fall back to name of current working directory
         // Normalize if it contains special characters
-        var sanitizedCWD = path.basename(process.cwd()).replace(/[\/@\s\+%:\.]+?/g, '-')
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.]+?/g, '-')
         // We hope that sanitizedCWD is always valid, but check just
         // in case it isn't
         if (validateAppName(sanitizedCWD) === true) {
@@ -516,7 +514,7 @@ module.exports = generators.Base.extend({
     promptConfigureServices: function () {
       if (this.skipPrompting) return
       if (!this.services) return
-      if (Object.keys(this.services).length == 0) return
+      if (Object.keys(this.services).length === 0) return
 
       var self = this
       function serviceDisplayType (serviceType) {
@@ -842,7 +840,7 @@ module.exports = generators.Base.extend({
             destinationSet: (this.destinationSet === true)
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../refresh')}
+        this.options.testmode ? null : { local: require.resolve('../refresh') }
       )
     },
 
@@ -856,7 +854,7 @@ module.exports = generators.Base.extend({
             singleShot: this.options['single-shot']
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../build')}
+        this.options.testmode ? null : { local: require.resolve('../build') }
       )
     }
   },
