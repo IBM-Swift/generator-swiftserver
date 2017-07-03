@@ -19,6 +19,7 @@ var generators = require('yeoman-generator')
 var chalk = require('chalk')
 var actions = require('../lib/actions')
 var os = require('os')
+var debug = require('debug')('generator-swiftserver:app')
 
 module.exports = generators.Base.extend({
   initializing: {
@@ -39,6 +40,7 @@ module.exports = generators.Base.extend({
         }
         var buildProcess = this.spawnCommand('swift', ['build'].concat(opts))
         buildProcess.on('error', (err) => {
+          debug(`error spawning command "swift build": ${err}`)
           this.env.error(chalk.red('Failed to launch build'))
         })
         buildProcess.on('close', (code, signal) => {
@@ -56,6 +58,7 @@ module.exports = generators.Base.extend({
       return new Promise((resolve, reject) => {
         var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj'])
         buildProcess.on('error', (err) => {
+          debug(`error spawning command "swift package generate-xcodeproj": ${err}`)
           this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'))
         })
         buildProcess.on('close', (code, signal) => {
