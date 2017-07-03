@@ -34,7 +34,7 @@ function loadHttpAsync (uri) {
       throw new Error(chalk.red('failed to load swagger from:', uri, 'err:', err.message))
     })
     .then(result => {
-      if (result.statusCode != 200) {
+      if (result.statusCode !== 200) {
         debug('get request returned status:', result.statusCode)
         throw new Error(chalk.red('failed to load swagger from:', uri, 'status:', result.statusCode))
       }
@@ -129,19 +129,20 @@ function parseSwagger (api) {
           if (api.paths[path][verb].responses && api.paths[path][verb].responses[responseType]) {
             var responses = api.paths[path][verb].responses
             if (responses[responseType] && responses[responseType].schema) {
+              var ref
               if (responses[responseType].schema.$ref) {
                 // handle the schema ref
-                var ref = genUtils.getRefName(responses[responseType].schema.$ref)
+                ref = genUtils.getRefName(responses[responseType].schema.$ref)
                 refs[ref] = api.definitions[ref]
               } else if (responses[responseType].schema.type && responses[responseType].schema.type === 'array') {
                 if (responses[responseType].schema.items && responses[responseType].schema.items.$ref) {
-                  var ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
+                  ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
                   refs[ref] = api.definitions[ref]
                   if (responses[responseType].schema.items) {
                     // handle array of schema items
                     if (responses[responseType].schema.items.$ref) {
                       // handle the schema ref
-                      var ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
+                      ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
                       refs[ref] = api.definitions[ref]
                     }
                   }
@@ -162,16 +163,17 @@ function parseSwagger (api) {
       if (refs[schema] && refs[schema].properties) {
         var properties = refs[schema].properties
         Object.keys(properties).forEach(function (property) {
+          var name
           if (properties[property].$ref) {
             // this property contains a definition reference.
-            var name = genUtils.getRefName(properties[property].$ref)
+            name = genUtils.getRefName(properties[property].$ref)
             if (!refs[name]) {
               refs[name] = api.definitions[name]
               foundNewRef = true
             }
           } else if (properties[property].items && properties[property].items.$ref) {
             // this property contains a definition reference.
-            var name = genUtils.getRefName(properties[property].items.$ref)
+            name = genUtils.getRefName(properties[property].items.$ref)
             if (!refs[name]) {
               refs[name] = api.definitions[name]
               foundNewRef = true
