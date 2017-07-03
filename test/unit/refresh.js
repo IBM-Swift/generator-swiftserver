@@ -280,18 +280,15 @@ describe('swiftserver:refresh', function () {
     var server;
 
     before(function () {
-        var http = require('http');
-        var swagger = fs.readFileSync(path.join( __dirname, '../resources/person_dino.json'), 'utf8');
-        server = http.createServer(function(request, response) {
-          response.writeHead(200, {'Content-Type': 'application/json' });
-          response.end(swagger);
-        }).listen(8080);
+        nock("http://dino.io")
+          .get("/stuff")
+          .replyWithFile(200, path.join( __dirname, '../resources/person_dino.json'));
 
         // Mock the options, set up an output folder and run the generator
         var spec = {
           appType: 'scaffold',
           appName: appName,
-          fromSwagger: 'http://localhost:8080/stuff',
+          fromSwagger: 'http://dino.io/stuff',
           config: {
             logger: 'helium',
             port: 4567
@@ -319,7 +316,6 @@ describe('swiftserver:refresh', function () {
 
     after(function() {
       runContext.cleanTestDirectory();
-      server.close();
     });
   });
 
