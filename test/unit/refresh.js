@@ -20,6 +20,7 @@ var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 var fs = require('fs');
 var format = require('util').format;
+var nock = require('nock');
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
                      '.yo-rc.json', 'LICENSE', 'README.md'];
@@ -324,11 +325,17 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate scaffolded app from an invalid swagger URL', function () {
 
+    var errorCode = 'ENOTFOUND';
+    var errorMessage = 'getaddrinfo ' + errorCode + ' nothing nothing:80';
     var runContext;
     var error;
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
+        nock("http://nothing")
+          .get("/here")
+          .replyWithError({'message': errorMessage,'code': errorCode});
+
         var spec = {
           appType: 'scaffold',
           appName: appName,
@@ -349,7 +356,8 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error');
-      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:');
+      assert(error.match('failed to load swagger from: http://nothing/here err: ' + errorMessage),
+             'did not recieve ' + errorCode);
     });
 
     after(function() {
