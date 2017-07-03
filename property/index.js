@@ -76,7 +76,7 @@ module.exports = generators.Base.extend({
                        .map((element) => element.substring(0, element.lastIndexOf('.json')))
 
         // Ensure that the results array contains at least one model.json file.
-        if (results.length == 0) {
+        if (results.length === 0) {
           this.env.error('There are no models to update (no files in the models directory).')
         }
 
@@ -179,7 +179,7 @@ module.exports = generators.Base.extend({
             model: this.model
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../refresh')})
+        this.options.testmode ? null : { local: require.resolve('../refresh') })
     },
 
     buildApp: function () {
