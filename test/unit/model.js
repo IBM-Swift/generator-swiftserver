@@ -18,21 +18,12 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 var fs = require('fs')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:property']
 ]
-
-// Files which we assert are created each time the model generator is run.
-var expected = [
-  'models/MyModel.json',
-  'Sources/Generated/MyModel.swift'
-]
-
-var modelJsonPath = 'models/MyModel.json'
 
 describe('swiftserver:model', function () {
   describe('Basic model test. ' +
@@ -54,8 +45,8 @@ describe('swiftserver:model', function () {
             }
             var tmpSpec = path.join(tmpDir, 'spec.json')           // Created so there is an appName for the models
             fs.writeFileSync(tmpSpec, JSON.stringify(spec))
-            var tmp_yorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
-            fs.writeFileSync(tmp_yorc, '{}')
+            var tmpYorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
+            fs.writeFileSync(tmpYorc, '{}')
           })
           .withPrompts({                       // Mock the prompt answers
             name: 'MyModel',

@@ -19,7 +19,6 @@ var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
-var format = require('util').format
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
   '.yo-rc.json', 'LICENSE', 'README.md']
@@ -50,7 +49,6 @@ describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
            'is written out correctly.', function () {
-    var dirName
     var expected = [
       `definitions/${appName}.yaml`
     ]
@@ -109,7 +107,6 @@ describe('swiftserver:refresh', function () {
   describe('Basic refresh generator test with apic option. ' +
            'Check the yaml files exist and ' +
            'are written out correctly.', function () {
-    var dirName
     var appName = 'testApp'
     var expected = [
       `definitions/${appName}-product.yaml`,
@@ -202,9 +199,9 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    if ('generated the correct config file', function () {
+    it('generated the correct config file', function () {
       assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}})
-    });
+    })
 
     it('generates the expected files in the root of the project', function () {
       assert.file(expectedFiles)
@@ -269,14 +266,13 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate scaffolded app from an valid swagger URL', function () {
     var runContext
-    var error
     var server
 
     before(function () {
       var http = require('http')
       var swagger = fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8')
       server = http.createServer(function (request, response) {
-        response.writeHead(200, {'Content-Type': 'application/json' })
+        response.writeHead(200, { 'Content-Type': 'application/json' })
         response.end(swagger)
       }).listen(8080)
 
@@ -526,9 +522,9 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    if ('generated the correct config file', function () {
+    it('generated the correct config file', function () {
       assert.jsonFileContent('config.json', {config: {logger: 'helium', port: 4567}})
-    });
+    })
 
     it('generates the expected files in the root of the project', function () {
       assert.file(expectedFiles)
@@ -1200,9 +1196,9 @@ describe('swiftserver:refresh', function () {
       assert.file(`Sources/${executableModule}/main.swift`)
     })
 
-    if ('generates Application.swift', function () {
+    it('generates Application.swift', function () {
       assert.file(`Sources/${applicationModule}/Application.swift`)
-    });
+    })
 
     it('generates web only file and folders', function () {
       var expectedExtensionFiles = [`Sources/${applicationModule}/Application.swift`,
@@ -1881,9 +1877,9 @@ describe('swiftserver:refresh', function () {
       assert.file('Sources/todo/main.swift')
     })
 
-    if ('generates Application.swift', function () {
+    it('generates Application.swift', function () {
       assert.file(`Sources/${applicationModule}/Application.swift`)
-    });
+    })
 
     it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles)

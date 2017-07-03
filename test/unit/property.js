@@ -19,7 +19,6 @@ var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
-var rimraf = require('rimraf')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
@@ -45,8 +44,8 @@ describe('swiftserver:property', function () {
           var tmpSpec = path.join(tmpDir, 'spec.json')           // Created so there is an appName for the models
           fs.writeFileSync(tmpSpec, JSON.stringify(spec))
 
-          var tmp_yorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
-          fs.writeFileSync(tmp_yorc, '{}')
+          var tmpYorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
+          fs.writeFileSync(tmpYorc, '{}')
         })
         .withOptions({
           model: {

@@ -18,20 +18,12 @@
 var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
-var rimraf = require('rimraf')
 var fs = require('fs')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:refresh'],
   [helpers.createDummyGenerator(), 'swiftserver:build']
-]
-
-// Files which we assert are created each time the app generator is run.
-var expected = [
-  'Package.swift',
-  '.swiftservergenerator-project',
-  'manifest.yml'
 ]
 
 describe('swiftserver:app', function () {

@@ -41,7 +41,7 @@ describe('validators', function () {
     it('rejects app name containing special characters', function () {
       assert(helpers.validateAppName('%test*') !== true)
       assert(helpers.validateAppName('%te]st*') !== true)
-      assert(helpers.validateAppName('%\`.,*') !== true)
+      assert(helpers.validateAppName('%`.,*') !== true)
     })
   })
 
