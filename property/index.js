@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-'use strict';
-var generators = require('yeoman-generator');
+'use strict'
+var generators = require('yeoman-generator')
 
-var actions = require('../lib/actions');
-var helpers = require('../lib/helpers');
-var debug = require('debug')('generator-swiftserver:property');
-var validatePropertyName = helpers.validatePropertyName;
-var validateDefaultValue = helpers.validateDefaultValue;
-var convertDefaultValue = helpers.convertDefaultValue;
+var actions = require('../lib/actions')
+var helpers = require('../lib/helpers')
+var debug = require('debug')('generator-swiftserver:property')
+var validatePropertyName = helpers.validatePropertyName
+var validateDefaultValue = helpers.validateDefaultValue
+var convertDefaultValue = helpers.convertDefaultValue
 
 module.exports = generators.Base.extend({
 
-  constructor: function() {
-    generators.Base.apply(this, arguments);
+  constructor: function () {
+    generators.Base.apply(this, arguments)
 
     this.option('skip-build', {
       type: Boolean,
       desc: 'Skip building the generated application',
       defaults: false
-    });
+    })
   },
 
   initializing: {
     ensureInProject: actions.ensureInProject,
     ensureProjectIsCrud: actions.ensureProjectIsCrud,
 
-    initProperties: function() {
-      this.properties = {};
+    initProperties: function () {
+      this.properties = {}
     }
   },
 
@@ -50,12 +50,12 @@ module.exports = generators.Base.extend({
     // .json files representing the models. List the models so that the user
     // can select which one they wish to override or define new properties for.
 
-    promptModel: function() {
+    promptModel: function () {
       // If we get here by being composed with the model generator, then we should
       // have been passed a model name and can skip selecting a model.
       // TODO: update the property generator
-      this.model = this.options.model;
-      if (this.model) return;
+      this.model = this.options.model
+      if (this.model) return
 
       // We need to get a list of models that are available to choose from.
       // We cannot use the yeoman memfs to query which model files exist because
@@ -63,21 +63,21 @@ module.exports = generators.Base.extend({
       // system. We shouldn't have to worry about files that are waiting to be
       // written in memfs, because that could only happen if we are composed with
       // the model generator and the above check should mean we don't get here
-      var fs = require('fs');
-      var results = [];
+      var fs = require('fs')
+      var results = []
 
-      var modelsDir = this.destinationPath('models');
-      debug('using directory %s to search for model .json files', modelsDir);
+      var modelsDir = this.destinationPath('models')
+      debug('using directory %s to search for model .json files', modelsDir)
 
       if (fs.existsSync(modelsDir)) {
-        var files = fs.readdirSync(modelsDir);
-        debug('found %d files in model directory %s:', files.length, modelsDir, files);
+        var files = fs.readdirSync(modelsDir)
+        debug('found %d files in model directory %s:', files.length, modelsDir, files)
         results = files.filter((element) => element.endsWith('.json'))
-                       .map((element) => element.substring(0, element.lastIndexOf('.json')));
+                       .map((element) => element.substring(0, element.lastIndexOf('.json')))
 
         // Ensure that the results array contains at least one model.json file.
-        if (results.length == 0) {
-          this.env.error('There are no models to update (no files in the models directory).');
+        if (results.length === 0) {
+          this.env.error('There are no models to update (no files in the models directory).')
         }
 
         var prompts = [
@@ -87,17 +87,17 @@ module.exports = generators.Base.extend({
             type: 'list',
             choices: results
           }
-        ];
+        ]
         return this.prompt(prompts).then((answers) => {
-          this.model = this.fs.readJSON(this.destinationPath('models', `${answers.model}.json`));
-        });
+          this.model = this.fs.readJSON(this.destinationPath('models', `${answers.model}.json`))
+        })
       } else {
-        this.env.error('There are no models to update (no models directory).');
+        this.env.error('There are no models to update (no models directory).')
       }
     },
 
-    promptProperty: function() {
-      var notLast = (answers) => !this.options.repeatMultiple || answers.propertyName;
+    promptProperty: function () {
+      var notLast = (answers) => !this.options.repeatMultiple || answers.propertyName
       var prompts = [
         {
           name: 'propertyName',
@@ -140,7 +140,7 @@ module.exports = generators.Base.extend({
           validate: (value, answers) => validateDefaultValue(answers.type, value),
           when: (answers) => notLast(answers) && answers.default && answers.type === 'boolean'
         }
-      ];
+      ]
 
       // Declaring a function to handle the answering of these prompts so that
       // we can repeat them until the user responds that they do not want to
@@ -148,28 +148,28 @@ module.exports = generators.Base.extend({
       var handleAnswers = (answers) => {
         if (this.options.repeatMultiple && !answers.propertyName) {
           // Sentinel blank value to end looping
-          return;
+          return
         }
 
-        this.model.properties[answers.propertyName] = { type: answers.type };
-        this.model.properties[answers.propertyName].required = answers.required ? true : undefined;
+        this.model.properties[answers.propertyName] = { type: answers.type }
+        this.model.properties[answers.propertyName].required = answers.required ? true : undefined
         if (answers.default) {
-          this.model.properties[answers.propertyName].default = convertDefaultValue(answers.type, answers.defaultValue);
+          this.model.properties[answers.propertyName].default = convertDefaultValue(answers.type, answers.defaultValue)
         }
         if (this.options.repeatMultiple) {
           // Now we have processed the response, we need to ask if the user
           // wants to add any more properties. We do this by returning a new
           // promise here, which will be resolved before the promise
           // in which it is nested is resolved.
-          return this.prompt(prompts).then(handleAnswers);
+          return this.prompt(prompts).then(handleAnswers)
         }
-      };
-      return this.prompt(prompts).then(handleAnswers);
+      }
+      return this.prompt(prompts).then(handleAnswers)
     }
   },
 
   install: {
-    buildDefinitions: function() {
+    buildDefinitions: function () {
       this.composeWith(
         'swiftserver:refresh',
         {
@@ -179,17 +179,16 @@ module.exports = generators.Base.extend({
             model: this.model
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../refresh')});
+        this.options.testmode ? null : { local: require.resolve('../refresh') })
     },
 
-    buildApp: function() {
-
-      if(this.skipBuild || this.options['skip-build']) return;
+    buildApp: function () {
+      if (this.skipBuild || this.options['skip-build']) return
 
       this.composeWith(
         'swiftserver:build',
         {}
-      );
+      )
     }
   }
-});
+})
