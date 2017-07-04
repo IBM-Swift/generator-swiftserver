@@ -14,115 +14,112 @@
  * limitations under the License.
  */
 
-'use strict';
-var generators = require('yeoman-generator');
+'use strict'
+var generators = require('yeoman-generator')
 
-var chalk = require('chalk');
-var path = require('path');
-var fs = require('fs');
-var debug = require('debug')('generator-swiftserver:app');
+var chalk = require('chalk')
+var path = require('path')
+var debug = require('debug')('generator-swiftserver:app')
 
-var helpers = require('../lib/helpers');
-var validateDirName = helpers.validateDirName;
-var validateAppName = helpers.validateAppName;
-var validateCredential = helpers.validateRequiredCredential;
-var validatePort = helpers.validatePort;
-var validateFilePathOrURL = helpers.validateFilePathOrURL;
-var generateServiceName = helpers.generateServiceName;
-var actions = require('../lib/actions');
-var ensureEmptyDirectory = actions.ensureEmptyDirectory;
-
+var helpers = require('../lib/helpers')
+var validateDirName = helpers.validateDirName
+var validateAppName = helpers.validateAppName
+var validateCredential = helpers.validateRequiredCredential
+var validatePort = helpers.validatePort
+var validateFilePathOrURL = helpers.validateFilePathOrURL
+var generateServiceName = helpers.generateServiceName
+var actions = require('../lib/actions')
 
 module.exports = generators.Base.extend({
 
-  constructor: function() {
-    generators.Base.apply(this, arguments);
+  constructor: function () {
+    generators.Base.apply(this, arguments)
 
     // Allow the user to pass the application name into the generator directly
     this.argument('name', {
       desc: 'Name of the application to scaffold.',
       required: false,
       type: String
-    });
+    })
 
     this.option('skip-build', {
       type: Boolean,
       desc: 'Skip building the generated application',
       defaults: false
-    });
+    })
 
     this.option('single-shot', {
       type: Boolean,
       desc: 'Creates application without including generator metadata files',
       defaults: false
-    });
+    })
   },
 
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
-    initSpec: function() {
+    initSpec: function () {
       if (this.options.spec) {
         try {
-          this.spec = JSON.parse(this.options.spec);
-          this.skipPrompting = true;
+          this.spec = JSON.parse(this.options.spec)
+          this.skipPrompting = true
         } catch (err) {
-          this.env.error(chalk.red(err));
+          this.env.error(chalk.red(err))
         }
       }
     },
 
-    initAppName: function() {
-      if (this.skipPrompting) return;
-      this.appname = null; // Discard yeoman default appname
-      this.skipPromptingAppName = false;
+    initAppName: function () {
+      if (this.skipPrompting) return
+      this.appname = null // Discard yeoman default appname
+      this.skipPromptingAppName = false
       if (this.name) {
         // User passed a desired application name as an argument
-        var validation = validateAppName(this.name);
+        var validation = validateAppName(this.name)
         if (validation === true) {
           // Desired application name is valid, skip prompting for it
           // later
-          this.appname = this.name;
-          this.skipPromptingAppName = true;
+          this.appname = this.name
+          this.skipPromptingAppName = true
         } else {
           // Log reason for validation failure, if provided
-          validation = validation || 'Application name not valid';
-          debug(this.name, ' is not valid because ', validation);
-          this.log(validation);
+          validation = validation || 'Application name not valid'
+          debug(this.name, ' is not valid because ', validation)
+          this.log(validation)
         }
       }
 
       // save the initial directory for use by the fromSwagger processing.
-      this.initialWorkingDir = process.cwd();
+      this.initialWorkingDir = process.cwd()
 
       if (this.appname === null) {
         // Fall back to name of current working directory
         // Normalize if it contains special characters
-        var sanitizedCWD = path.basename(process.cwd()).replace(/[\/@\s\+%:\.]+?/g, '-');
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.]+?/g, '-')
         // We hope that sanitizedCWD is always valid, but check just
         // in case it isn't
         if (validateAppName(sanitizedCWD) === true) {
-          this.appname = sanitizedCWD;
+          this.appname = sanitizedCWD
         } else {
           // Fall back again to a known valid name
-          this.log('Failed to produce a valid application name from the current working directory');
-          debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'');
-          this.appname = 'app';
+          this.log('Failed to produce a valid application name from the current working directory')
+          debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'')
+          this.appname = 'app'
         }
       }
     }
   },
 
-  _addService: function(serviceType, service) {
-    this.services = this.services || {};
-    this.services[serviceType] = this.services[serviceType] || [];
-    this.services[serviceType].push(service);
+  _addService: function (serviceType, service) {
+    this.services = this.services || {}
+    this.services[serviceType] = this.services[serviceType] || []
+    this.services[serviceType].push(service)
   },
 
   prompting: {
-    promptAppName: function() {
-      if (this.skipPrompting) return;
-      if (this.skipPromptingAppName) { return; }
+    promptAppName: function () {
+      if (this.skipPrompting) return
+      if (this.skipPromptingAppName) { return }
 
       var prompts = [
         {
@@ -131,10 +128,10 @@ module.exports = generators.Base.extend({
           default: this.appname,
           validate: validateAppName
         }
-      ];
+      ]
       return this.prompt(prompts).then((props) => {
-        this.appname = props.name;
-      });
+        this.appname = props.name
+      })
     },
 
     /*
@@ -142,14 +139,14 @@ module.exports = generators.Base.extend({
      * Set up the generator environment so that destinationRoot is set
      * to point to the directory where we want to generate code.
      */
-    promptAppDir: function() {
-      if (this.skipPrompting) return;
+    promptAppDir: function () {
+      if (this.skipPrompting) return
       if (this.appname === path.basename(this.destinationRoot())) {
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
-        this.log('working directory is %s', path.basename(this.destinationRoot()));
-        this.destinationSet = true;
-        return;
+        this.log('working directory is %s', path.basename(this.destinationRoot()))
+        this.destinationSet = true
+        return
       }
 
       var prompts = [
@@ -159,46 +156,46 @@ module.exports = generators.Base.extend({
           default: this.appname,
           validate: validateDirName
         }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
         if (answers.dir !== '.') {
-          this.destinationSet = true;
-          this.destinationRoot(path.resolve(answers.dir));
+          this.destinationSet = true
+          this.destinationRoot(path.resolve(answers.dir))
         }
-      });
+      })
     },
 
-    ensureEmptyDirectory: function() {
-      if (this.skipPrompting) return;
-      actions.ensureEmptyDirectory.call(this);
+    ensureEmptyDirectory: function () {
+      if (this.skipPrompting) return
+      actions.ensureEmptyDirectory.call(this)
     },
 
-    promptAppType: function() {
-      if (this.skipPrompting) return;
+    promptAppType: function () {
+      if (this.skipPrompting) return
 
       var prompts = [{
         name: 'appType',
         type: 'list',
         message: 'Select type of project:',
         choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         switch (answers.appType) {
-          case 'Scaffold a starter':          this.appType = 'scaffold'; break;
-          case 'Generate a CRUD application': this.appType = 'crud'; break;
+          case 'Scaffold a starter': this.appType = 'scaffold'; break
+          case 'Generate a CRUD application': this.appType = 'crud'; break
           default:
-            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`));
+            this.env.error(chalk.red(`Internal error: unknown application type ${answers.appType}`))
         }
-      });
+      })
     },
 
     /*
      * Determine the application pattern so that the capability
      * defaults can be set appropriately.
      */
-    promptApplicationPattern: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'scaffold') return;
+    promptApplicationPattern: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'scaffold') return
 
       var prompts = [{
         name: 'appPattern',
@@ -206,63 +203,63 @@ module.exports = generators.Base.extend({
         message: 'Select capability presets for application pattern:',
         choices: [ 'Basic', 'Web', 'Backend for frontend' ],
         default: 'Basic'
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         switch (answers.appPattern) {
-          case 'Basic':                this.appPattern = 'Basic'; break;
-          case 'Web':                  this.appPattern = 'Web'; break;
-          case 'Backend for frontend': this.appPattern = 'Bff'; break;
+          case 'Basic': this.appPattern = 'Basic'; break
+          case 'Web': this.appPattern = 'Web'; break
+          case 'Backend for frontend': this.appPattern = 'Bff'; break
           default:
-            this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`));
+            this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`))
         }
-      });
+      })
     },
 
-    promptCapabilities: function() {
-      if (this.skipPrompting) return;
+    promptCapabilities: function () {
+      if (this.skipPrompting) return
 
-      var self = this;
-      function displayName(property) {
+      var self = this
+      function displayName (property) {
         switch (property) {
-          case 'web':              return 'Static web file serving';
-          case 'hostSwagger':      return 'OpenAPI / Swagger endpoint';
-          case 'swaggerUI':        return 'Swagger UI';
-          case 'metrics':          return 'Embedded metrics dashboard';
-          case 'docker':           return 'Docker files';
-          case 'fromSwagger':      return 'From Swagger';
-          case 'endpoints':        return 'Generate endpoints';
-          case 'bluemix':          return 'Bluemix cloud deployment';
+          case 'web': return 'Static web file serving'
+          case 'hostSwagger': return 'OpenAPI / Swagger endpoint'
+          case 'swaggerUI': return 'Swagger UI'
+          case 'metrics': return 'Embedded metrics dashboard'
+          case 'docker': return 'Docker files'
+          case 'fromSwagger': return 'From Swagger'
+          case 'endpoints': return 'Generate endpoints'
+          case 'bluemix': return 'Bluemix cloud deployment'
           default:
-            self.env.error(chalk.red(`Internal error: unknown property ${property}`));
+            self.env.error(chalk.red(`Internal error: unknown property ${property}`))
         }
       }
 
-      function defaultCapabilities(appPattern) {
+      function defaultCapabilities (appPattern) {
         switch (appPattern) {
           case 'Basic': return ['Docker files',
-                                'Embedded metrics dashboard',
-                                'Bluemix cloud deployment'];
-          case 'Web':   return ['Static web file serving',
-                                'Embedded metrics dashboard',
-                                'Docker files',
-                                'Bluemix cloud deployment'];
-          case 'Bff':   return ['Swagger UI',
-                                'Embedded metrics dashboard',
-                                'Static web file serving',
-                                'Docker files',
-                                'Bluemix cloud deployment'];
+            'Embedded metrics dashboard',
+            'Bluemix cloud deployment']
+          case 'Web': return ['Static web file serving',
+            'Embedded metrics dashboard',
+            'Docker files',
+            'Bluemix cloud deployment']
+          case 'Bff': return ['Swagger UI',
+            'Embedded metrics dashboard',
+            'Static web file serving',
+            'Docker files',
+            'Bluemix cloud deployment']
           default:
-            self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`));
+            self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`))
         }
       }
 
-      var choices = ['metrics', 'docker', 'bluemix'];
-      var defaults = choices.map(displayName);
+      var choices = ['metrics', 'docker', 'bluemix']
+      var defaults = choices.map(displayName)
 
       if (this.appType === 'scaffold') {
-        choices.unshift('swaggerUI');
-        choices.unshift('web');
-        defaults = defaultCapabilities(this.appPattern);
+        choices.unshift('swaggerUI')
+        choices.unshift('web')
+        defaults = defaultCapabilities(this.appPattern)
       }
 
       var prompts = [{
@@ -271,20 +268,20 @@ module.exports = generators.Base.extend({
         message: 'Select capabilities:',
         choices: choices.map(displayName),
         default: defaults
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         choices.forEach((choice) => {
-          this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1);
-        });
-      });
+          this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1)
+        })
+      })
     },
 
-    promptGenerateEndpoints: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'scaffold') return;
+    promptGenerateEndpoints: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'scaffold') return
 
-      var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file'];
-      var defaults = this.appPattern === 'Bff' ? choices : undefined;
+      var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file']
+      var defaults = this.appPattern === 'Bff' ? choices : undefined
 
       var prompts = [{
         name: 'endpoints',
@@ -292,77 +289,77 @@ module.exports = generators.Base.extend({
         message: 'Select endpoints to generate:',
         choices: choices,
         default: defaults
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         if (answers.endpoints) {
           if (answers.endpoints.indexOf('Swagger file serving endpoint') !== -1) {
-            this.hostSwagger = true;
+            this.hostSwagger = true
           }
           if (answers.endpoints.indexOf('Endpoints from swagger file') !== -1) {
-            this.swaggerEndpoints = true;
+            this.swaggerEndpoints = true
           }
         }
-      });
+      })
     },
 
-    promptSwaggerEndpoints: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'scaffold') return;
-      if (!this.swaggerEndpoints) return;
+    promptSwaggerEndpoints: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'scaffold') return
+      if (!this.swaggerEndpoints) return
 
       var choices = {'customSwagger': 'Custom swagger file',
-                     'exampleEndpoints': 'Example swagger file'};
+        'exampleEndpoints': 'Example swagger file'}
 
-      this.hostSwagger = true;
+      this.hostSwagger = true
       var prompts = [{
         name: 'swaggerChoice',
         type: 'list',
         message: 'Swagger file to use to create endpoints and companion iOS SDK:',
         choices: [choices.customSwagger, choices.exampleEndpoints],
         default: []
-      },{
+      }, {
         name: 'path',
         type: 'input',
         message: 'Provide the path to a swagger file:',
-        filter: function(response) { return response.trim(); },
+        filter: function (response) { return response.trim() },
         validate: validateFilePathOrURL,
-        when: function(question) {
-                return (question.swaggerChoice === choices.customSwagger);
-              }
-      }];
+        when: function (question) {
+          return (question.swaggerChoice === choices.customSwagger)
+        }
+      }]
       return this.prompt(prompts).then((answers) => {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
-          this.exampleEndpoints = true;
+          this.exampleEndpoints = true
         } else if (answers.path) {
-          var httpPattern = new RegExp(/^https?:\/\/\S+/);
+          var httpPattern = new RegExp(/^https?:\/\/\S+/)
 
           if (httpPattern.test(answers.path)) {
-            this.fromSwagger = answers.path;
+            this.fromSwagger = answers.path
           } else {
-            this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path);
+            this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path)
           }
         }
-      });
+      })
     },
 
     promptSwiftServerSwaggerFiles: function () {
-      if (this.skipPrompting) return;
+      if (this.skipPrompting) return
 
-      var depth = 0;
+      var depth = 0
       var prompts = [{
         name: 'serverSwaggerInput' + depth,
         type: 'confirm',
         message: 'Would you like to generate a Swift server SDK from a Swagger file?',
         default: false
       }, {
-        when: function(props) { return props[Object.keys(props)[0]]; },
+        when: function (props) { return props[Object.keys(props)[0]] },
         name: 'serverSwaggerInputPath' + depth,
         type: 'input',
         message: 'Enter Swagger yaml file path:',
-        filter: function(response) { return response.trim(); },
-        validate: validateFilePathOrURL,
-      }];
-      
+        filter: function (response) { return response.trim() },
+        validate: validateFilePathOrURL
+      }]
+
       // Declaring a function to handle the answering of these prompts so that
       // we can repeat them until the user responds that they do not want to
       // generate any more SDKs
@@ -371,36 +368,36 @@ module.exports = generators.Base.extend({
         // It needs unique keys in order to simulate the generation of multiple swagger file paths.
         if (!answers['serverSwaggerInput' + depth]) {
           // Sentinel blank value to end looping
-          return;
+          return
         }
 
         if (this.serverSwaggerFiles === undefined) {
-          this.serverSwaggerFiles = [];
+          this.serverSwaggerFiles = []
         }
-        if(this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
-          this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth]);
+        if (this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
+          this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth])
         } else {
-          this.log(chalk.yellow('This Swagger file is already being used'));
+          this.log(chalk.yellow('This Swagger file is already being used'))
         }
-        depth += 1;
-        prompts[0].name = prompts[0].name.slice(0, -1) + depth;
-        prompts[1].name = prompts[1].name.slice(0, -1) + depth;
-        prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?';
+        depth += 1
+        prompts[0].name = prompts[0].name.slice(0, -1) + depth
+        prompts[1].name = prompts[1].name.slice(0, -1) + depth
+        prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?'
         // Now we have processed the response, we need to ask if the user
         // wants to add any more SDKs. We do this by returning a new
         // promise here, which will be resolved before the promise
         // in which it is nested is resolved.
-        return this.prompt(prompts).then(handleAnswers);
-      };
-      return this.prompt(prompts).then(handleAnswers);
+        return this.prompt(prompts).then(handleAnswers)
+      }
+      return this.prompt(prompts).then(handleAnswers)
     },
 
-    promptServicesForScaffoldLocal: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'scaffold') return;
-      if (this.bluemix) return;
+    promptServicesForScaffoldLocal: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'scaffold') return
+      if (this.bluemix) return
 
-      var choices = ['CouchDB', 'Redis'];
+      var choices = ['CouchDB', 'Redis']
 
       var prompts = [{
         name: 'services',
@@ -408,23 +405,23 @@ module.exports = generators.Base.extend({
         message: 'Generate boilerplate for local services:',
         choices: choices,
         default: []
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('CouchDB') !== -1) {
-          this._addService('cloudant', { name: 'couchdb' });
+          this._addService('cloudant', { name: 'couchdb' })
         }
         if (answers.services.indexOf('Redis') !== -1) {
-          this._addService('redis', { name: 'redis' });
+          this._addService('redis', { name: 'redis' })
         }
-      });
+      })
     },
 
-    promptServicesForScaffoldBluemix: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'scaffold') return;
-      if (!this.bluemix) return;
+    promptServicesForScaffoldBluemix: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'scaffold') return
+      if (!this.bluemix) return
 
-      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications'];
+      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
 
       var prompts = [{
         name: 'services',
@@ -432,35 +429,35 @@ module.exports = generators.Base.extend({
         message: 'Generate boilerplate for Bluemix services:',
         choices: choices,
         default: []
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('Cloudant') !== -1) {
-          this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') });
+          this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') })
         }
         if (answers.services.indexOf('Redis') !== -1) {
-          this._addService('redis', { name: generateServiceName(this.appname, 'Redis') });
+          this._addService('redis', { name: generateServiceName(this.appname, 'Redis') })
         }
         if (answers.services.indexOf('Object Storage') !== -1) {
-          this._addService('objectstorage', { name: generateServiceName(this.appname, 'ObjectStorage') });
+          this._addService('objectstorage', { name: generateServiceName(this.appname, 'ObjectStorage') })
         }
         if (answers.services.indexOf('AppID') !== -1) {
-          this._addService('appid',  { name: generateServiceName(this.appname, 'AppID') });
+          this._addService('appid', { name: generateServiceName(this.appname, 'AppID') })
         }
         if (answers.services.indexOf('Watson Conversation') !== -1) {
-          this._addService('watsonconversation',  { name: generateServiceName(this.appname, 'WatsonConversation') });
+          this._addService('watsonconversation', { name: generateServiceName(this.appname, 'WatsonConversation') })
         }
         if (answers.services.indexOf('Alert Notification') !== -1) {
-          this._addService('alertnotification',  { name: generateServiceName(this.appname, 'AlertNotification') });
+          this._addService('alertnotification', { name: generateServiceName(this.appname, 'AlertNotification') })
         }
         if (answers.services.indexOf('Push Notifications') !== -1) {
-          this._addService('pushnotifications',  { 
-            name:   generateServiceName(this.appname, 'PushNotifications'),
-            region: "US_SOUTH" });
+          this._addService('pushnotifications', {
+            name: generateServiceName(this.appname, 'PushNotifications'),
+            region: 'US_SOUTH' })
         }
         if (answers.services.indexOf('Auto-scaling') !== -1) {
-          this.autoscale = generateServiceName(this.appname, 'AutoScaling');
+          this.autoscale = generateServiceName(this.appname, 'AutoScaling')
         }
-      });
+      })
     },
 
     /*
@@ -468,9 +465,9 @@ module.exports = generators.Base.extend({
      * are using and configuring the data store if needed. These answers will
      * be the basis for the config.json.
      */
-    promptDataStoreForCRUD: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'crud') return;
+    promptDataStoreForCRUD: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'crud') return
 
       var prompts = [
         {
@@ -478,25 +475,25 @@ module.exports = generators.Base.extend({
           message: 'Select data store:',
           type: 'list',
           choices: ['Memory (for development purposes)', 'Cloudant / CouchDB'],
-          filter: (store) => store.split(" ")[0]
+          filter: (store) => store.split(' ')[0]
         }
-      ];
+      ]
       return this.prompt(prompts).then((answer) => {
         // NOTE(tunniclm): no need to do anything for memory it is the default
         // if no crudservice is passed to the refresh generator
         if (answer.store === 'Cloudant') {
-          this._addService('cloudant', { name: 'crudDataStore' });
-          this.crudservice = 'crudDataStore';
+          this._addService('cloudant', { name: 'crudDataStore' })
+          this.crudservice = 'crudDataStore'
         }
-      });
+      })
     },
 
-    promptServicesForCRUDBluemix: function() {
-      if (this.skipPrompting) return;
-      if (this.appType !== 'crud') return;
-      if (!this.bluemix) return;
+    promptServicesForCRUDBluemix: function () {
+      if (this.skipPrompting) return
+      if (this.appType !== 'crud') return
+      if (!this.bluemix) return
 
-      var choices = ['Auto-scaling'];
+      var choices = ['Auto-scaling']
 
       var prompts = [{
         name: 'services',
@@ -504,62 +501,63 @@ module.exports = generators.Base.extend({
         message: 'Generate boilerplate for Bluemix services:',
         choices: choices,
         default: []
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('Auto-scaling') !== -1) {
-          this.autoscale = generateServiceName(this.appname, 'AutoScaling');
+          this.autoscale = generateServiceName(this.appname, 'AutoScaling')
         }
-      });
+      })
     },
 
     // NOTE(tunniclm): This part of the prompting assumes there can only
     // be one of each type of service.
-    promptConfigureServices: function() {
-      if (this.skipPrompting) return;
-      if (!this.services) return;
-      if (Object.keys(this.services).length == 0) return;
+    promptConfigureServices: function () {
+      if (this.skipPrompting) return
+      if (!this.services) return
+      if (Object.keys(this.services).length === 0) return
 
-      var self = this;
-      function serviceDisplayType(serviceType) {
+      var self = this
+      function serviceDisplayType (serviceType) {
         switch (serviceType) {
-          case 'cloudant':            return 'Cloudant / CouchDB';
-          case 'redis':               return 'Redis';
-          case 'objectstorage':       return 'Object Storage';
-          case 'appid':               return 'AppID';
-          case 'watsonconversation':  return 'Watson Conversation';
-          case 'alertnotification':  return 'Alert Notification';
-          case 'pushnotifications':  return 'Push Notifications';
+          case 'cloudant': return 'Cloudant / CouchDB'
+          case 'redis': return 'Redis'
+          case 'objectstorage': return 'Object Storage'
+          case 'appid': return 'AppID'
+          case 'watsonconversation': return 'Watson Conversation'
+          case 'alertnotification': return 'Alert Notification'
+          case 'pushnotifications': return 'Push Notifications'
           default:
-            self.env.error(chalk.red(`Internal error: unknown service type ${serviceType}`));
+            self.env.error(chalk.red(`Internal error: unknown service type ${serviceType}`))
         }
       }
 
-      var choices = Object.keys(this.services);
+      var choices = Object.keys(this.services)
       var prompts = [{
         name: 'configure',
         type: 'checkbox',
         message: 'Configure service credentials (leave unchecked for defaults):',
         choices: choices.map(serviceDisplayType),
         default: []
-      }];
+      }]
       return this.prompt(prompts).then((answers) => {
-        this.servicesToConfigure = {};
+        this.servicesToConfigure = {}
         choices.forEach((serviceType) => {
           this.servicesToConfigure[serviceType] =
-            (answers.configure.indexOf(serviceDisplayType(serviceType)) !== -1);
-        });
-      });
+            (answers.configure.indexOf(serviceDisplayType(serviceType)) !== -1)
+        })
+      })
     },
 
-    promptConfigureCloudant: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.cloudant) return;
+    promptConfigureCloudant: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.cloudant) return
 
-      this.log();
-      this.log('Configure Cloudant / CouchDB');
+      this.log()
+      this.log('Configure Cloudant / CouchDB')
       var prompts = [
-        { name: 'cloudantName', message: 'Enter name (blank for default):',
+        { name: 'cloudantName',
+          message: 'Enter name (blank for default):',
           when: (answers) => this.bluemix && this.appType !== 'crud'
         },
         { name: 'cloudantHost', message: 'Enter host name:' },
@@ -573,7 +571,7 @@ module.exports = generators.Base.extend({
           name: 'cloudantSecured',
           message: 'Secure (https)?',
           type: 'confirm',
-          default: false,
+          default: false
         },
         { name: 'cloudantUsername', message: 'Enter username (blank for none):' },
         {
@@ -583,28 +581,29 @@ module.exports = generators.Base.extend({
           when: (answers) => answers.cloudantUsername,
           validate: (password) => validateCredential(password)
         }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.cloudant[0].name = answers.cloudantName || this.services.cloudant[0].name;
+        this.services.cloudant[0].name = answers.cloudantName || this.services.cloudant[0].name
         this.services.cloudant[0].credentials = {
           host: answers.cloudantHost || undefined,
           port: answers.cloudantPort || undefined,
           secured: answers.cloudantSecured || undefined,
           username: answers.cloudantUsername || undefined,
           password: answers.cloudantPassword || undefined
-        };
-      });
+        }
+      })
     },
 
-    promptConfigureRedis: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.redis) return;
+    promptConfigureRedis: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.redis) return
 
-      this.log();
-      this.log('Configure Redis');
+      this.log()
+      this.log('Configure Redis')
       var prompts = [
-        { name: 'redisName', message: 'Enter name (blank for default):',
+        { name: 'redisName',
+          message: 'Enter name (blank for default):',
           when: (answers) => this.bluemix
         },
         { name: 'redisHost', message: 'Enter host name:' },
@@ -615,79 +614,82 @@ module.exports = generators.Base.extend({
           filter: (port) => (port ? parseInt(port) : port)
         },
         { name: 'redisPassword', message: 'Enter password:', type: 'password' }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.redis[0].name = answers.redisName || this.services.redis[0].name;
+        this.services.redis[0].name = answers.redisName || this.services.redis[0].name
         this.services.redis[0].credentials = {
           host: answers.redisHost || undefined,
           port: answers.redisPort || undefined,
           password: answers.redisPassword || undefined
-        };
-      });
+        }
+      })
     },
 
-    promptConfigureWatsonConversation: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.watsonconversation) return;
+    promptConfigureWatsonConversation: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.watsonconversation) return
 
-      this.log();
-      this.log('Configure Watson Conversation');
+      this.log()
+      this.log('Configure Watson Conversation')
       var prompts = [
-        { name: 'watsonConversationName', message: 'Enter name (blank for default):',
+        { name: 'watsonConversationName',
+          message: 'Enter name (blank for default):',
           when: (answers) => this.bluemix
         },
         { name: 'watsonConversationUsername', message: 'Enter username (blank for none):' },
         { name: 'watsonConversationPassword', message: 'Enter password:', type: 'password' },
         { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' },
         { name: 'watsonConversationVersion', message: 'Enter version (blank for none):' }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name;
-        this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version;
+        this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name
+        this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version
         this.services.watsonconversation[0].credentials = {
           username: answers.watsonConversationUsername || undefined,
           password: answers.watsonConversationPassword || undefined,
           url: answers.watsonConversationUrl || undefined
-        };
-      });
+        }
+      })
     },
 
-    promptConfigureAlertNotification: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.alertnotification) return;
+    promptConfigureAlertNotification: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.alertnotification) return
 
-      this.log();
-      this.log('Configure Alert Notification');
+      this.log()
+      this.log('Configure Alert Notification')
       var prompts = [
-        { name: 'alertNotificationName', message: 'Enter service name (blank for default):',
+        { name: 'alertNotificationName',
+          message: 'Enter service name (blank for default):',
           when: (answers) => this.bluemix
         },
         { name: 'alertNotificationUsername', message: 'Enter username (blank for none):' },
         { name: 'alertNotificationPassword', message: 'Enter password:', type: 'password' },
         { name: 'alertNotificationUrl', message: 'Enter url (blank for none):' }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.alertnotification[0].name = answers.alertNotificationName || this.services.alertnotification[0].name;
+        this.services.alertnotification[0].name = answers.alertNotificationName || this.services.alertnotification[0].name
         this.services.alertnotification[0].credentials = {
           name: answers.alertNotificationUsername || undefined,
           password: answers.alertNotificationPassword || undefined,
           url: answers.alertNotificationUrl || undefined
-        };
-      });
+        }
+      })
     },
 
-    promptConfigurePushNotifications: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.pushnotifications) return;
+    promptConfigurePushNotifications: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.pushnotifications) return
 
-      this.log();
-      this.log('Configure Push Notifications');
-      
+      this.log()
+      this.log('Configure Push Notifications')
+
       var prompts = [
-        { name: 'pushNotificationsName', message: 'Enter service name (blank for default):',
+        { name: 'pushNotificationsName',
+          message: 'Enter service name (blank for default):',
           when: (answers) => this.bluemix
         },
         { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
@@ -699,30 +701,30 @@ module.exports = generators.Base.extend({
           choices: [ 'US South', 'United Kingdom', 'Sydney' ],
           default: 'US South'
         }
-      ];
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name;
+        this.services.pushnotifications[0].name = answers.pushNotificationsName || this.services.pushnotifications[0].name
         this.services.pushnotifications[0].credentials = {
           appGuid: answers.pushNotificationsAppGuid || undefined,
           appSecret: answers.pushNotificationsAppSecret || undefined
-        };
-        switch (answers.pushNotificationsRegion) {
-          case 'US South':        this.services.pushnotifications[0].region = 'US_SOUTH'; break;
-          case 'United Kingdom':  this.services.pushnotifications[0].region = 'UK'; break;
-          case 'Sydney':          this.services.pushnotifications[0].region = 'SYDNEY'; break;
-          default:
-            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`));
         }
-      });
+        switch (answers.pushNotificationsRegion) {
+          case 'US South': this.services.pushnotifications[0].region = 'US_SOUTH'; break
+          case 'United Kingdom': this.services.pushnotifications[0].region = 'UK'; break
+          case 'Sydney': this.services.pushnotifications[0].region = 'SYDNEY'; break
+          default:
+            this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`))
+        }
+      })
     },
 
-    promptConfigureObjectStorage: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.objectstorage) return;
+    promptConfigureObjectStorage: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.objectstorage) return
 
-      this.log();
-      this.log('Configure Object Storage');
+      this.log()
+      this.log('Configure Object Storage')
       var prompts = [
         /*
         { name: 'objectstorageAuth_url'    message: 'Enter auth url:' },
@@ -732,16 +734,17 @@ module.exports = generators.Base.extend({
         { name: 'objectstorageRole',       message: 'Enter role:' },
         { name: 'objectstorageUsername',   message: 'Enter username:' },
         */
-        { name: 'objectstorageName', message: 'Enter name (blank for default):',
+        { name: 'objectstorageName',
+          message: 'Enter name (blank for default):',
           when: (answers) => this.bluemix
         },
-        { name: 'objectstorageRegion',     message: 'Enter region:' },
-        { name: 'objectstorageProjectId',  message: 'Enter project ID:' },
-        { name: 'objectstorageUserId',     message: 'Enter user ID:' },
-        { name: 'objectstoragePassword',   message: 'Enter password:', type: 'password' }
-      ];
+        { name: 'objectstorageRegion', message: 'Enter region:' },
+        { name: 'objectstorageProjectId', message: 'Enter project ID:' },
+        { name: 'objectstorageUserId', message: 'Enter user ID:' },
+        { name: 'objectstoragePassword', message: 'Enter password:', type: 'password' }
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.objectstorage[0].name = answers.objectstorageName || this.services.objectstorage[0].name;
+        this.services.objectstorage[0].name = answers.objectstorageName || this.services.objectstorage[0].name
         this.services.objectstorage[0].credentials = {
           /*
           auth_url:   answers.objectstorageAuth_url || undefined,
@@ -751,42 +754,43 @@ module.exports = generators.Base.extend({
           role:       answers.objectstorageRole || undefined,
           username:   answers.objectstorageUsername || undefined,
           */
-          region:    answers.objectstorageRegion || undefined,
+          region: answers.objectstorageRegion || undefined,
           projectId: answers.objectstorageProjectId || undefined,
-          userId:    answers.objectstorageUserId || undefined,
-          password:  answers.objectstoragePassword || undefined
-        };
-      });
+          userId: answers.objectstorageUserId || undefined,
+          password: answers.objectstoragePassword || undefined
+        }
+      })
     },
 
-    promptConfigureAppID: function() {
-      if (this.skipPrompting) return;
-      if (!this.servicesToConfigure) return;
-      if (!this.servicesToConfigure.appid) return;
+    promptConfigureAppID: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.appid) return
 
-      this.log();
-      this.log('Configure AppID');
+      this.log()
+      this.log('Configure AppID')
       var prompts = [
-        { name: 'appIDName', message: 'Enter name (blank for default):',
+        { name: 'appIDName',
+          message: 'Enter name (blank for default):',
           when: (answers) => this.bluemix
         },
         { name: 'appidTenantId', message: 'Enter tenant ID:' },
         { name: 'appidClientId', message: 'Enter client ID:' },
-        { name: 'appidSecret',   message: 'Enter secret:', type: 'password' }
-      ];
+        { name: 'appidSecret', message: 'Enter secret:', type: 'password' }
+      ]
       return this.prompt(prompts).then((answers) => {
-        this.services.appid[0].name = answers.appIDName || this.services.appid[0].name;
+        this.services.appid[0].name = answers.appIDName || this.services.appid[0].name
         this.services.appid[0].credentials = {
           tenantId: answers.appidTenantId || undefined,
           clientId: answers.appidClientId || undefined,
-          secret:   answers.appidSecret || undefined
-        };
-      });
+          secret: answers.appidSecret || undefined
+        }
+      })
     }
   },
 
-  createSpecFromAnswers: function() {
-    if (this.skipPrompting) return;
+  createSpecFromAnswers: function () {
+    if (this.skipPrompting) return
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
     // some may only be available via non-prompting route.
     this.spec = {
@@ -810,13 +814,12 @@ module.exports = generators.Base.extend({
         logger: 'helium',
         port: 8080
       }
-    };
+    }
   },
 
   install: {
 
-    buildDefinitions: function() {
-
+    buildDefinitions: function () {
       // this.composeWith with just the subgenerator name doesn't work with the
       // Yeoman test framework (yeoman-test)
 
@@ -837,49 +840,49 @@ module.exports = generators.Base.extend({
             destinationSet: (this.destinationSet === true)
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../refresh')}
-      );
+        this.options.testmode ? null : { local: require.resolve('../refresh') }
+      )
     },
 
-    buildApp: function() {
-      if (this.skipBuild || this.options['skip-build']) return;
+    buildApp: function () {
+      if (this.skipBuild || this.options['skip-build']) return
       this.composeWith(
         'swiftserver:build',
         {
           // Pass in the option of doing single-shot so the appropriate checks are performed
           options: {
-            singleShot: this.options['single-shot'],
+            singleShot: this.options['single-shot']
           }
         },
-        this.options.testmode ? null : { local: require.resolve('../build')}
-      );
+        this.options.testmode ? null : { local: require.resolve('../build') }
+      )
     }
   },
 
-  end: function() {
+  end: function () {
     // Inform the user what they should do next
-    this.log('Next steps:');
-    this.log();
+    this.log('Next steps:')
+    this.log()
     if (this.destinationRoot() && this.destinationRoot() !== '.') {
-      this.log('  Change directory to your app');
-      this.log(chalk.green('    $ cd ' + this.destinationRoot()));
-      this.log();
+      this.log('  Change directory to your app')
+      this.log(chalk.green('    $ cd ' + this.destinationRoot()))
+      this.log()
     }
     if (this.appType === 'crud') {
-      var createModelInstruction = '    $ yo swiftserver:model';
+      var createModelInstruction = '    $ yo swiftserver:model'
       if (process.env.RUN_BY_COMMAND === 'swiftservergenerator') {
-        createModelInstruction = '    $ swiftservergenerator --model';
+        createModelInstruction = '    $ swiftservergenerator --model'
       } else if (process.env.RUN_BY_COMMAND === 'apic') {
-        createModelInstruction = '    $ apic create --type model-swiftserver';
+        createModelInstruction = '    $ apic create --type model-swiftserver'
       }
 
-      this.log('  Create a model in your app');
-      this.log(chalk.green(createModelInstruction));
-      this.log();
+      this.log('  Create a model in your app')
+      this.log(chalk.green(createModelInstruction))
+      this.log()
     }
-    this.log('  Run your app');
-    this.log(chalk.green('    $ .build/debug/' + this.appname));
-    this.log();
+    this.log('  Run your app')
+    this.log(chalk.green('    $ .build/debug/' + this.appname))
+    this.log()
   }
-});
-module.exports._yeoman = generators;
+})
+module.exports._yeoman = generators

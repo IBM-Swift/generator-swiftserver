@@ -4,10 +4,10 @@
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
-    "test": "mocha 'test/unit/**/*.js'",
-    "testint": "mocha 'test/integration/**/*.js'",
-    "testintfast": "mocha 'test/integration/**/*nobuild*.js'",
-    "coverage": "nyc mocha --grep @full --invert 'test/**/*.js'",
+    "test": "standard --env mocha && mocha 'test/unit/**/*.js'",
+    "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
+    "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
+    "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
   "repository": {
@@ -41,8 +41,14 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
     "nyc": "^10.1.2",
+    "standard": "^10.0.2",
     "yeoman-assert": "^2.2.1",
     "yeoman-test": "^1.5.1"
+  },
+  "standard": {
+    "ignore": [
+      "refresh/templates/common/swagger-ui/**/*"
+    ]
   },
   "author": "tunniclm",
   "license": "Apache-2.0",

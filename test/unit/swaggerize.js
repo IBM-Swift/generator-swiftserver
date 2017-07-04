@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-
-'use strict';
-var assert = require('assert');
-var utils = require('../../refresh/fromswagger/generatorUtils');
+'use strict'
+var assert = require('assert')
+var utils = require('../../refresh/fromswagger/generatorUtils')
 
 describe('swagger generator', function () {
+  describe('generator utils', function () {
+    it('extracts basename', function () {
+      assert(utils.baseName('/hh/ff/test.txt') === 'test')
+    })
 
-  describe('generator utils', function() {
-    it('extracts basename', function() {
-      assert(utils.baseName('/hh/ff/test.txt') === 'test');
-    });
+    it('can convert Swagger parameters to swift format', function () {
+      assert(utils.convertToSwiftParameterFormat('/helper/ff/test{p1} {p2}') === '/helper/ff/test:p1 :p2')
+    })
 
-    it('can convert Swagger parameters to swift format', function() {
-      assert(utils.convertToSwiftParameterFormat('/helper/ff/test{p1} {p2}') === '/helper/ff/test:p1 :p2');
-    });
+    it('can extract the resource name from a path', function () {
+      assert(utils.resourceNameFromPath('/helper/ff/test{p1} {p2}') === 'Helper')
+    })
 
-    it('can extract the resource name from a path', function() {
-      assert(utils.resourceNameFromPath('/helper/ff/test{p1} {p2}') === 'Helper');
-    });
-
-    it('can get a reference name from a swagger $reg value', function() {
-      assert(utils.getRefName('/helper/ff/test') === 'test');
-    });
-  });
-
-});
+    it('can get a reference name from a swagger $reg value', function () {
+      assert(utils.getRefName('/helper/ff/test') === 'test')
+    })
+  })
+})

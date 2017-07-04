@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-var path = require('path');
+'use strict'
+var path = require('path')
 
-function baseName(thepath) {
+function baseName (thepath) {
   // get the base file name without extension from a full path.
-  return path.basename(thepath).split('.')[0];
+  return path.basename(thepath).split('.')[0]
 }
 
-function convertToSwiftParameterFormat(thepath) {
+function convertToSwiftParameterFormat (thepath) {
   // take a swagger path and convert the parameters to swift format.
-  // i.e. convert "/path/to/{param1}/{param2}" to "/path/to/:param1/:param2" 
-  var newPath = thepath.replace(/{/g, ':');
-  return newPath.replace(/}/g, '');
+  // i.e. convert "/path/to/{param1}/{param2}" to "/path/to/:param1/:param2"
+  var newPath = thepath.replace(/{/g, ':')
+  return newPath.replace(/}/g, '')
 }
 
-function resourceNameFromPath(thepath) {
+function resourceNameFromPath (thepath) {
   // grab the first valid element of a path (or partial path) and return it capitalized.
-  var resource = thepath.match(/^\/*([^/]+)/)[1];
-  return resource.charAt(0).toUpperCase() + resource.slice(1);
+  var resource = thepath.match(/^\/*([^/]+)/)[1]
+  return resource.charAt(0).toUpperCase() + resource.slice(1)
 }
 
-function getRefName(ref) {
-  return ref.split("/").pop();
+function getRefName (ref) {
+  return ref.split('/').pop()
 }
 
 module.exports = {baseName,
-                  convertToSwiftParameterFormat,
-                  resourceNameFromPath,
-                  getRefName};
+  convertToSwiftParameterFormat,
+  resourceNameFromPath,
+  getRefName}
