@@ -16,10 +16,10 @@
 'use strict';
 var debug = require('debug')('generator-swiftserver:refresh:fromSwagger:swaggerize');
 var genUtils = require('./generatorUtils');
-var enjoi = require('enjoi');
 var apischema = require('swagger-schema-official/schema');
 var builderUtils = require('swaggerize-routes/lib/utils');
 var YAML = require('js-yaml');
+var SwaggerParser = require('swagger-parser');
 var chalk = require('chalk');
 var Promise = require('bluebird');
 var request = require('request');
@@ -68,7 +68,7 @@ function loadAsync(memfs, path) {
     .then(data => isYaml ? YAML.load(data) : JSON.parse(data));
 }
 
-function ensureValid(api, apiPath) {
+function ensureValidOld(api, apiPath) {
   debug('in ensureValid');
 
   // validate against the swagger schema.
@@ -76,6 +76,17 @@ function ensureValid(api, apiPath) {
   if (error) {
     throw new Error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
   }
+}
+
+function ensureValid(api, apiPath) {
+  debug('in ensureValid');
+  debug('api', api);
+  debug('apiPath', apiPath);
+  return SwaggerParser.validate(api)
+    .catch(function(error) {
+      debug('validate error', error);
+      throw new Error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
+    }.bind(apiPath));
 }
 
 function parseSwagger(api) {
