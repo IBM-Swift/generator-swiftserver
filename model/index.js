@@ -76,7 +76,6 @@ module.exports = generators.Base.extend({
     promptModelName: function() {
       if (this.skipPromptingModelName) { return; }
 
-      var done = this.async();
       var prompts = [
         {
           name: 'name',
@@ -85,14 +84,12 @@ module.exports = generators.Base.extend({
           validate: validateNewModel
         }
       ];
-      this.prompt(prompts, function(props) {
+      return this.prompt(prompts).then((props) => {
         this.name = props.name;
-        done();
-      }.bind(this));
+      });
     },
 
     promptPlural: function() {
-      var done = this.async();
       var prompts = [
         {
           name: 'plural',
@@ -101,10 +98,9 @@ module.exports = generators.Base.extend({
         }
       ];
       // TODO needs to handle plurals properly (check for function)
-      this.prompt(prompts, function(props) {
+      return this.prompt(prompts).then((props) => {
         this.plural = props.plural;
-        done();
-      }.bind(this));
+      });
     }
   },
 
