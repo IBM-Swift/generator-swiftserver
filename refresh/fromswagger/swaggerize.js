@@ -14,51 +14,51 @@
  * limitations under the License.
  */
 'use strict';
-var debug = require('debug')('generator-swiftserver:refresh:fromSwagger:swaggerize');
-var genUtils = require('./generatorUtils');
-var apischema = require('swagger-schema-official/schema');
-var builderUtils = require('swaggerize-routes/lib/utils');
-var YAML = require('js-yaml');
-var SwaggerParser = require('swagger-parser');
-var chalk = require('chalk');
-var Promise = require('bluebird');
-var request = require('request');
-var requestAsync = Promise.promisify(request);
+var debug = require('debug')('generator-swiftserver:refresh:fromSwagger:swaggerize')
+var genUtils = require('./generatorUtils')
+var apischema = require('swagger-schema-official/schema')
+var builderUtils = require('swaggerize-routes/lib/utils')
+var YAML = require('js-yaml')
+var SwaggerParser = require('swagger-parser')
+var chalk = require('chalk')
+var Promise = require('bluebird')
+var request = require('request')
+var requestAsync = Promise.promisify(request)
 
 function loadHttpAsync(uri) {
-  debug('in loadHttpAsync');
+  debug('in loadHttpAsync')
 
   return requestAsync({ method: 'GET', uri: uri })
     .catch(err => {
-      debug('get request returned err:', err);
-      throw new Error(chalk.red('failed to load swagger from:', uri, 'err:', err.message));
+      debug('get request returned err:', err)
+      throw new Error(chalk.red('failed to load swagger from:', uri, 'err:', err.message))
     })
     .then(result => {
       if (result.statusCode != 200) {
-        debug('get request returned status:', result.statusCode);
-        throw new Error(chalk.red('failed to load swagger from:', uri, 'status:', result.statusCode));
+        debug('get request returned status:', result.statusCode)
+        throw new Error(chalk.red('failed to load swagger from:', uri, 'status:', result.statusCode))
       }
-      return result.body;
-    });
+      return result.body
+    })
 }
 
 function loadFileAsync(memfs, filePath) {
-  debug('in loadFileAsync');
+  debug('in loadFileAsync')
 
   return Promise.try(() => memfs.read(filePath))
     .catch(err => {
       // when file doesn't exist.
-      debug('file does not exist', filePath);
-      throw new Error(chalk.red('failed to load swagger from:', filePath, err.message));
+      debug('file does not exist', filePath)
+      throw new Error(chalk.red('failed to load swagger from:', filePath, err.message))
     })
     .then(data => {
       if (data === undefined) {
         // when file exists but cannot read content.
-        debug('cannot read file contents', filePath);
-        throw new Error(chalk.red('failed to load swagger from:', filePath));
+        debug('cannot read file contents', filePath)
+        throw new Error(chalk.red('failed to load swagger from:', filePath))
       }
-      return data;
-    });
+      return data
+    })
 }
 
 function loadAsync(memfs, path) {
@@ -68,38 +68,25 @@ function loadAsync(memfs, path) {
     .then(data => isYaml ? YAML.load(data) : JSON.parse(data));
 }
 
-function ensureValidOld(api, apiPath) {
-  debug('in ensureValid');
-
-  // validate against the swagger schema.
-  var error = enjoi(apischema).validate(api).error;
-  if (error) {
-    throw new Error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
-  }
-}
-
 function ensureValid(api, apiPath) {
-  debug('in ensureValid');
-  debug('api', api);
-  debug('apiPath', apiPath);
+  debug('in ensureValid')
   return SwaggerParser.validate(api)
-    .catch(function(error) {
-      debug('validate error', error);
-      throw new Error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error));
-    }.bind(apiPath));
+    .catch(function (err) {
+      throw new Error(chalk.red(apiPath, 'does not conform to swagger specification'))
+    }.bind(apiPath))
 }
 
 function parseSwagger(api) {
   debug('in parseSwagger');
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
   var resources = {}
-  var refs = [];
-  var basePath = api.basePath || undefined;
+  var refs = []
+  var basePath = api.basePath || undefined
 
   Object.keys(api.paths).forEach(function(path) {
-    var resource = genUtils.resourceNameFromPath(path);
+    var resource = genUtils.resourceNameFromPath(path)
 
-    debug('path:', path, 'becomes resource:', resource);
+    debug('path:', path, 'becomes resource:', resource)
     // for each path, walk the method verbs
     builderUtils.verbs.forEach(function(verb) {
       if (api.paths[path][verb]) {
@@ -107,102 +94,104 @@ function parseSwagger(api) {
           resources[resource] = [];
         } 
 
-        debug('parsing verb:', verb);
+        debug('parsing verb:', verb)
         // save the method and the path in the resources list.
-        resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)});
+        resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)})
         // process the parameters
         if (api.paths[path][verb].parameters) {
-          var parameters = api.paths[path][verb].parameters;
+          var parameters = api.paths[path][verb].parameters
 
           parameters.forEach(function(parameter) {
             if (parameter.schema) {
               if (parameter.schema.$ref) {
                 // handle the schema ref
-                var ref = genUtils.getRefName(parameter.schema.$ref);
-                refs[ref] = api.definitions[ref];
+                var ref = genUtils.getRefName(parameter.schema.$ref)
+                refs[ref] = api.definitions[ref]
               } else if (parameter.schema.items) {
                 // handle array of schema items
                 if (parameter.schema.items.$ref) {
                   // handle the schema ref
-                  refs[ref] = api.definitions[ref];
+                  refs[ref] = api.definitions[ref]
                 }
               }
             }
-          });
+          })
         }
 
         // process the responses. 200 and default are probably the only ones that make any sense.
         ['200', 'default'].forEach(function(responseType) {
           if (api.paths[path][verb].responses && api.paths[path][verb].responses[responseType]) {
-            var responses = api.paths[path][verb].responses;
+            var responses = api.paths[path][verb].responses
             if (responses[responseType] && responses[responseType].schema) {
               if (responses[responseType].schema.$ref) {
                 // handle the schema ref
-                var ref = genUtils.getRefName(responses[responseType].schema.$ref);
-                refs[ref] = api.definitions[ref];
+                var ref = genUtils.getRefName(responses[responseType].schema.$ref)
+                refs[ref] = api.definitions[ref]
               } else if (responses[responseType].schema.type && responses[responseType].schema.type === 'array') {
                 if (responses[responseType].schema.items && responses[responseType].schema.items.$ref) {
-                  var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
-                  refs[ref] = api.definitions[ref];
+                  var ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
+                  refs[ref] = api.definitions[ref]
                   if (responses[responseType].schema.items) {
                     // handle array of schema items
                     if (responses[responseType].schema.items.$ref) {
                       // handle the schema ref
-                      var ref = genUtils.getRefName(responses[responseType].schema.items.$ref);
-                      refs[ref] = api.definitions[ref];
+                      var ref = genUtils.getRefName(responses[responseType].schema.items.$ref)
+                      refs[ref] = api.definitions[ref]
                     }
                   }
                 }
               }
             }
           } 
-        });
+        })
       }
-    });
-  });
+    })
+  })
  
-  var foundNewRef;
+  var foundNewRef
   do {
-    foundNewRef = false;
+    foundNewRef = false
     // now parse the schemas for child references.
     Object.keys(refs).forEach(function(schema) {
       if (refs[schema] && refs[schema].properties) {
-        var properties = refs[schema].properties;
+        var properties = refs[schema].properties
         Object.keys(properties).forEach(function(property) {
           if (properties[property].$ref) {
             // this property contains a definition reference.
-            var name = genUtils.getRefName(properties[property].$ref);
+            var name = genUtils.getRefName(properties[property].$ref)
             if (!refs[name]) {
-              refs[name] = api.definitions[name];
-              foundNewRef = true;
+              refs[name] = api.definitions[name]
+              foundNewRef = true
             }
           } else if (properties[property].items && properties[property].items.$ref) {
             // this property contains a definition reference.
-            var name = genUtils.getRefName(properties[property].items.$ref);
+            var name = genUtils.getRefName(properties[property].items.$ref)
             if (!refs[name]) {
-              refs[name] = api.definitions[name];
-              foundNewRef = true;
+              refs[name] = api.definitions[name]
+              foundNewRef = true
             }
           }
-        });
+        })
       }
-    });
-  } while (foundNewRef);
+    })
+  } while (foundNewRef)
 
   if (Object.keys(resources).length === 0) {
-    throw new Error("no resources");
+    throw new Error("no resources")
   }
 
-  var parsed = {basepath: basePath, resources: resources, refs: refs};
-  return parsed;
+  var parsed = {basepath: basePath, resources: resources, refs: refs}
+  return parsed
 }
 
 exports.parse = function(memfs, swaggerPath) {
-  debug('in parse');
+  debug('in parse')
   return loadAsync(memfs, swaggerPath)
     .then(loaded => {
-      ensureValid(loaded, swaggerPath);
-      debug('successfully validated against schema');
-      return { loaded: loaded, parsed: parseSwagger(loaded) };
-    });
+      return ensureValid(loaded, swaggerPath)
+        .then(function (loaded) {
+          debug('successfully validated against schema');
+          return { loaded: loaded, parsed: parseSwagger(loaded) }
+        })
+    })
 }

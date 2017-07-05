@@ -15,36 +15,36 @@
  */
 
 'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var fs = require('fs');
-var format = require('util').format;
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var fs = require('fs')
+var format = require('util').format
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
-                     '.yo-rc.json', 'LICENSE', 'README.md'];
+                     '.yo-rc.json', 'LICENSE', 'README.md']
 
-var appName = 'todo';
-var modelName = 'todo';
-var modelPlural = 'todos';
-var className = 'Todo';
+var appName = 'todo'
+var modelName = 'todo'
+var modelPlural = 'todos'
+var className = 'Todo'
 
-var generatedModule = 'Generated';
-var applicationModule = 'Application';
+var generatedModule = 'Generated'
+var applicationModule = 'Application'
 var executableModule = appName;
 
-var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`];
+var expectedSourceFiles = [`Sources/${executableModule}/main.swift`, `Sources/${applicationModule}/Application.swift`]
 
 var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
     `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
     `Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
-    `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,];
+    `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`,]
 
 var expectedBluemixFiles = ['manifest.yml',
                             '.cfignore',
                             '.bluemix/pipeline.yml',
                             '.bluemix/toolchain.yml',
-                            '.bluemix/deploy.json'];
+                            '.bluemix/deploy.json']
 
 
 describe('swiftserver:refresh', function () {
@@ -89,36 +89,36 @@ describe('swiftserver:refresh', function () {
           specObj: spec
         })
       return runContext.toPromise();
-    });
+    })
 
     after(function() {
       runContext.cleanTestDirectory();
-    });
+    })
 
     it('generates the expected files', function () {
       assert.file(expected);
-    });
+    })
 
     // This is only a starter set of checks, we need to add further check in.
     it('the swagger file contains the expected content', function() {
       assert.fileContent([
         [expected[0], 'title: ' + appName],
         [expected[0], `${modelName}:`]
-      ]);
-    });
-  });
+      ])
+    })
+  })
 
   describe('Basic refresh generator test with apic option. ' +
            'Check the yaml files exist and ' +
            'are written out correctly.', function () {
 
-    var dirName;
-    var appName = 'testApp';
+    var dirName
+    var appName = 'testApp'
     var expected = [
       `definitions/${appName}-product.yaml`,
       `definitions/${appName}.yaml`
-    ];
-    var runContext;
+    ]
+    var runContext
 
     before(function () {
       var spec = {
@@ -398,7 +398,7 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error');
-      assert(error.match('does not conform to swagger specification:'), 'does not conform to swagger specification:');
+      assert(error.match('does not conform to swagger specification'), 'does not conform to swagger specification');
     });
 
     after(function() {
