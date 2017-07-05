@@ -14,59 +14,62 @@
  * limitations under the License.
  */
 
-'use strict';
-var generators = require('yeoman-generator');
-var chalk = require('chalk');
-var actions = require('../lib/actions');
-var os = require('os');
+'use strict'
+var generators = require('yeoman-generator')
+var chalk = require('chalk')
+var actions = require('../lib/actions')
+var os = require('os')
+var debug = require('debug')('generator-swiftserver:app')
 
 module.exports = generators.Base.extend({
   initializing: {
-    config: function() {
-      if(!this.options.singleShot) {
-        actions.ensureInProject.call(this);
+    config: function () {
+      if (!this.options.singleShot) {
+        actions.ensureInProject.call(this)
       }
     }
   },
 
   install: {
     ensureRequiredSwiftInstalled: actions.ensureRequiredSwiftInstalled,
-    buildSwift: function() {
+    buildSwift: function () {
       return new Promise((resolve, reject) => {
-        var opts = [];
+        var opts = []
         if (os.platform() === 'darwin') {
-          opts = ['-Xlinker', '-lc++'];
+          opts = ['-Xlinker', '-lc++']
         }
-        var buildProcess = this.spawnCommand('swift', ['build'].concat(opts));
+        var buildProcess = this.spawnCommand('swift', ['build'].concat(opts))
         buildProcess.on('error', (err) => {
-          this.env.error(chalk.red('Failed to launch build'));
-        });
+          debug(`error spawning command "swift build": ${err}`)
+          this.env.error(chalk.red('Failed to launch build'))
+        })
         buildProcess.on('close', (code, signal) => {
           if (code) {
-            this.env.error(chalk.red('swift build command completed with errors'));
+            this.env.error(chalk.red('swift build command completed with errors'))
           }
 
-          this.log(chalk.green('swift build command completed'));
-          resolve();
-        });
-      });
+          this.log(chalk.green('swift build command completed'))
+          resolve()
+        })
+      })
     },
 
-    generateXCodeprojFile: function() {
+    generateXCodeprojFile: function () {
       return new Promise((resolve, reject) => {
-        var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj']);
+        var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj'])
         buildProcess.on('error', (err) => {
-          this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'));
-        });
+          debug(`error spawning command "swift package generate-xcodeproj": ${err}`)
+          this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'))
+        })
         buildProcess.on('close', (code, signal) => {
           if (code) {
-            this.env.error(chalk.red('swift package generate-xcodeproj command completed with errors'));
+            this.env.error(chalk.red('swift package generate-xcodeproj command completed with errors'))
           }
 
-          this.log(chalk.green('generate .xcodeproj command completed'));
-          resolve();
-        });
-      });
+          this.log(chalk.green('generate .xcodeproj command completed'))
+          resolve()
+        })
+      })
     }
   }
-});
+})

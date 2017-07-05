@@ -14,41 +14,38 @@
  * limitations under the License.
  */
 
-'use strict';
-var path = require('path');
-var assert = require('yeoman-assert');
-var helpers = require('yeoman-test');
-var fs = require('fs');
-var rimraf = require('rimraf');
+'use strict'
+var path = require('path')
+var assert = require('yeoman-assert')
+var helpers = require('yeoman-test')
+var fs = require('fs')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:refresh'],
   [helpers.createDummyGenerator(), 'swiftserver:build']
-];
+]
 
-describe('swiftserver:property', function() {
-
+describe('swiftserver:property', function () {
   describe('Basic property test. ' +
-            'Check if properties are added to a model', function() {
-
-    var runContext;
-    before(function() {
-      runContext = helpers.run(path.join( __dirname, '../../property'))
+            'Check if properties are added to a model', function () {
+    var runContext
+    before(function () {
+      runContext = helpers.run(path.join(__dirname, '../../property'))
         .withGenerators(dependentGenerators) // Stub subgenerators
-        .inTmpDir(function(tmpDir){
-          var tmpFile = path.join(tmpDir, ".swiftservergenerator-project");    //Created to make the dir a kitura project
-          fs.writeFileSync(tmpFile, "");
+        .inTmpDir(function (tmpDir) {
+          var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')    // Created to make the dir a kitura project
+          fs.writeFileSync(tmpFile, '')
           var spec = {
-            appName: "modelTestDir",
-            appType: "crud",
+            appName: 'modelTestDir',
+            appType: 'crud',
             config: {}
           }
-          var tmpSpec = path.join(tmpDir, "spec.json");           //Created so there is an appName for the models
-          fs.writeFileSync(tmpSpec, JSON.stringify(spec));
+          var tmpSpec = path.join(tmpDir, 'spec.json')           // Created so there is an appName for the models
+          fs.writeFileSync(tmpSpec, JSON.stringify(spec))
 
-          var tmp_yorc = path.join(tmpDir, ".yo-rc.json");             //Created so we can test in a different directory
-          fs.writeFileSync(tmp_yorc, "{}");
+          var tmpYorc = path.join(tmpDir, '.yo-rc.json')             // Created so we can test in a different directory
+          fs.writeFileSync(tmpYorc, '{}')
         })
         .withOptions({
           model: {
@@ -56,9 +53,9 @@ describe('swiftserver:property', function() {
             plural: 'MyModels',
             classname: 'MyModel',
             properties: {
-              "id": {
-                "type": "string",
-                "id": true
+              'id': {
+                'type': 'string',
+                'id': true
               }
             }
           }
@@ -68,30 +65,30 @@ describe('swiftserver:property', function() {
           propertyName: 'foo',
           type: 'boolean'
         })
-        return runContext.toPromise();                        // Get a Promise back when the generator finishes
-    });
+      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+    })
 
-    after(function() {
-      runContext.cleanTestDirectory();
-    });
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
 
-    it('added a property to a model', function() {
-      var model = runContext.generator.model;
+    it('added a property to a model', function () {
+      var model = runContext.generator.model
       var expectedModel = {
         name: 'MyModel',
         plural: 'MyModels',
         classname: 'MyModel',
         properties: {
-          "id": {
-            "type": "string",
-            "id": true
+          'id': {
+            'type': 'string',
+            'id': true
           },
-          "foo": {
-            "type": "boolean"
+          'foo': {
+            'type': 'boolean'
           }
         }
-      };
-      assert.objectContent(model, expectedModel);
-    });
-  });
-});
+      }
+      assert.objectContent(model, expectedModel)
+    })
+  })
+})
