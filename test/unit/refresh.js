@@ -349,6 +349,44 @@ describe('swiftserver:refresh', function () {
     })
   })
 
+  describe('Generate scaffolded app from a 404 swagger URL', function () {
+    var runContext
+    var error
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      nock('http://nothing')
+        .get('/here')
+        .reply(404)
+
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: 'http://nothing/here',
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match('failed to load swagger from: http://nothing/here status: 404'), 'did not recieve 404')
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+  })
+
   describe('Generate scaffolded app from a non-conforming swagger document', function () {
     var swagger = {
       'swagger': '2.0',
