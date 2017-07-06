@@ -19,6 +19,7 @@ var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
+var nock = require('nock')
 
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
   '.yo-rc.json', 'LICENSE', 'README.md']
@@ -266,21 +267,17 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate scaffolded app from an valid swagger URL', function () {
     var runContext
-    var server
 
     before(function () {
-      var http = require('http')
-      var swagger = fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8')
-      server = http.createServer(function (request, response) {
-        response.writeHead(200, { 'Content-Type': 'application/json' })
-        response.end(swagger)
-      }).listen(8080)
+      nock('http://dino.io')
+        .get('/stuff')
+        .replyWithFile(200, path.join(__dirname, '../resources/person_dino.json'))
 
-        // Mock the options, set up an output folder and run the generator
+      // Mock the options, set up an output folder and run the generator
       var spec = {
         appType: 'scaffold',
         appName: appName,
-        fromSwagger: 'http://localhost:8080/stuff',
+        fromSwagger: 'http://dino.io/stuff',
         config: {
           logger: 'helium',
           port: 4567
@@ -308,16 +305,21 @@ describe('swiftserver:refresh', function () {
 
     after(function () {
       runContext.cleanTestDirectory()
-      server.close()
     })
   })
 
   describe('Generate scaffolded app from an invalid swagger URL', function () {
+    var errorCode = 'ENOTFOUND'
+    var errorMessage = 'getaddrinfo ' + errorCode + ' nothing nothing:80'
     var runContext
     var error
 
     before(function () {
-        // Mock the options, set up an output folder and run the generator
+      // Mock the options, set up an output folder and run the generator
+      nock('http://nothing')
+        .get('/here')
+        .replyWithError({'message': errorMessage, 'code': errorCode})
+
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -338,7 +340,46 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error')
-      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:')
+      assert(error.match('failed to load swagger from: http://nothing/here err: ' + errorMessage),
+             'did not recieve ' + errorCode)
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+  })
+
+  describe('Generate scaffolded app from a 404 swagger URL', function () {
+    var runContext
+    var error
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      nock('http://nothing')
+        .get('/here')
+        .reply(404)
+
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: 'http://nothing/here',
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match('failed to load swagger from: http://nothing/here status: 404'), 'did not recieve 404')
     })
 
     after(function () {
