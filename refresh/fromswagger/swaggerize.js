@@ -177,10 +177,6 @@ function parseSwagger (api) {
     })
   } while (foundNewRef)
 
-  if (Object.keys(resources).length === 0) {
-    throw new Error('no resources')
-  }
-
   var parsed = {basepath: basePath, resources: resources, refs: refs}
   return parsed
 }
@@ -189,9 +185,10 @@ exports.parse = function (memfs, swaggerPath) {
   debug('in parse')
   return loadAsync(memfs, swaggerPath)
     .then(loaded => {
+      var loadedAsJSONString = JSON.stringify(loaded)
       return ensureValid(loaded, swaggerPath)
-        .then(function (loaded) {
-          debug('successfully validated against schema')
+        .then(function () {
+          var loaded = JSON.parse(loadedAsJSONString)
           return { loaded: loaded, parsed: parseSwagger(loaded) }
         })
     })
