@@ -15,12 +15,13 @@
  */
 
 'use strict'
-var generators = require('yeoman-generator')
-
-var chalk = require('chalk')
-var path = require('path')
 var debug = require('debug')('generator-swiftserver:app')
 
+var Generator = require('yeoman-generator')
+var chalk = require('chalk')
+var path = require('path')
+
+var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
 var validateDirName = helpers.validateDirName
 var validateAppName = helpers.validateAppName
@@ -28,12 +29,11 @@ var validateCredential = helpers.validateRequiredCredential
 var validatePort = helpers.validatePort
 var validateFilePathOrURL = helpers.validateFilePathOrURL
 var generateServiceName = helpers.generateServiceName
-var actions = require('../lib/actions')
 
-module.exports = generators.Base.extend({
+module.exports = Generator.extend({
 
   constructor: function () {
-    generators.Base.apply(this, arguments)
+    Generator.apply(this, arguments)
 
     // Allow the user to pass the application name into the generator directly
     this.argument('name', {
@@ -73,18 +73,18 @@ module.exports = generators.Base.extend({
       if (this.skipPrompting) return
       this.appname = null // Discard yeoman default appname
       this.skipPromptingAppName = false
-      if (this.name) {
+      if (this.options.name) {
         // User passed a desired application name as an argument
-        var validation = validateAppName(this.name)
+        var validation = validateAppName(this.options.name)
         if (validation === true) {
           // Desired application name is valid, skip prompting for it
           // later
-          this.appname = this.name
+          this.appname = this.options.name
           this.skipPromptingAppName = true
         } else {
           // Log reason for validation failure, if provided
           validation = validation || 'Application name not valid'
-          debug(this.name, ' is not valid because ', validation)
+          debug(this.options.name, ' is not valid because ', validation)
           this.log(validation)
         }
       }
@@ -820,42 +820,39 @@ module.exports = generators.Base.extend({
   install: {
 
     buildDefinitions: function () {
-      // this.composeWith with just the subgenerator name doesn't work with the
-      // Yeoman test framework (yeoman-test)
-
-      // Defining settings.local for the path allows Yeoman to call the
-      // subgenerators directly when 'integration testing' using yeoman-test.
-
-      // Adding a testmode allows us to stub the subgenerators (for unit testing).
-      // (This is to work around https://github.com/yeoman/yeoman-test/issues/16)
-
-      this.composeWith(
-        'swiftserver:refresh',
-        {
-          // Pass in the option to refresh to decided whether or not we create the *-product.yml
-          options: {
-            apic: this.options.apic,
-            specObj: this.spec,
-            singleShot: this.options['single-shot'],
-            destinationSet: (this.destinationSet === true)
-          }
-        },
-        this.options.testmode ? null : { local: require.resolve('../refresh') }
-      )
+      // this.composeWith() causes problems with testing using yeoman-test.
+      //
+      // When we composeWith() using the namespace:name format, then we
+      // have trouble with errors finding the composed generator when testing
+      // (it works usually when running while not testing.)
+      //
+      // So we resolve the generator to a real path to get around this, which
+      // works in both cases. However, this means the yeoman-test RunContext
+      // call withGenerators() no longer works to stub out dependent generators
+      // with dummies for unit testing.
+      //
+      // This problem is documented in https://github.com/yeoman/yeoman-test/issues/16
+      //
+      // To work around the problem, our unit tests will pass in an option 'testmode'
+      // and we will use the namespace:name form in that case.
+      var refreshGenerator = this.options.testmode ? 'swiftserver:refresh' : require.resolve('../refresh')
+      this.composeWith(refreshGenerator, {
+        // Pass in the option to refresh to decided whether or not we create the *-product.yml
+        apic: this.options.apic,
+        specObj: this.spec,
+        singleShot: this.options['single-shot'],
+        destinationSet: (this.destinationSet === true)
+      })
     },
 
     buildApp: function () {
       if (this.skipBuild || this.options['skip-build']) return
-      this.composeWith(
-        'swiftserver:build',
-        {
-          // Pass in the option of doing single-shot so the appropriate checks are performed
-          options: {
-            singleShot: this.options['single-shot']
-          }
-        },
-        this.options.testmode ? null : { local: require.resolve('../build') }
-      )
+
+      var buildGenerator = this.options.testmode ? 'swiftserver:build' : require.resolve('../build')
+      this.composeWith(buildGenerator, {
+        // Pass in the option of doing single-shot so the appropriate checks are performed
+        singleShot: this.options['single-shot']
+      })
     }
   },
 
@@ -885,4 +882,4 @@ module.exports = generators.Base.extend({
     this.log()
   }
 })
-module.exports._yeoman = generators
+module.exports._yeoman = Generator

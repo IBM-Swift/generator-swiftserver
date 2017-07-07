@@ -15,19 +15,20 @@
  */
 
 'use strict'
-var generators = require('yeoman-generator')
+var debug = require('debug')('generator-swiftserver:property')
+
+var Generator = require('yeoman-generator')
 
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
-var debug = require('debug')('generator-swiftserver:property')
 var validatePropertyName = helpers.validatePropertyName
 var validateDefaultValue = helpers.validateDefaultValue
 var convertDefaultValue = helpers.convertDefaultValue
 
-module.exports = generators.Base.extend({
+module.exports = Generator.extend({
 
   constructor: function () {
-    generators.Base.apply(this, arguments)
+    Generator.apply(this, arguments)
 
     this.option('skip-build', {
       type: Boolean,
@@ -170,25 +171,19 @@ module.exports = generators.Base.extend({
 
   install: {
     buildDefinitions: function () {
-      this.composeWith(
-        'swiftserver:refresh',
-        {
-          // Pass in the option to refresh to decided whether or not we create the *-product.yml
-          options: {
-            apic: this.options.apic,
-            model: this.model
-          }
-        },
-        this.options.testmode ? null : { local: require.resolve('../refresh') })
+      var refreshGenerator = this.options.testmode ? 'swiftserver:refresh' : require.resolve('../refresh')
+      this.composeWith(refreshGenerator, {
+        // Pass in the option to refresh to decided whether or not we create the *-product.yml
+        apic: this.options.apic,
+        model: this.model
+      })
     },
 
     buildApp: function () {
       if (this.skipBuild || this.options['skip-build']) return
 
-      this.composeWith(
-        'swiftserver:build',
-        {}
-      )
+      var buildGenerator = this.options.testmode ? 'swiftserver:build' : require.resolve('../build')
+      this.composeWith(buildGenerator, {})
     }
   }
 })

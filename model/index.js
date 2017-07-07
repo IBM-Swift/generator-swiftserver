@@ -15,9 +15,9 @@
  */
 
 'use strict'
-var generators = require('yeoman-generator')
-
 var debug = require('debug')('generator-swiftserver:model')
+
+var Generator = require('yeoman-generator')
 
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
@@ -25,10 +25,10 @@ var validateRequiredName = helpers.validateRequiredName
 var validateNewModel = helpers.validateNewModel
 var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname
 
-module.exports = generators.Base.extend({
+module.exports = Generator.extend({
 
   constructor: function () {
-    generators.Base.apply(this, arguments)
+    Generator.apply(this, arguments)
 
     // Allow user to pass the model name into the generator directly
     this.argument('name', {
@@ -51,11 +51,13 @@ module.exports = generators.Base.extend({
     initModelName: function () {
       this.skipPromptingAppName = false
 
-      if (this.name) {
+      if (this.options.name) {
         // User passed a desired model name as an argument
-        var validation = validateRequiredName(this.name)
+        var validation = validateRequiredName(this.options.name)
         if (validation === true) {
           // Desired model name is valid, skip prompting for it later
+          debug('Valid model name provided via command-line argument:', this.options.name)
+          this.name = this.options.name
           this.skipPromptingModelName = true
         } else {
           // Log reason for validation failure, if provided
@@ -63,11 +65,6 @@ module.exports = generators.Base.extend({
           this.log(validation)
         }
       }
-    },
-
-    readConfig: function () {
-      debug('reading config json from: ', this.destinationPath('config.json'))
-      this.config = this.fs.readJSON(this.destinationPath('config.json'))
     }
   },
 
@@ -121,17 +118,12 @@ module.exports = generators.Base.extend({
 
     this.log('Let\'s add some ' + this.name + ' properties now.\n')
     this.log('Enter an empty property name when done.')
-    this.composeWith(
-      'swiftserver:property',
-      {
-        options: {
-          apic: this.options.apic,
-          repeatMultiple: true,
-          model: this.model,
-          'skip-build': this.options['skip-build']
-        }
-      },
-      this.options.testmode ? null : { local: require.resolve('../property') }
-    )
+    var propertyGenerator = this.options.testmode ? 'swiftserver:property' : require.resolve('../property')
+    this.composeWith(propertyGenerator, {
+      apic: this.options.apic,
+      repeatMultiple: true,
+      model: this.model,
+      'skip-build': this.options['skip-build']
+    })
   }
 })
