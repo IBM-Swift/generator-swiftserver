@@ -198,7 +198,7 @@ describe('helpers', function () {
             domainId: '',
             domainName: '',
             role: ''}}],
-        'AdvancedMobileAccess': [{label: 'AdvancedMobileAccess',
+        'AppID': [{label: 'AppID',
           tags: [],
           plan: 'Graduated tier',
           credentials: {clientId: '',
@@ -344,7 +344,7 @@ describe('helpers', function () {
     })
 
     it('get label for appid', function () {
-      assert.equal(helpers.getBluemixServiceLabel('appid'), 'AdvancedMobileAccess')
+      assert.equal(helpers.getBluemixServiceLabel('appid'), 'AppID')
     })
 
     it('get label for watsonconversation', function () {
