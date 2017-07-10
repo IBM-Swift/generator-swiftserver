@@ -16,8 +16,7 @@
 'use strict'
 var debug = require('debug')('generator-swiftserver:refresh:fromSwagger:swaggerize')
 var genUtils = require('./generatorUtils')
-var enjoi = require('enjoi')
-var apischema = require('swagger-schema-official/schema')
+var SwaggerParser = require('swagger-parser')
 var builderUtils = require('swaggerize-routes/lib/utils')
 var YAML = require('js-yaml')
 var chalk = require('chalk')
@@ -68,14 +67,13 @@ function loadAsync (memfs, path) {
     .then(data => isYaml ? YAML.load(data) : JSON.parse(data))
 }
 
-function ensureValid (api, apiPath) {
-  debug('in ensureValid')
-
-  // validate against the swagger schema.
-  var error = enjoi(apischema).validate(api).error
-  if (error) {
-    throw new Error(chalk.red(apiPath, 'does not conform to swagger specification:\n', error))
-  }
+function ensureValidAsync (api, apiPath) {
+  debug('in ensureValidAsync')
+  return SwaggerParser.validate(api)
+    .catch(function (err) {
+      debug(err)
+      throw new Error(chalk.red(apiPath, 'does not conform to swagger specification'))
+    })
 }
 
 function parseSwagger (api) {
@@ -87,10 +85,6 @@ function parseSwagger (api) {
 
   Object.keys(api.paths).forEach(function (path) {
     var resource = genUtils.resourceNameFromPath(path)
-    if (resource === '*') {
-      // ignore a resource of '*' as a default route for this is set up in the template.
-      return
-    }
 
     debug('path:', path, 'becomes resource:', resource)
     // for each path, walk the method verbs
@@ -184,10 +178,6 @@ function parseSwagger (api) {
     })
   } while (foundNewRef)
 
-  if (Object.keys(resources).length === 0) {
-    throw new Error('no resources')
-  }
-
   var parsed = {basepath: basePath, resources: resources, refs: refs}
   return parsed
 }
@@ -196,8 +186,15 @@ exports.parse = function (memfs, swaggerPath) {
   debug('in parse')
   return loadAsync(memfs, swaggerPath)
     .then(loaded => {
-      ensureValid(loaded, swaggerPath)
-      debug('successfully validated against schema')
-      return { loaded: loaded, parsed: parseSwagger(loaded) }
+      // take a copy of the swagger because the swagger-parser used by ensureValidAsync
+      // modifies the original loaded object.
+      var loadedAsJSONString = JSON.stringify(loaded)
+      return ensureValidAsync(loaded, swaggerPath)
+        .then(function () {
+          debug('successfully validated against schema')
+          // restore the original swagger.
+          var loaded = JSON.parse(loadedAsJSONString)
+          return { loaded: loaded, parsed: parseSwagger(loaded) }
+        })
     })
 }
