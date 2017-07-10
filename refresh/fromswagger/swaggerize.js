@@ -67,10 +67,11 @@ function loadAsync (memfs, path) {
     .then(data => isYaml ? YAML.load(data) : JSON.parse(data))
 }
 
-function ensureValid (api, apiPath) {
-  debug('in ensureValid')
+function ensureValidAsync (api, apiPath) {
+  debug('in ensureValidAsync')
   return SwaggerParser.validate(api)
-    .catch(function () {
+    .catch(function (err) {
+      debug(err)
       throw new Error(chalk.red(apiPath, 'does not conform to swagger specification'))
     })
 }
@@ -185,9 +186,13 @@ exports.parse = function (memfs, swaggerPath) {
   debug('in parse')
   return loadAsync(memfs, swaggerPath)
     .then(loaded => {
+      // take a copy of the swagger because the swagger-parser used by ensureValidAsync
+      // modifies the original loaded object.
       var loadedAsJSONString = JSON.stringify(loaded)
-      return ensureValid(loaded, swaggerPath)
+      return ensureValidAsync(loaded, swaggerPath)
         .then(function () {
+          debug('successfully validated against schema')
+          // restore the original swagger.
           var loaded = JSON.parse(loadedAsJSONString)
           return { loaded: loaded, parsed: parseSwagger(loaded) }
         })
