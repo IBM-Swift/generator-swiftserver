@@ -900,4 +900,37 @@ describe('swiftserver:app', function () {
       assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'))
     })
   })
+
+  describe('Rejected web application with push notifications service with invalid region', function () {
+    var runContext
+    var error = null
+
+    before(function () {
+      runContext = helpers.run(path.join(__dirname, '../../app'))
+        .withGenerators(dependentGenerators)
+        .withOptions({ testmode: true })
+        .withPrompts({
+          appType: 'Scaffold a starter',
+          capabilities: [
+            'Bluemix cloud deployment'
+          ],
+          services: ['Push Notifications'],
+          configure: ['Push Notifications'],
+          pushNotificationsRegion: 'NotARegion'
+        })
+      return runContext.toPromise()
+      .catch(function (err) {
+        error = err
+      })
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    it('aborts the generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.message.match('^.*unknown region.*$'), 'Thrown error should be about unknown region')
+    })
+  })
 })
