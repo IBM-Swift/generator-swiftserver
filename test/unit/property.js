@@ -48,6 +48,7 @@ describe('swiftserver:property', function () {
           fs.writeFileSync(tmpYorc, '{}')
         })
         .withOptions({
+          testmode: true,
           model: {
             name: 'MyModel',
             plural: 'MyModels',
