@@ -543,7 +543,7 @@ describe('Prompt and no build integration tests for app generator', function () 
             'Object-Storage': [{
               name: 'testObjectStorage'
             }],
-            AdvancedMobileAccess: [{
+            AppID: [{
               name: 'testAppID'
             }],
             conversation: [{
@@ -766,7 +766,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                 role: ''
               }
             }],
-            AdvancedMobileAccess: [{
+            AppID: [{
               credentials: {
                 clientId: '',
                 oauthServerUrl: '',
@@ -875,7 +875,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                 role: ''
               }
             }],
-            AdvancedMobileAccess: [{
+            AppID: [{
               credentials: {
                 clientId: 'CLIENT_ID',
                 oauthServerUrl: '',
