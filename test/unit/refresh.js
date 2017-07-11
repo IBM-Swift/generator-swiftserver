@@ -15,9 +15,9 @@
  */
 
 'use strict'
-var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
 var fs = require('fs')
 var nock = require('nock')
 
@@ -176,9 +176,23 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a Bff application from a Swagger document', function () {
     var runContext
+    var sdkScope
 
     before(function () {
-        // Mock the options, set up an output folder and run the generator
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
+      // Mock the options, set up an output folder and run the generator
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -197,7 +211,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generated the correct config file', function () {
@@ -267,11 +286,26 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate scaffolded app from an valid swagger URL', function () {
     var runContext
+    var swaggerScope
+    var sdkScope
 
     before(function () {
-      nock('http://dino.io')
+      swaggerScope = nock('http://dino.io')
         .get('/stuff')
         .replyWithFile(200, path.join(__dirname, '../resources/person_dino.json'))
+
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
 
       // Mock the options, set up an output folder and run the generator
       var spec = {
@@ -290,6 +324,14 @@ describe('swiftserver:refresh', function () {
       return runContext.toPromise()
     })
 
+    it('requested swagger over http', function () {
+      assert(swaggerScope.isDone())
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
     it('generates the swift files', function () {
       var expectedSourceFiles = [
         `Sources/${applicationModule}/Application.swift`,
@@ -304,6 +346,7 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
     })
   })
@@ -1782,9 +1825,23 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate application with example endpoints and hosted Swagger for bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
+      // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1804,7 +1861,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -1857,9 +1919,23 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
     var runContext
+    var sdkScope
 
     before(function () {
-        // Set up the spec file which should create all the necessary files for a server
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
+      // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'scaffold',
         appName: appName,
@@ -1880,7 +1956,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates SwaggerUI', function () {
