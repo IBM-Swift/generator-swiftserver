@@ -15,29 +15,28 @@
  */
 
 'use strict'
-
 var debug = require('debug')('generator-swiftserver:refresh')
-var generators = require('yeoman-generator')
-var fs = require('fs')
-var path = require('path')
+
+var Generator = require('yeoman-generator')
 var Promise = require('bluebird')
 var chalk = require('chalk')
 var YAML = require('js-yaml')
 var rimraf = require('rimraf')
 var handlebars = require('handlebars')
+var path = require('path')
+var fs = require('fs')
 
-var helpers = require('../lib/helpers')
 var actions = require('../lib/actions')
-
+var helpers = require('../lib/helpers')
 var swaggerize = require('./fromswagger/swaggerize')
 var sdkHelper = require('../lib/sdkGenHelper')
 var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
 var getClientSDKAsync = sdkHelper.getClientSDKAsync
 var getServerSDKAsync = sdkHelper.getServerSDKAsync
 
-module.exports = generators.Base.extend({
+module.exports = Generator.extend({
   constructor: function () {
-    generators.Base.apply(this, arguments)
+    Generator.apply(this, arguments)
 
     // Allow the user to specify where the specification file is
     this.option('specfile', {

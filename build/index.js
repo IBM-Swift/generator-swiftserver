@@ -15,13 +15,15 @@
  */
 
 'use strict'
-var generators = require('yeoman-generator')
-var chalk = require('chalk')
-var actions = require('../lib/actions')
-var os = require('os')
 var debug = require('debug')('generator-swiftserver:app')
 
-module.exports = generators.Base.extend({
+var Generator = require('yeoman-generator')
+var chalk = require('chalk')
+var os = require('os')
+
+var actions = require('../lib/actions')
+
+module.exports = Generator.extend({
   initializing: {
     config: function () {
       if (!this.options.singleShot) {

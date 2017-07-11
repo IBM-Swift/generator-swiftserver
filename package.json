@@ -25,7 +25,7 @@
     "chalk": "^1.1.0",
     "debug": "^2.2.0",
     "js-yaml": "^3.4.2",
-    "yeoman-generator": "^0.24.1",
+    "yeoman-generator": "^1.1.1",
     "handlebars": "^4.0.5",
     "bluebird": "^3.5.0",
     "request": "^2.81.0",
