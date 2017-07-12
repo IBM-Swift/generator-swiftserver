@@ -120,6 +120,7 @@ module.exports = Generator.extend({
     promptAppName: function () {
       if (this.skipPrompting) return
       if (this.skipPromptingAppName) { return }
+      this.log(chalk.magenta('Initialization prompts'))
 
       var prompts = [
         {
@@ -396,6 +397,7 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
       if (this.bluemix) return
+      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['CouchDB', 'Redis']
 
@@ -420,6 +422,7 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
       if (!this.bluemix) return
+      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
 
@@ -492,6 +495,7 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'crud') return
       if (!this.bluemix) return
+      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['Auto-scaling']
 
