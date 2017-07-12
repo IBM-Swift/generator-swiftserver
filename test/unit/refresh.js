@@ -21,6 +21,11 @@ var path = require('path')
 var fs = require('fs')
 var nock = require('nock')
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+var config = require('../../config')
+var sdkGenCheckDelaySaved
+
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
   '.yo-rc.json', 'LICENSE', 'README.md']
 
@@ -47,6 +52,18 @@ var expectedBluemixFiles = ['manifest.yml',
   '.bluemix/deploy.json']
 
 describe('swiftserver:refresh', function () {
+  before('set sdkgen status check delay to 1ms', function () {
+    // alter delay between status checks to speed up unit tests
+    sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+    config.sdkGenCheckDelay = 1
+  })
+
+  after('restore sdkgen status check delay', function () {
+    // restore delay between status checks so integration tests
+    // remain resilient
+    config.sdkGenCheckDelay = sdkGenCheckDelaySaved
+  })
+
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
            'is written out correctly.', function () {
