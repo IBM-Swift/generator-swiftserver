@@ -119,8 +119,8 @@ module.exports = Generator.extend({
   prompting: {
     promptAppName: function () {
       if (this.skipPrompting) return
-      if (this.skipPromptingAppName) { return }
       this.log(chalk.magenta('Initialization prompts'))
+      if (this.skipPromptingAppName) { return }
 
       var prompts = [
         {
