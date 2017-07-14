@@ -14,69 +14,64 @@
  * limitations under the License.
  */
 
-'use strict';
-var generators = require('yeoman-generator');
+'use strict'
+var debug = require('debug')('generator-swiftserver:model')
 
-var chalk = require('chalk');
-var debug = require('debug')('generator-swiftserver:model');
+var Generator = require('yeoman-generator')
 
-var actions = require('../lib/actions');
-var helpers = require('../lib/helpers');
-var validateRequiredName = helpers.validateRequiredName;
-var validateNewModel = helpers.validateNewModel;
-var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname;
+var actions = require('../lib/actions')
+var helpers = require('../lib/helpers')
+var validateRequiredName = helpers.validateRequiredName
+var validateNewModel = helpers.validateNewModel
+var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname
 
-module.exports = generators.Base.extend({
+module.exports = Generator.extend({
 
-  constructor: function() {
-    generators.Base.apply(this, arguments);
+  constructor: function () {
+    Generator.apply(this, arguments)
 
     // Allow user to pass the model name into the generator directly
     this.argument('name', {
       desc: 'Name of the model to create.',
       required: false,
       type: String
-    });
+    })
 
     this.option('skip-build', {
       type: Boolean,
       desc: 'Skip building the generated application',
       defaults: false
-    });
+    })
   },
 
   initializing: {
     ensureInProject: actions.ensureInProject,
     ensureProjectIsCrud: actions.ensureProjectIsCrud,
 
-    initModelName: function() {
-      this.skipPromptingAppName = false;
+    initModelName: function () {
+      this.skipPromptingAppName = false
 
-      if (this.name) {
+      if (this.options.name) {
         // User passed a desired model name as an argument
-        var validation = validateRequiredName(this.name);
+        var validation = validateRequiredName(this.options.name)
         if (validation === true) {
           // Desired model name is valid, skip prompting for it later
-          this.skipPromptingModelName = true;
+          debug('Valid model name provided via command-line argument:', this.options.name)
+          this.name = this.options.name
+          this.skipPromptingModelName = true
         } else {
           // Log reason for validation failure, if provided
-          validation = validation || 'Model name not valid';
-          this.log(validation);
+          validation = validation || 'Model name not valid'
+          this.log(validation)
         }
       }
-    },
-
-    readConfig: function() {
-      debug('reading config json from: ', this.destinationPath('config.json'));
-      this.config = this.fs.readJSON(this.destinationPath('config.json'));
     }
   },
 
   prompting: {
-    promptModelName: function() {
-      if (this.skipPromptingModelName) { return; }
+    promptModelName: function () {
+      if (this.skipPromptingModelName) { return }
 
-      var done = this.async();
       var prompts = [
         {
           name: 'name',
@@ -84,32 +79,29 @@ module.exports = generators.Base.extend({
           default: this.name,
           validate: validateNewModel
         }
-      ];
-      this.prompt(prompts, function(props) {
-        this.name = props.name;
-        done();
-      }.bind(this));
+      ]
+      return this.prompt(prompts).then((props) => {
+        this.name = props.name
+      })
     },
 
-    promptPlural: function() {
-      var done = this.async();
+    promptPlural: function () {
       var prompts = [
         {
           name: 'plural',
           message: 'Custom plural form (used to build REST URL):',
-          default: this.name + 's',
+          default: this.name + 's'
         }
-      ];
+      ]
       // TODO needs to handle plurals properly (check for function)
-      this.prompt(prompts, function(props) {
-        this.plural = props.plural;
-        done();
-      }.bind(this));
+      return this.prompt(prompts).then((props) => {
+        this.plural = props.plural
+      })
     }
   },
 
-  property: function() {
-    this.classname = convertModelNametoSwiftClassname(this.name);
+  property: function () {
+    this.classname = convertModelNametoSwiftClassname(this.name)
 
     // Create a model object
     this.model = {
@@ -117,26 +109,21 @@ module.exports = generators.Base.extend({
       plural: this.plural,
       classname: this.classname,
       properties: {
-        "id": {
-          "type": "string",
-          "id": true
+        'id': {
+          'type': 'string',
+          'id': true
         }
       }
-    };
+    }
 
-    this.log('Let\'s add some ' + this.name + ' properties now.\n');
-    this.log('Enter an empty property name when done.');
-    this.composeWith(
-      'swiftserver:property',
-      {
-        options: {
-          apic: this.options.apic,
-          repeatMultiple: true,
-          model: this.model,
-          'skip-build': this.options['skip-build']
-        }
-      },
-      this.options.testmode ? null : { local: require.resolve('../property')}
-    );
+    this.log('Let\'s add some ' + this.name + ' properties now.\n')
+    this.log('Enter an empty property name when done.')
+    var propertyGenerator = this.options.testmode ? 'swiftserver:property' : require.resolve('../property')
+    this.composeWith(propertyGenerator, {
+      apic: this.options.apic,
+      repeatMultiple: true,
+      model: this.model,
+      'skip-build': this.options['skip-build']
+    })
   }
-});
+})
