@@ -674,19 +674,21 @@ module.exports = Generator.extend({
   },
 
   generateSDKs: function () {
+    var shouldGenerateClientWithModel = (!!this.swagger && JSON.stringify(this.swagger['paths']) !== '{}')
     var shouldGenerateClient = (!!this.fromSwagger)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
-    if (!shouldGenerateClient && !shouldGenerateServer) return
+    if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
 
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'))
     var generationTasks = []
-    if (shouldGenerateClient) generationTasks.push(generateClientAsync.call(this))
+    if (shouldGenerateClientWithModel) generationTasks.push(generateClientAsync.call(this, this.swagger))
+    if (shouldGenerateClient) generationTasks.push(generateClientAsync.call(this, this.loadedApi))
     if (shouldGenerateServer) generationTasks.push(generateServerAsync.call(this))
     return Promise.all(generationTasks)
 
-    function generateClientAsync () {
+    function generateClientAsync (swaggerContent) {
       var clientSDKName = `${this.projectName}_iOS_SDK`
-      return performSDKGenerationAsync(clientSDKName, 'ios_swift', JSON.stringify(this.loadedApi))
+      return performSDKGenerationAsync(clientSDKName, 'ios_swift', JSON.stringify(swaggerContent))
         .then(generatedID => getClientSDKAsync(clientSDKName, generatedID))
         .then(() => {
           this.itemsToIgnore.push(`/${clientSDKName}*`)
@@ -1041,6 +1043,14 @@ module.exports = Generator.extend({
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
         this.conflicter.force = true
         this.fs.write(swaggerFilename, YAML.safeDump(this.swagger))
+
+        // append items to .gitignore that may have been added through model gen process
+        for (var item in this.itemsToIgnore) {
+          this.fs.append(
+            this.destinationPath('.gitignore'),
+            this.itemsToIgnore[0]
+          )
+        }
       }
     },
 
