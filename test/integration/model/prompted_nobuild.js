@@ -143,5 +143,14 @@ describe('Prompt and no build integration tests for model generator', function (
       }
       assert.jsonFileContent('spec.json', expected)
     })
+
+    it('created a iOS SDK zip file', function () {
+      assert.file('test_iOS_SDK.zip')
+    })
+
+    it('added reference to generated iOS SDK to .gitignore', function () {
+      assert.fileContent('.gitignore', '/test_iOS_SDK*')
+      // TODO: ensure only one entry is in .gitignore
+    })
   })
 })

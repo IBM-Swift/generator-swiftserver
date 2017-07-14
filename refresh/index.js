@@ -1048,7 +1048,7 @@ module.exports = Generator.extend({
         for (var item in this.itemsToIgnore) {
           this.fs.append(
             this.destinationPath('.gitignore'),
-            this.itemsToIgnore[0]
+            this.itemsToIgnore[item]
           )
         }
       }
