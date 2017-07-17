@@ -1044,12 +1044,16 @@ module.exports = Generator.extend({
         this.conflicter.force = true
         this.fs.write(swaggerFilename, YAML.safeDump(this.swagger))
 
-        // append items to .gitignore that may have been added through model gen process
+        // Append items to .gitignore that may have been added through model gen process
+        var gitignoreFile = this.fs.read(this.destinationPath('.gitignore'))
         for (var item in this.itemsToIgnore) {
-          this.fs.append(
-            this.destinationPath('.gitignore'),
-            this.itemsToIgnore[item]
-          )
+          // Ensure we only add unique values
+          if (gitignoreFile.indexOf(this.itemsToIgnore[item]) === -1) {
+            this.fs.append(
+              this.destinationPath('.gitignore'),
+              this.itemsToIgnore[item]
+            )
+          }
         }
       }
     },
