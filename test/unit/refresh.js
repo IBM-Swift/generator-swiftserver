@@ -98,7 +98,7 @@ describe('swiftserver:refresh', function () {
         ]
       }
         // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -158,7 +158,7 @@ describe('swiftserver:refresh', function () {
         ]
       }
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec,
           apic: true
@@ -220,7 +220,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -272,7 +272,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -325,7 +325,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -387,7 +387,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -439,7 +439,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -496,7 +496,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -544,7 +544,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -593,7 +593,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -638,7 +638,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -677,7 +677,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -721,7 +721,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .inTmpDir(function (tmpDir) {
           spec.fromSwagger = path.join(tmpDir, 'swagger.json')
           fs.writeFileSync(spec.fromSwagger, JSON.stringify(swagger))
@@ -758,7 +758,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -812,7 +812,7 @@ describe('swiftserver:refresh', function () {
           }
         ]
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -876,7 +876,7 @@ describe('swiftserver:refresh', function () {
     var dummyContent = '==Dummy existing content=='
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
                           .inTmpDir(function (tmpDir) {
                             // Create a dummy file for each one that should
                             // not be overwritten by the update
@@ -927,7 +927,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -989,7 +989,7 @@ describe('swiftserver:refresh', function () {
           }
         ]
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1051,7 +1051,7 @@ describe('swiftserver:refresh', function () {
     var dummyContent = '==Dummy existing content=='
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
                           .inTmpDir(function (tmpDir) {
                             // Create a dummy file for each one that should
                             // not be overwritten by the update
@@ -1100,7 +1100,7 @@ describe('swiftserver:refresh', function () {
           'autoscale': 'myAutoScalingService'
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1138,7 +1138,7 @@ describe('swiftserver:refresh', function () {
           'metrics': false
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1193,7 +1193,7 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: 'myCloudantService'
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1261,7 +1261,7 @@ describe('swiftserver:refresh', function () {
         ],
         crudservice: 'myCloudantService'
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1314,7 +1314,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1389,7 +1389,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1424,7 +1424,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1477,7 +1477,7 @@ describe('swiftserver:refresh', function () {
           'autoscale': 'myAutoScalingService'
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1517,7 +1517,7 @@ describe('swiftserver:refresh', function () {
           'autoscale': false
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
           .withOptions({
             specObj: spec
           })
@@ -1557,7 +1557,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1605,7 +1605,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1658,7 +1658,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1705,7 +1705,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1757,7 +1757,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1807,7 +1807,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1855,7 +1855,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1904,7 +1904,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1966,7 +1966,7 @@ describe('swiftserver:refresh', function () {
           }
         ]
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -1999,7 +1999,7 @@ describe('swiftserver:refresh', function () {
         },
         services: {}
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2032,7 +2032,7 @@ describe('swiftserver:refresh', function () {
         },
         services: {}
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2070,7 +2070,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2119,7 +2119,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2214,7 +2214,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2259,7 +2259,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })
@@ -2294,7 +2294,7 @@ describe('swiftserver:refresh', function () {
           }]
         }
       }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/refresh'))
         .withOptions({
           specObj: spec
         })

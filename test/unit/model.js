@@ -33,7 +33,7 @@ describe('swiftserver:model', function () {
 
     before(function () {
         // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../model'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/model'))
           .withOptions({ testmode: true })
           .withGenerators(dependentGenerators) // Stub subgenerators
           .inTmpDir(function (tmpDir) {

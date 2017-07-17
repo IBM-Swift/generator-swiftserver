@@ -23,8 +23,8 @@ var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 
-var appGeneratorPath = path.join(__dirname, '../../../app')
-var buildGeneratorPath = path.join(__dirname, '../../../build')
+var appGeneratorPath = path.join(__dirname, '../../../generators/app')
+var buildGeneratorPath = path.join(__dirname, '../../../generators/build')
 
 describe('Spec option and build integration tests for app generator', function () {
   describe('A CRUD application with a cloudant service is able to build', function () {

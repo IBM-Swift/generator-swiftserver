@@ -24,7 +24,7 @@ var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
 
-var modelGeneratorPath = path.join(__dirname, '../../../model')
+var modelGeneratorPath = path.join(__dirname, '../../../generators/model')
 
 describe('Prompt and no build integration tests for model generator', function () {
   describe('Prompt model when not in a generator', function () {

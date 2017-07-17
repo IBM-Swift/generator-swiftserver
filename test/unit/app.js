@@ -32,7 +32,7 @@ describe('swiftserver:app', function () {
     before(function () {
       // Mock the options, set up an output folder and run the generator
 
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode: true })    // Workaround to stub subgenerators
         .withPrompts({                       // Mock the prompt answers
@@ -69,7 +69,7 @@ describe('swiftserver:app', function () {
     var runContext
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({      // Mock the prompt answers
@@ -106,7 +106,7 @@ describe('swiftserver:app', function () {
     var runContext
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({      // Mock the prompt answers
@@ -145,7 +145,7 @@ describe('swiftserver:app', function () {
     var runContext
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({      // Mock the prompt answers
@@ -188,7 +188,7 @@ describe('swiftserver:app', function () {
     var runContext
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({      // Mock the prompt answers
@@ -228,7 +228,7 @@ describe('swiftserver:app', function () {
     var runContext
     before(function () {
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withArguments(['nameOnCommandLine'])
@@ -266,7 +266,7 @@ describe('swiftserver:app', function () {
               var runContext
               before(function () {
       // Mock the options, set up an output folder and run the generator
-                runContext = helpers.run(path.join(__dirname, '../../app'))
+                runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withArguments(['inva&%*lid'])
@@ -312,7 +312,7 @@ describe('swiftserver:app', function () {
               var runContext
               before(function () {
       // Mock the options, set up an output folder and run the generator
-                runContext = helpers.run(path.join(__dirname, '../../app'))
+                runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withArguments(['inva&%*lid'])
@@ -354,7 +354,7 @@ describe('swiftserver:app', function () {
              var runContext
              before(function () {
       // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
+               runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withArguments(['ext&%*ra'])
@@ -396,7 +396,7 @@ describe('swiftserver:app', function () {
              var runContext
              before(function () {
       // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
+               runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({      // Mock the prompt answers
@@ -422,7 +422,7 @@ describe('swiftserver:app', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -458,7 +458,7 @@ describe('swiftserver:app', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -497,7 +497,7 @@ describe('swiftserver:app', function () {
              var runContext
              before(function () {
       // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
+               runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({
@@ -545,7 +545,7 @@ describe('swiftserver:app', function () {
              var runContext
              before(function () {
       // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
+               runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({
@@ -601,7 +601,7 @@ describe('swiftserver:app', function () {
              var runContext
              before(function () {
       // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
+               runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({
@@ -654,7 +654,7 @@ describe('swiftserver:app', function () {
     before(function () {
       var success = false
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode: true })    // Workaround to stub subgenerators
         .withPrompts({
@@ -689,7 +689,7 @@ describe('swiftserver:app', function () {
     before(function () {
       var success = false
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode: true })    // Workaround to stub subgenerators
         .withPrompts({
@@ -729,7 +729,7 @@ describe('swiftserver:app', function () {
     before(function () {
       var success = false
       // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .withOptions({ testmode: true })    // Workaround to stub subgenerators
         .withPrompts({
@@ -763,7 +763,7 @@ describe('swiftserver:app', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -799,7 +799,7 @@ describe('swiftserver:app', function () {
   describe('Basic application with bluemix, autoscaling and metrics', function () {
     var runContext
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -836,7 +836,7 @@ describe('swiftserver:app', function () {
   describe('Web application', function () {
     var runContext
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -865,7 +865,7 @@ describe('swiftserver:app', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
@@ -906,7 +906,7 @@ describe('swiftserver:app', function () {
     var error = null
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/app'))
         .withGenerators(dependentGenerators)
         .withOptions({ testmode: true })
         .withPrompts({

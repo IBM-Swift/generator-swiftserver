@@ -19,8 +19,8 @@ var debug = require('debug')('generator-swiftserver:model')
 
 var Generator = require('yeoman-generator')
 
-var actions = require('../lib/actions')
-var helpers = require('../lib/helpers')
+var actions = require('../../lib/actions')
+var helpers = require('../../lib/helpers')
 var validateRequiredName = helpers.validateRequiredName
 var validateNewModel = helpers.validateNewModel
 var convertModelNametoSwiftClassname = helpers.convertModelNametoSwiftClassname

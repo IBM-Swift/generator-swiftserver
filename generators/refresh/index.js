@@ -26,10 +26,10 @@ var handlebars = require('handlebars')
 var path = require('path')
 var fs = require('fs')
 
-var actions = require('../lib/actions')
-var helpers = require('../lib/helpers')
+var actions = require('../../lib/actions')
+var helpers = require('../../lib/helpers')
 var swaggerize = require('./fromswagger/swaggerize')
-var sdkHelper = require('../lib/sdkGenHelper')
+var sdkHelper = require('../../lib/sdkGenHelper')
 var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
 var getClientSDKAsync = sdkHelper.getClientSDKAsync
 var getServerSDKAsync = sdkHelper.getServerSDKAsync
@@ -92,7 +92,7 @@ module.exports = Generator.extend({
   initializing: {
     config: function () {
       if (!this.options.singleShot) {
-        this.generatorVersion = require('../package.json').version
+        this.generatorVersion = require('../../package.json').version
         this.config.defaults({ version: this.generatorVersion })
 
         // Ensure generator major version match
