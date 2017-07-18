@@ -29,16 +29,16 @@
     "handlebars": "^4.0.5",
     "bluebird": "^3.5.0",
     "request": "^2.81.0",
-    "swagger-parser": "^3.4.0",
+    "swagger-parser": "^3.4.1",
     "swagger-schema-official": "^2.0.0-",
     "swaggerize-routes": "^1.0.0",
     "rimraf": "^2.5.2",
-    "swagger-parser": "^3.4.1",
     "unzip2": "^0.2.5"
   },
   "devDependencies": {
     "codecov": "^2.1.0",
     "istanbul": "^0.4.5",
+    "memfs": "0.0.15",
     "mocha": "^3.2.0",
     "nock": "^9.0.13",
     "nyc": "^10.1.2",
