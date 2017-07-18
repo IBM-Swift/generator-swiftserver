@@ -24,7 +24,7 @@ var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
 
-var propertyGeneratorPath = path.join(__dirname, '../../../property')
+var propertyGeneratorPath = path.join(__dirname, '../../../generators/property')
 
 describe('Prompt and no build integration tests for property generator', function () {
   describe('Prompt property when not in a project', function () {

@@ -19,8 +19,8 @@ var debug = require('debug')('generator-swiftserver:property')
 
 var Generator = require('yeoman-generator')
 
-var actions = require('../lib/actions')
-var helpers = require('../lib/helpers')
+var actions = require('../../lib/actions')
+var helpers = require('../../lib/helpers')
 var validatePropertyName = helpers.validatePropertyName
 var validateDefaultValue = helpers.validateDefaultValue
 var convertDefaultValue = helpers.convertDefaultValue

@@ -31,7 +31,7 @@ describe('swiftserver:property', function () {
             'Check if properties are added to a model', function () {
     var runContext
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../property'))
+      runContext = helpers.run(path.join(__dirname, '../../generators/property'))
         .withGenerators(dependentGenerators) // Stub subgenerators
         .inTmpDir(function (tmpDir) {
           var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')    // Created to make the dir a kitura project

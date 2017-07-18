@@ -21,7 +21,7 @@ var Generator = require('yeoman-generator')
 var chalk = require('chalk')
 var os = require('os')
 
-var actions = require('../lib/actions')
+var actions = require('../../lib/actions')
 
 module.exports = Generator.extend({
   initializing: {

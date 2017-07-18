@@ -16,7 +16,7 @@
 
 'use strict'
 var assert = require('assert')
-var utils = require('../../refresh/fromswagger/generatorUtils')
+var utils = require('../../generators/refresh/fromswagger/generatorUtils')
 
 describe('swagger generator', function () {
   describe('generator utils', function () {

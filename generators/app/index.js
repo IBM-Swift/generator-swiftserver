@@ -21,8 +21,8 @@ var Generator = require('yeoman-generator')
 var chalk = require('chalk')
 var path = require('path')
 
-var actions = require('../lib/actions')
-var helpers = require('../lib/helpers')
+var actions = require('../../lib/actions')
+var helpers = require('../../lib/helpers')
 var validateDirName = helpers.validateDirName
 var validateAppName = helpers.validateAppName
 var validateCredential = helpers.validateRequiredCredential
