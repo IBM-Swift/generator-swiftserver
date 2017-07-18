@@ -17,6 +17,10 @@
 'use strict'
 var assert = require('assert')
 var helpers = require('../../lib/helpers')
+var nock = require('nock')
+var path = require('path')
+var memFs = require('mem-fs')
+var editor = require('mem-fs-editor')
 
 describe('helpers', function () {
   describe('generateServiceName', function () {
@@ -495,6 +499,114 @@ describe('helpers', function () {
       } catch (err) {
         assert.equal(err.message, "Unrecognised type 'undefined'")
       }
+    })
+  })
+
+  describe('loadAsync', function () {
+    before(function () {
+      nock('http://petstore.org')
+        .get('/yaml')
+        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yaml'))
+    })
+
+    after(function () {
+      nock.cleanAll()
+    })
+
+    it('load yaml from http', function () {
+      helpers.loadAsync('http://petstore.org/yaml')
+        .catch(err => {
+          assert.fail('failed to load .yaml file:', err)
+        })
+    })
+  })
+
+  describe('loadAsync', function () {
+    before(function () {
+      nock('http://petstore.org')
+        .get('/yml')
+        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yml'))
+    })
+
+    after(function () {
+      nock.cleanAll()
+    })
+
+    it('load yml from http', function () {
+      helpers.loadAsync('http://petstore.org/yml')
+        .catch(err => {
+          assert.fail('failed to load .yml file:', err)
+        })
+    })
+  })
+
+  describe('loadAsync', function () {
+    before(function () {
+      nock('http://dino.io')
+        .get('/json')
+        .replyWithFile(200, path.join(__dirname, '../resources/person_dino.json'))
+    })
+
+    after(function () {
+      nock.cleanAll()
+    })
+
+    it('load json from http', function () {
+      helpers.loadAsync('http://dino.io/json')
+        .catch(err => {
+          assert.fail('failed to load .json file:', err)
+        })
+    })
+  })
+
+  describe('loadAsync', function () {
+    var store
+    var fs
+
+    before(function () {
+      store = memFs.create()
+      fs = editor.create(store)
+    })
+
+    it('load json from file', function () {
+      helpers.loadAsync(path.join(__dirname, '../resources/person_dino.json'), fs)
+        .catch(err => {
+          assert.fail('failed to load .json file:', err)
+        })
+    })
+  })
+
+  describe('loadAsync', function () {
+    var store
+    var fs
+
+    before(function () {
+      store = memFs.create()
+      fs = editor.create(store)
+    })
+
+    it('load yaml from file', function () {
+      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yaml'), fs)
+        .catch(err => {
+          assert.fail('failed to load .yaml file:', err)
+        })
+    })
+  })
+
+  describe('loadAsync', function () {
+    var store
+    var fs
+
+    before(function () {
+      store = memFs.create()
+      fs = editor.create(store)
+    })
+
+    it('load yml from file', function () {
+      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yml'), fs)
+        .catch(err => {
+          assert.fail('failed to load .yml file:', err)
+        })
     })
   })
 })

@@ -18,61 +18,14 @@ var debug = require('debug')('generator-swiftserver:refresh:fromSwagger:swaggeri
 var genUtils = require('./generatorUtils')
 var SwaggerParser = require('swagger-parser')
 var builderUtils = require('swaggerize-routes/lib/utils')
-var YAML = require('js-yaml')
 var chalk = require('chalk')
-var Promise = require('bluebird')
-var request = require('request')
-var requestAsync = Promise.promisify(request)
 
-function loadHttpAsync (uri) {
-  debug('in loadHttpAsync')
-
-  return requestAsync({ method: 'GET', uri: uri })
-    .catch(err => {
-      debug('get request returned err:', err)
-      throw new Error(chalk.red('failed to load swagger from:', uri, 'err:', err.message))
-    })
-    .then(result => {
-      if (result.statusCode !== 200) {
-        debug('get request returned status:', result.statusCode)
-        throw new Error(chalk.red('failed to load swagger from:', uri, 'status:', result.statusCode))
-      }
-      return result.body
-    })
-}
-
-function loadFileAsync (memfs, filePath) {
-  debug('in loadFileAsync')
-
-  return Promise.try(() => memfs.read(filePath))
-    .catch(err => {
-      // when file doesn't exist.
-      debug('file does not exist', filePath)
-      throw new Error(chalk.red('failed to load swagger from:', filePath, err.message))
-    })
-    .then(data => {
-      if (data === undefined) {
-        // when file exists but cannot read content.
-        debug('cannot read file contents', filePath)
-        throw new Error(chalk.red('failed to load swagger from:', filePath))
-      }
-      return data
-    })
-}
-
-function loadAsync (memfs, path) {
-  var isHttp = /^https?:\/\/\S+/.test(path)
-  var isYaml = (path.endsWith('.yaml') || path.endsWith('.yml'))
-  return (isHttp ? loadHttpAsync(path) : loadFileAsync(memfs, path))
-    .then(data => isYaml ? YAML.load(data) : JSON.parse(data))
-}
-
-function ensureValidAsync (api, apiPath) {
+function ensureValidAsync (loadedSwagger) {
   debug('in ensureValidAsync')
-  return SwaggerParser.validate(api)
+  return SwaggerParser.validate(loadedSwagger)
     .catch(function (err) {
       debug(err)
-      throw new Error(chalk.red(apiPath, 'does not conform to swagger specification'))
+      throw new Error(chalk.red('does not conform to swagger specification'))
     })
 }
 
@@ -182,19 +135,14 @@ function parseSwagger (api) {
   return parsed
 }
 
-exports.parse = function (memfs, swaggerPath) {
+exports.parse = function (swaggerStr, swaggerPath) {
   debug('in parse')
-  return loadAsync(memfs, swaggerPath)
-    .then(loaded => {
-      // take a copy of the swagger because the swagger-parser used by ensureValidAsync
-      // modifies the original loaded object.
-      var loadedAsJSONString = JSON.stringify(loaded)
-      return ensureValidAsync(loaded, swaggerPath)
-        .then(function () {
-          debug('successfully validated against schema')
-          // restore the original swagger.
-          var loaded = JSON.parse(loadedAsJSONString)
-          return { loaded: loaded, parsed: parseSwagger(loaded) }
-        })
+  var loaded = JSON.parse(swaggerStr)
+  return ensureValidAsync(loaded)
+    .then(function () {
+      debug('successfully validated against schema')
+      // restore the original swagger as the call to ensureValidAsync modifies the original loaded object.
+      loaded = JSON.parse(swaggerStr)
+      return { loaded: loaded, parsed: parseSwagger(loaded) }
     })
 }
