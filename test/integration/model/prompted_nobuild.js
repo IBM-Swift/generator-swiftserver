@@ -79,6 +79,7 @@ describe('Prompt and no build integration tests for model generator', function (
   })
 
   describe('Create a new model, creating a new model json file and update the spec.json', function () {
+    this.timeout(300000)
     var runContext
 
     before(function () {
