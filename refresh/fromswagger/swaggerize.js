@@ -135,7 +135,7 @@ function parseSwagger (api) {
   return parsed
 }
 
-exports.parse = function (swaggerStr, swaggerPath) {
+exports.parse = function (swaggerStr) {
   debug('in parse')
   var loaded = JSON.parse(swaggerStr)
   return ensureValidAsync(loaded)
