@@ -667,17 +667,16 @@ module.exports = Generator.extend({
     if (!this.fromSwagger) return
 
     return helpers.loadAsync(this.fromSwagger, this.fs)
-      .then(loaded => {
-        return swaggerize.parse(loaded)
-          .then(response => {
-            this.loadedApi = response.loaded
-            this.parsedSwagger = response.parsed
-          })
+      .then(loaded => swaggerize.parse(loaded)
+                        .then(response => {
+                          this.loadedApi = response.loaded
+                          this.parsedSwagger = response.parsed
+                        })
           .catch(err => {
-            err.message = chalk.red(this.fromSwagger + ' ' + err.message)
+            err.message = chalk.red('failed to parse:' + this.fromSwagger + ' ' + err.message)
             throw err
           })
-      })
+      )
   },
 
   generateSDKs: function () {
