@@ -6,7 +6,7 @@ if [[ $TRAVIS_BRANCH == "master" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]]; th
   echo "Creating release ${VERSION}" 
   git tag $VERSION && git push origin $VERSION || true
   # Merge back into develop and push those changes
-  git fetch origin && git checkout develop && git merge --ff-only origin/master && git push origin develop
+  git fetch origin && git checkout develop && git merge origin/master && git push origin develop
   # npm publish 
 
   # Deleting the old release branch
