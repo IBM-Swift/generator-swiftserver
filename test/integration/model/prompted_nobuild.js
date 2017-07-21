@@ -79,6 +79,7 @@ describe('Prompt and no build integration tests for model generator', function (
   })
 
   describe('Create a new model, creating a new model json file and update the spec.json', function () {
+    this.timeout(300000)
     var runContext
 
     before(function () {
@@ -142,6 +143,17 @@ describe('Prompt and no build integration tests for model generator', function (
         }]
       }
       assert.jsonFileContent('spec.json', expected)
+    })
+
+    it('created a iOS SDK zip file', function () {
+      assert.file('test_iOS_SDK.zip')
+    })
+
+    it('added reference to generated iOS SDK to .gitignore', function () {
+      // ensure reference is present and that there is only one reference to iOS SDK
+      var fileContent = fs.readFileSync('.gitignore').toString('utf-8')
+      var occurrences = (fileContent.match(/\/test_iOS_SDK\*/g) || []).length
+      assert.equal(occurrences, 1)
     })
   })
 })
