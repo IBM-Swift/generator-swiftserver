@@ -417,7 +417,7 @@ describe('swiftserver:refresh', function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
-        fromSwagger: 'unknown_file_!"£$',
+        fromSwagger: 'unknown_file_!£123',
         config: {
           logger: 'helium',
           port: 4567
@@ -434,7 +434,7 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error')
-      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:')
+      assert(error.match('unknown_file_!£123 doesn\'t exist'), 'unknown_file_!£$ doesn\'t exist')
     })
 
     after(function () {
@@ -685,8 +685,7 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error')
-      assert(error.match('failed to load swagger from: http://nothing/here err: ' + errorMessage),
-             'did not recieve ' + errorCode)
+      assert(error.match(errorMessage, 'did not recieve ' + errorCode))
     })
 
     after(function () {
