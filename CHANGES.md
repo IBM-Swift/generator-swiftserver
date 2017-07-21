@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.7.0"></a>
+# [2.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.6.0...2.7.0) (2017-07-21)
+
+
+### Features
+
+* enable iOS sdk generation after invoking model generator ([#260](https://github.com/IBM-Swift/generator-swiftserver/issues/260)) ([f27a770](https://github.com/IBM-Swift/generator-swiftserver/commit/f27a770))
+
+
+
 <a name="2.6.0"></a>
 # [2.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.5.0...2.6.0) (2017-07-18)
 
