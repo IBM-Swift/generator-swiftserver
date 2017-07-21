@@ -1,3 +1,23 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="2.6.0"></a>
+# [2.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.5.0...2.6.0) (2017-07-21)
+
+
+### Bug Fixes
+
+* moved init log to happen even if app name is passed in as a parameter ([24a2a8c](https://github.com/IBM-Swift/generator-swiftserver/commit/24a2a8c))
+
+
+### Features
+
+* colored logs to better categorize prompts ([e66f89d](https://github.com/IBM-Swift/generator-swiftserver/commit/e66f89d))
+* enable iOS sdk generation after invoking model generator ([#260](https://github.com/IBM-Swift/generator-swiftserver/issues/260)) ([f27a770](https://github.com/IBM-Swift/generator-swiftserver/commit/f27a770))
+
+
+
 2017-07-13, Version 2.5.0
 =========================
 
