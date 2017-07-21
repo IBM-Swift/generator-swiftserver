@@ -21,6 +21,11 @@ var path = require('path')
 var fs = require('fs')
 var nock = require('nock')
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+var config = require('../../config')
+var sdkGenCheckDelaySaved
+
 var expectedFiles = ['.swiftservergenerator-project', 'Package.swift', 'config.json',
   '.yo-rc.json', 'LICENSE', 'README.md']
 
@@ -47,6 +52,18 @@ var expectedBluemixFiles = ['manifest.yml',
   '.bluemix/deploy.json']
 
 describe('swiftserver:refresh', function () {
+  before('set sdkgen status check delay to 1ms', function () {
+    // alter delay between status checks to speed up unit tests
+    sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+    config.sdkGenCheckDelay = 1
+  })
+
+  after('restore sdkgen status check delay', function () {
+    // restore delay between status checks so integration tests
+    // remain resilient
+    config.sdkGenCheckDelay = sdkGenCheckDelaySaved
+  })
+
   describe('Basic refresh generator test. ' +
            'Check the Swagger file exists and ' +
            'is written out correctly.', function () {
@@ -54,8 +71,21 @@ describe('swiftserver:refresh', function () {
       `definitions/${appName}.yaml`
     ]
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -89,7 +119,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files', function () {
@@ -114,8 +149,21 @@ describe('swiftserver:refresh', function () {
       `definitions/${appName}.yaml`
     ]
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -150,7 +198,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files', function () {
@@ -171,6 +224,111 @@ describe('swiftserver:refresh', function () {
         [expected[1], 'title: ' + appName],
         [expected[1], `${modelName}:`]
       ])
+    })
+  })
+
+  describe('Generate a basic application with a server SDK', function () {
+    var runContext
+    var sdkScope
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post('/sdkgen/api/generator/Swagger_Petstore_ServerSDK/server_swift', '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_ServerSDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        hostSwagger: true,
+        serverSwaggerFiles: [
+          path.join(__dirname, '../resources/petstore.yaml')
+        ],
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+
+    it('requested server SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
+    it('created Pet model from swagger file', function () {
+      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift')
+    })
+
+    it('modified Package.swift to include server SDK module', function () {
+      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK')
+    })
+  })
+
+  describe('Generate a basic application experiencing server SDK download failure', function () {
+    var runContext
+    var error
+    var sdkScope
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post('/sdkgen/api/generator/Swagger_Petstore_ServerSDK/server_swift', '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithError({ message: 'getaddrinfo ENOTFOUND', code: 'ENOTFOUND' })
+
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        hostSwagger: true,
+        serverSwaggerFiles: [
+          path.join(__dirname, '../resources/petstore.yaml')
+        ],
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+
+    it('requested server SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match(/Getting server SDK.*failed/), 'Thrown error should be about failing to download server SDK: ' + error)
     })
   })
 
@@ -351,6 +509,150 @@ describe('swiftserver:refresh', function () {
     })
   })
 
+  describe('Generate scaffolded app experiencing a service status failure', function () {
+    var runContext
+    var error
+    var sdkScope
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FAILED' })
+
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: path.join(__dirname, '../resources/person_dino.json'),
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match(/SDK generator.*failed.*FAILED/), 'Thrown error should be about a service failure')
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+  })
+
+  describe('Generate scaffolded app experiencing a service timeout', function () {
+    var runContext
+    var error
+    var sdkScope
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .times(11)
+        .reply(200, { status: 'VALIDATING' })
+
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: path.join(__dirname, '../resources/person_dino.json'),
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match(/generate SDK.*timeout/), 'Thrown error should be about service timeout: ' + error)
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+  })
+
+  describe('Generate scaffolded app experiencing a client SDK download failure', function () {
+    var runContext
+    var error
+    var sdkScope
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithError({ message: 'getaddrinfo ENOTFOUND', code: 'ENOTFOUND' })
+
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: path.join(__dirname, '../resources/person_dino.json'),
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err.message
+      })
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
+    it('aborts generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.match(/Getting client SDK.*failed/), 'Thrown error should be about failing to download client SDK: ' + error)
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+  })
+
   describe('Generate scaffolded app from an invalid swagger URL', function () {
     var errorCode = 'ENOTFOUND'
     var errorMessage = 'getaddrinfo ' + errorCode + ' nothing nothing:80'
@@ -517,8 +819,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a skeleton CRUD application without bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
         // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'crud',
@@ -553,7 +868,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -694,8 +1014,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a skeleton CRUD application for bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
         // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'crud',
@@ -730,7 +1063,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -893,8 +1231,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a CRUD application with cloudant for bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -934,7 +1285,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the extensions required by bluemix', function () {
@@ -961,8 +1317,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a CRUD application with cloudant without bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -1002,7 +1371,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('does not generate the extensions required by bluemix', function () {

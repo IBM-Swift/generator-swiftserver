@@ -43,17 +43,18 @@ module.exports = Generator.extend({
         var buildProcess = this.spawnCommand('swift', ['build'].concat(opts))
         buildProcess.on('error', (err) => {
           debug(`error spawning command "swift build": ${err}`)
-          this.env.error(chalk.red('Failed to launch build'))
+          reject(new Error(chalk.red('Failed to launch build')))
         })
         buildProcess.on('close', (code, signal) => {
           if (code) {
-            this.env.error(chalk.red('swift build command completed with errors'))
+            reject(new Error(chalk.red('swift build command completed with errors')))
+            return
           }
 
           this.log(chalk.green('swift build command completed'))
           resolve()
         })
-      })
+      }).catch(err => this.env.error(err))
     },
 
     generateXCodeprojFile: function () {
@@ -61,17 +62,18 @@ module.exports = Generator.extend({
         var buildProcess = this.spawnCommand('swift', ['package', 'generate-xcodeproj'])
         buildProcess.on('error', (err) => {
           debug(`error spawning command "swift package generate-xcodeproj": ${err}`)
-          this.env.error(chalk.red('Failed to generate <application>.xcodeproj file'))
+          reject(new Error(chalk.red('Failed to generate <application>.xcodeproj file')))
         })
         buildProcess.on('close', (code, signal) => {
           if (code) {
-            this.env.error(chalk.red('swift package generate-xcodeproj command completed with errors'))
+            reject(new Error(chalk.red('swift package generate-xcodeproj command completed with errors')))
+            return
           }
 
           this.log(chalk.green('generate .xcodeproj command completed'))
           resolve()
         })
-      })
+      }).catch(err => this.env.error(err))
     }
   }
 })

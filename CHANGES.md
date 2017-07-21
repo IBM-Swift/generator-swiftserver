@@ -1,3 +1,24 @@
+2017-07-13, Version 2.5.0
+=========================
+
+* fix: reject promises on failures (#253, #252)
+* fix: improve Swagger validation (#244)
+* fix: update AppID service label (#245)
+* fix: ensure the Bff defaults for 'endpoints to generate' (#239)
+* fix: add default region to PushNotification service init (#236)
+* feat: added health endpoint to manifest.yml (#251)
+* feat: add iOS and Swift server SDK generation (#225)
+* feat: update health endpoint to utilize Health framework (#232)
+* chore(deps): yeoman-generator@^1.1.1 and update (#246, #240, #238)
+* chore: add config var for status check interval (#254)
+* chore: change to standard code style (#241)
+* test(deps): yeoman-assert@^3.0.0 (#250)
+* test(deps): yeoman-test@^1.6.0 (#249)
+* test(unit): add more sdkgen tests  (#256)
+* test(unit): mock sdkgen requests with nock (#248, #242)
+* test: add test for invalid region (#243)
+* test: fix missing testmode option in unit test (#247)
+
 2017-06-21, Version 2.4.1
 =========================
 

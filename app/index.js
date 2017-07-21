@@ -119,6 +119,7 @@ module.exports = Generator.extend({
   prompting: {
     promptAppName: function () {
       if (this.skipPrompting) return
+      this.log(chalk.magenta('Initialization prompts'))
       if (this.skipPromptingAppName) { return }
 
       var prompts = [
@@ -344,6 +345,7 @@ module.exports = Generator.extend({
 
     promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return
+      this.log(chalk.magenta('Service prompts'))
 
       var depth = 0
       var prompts = [{
