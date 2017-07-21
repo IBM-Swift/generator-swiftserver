@@ -404,7 +404,7 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedSourceFiles)
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(')
-      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
     })
   })
 
@@ -500,7 +500,7 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedSourceFiles)
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(')
-      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
     })
 
     after(function () {
