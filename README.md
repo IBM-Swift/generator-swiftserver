@@ -3,6 +3,8 @@
 
 # generator-swiftserver
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/IBM-Swift/generator-swiftserver.svg)](https://greenkeeper.io/)
+
 This module is a [Yeoman](http://yeoman.io) generator for creating REST webservices based on the [Kitura web framework](http://kitura.io) with the [Swift](https://swift.org/) language.
 
 This generator and the Yeoman library runs on Node.js and generates a Swift 3 application.
