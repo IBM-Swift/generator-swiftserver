@@ -509,6 +509,44 @@ describe('swiftserver:refresh', function () {
     })
   })
 
+  describe('Generate scaffolded app from valid swagger but no basepath', function () {
+    var runContext
+
+    before(function () {
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: path.join(__dirname, '../resources/productSwagger.yaml'),
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    it('generates the swift files', function () {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/ProductsRoutes.swift`,
+        `Sources/${executableModule}/main.swift`
+      ]
+      assert.file(expectedSourceFiles)
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes(')
+      assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products/:id"')
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+  })
+
   describe('Generate scaffolded app experiencing a service status failure', function () {
     var runContext
     var error
