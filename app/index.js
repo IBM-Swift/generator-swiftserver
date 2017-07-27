@@ -345,6 +345,7 @@ module.exports = Generator.extend({
 
     promptSwiftServerSwaggerFiles: function () {
       if (this.skipPrompting) return
+      this.log(chalk.magenta('Service prompts'))
 
       var depth = 0
       var prompts = [{
@@ -397,7 +398,6 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
       if (this.bluemix) return
-      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['CouchDB', 'Redis']
 
@@ -422,7 +422,6 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
       if (!this.bluemix) return
-      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
 
@@ -495,7 +494,6 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'crud') return
       if (!this.bluemix) return
-      this.log(chalk.magenta('Service prompts'))
 
       var choices = ['Auto-scaling']
 

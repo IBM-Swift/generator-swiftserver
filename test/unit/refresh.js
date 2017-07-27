@@ -71,8 +71,21 @@ describe('swiftserver:refresh', function () {
       `definitions/${appName}.yaml`
     ]
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -106,7 +119,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files', function () {
@@ -131,8 +149,21 @@ describe('swiftserver:refresh', function () {
       `definitions/${appName}.yaml`
     ]
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -167,7 +198,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files', function () {
@@ -381,7 +417,7 @@ describe('swiftserver:refresh', function () {
       var spec = {
         appType: 'scaffold',
         appName: appName,
-        fromSwagger: 'unknown_file_!"£$',
+        fromSwagger: 'unknown_file_!£123',
         config: {
           logger: 'helium',
           port: 4567
@@ -398,7 +434,7 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error')
-      assert(error.match('failed to load swagger from:'), 'failed to load swagger from:')
+      assert(error.match('unknown_file_!£123 doesn\'t exist'), 'unknown_file_!£$ doesn\'t exist')
     })
 
     after(function () {
@@ -649,8 +685,7 @@ describe('swiftserver:refresh', function () {
 
     it('aborts generator with an error', function () {
       assert(error, 'Should throw an error')
-      assert(error.match('failed to load swagger from: http://nothing/here err: ' + errorMessage),
-             'did not recieve ' + errorCode)
+      assert(error.match(errorMessage, 'did not recieve ' + errorCode))
     })
 
     after(function () {
@@ -784,8 +819,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a skeleton CRUD application without bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
         // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'crud',
@@ -820,7 +868,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -961,8 +1014,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a skeleton CRUD application for bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
         // Set up the spec file which should create all the necessary files for a server
       var spec = {
         appType: 'crud',
@@ -997,7 +1063,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the expected files in the root of the project', function () {
@@ -1160,8 +1231,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a CRUD application with cloudant for bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -1201,7 +1285,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('generates the extensions required by bluemix', function () {
@@ -1228,8 +1317,21 @@ describe('swiftserver:refresh', function () {
 
   describe('Generated a CRUD application with cloudant without bluemix', function () {
     var runContext
+    var sdkScope
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
       var spec = {
         appType: 'crud',
         appName: appName,
@@ -1269,7 +1371,12 @@ describe('swiftserver:refresh', function () {
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     it('does not generate the extensions required by bluemix', function () {

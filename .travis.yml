@@ -5,6 +5,7 @@ branches:
   - master
   - develop
   - "/^issue.*$/"
+  - /^greenkeeper/.*$/
 node_js:
 - '4'
 - '6'
