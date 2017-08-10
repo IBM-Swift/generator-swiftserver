@@ -51,6 +51,16 @@ var expectedBluemixFiles = ['manifest.yml',
   '.bluemix/toolchain.yml',
   '.bluemix/deploy.json']
 
+var expectedDockerFiles = ['cli-config.yml',
+  '.dockerignore',
+  'Dockerfile',
+  'Dockerfile-tools']
+
+var expectedKubernetesFiles = [`helm/${appName}/Chart.yaml`,
+  `helm/${appName}/values.yaml`,
+  `helm/${appName}/templates/deployment.yaml`,
+  `helm/${appName}/templates/service.yaml`]
+
 describe('swiftserver:refresh', function () {
   before('set sdkgen status check delay to 1ms', function () {
     // alter delay between status checks to speed up unit tests
@@ -958,6 +968,14 @@ describe('swiftserver:refresh', function () {
       assert.noFile(expectedBluemixFiles)
     })
 
+    it('does not generate the docker files', function () {
+      assert.noFile(expectedDockerFiles)
+    })
+
+    it('does not generate the kubernetes files', function () {
+      assert.noFile(expectedKubernetesFiles)
+    })
+
     it('does not generate any capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
@@ -1095,6 +1113,7 @@ describe('swiftserver:refresh', function () {
           logger: 'helium',
           port: 4567
         },
+        docker: true,
         'models': [
           {
             'name': modelName,
@@ -1146,6 +1165,14 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles)
+    })
+
+    it('generates the docker files', function () {
+      assert.file(expectedDockerFiles)
+    })
+
+    it('generates the expected kubernetes files', function () {
+      assert.file(expectedKubernetesFiles)
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
@@ -1471,12 +1498,14 @@ describe('swiftserver:refresh', function () {
         bluemix: {
           'name': 'test',
           'host': 'myhost',
-          'domain': 'mydomain.net'
+          'domain': 'mydomain.net',
+          'namespace': 'mynamespace'
         },
         config: {
           logger: 'helium',
           port: 4567
-        }
+        },
+        docker: true
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
@@ -1532,10 +1561,26 @@ describe('swiftserver:refresh', function () {
     it('produces the correct disk quota in the manifest', function () {
       assert.fileContent('manifest.yml', 'disk_quota: 1024M')
     })
+
+    it('adds the proper chart-path in cli-config.yml', function () {
+      assert.fileContent('cli-config.yml', 'chart-path : "helm/test"')
+    })
+
+    it('populates the correct name in Chart.yaml', function () {
+      assert.fileContent('helm/test/Chart.yaml', 'name: test')
+    })
+
+    it('populates the correct values in values.yaml', function () {
+      assert.fileContent('helm/test/values.yaml', 'name: test')
+      assert.fileContent('helm/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/')
+    })
+
   })
 
   describe('Generate skeleton web application for bluemix with incorrect custom options', function () {
     var runContext
+
+    //CHRISTIAN ToDo: Add testcases for cloud-enablement with these incorrect options
 
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
@@ -1619,6 +1664,14 @@ describe('swiftserver:refresh', function () {
 
     it('does not generate the bluemix files', function () {
       assert.noFile(expectedBluemixFiles)
+    })
+
+    it('does not generate the docker files', function () {
+      assert.noFile(expectedDockerFiles)
+    })
+
+    it('does not generate the kubernetes files', function () {
+      assert.noFile(expectedKubernetesFiles)
     })
   })
 
@@ -2281,7 +2334,8 @@ describe('swiftserver:refresh', function () {
         config: {
           logger: 'helium',
           port: 4567
-        }
+        },
+        docker: true
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
@@ -2313,6 +2367,14 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles)
+    })
+
+    it('generates the docker files', function () {
+      assert.file(expectedDockerFiles)
+    })
+
+    it('generates the kubernetes files with expected values', function () {
+      assert.file(expectedKubernetesFiles)
     })
 
     it('defines example endpoints', function () {
