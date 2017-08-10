@@ -13,7 +13,7 @@ repo:
   service_id: githubpublic
   parameters:
     repo_url: "{{repository}}"
-    type: link
+    type: clone
     has_issues: true
 
 # Pipelines
