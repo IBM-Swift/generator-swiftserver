@@ -185,6 +185,9 @@ module.exports = Generator.extend({
         if (typeof (this.spec.bluemix.instances) === 'number') {
           this.bluemix.instances = this.spec.bluemix.instances
         }
+        if (typeof (this.spec.bluemix.namespace) === 'string') {
+          this.bluemix.namespace = this.spec.bluemix.namespace
+        }
       }
 
       // Clean app name (for containers and other uses)
@@ -1257,7 +1260,8 @@ module.exports = Generator.extend({
             services: this.services,
             capabilities: this.capabilities,
             hostSwagger: this.hostSwagger,
-            bluemix: this.bluemix }
+            bluemix: this.bluemix
+          }
         )
       })
 
@@ -1284,6 +1288,14 @@ module.exports = Generator.extend({
         this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
                      filepath)
       })
+    },
+
+    writeKubernetesFiles: function () {
+      if (!this.docker) return
+
+      var server = (this.bluemix.domain && this.bluemix.namespace) ? {domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined;
+      this.composeWith(require.resolve('@arf/generator-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: "SWIFT", name: this.cleanAppName, server: server }} )
+
     },
 
     writePackageSwift: function () {
