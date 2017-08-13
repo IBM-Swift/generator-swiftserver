@@ -56,10 +56,10 @@ var expectedDockerFiles = ['cli-config.yml',
   'Dockerfile',
   'Dockerfile-tools']
 
-var expectedKubernetesFiles = [`helm/${appName}/Chart.yaml`,
-  `helm/${appName}/values.yaml`,
-  `helm/${appName}/templates/deployment.yaml`,
-  `helm/${appName}/templates/service.yaml`]
+var expectedKubernetesFiles = [`chart/${appName}/Chart.yaml`,
+  `chart/${appName}/values.yaml`,
+  `chart/${appName}/templates/deployment.yaml`,
+  `chart/${appName}/templates/service.yaml`]
 
 describe('swiftserver:refresh', function () {
   before('set sdkgen status check delay to 1ms', function () {
@@ -1544,16 +1544,16 @@ describe('swiftserver:refresh', function () {
     })
 
     it('adds the proper chart-path in cli-config.yml', function () {
-      assert.fileContent('cli-config.yml', 'chart-path : "helm/test"')
+      assert.fileContent('cli-config.yml', 'chart-path : "chart/test"')
     })
 
     it('populates the correct name in Chart.yaml', function () {
-      assert.fileContent('helm/test/Chart.yaml', 'name: test')
+      assert.fileContent('chart/test/Chart.yaml', 'name: test')
     })
 
     it('populates the correct values in values.yaml', function () {
-      assert.fileContent('helm/test/values.yaml', 'name: test')
-      assert.fileContent('helm/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/')
+      assert.fileContent('chart/test/values.yaml', 'name: test')
+      assert.fileContent('chart/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/')
     })
 
   })
