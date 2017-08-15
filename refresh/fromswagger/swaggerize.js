@@ -29,17 +29,18 @@ function ensureValidAsync (loadedSwagger) {
     })
 }
 
-function parseSwagger (api) {
+function parseSwagger (api, pathFormatter) {
   debug('in parseSwagger')
   // walk the api, extract the schemas from the definitions, the parameters and the responses.
   var resources = {}
   var refs = []
   var basePath = api.basePath || undefined
+  pathFormatter = pathFormatter || function (path) { return path }
 
   Object.keys(api.paths).forEach(function (path) {
     var resource = genUtils.resourceNameFromPath(path)
 
-    debug('path:', path, 'becomes resource:', resource)
+    debug('path:', path, 'becomes resource: "' + resource + '" with route: "' + pathFormatter(path) + '"')
     // for each path, walk the method verbs
     builderUtils.verbs.forEach(function (verb) {
       if (api.paths[path][verb]) {
@@ -49,7 +50,7 @@ function parseSwagger (api) {
 
         debug('parsing verb:', verb)
         // save the method and the path in the resources list.
-        resources[resource].push({method: verb, route: genUtils.convertToSwiftParameterFormat(path)})
+        resources[resource].push({method: verb, route: pathFormatter(path)})
         // process the parameters
         if (api.paths[path][verb].parameters) {
           var parameters = api.paths[path][verb].parameters
@@ -135,7 +136,7 @@ function parseSwagger (api) {
   return parsed
 }
 
-exports.parse = function (swaggerStr) {
+exports.parse = function (swaggerStr, pathFormatter) {
   debug('in parse')
   var loaded = JSON.parse(swaggerStr)
   return ensureValidAsync(loaded)
@@ -143,6 +144,6 @@ exports.parse = function (swaggerStr) {
       debug('successfully validated against schema')
       // restore the original swagger as the call to ensureValidAsync modifies the original loaded object.
       loaded = JSON.parse(swaggerStr)
-      return { loaded: loaded, parsed: parseSwagger(loaded) }
+      return { loaded: loaded, parsed: parseSwagger(loaded, pathFormatter) }
     })
 }

@@ -667,7 +667,7 @@ module.exports = Generator.extend({
     if (!this.fromSwagger) return
 
     return helpers.loadAsync(this.fromSwagger, this.fs)
-      .then(loaded => swaggerize.parse(loaded))
+      .then(loaded => swaggerize.parse(loaded, helpers.reformatPathToSwift))
       .then(response => {
         this.loadedApi = response.loaded
         this.parsedSwagger = response.parsed
@@ -704,7 +704,7 @@ module.exports = Generator.extend({
       return Promise.map(this.serverSwaggerFiles, file => {
         return helpers.loadAsync(file, this.fs)
           .then(loaded => {
-            return swaggerize.parse(loaded)
+            return swaggerize.parse(loaded, helpers.reformatPathToSwift)
               .then(response => {
                 if (response.loaded.info.title === undefined) {
                   this.env.error(chalk.red('Could not extract title from Swagger API.'))
