@@ -150,7 +150,7 @@ module.exports = Generator.extend({
       if (!this.spec.appType) {
         this.env.error(chalk.red('Property appType is missing from the specification'))
       }
-      if (['crud', 'scaffold'].indexOf(this.spec.appType) === -1) {
+      if (['crud', 'scaffold', 'blank'].indexOf(this.spec.appType) === -1) {
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
@@ -769,6 +769,7 @@ module.exports = Generator.extend({
         if (this.bluemix) {
           configToWrite = helpers.generateCloudConfig(this.spec.config, this.services)
         } else {
+          //CHristian To invesitagte turning this off
           configToWrite = helpers.generateLocalConfig(this.spec.config, this.services)
         }
         this.fs.writeJSON(filepath, configToWrite)
@@ -875,6 +876,7 @@ module.exports = Generator.extend({
           this.templatePath('common', 'README.scaffold.md'),
           this.destinationPath('README.md'),
           {
+            appType: this.appType,
             appName: this.projectName,
             executableName: this.executableModule,
             generatorVersion: this.generatorVersion,
@@ -894,7 +896,9 @@ module.exports = Generator.extend({
             pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
           }
         )
-        this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
+        if (this.appType !== 'blank') {
+          this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
+        }
       }
     },
 
