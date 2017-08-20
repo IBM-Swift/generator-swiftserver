@@ -19,7 +19,7 @@ RUN chmod -R 555 /swift-utils
 RUN if [ $bx_dev_user != "root" ]; then useradd -ms /bin/bash -u $bx_dev_userid $bx_dev_user; fi
 
 # Bundle application source & binaries
-COPY . /<%- executableName %>/
+COPY . /swift-project
 
 # Command to start Swift application
-CMD [ "sh", "-c", "cd /<%- executableName %> && .build-ubuntu/release/<%- executableName %>" ]
+CMD [ "sh", "-c", "cd /swift-project && .build-ubuntu/release/<%- executableName %>" ]
