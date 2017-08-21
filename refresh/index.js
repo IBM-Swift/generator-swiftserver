@@ -154,6 +154,7 @@ module.exports = Generator.extend({
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
+      this.repoType = this.spec.repoType || 'link'
 
       // App name
       if (this.spec.appName) {
@@ -1278,7 +1279,8 @@ module.exports = Generator.extend({
         this.fs.copyTpl(
           this.templatePath('bluemix', 'toolchain.yml'),
           filepath,
-          { appName: this.projectName }
+          { appName: this.projectName,
+            repoType: this.repoType }
         )
       })
 
