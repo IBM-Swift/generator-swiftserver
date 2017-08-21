@@ -22,7 +22,7 @@
     "generator"
   ],
   "dependencies": {
-    "@arf/generator-cloud-enablement": "0.0.25",
+    "@arf/generator-cloud-enablement": "0.0.32",
     "bluebird": "^3.5.0",
     "chalk": "^1.1.0",
     "debug": "^2.2.0",

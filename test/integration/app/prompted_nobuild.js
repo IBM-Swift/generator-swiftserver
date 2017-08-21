@@ -292,6 +292,24 @@ describe('Prompt and no build integration tests for app generator', function () 
       })
     })
 
+    describe('Kubernetes files', function () {
+      it('created helm chart file', function () {
+        assert.file('chart/notes/Chart.yaml')
+      })
+
+      it('created helm deployment file', function () {
+        assert.file('chart/notes/templates/deployment.yaml')
+      })
+
+      it('created helm service file', function () {
+        assert.file('chart/notes/templates/service.yaml')
+      })
+
+      it('created helm values file', function () {
+        assert.file('chart/notes/values.yaml')
+      })
+    })
+
     describe('Bluemix cloud deployment', function () {
       it('created CloudFoundry manifest file', function () {
         assert.file('manifest.yml')

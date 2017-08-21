@@ -1293,7 +1293,7 @@ module.exports = Generator.extend({
     writeKubernetesFiles: function () {
       if (!this.docker) return
 
-      var server = (this.bluemix.domain && this.bluemix.namespace) ? {domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined;
+      var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? {domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined;
       this.composeWith(require.resolve('@arf/generator-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: "SWIFT", name: this.cleanAppName, server: server }} )
 
     },

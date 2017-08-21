@@ -1552,8 +1552,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('populates the correct values in values.yaml', function () {
-      assert.fileContent('chart/test/values.yaml', 'name: test')
-      assert.fileContent('chart/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/')
+      assert.fileContent('chart/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/test')
     })
 
   })
