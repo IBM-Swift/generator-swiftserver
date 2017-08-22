@@ -510,6 +510,7 @@ describe('swiftserver:refresh', function () {
   })
 
   describe('Generate scaffolded app from valid swagger but no basepath', function () {
+    var sdkScope
     var runContext
 
     before(function () {
@@ -553,6 +554,10 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes(')
       assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products"')
       assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products/:id"')
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     after(function () {
