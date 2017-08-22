@@ -24,6 +24,11 @@ var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var fs = require('fs')
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+// var config = require('../../config')
+// var sdkGenCheckDelaySaved
+
 var propertyGeneratorPath = path.join(__dirname, '../../../property')
 
 describe('Prompt and no build integration tests for property generator', function () {
@@ -104,6 +109,10 @@ describe('Prompt and no build integration tests for property generator', functio
     var runContext
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      // sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      // config.sdkGenCheckDelay = 1
+
       runContext = helpers.run(propertyGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
@@ -154,6 +163,10 @@ describe('Prompt and no build integration tests for property generator', functio
     })
 
     after(function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      // config.sdkGenCheckDelay = sdkGenCheckDelaySaved
+
       runContext.cleanTestDirectory()
     })
 

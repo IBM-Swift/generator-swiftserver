@@ -27,6 +27,11 @@ var appGeneratorPath = path.join(__dirname, '../../../app')
 var testResourcesPath = path.join(__dirname, '../../../test/resources')
 var buildTimeout = 300000
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+var config = require('../../../config')
+var sdkGenCheckDelaySaved
+
 describe('Prompt and build integration tests for app generator', function () {
   describe('Basic application', function () {
     // Swift build is slow so we need to set a longer timeout for the test
@@ -100,6 +105,10 @@ describe('Prompt and build integration tests for app generator', function () {
     var runContext
     var appName = 'notes'
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 1
+
       // Swift build is slow so we need to set a longer timeout for the test
       this.timeout(buildTimeout)
       runContext = helpers.run(appGeneratorPath)
@@ -118,6 +127,12 @@ describe('Prompt and build integration tests for app generator', function () {
                             serverSwaggerInput2: false
                           })
       return runContext.toPromise()                        // Get a Promise back when the generator finishes
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     it('compiles the application', function () {
