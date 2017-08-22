@@ -150,7 +150,7 @@ module.exports = Generator.extend({
       if (!this.spec.appType) {
         this.env.error(chalk.red('Property appType is missing from the specification'))
       }
-      if (['crud', 'scaffold', 'blank'].indexOf(this.spec.appType) === -1) {
+      if (['crud', 'scaffold'].indexOf(this.spec.appType) === -1) {
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
@@ -219,6 +219,11 @@ module.exports = Generator.extend({
 
       // Swagger UI
       this.swaggerUI = (this.spec.swaggerUI === true)
+
+      // Healthcheck - defaults to true
+      console.log("Christian " + this.spec.healthcheck)
+      this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
+      console.log("Christian RES " + this.healthcheck)
 
       // Service configuration
       this.services = this.spec.services || {}
@@ -810,7 +815,8 @@ module.exports = Generator.extend({
             web: this.web,
             hostSwagger: this.hostSwagger,
             resources: resources,
-            basepath: basepath
+            basepath: basepath,
+            healthcheck: this.healthcheck
           }
         )
       })
@@ -876,7 +882,6 @@ module.exports = Generator.extend({
           this.templatePath('common', 'README.scaffold.md'),
           this.destinationPath('README.md'),
           {
-            appType: this.appType,
             appName: this.projectName,
             executableName: this.executableModule,
             generatorVersion: this.generatorVersion,
@@ -884,6 +889,7 @@ module.exports = Generator.extend({
             web: this.web,
             docker: this.docker,
             hostSwagger: this.hostSwagger,
+            healthcheck: this.healthcheck,
             exampleEndpoints: this.exampleEndpoints,
             metrics: this.capabilities.metrics,
             autoscale: this.capabilities.autoscale,
@@ -896,7 +902,7 @@ module.exports = Generator.extend({
             pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
           }
         )
-        if (this.appType !== 'blank') {
+        if (this.healthcheck) {  //CHRISTIAN fix
           this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
         }
       }
@@ -1305,7 +1311,8 @@ module.exports = Generator.extend({
             services: this.services,
             capabilities: this.capabilities,
             sdkTargets: this.sdkTargets,
-            sdkPackages: this.sdkPackages
+            sdkPackages: this.sdkPackages,
+            healthcheck: this.healthcheck
           }
         )
       })

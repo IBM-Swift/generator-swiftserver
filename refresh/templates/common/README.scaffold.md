@@ -31,7 +31,7 @@ This application has been generated with the following capabilities and services
 <% } else { -%>
 * [Configuration](#configuration)
 <% } -%>
-<% if (appType != 'blank') { -%>
+<% if (healthcheck) { -%>
 * [Health](#health)  
 <% } -%>
 <% if (web) { -%>
@@ -106,7 +106,7 @@ The specification of this interface is made available through an embedded Swagge
 The Swagger UI will document the paths and http methods that are supported by the application.
 <%   } -%>
 <% } -%>
-<% if (appType != 'blank') { -%>
+<% if (healthcheck) { -%>
 #### Health
 This application includes a built in `/health` endpoint, which provides the status of your application, as defined by the [Health application library](https://github.com/IBM-Swift/Health).
 <% } -%>

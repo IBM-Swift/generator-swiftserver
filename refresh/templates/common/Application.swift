@@ -2,7 +2,7 @@ import Foundation
 import Kitura
 import LoggerAPI
 import Configuration
-<% if (appType != 'blank') { -%>
+<% if (healthcheck) { -%>
 import Health
 <% } -%>
 <% if (appType === 'crud') { -%>
@@ -77,7 +77,7 @@ public func initialize() throws {
 <% if (hostSwagger) { -%>
     initializeSwaggerRoute(path: ConfigurationManager.BasePath.project.path + "/definitions/<%- appName %>.yaml")
 <% } -%>
-<% if (appType !== 'blank') { -%>
+<% if (healthcheck) { -%>
     let health = Health()
 
     router.get("/health") { request, response, _ in

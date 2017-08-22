@@ -233,7 +233,8 @@ describe('swiftserver:refresh', function () {
 
     before(function () {
       var spec = {
-        appType: 'blank',
+        appType: 'scaffold',
+        healthcheck: false,
         appName: appName,
         config: {}
       }
