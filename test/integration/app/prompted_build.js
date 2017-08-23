@@ -107,7 +107,7 @@ describe('Prompt and build integration tests for app generator', function () {
     before(function () {
       // alter delay between status checks to speed up unit tests
       sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 1
+      config.sdkGenCheckDelay = 10000
 
       // Swift build is slow so we need to set a longer timeout for the test
       this.timeout(buildTimeout)
