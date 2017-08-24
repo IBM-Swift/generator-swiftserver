@@ -1227,8 +1227,10 @@ module.exports = Generator.extend({
                      filepath)
       })
       this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile'),
-                     filepath)
+        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
+                     filepath,
+                     { executableName: this.executableModule }
+        )
       })
       this._ifNotExistsInProject('cli-config.yml', (filepath) => {
         this.fs.copyTpl(
