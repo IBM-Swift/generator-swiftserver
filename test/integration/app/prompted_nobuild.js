@@ -224,6 +224,7 @@ describe('Prompt and no build integration tests for app generator', function () 
   describe('BFF application', function () {
     this.timeout(extendedTimeout) // NOTE: prevent failures on Travis macOS
     var runContext
+    var appName = 'notes'
 
     before(function () {
       // alter delay between status checks to speed up unit tests
@@ -234,7 +235,7 @@ describe('Prompt and no build integration tests for app generator', function () 
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
-                            name: 'notes',
+                            name: appName,
                             dir: 'notes',
                             appPattern: 'Backend for frontend',
                             endpoints: 'Endpoints from swagger file',
@@ -304,6 +305,10 @@ describe('Prompt and no build integration tests for app generator', function () 
 
       it('created run docker file', function () {
         assert.file('Dockerfile')
+      })
+
+      it('should have the executableName property set in Dockerfile', () => {
+        assert.fileContent('Dockerfile', `CMD [ "sh", "-c", "cd /swift-project && .build-ubuntu/release/${appName}" ]`)
       })
     })
 
