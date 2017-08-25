@@ -1294,7 +1294,7 @@ module.exports = Generator.extend({
       if (!this.docker) return
 
       var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? {domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined;
-      this.composeWith(require.resolve('@arf/generator-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: "SWIFT", name: this.cleanAppName, server: server }} )
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: "SWIFT", name: this.cleanAppName, server: server }} )
 
     },
 
