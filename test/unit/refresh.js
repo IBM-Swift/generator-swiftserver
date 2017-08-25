@@ -520,9 +520,23 @@ describe('swiftserver:refresh', function () {
   })
 
   describe('Generate scaffolded app from valid swagger but no basepath', function () {
+    var sdkScope
     var runContext
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
       // Mock the options, set up an output folder and run the generator
       var spec = {
         appType: 'scaffold',
@@ -552,7 +566,12 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products/:id"')
     })
 
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
     })
   })

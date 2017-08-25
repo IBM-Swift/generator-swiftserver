@@ -27,6 +27,11 @@ var appGeneratorPath = path.join(__dirname, '../../../app')
 var testResourcesPath = path.join(__dirname, '../../../test/resources')
 var extendedTimeout = 300000
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+var config = require('../../../config')
+var sdkGenCheckDelaySaved
+
 describe('Prompt and no build integration tests for app generator', function () {
   describe('Basic application', function () {
     this.timeout(10000) // Allow first test to be slow
@@ -219,19 +224,30 @@ describe('Prompt and no build integration tests for app generator', function () 
   describe('BFF application', function () {
     this.timeout(extendedTimeout) // NOTE: prevent failures on Travis macOS
     var runContext
+    var appName = 'notes'
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 10000
+
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
                             appType: 'Scaffold a starter',
-                            name: 'notes',
+                            name: appName,
                             dir: 'notes',
                             appPattern: 'Backend for frontend',
                             endpoints: 'Endpoints from swagger file',
                             swaggerChoice: 'Example swagger file'
                           })
       return runContext.toPromise()
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     describe('Static web file serving', function () {
@@ -290,6 +306,10 @@ describe('Prompt and no build integration tests for app generator', function () 
       it('created run docker file', function () {
         assert.file('Dockerfile')
       })
+
+      it('should have the executableName property set in Dockerfile', () => {
+        assert.fileContent('Dockerfile', `CMD [ "sh", "-c", "cd /swift-project && .build-ubuntu/release/${appName}" ]`)
+      })
     })
 
     describe('Kubernetes files', function () {
@@ -334,6 +354,10 @@ describe('Prompt and no build integration tests for app generator', function () 
     var runContext
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 10000
+
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
@@ -347,6 +371,12 @@ describe('Prompt and no build integration tests for app generator', function () 
                           })
 
       return runContext.toPromise()
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     describe('Example endpoints', function () {
@@ -363,6 +393,10 @@ describe('Prompt and no build integration tests for app generator', function () 
     var appName = 'notes'
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 10000
+
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({ 'skip-build': true })
                           .withPrompts({
@@ -381,6 +415,12 @@ describe('Prompt and no build integration tests for app generator', function () 
                           })
 
       return runContext.toPromise()
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     it('created a iOS SDK zip file', function () {
