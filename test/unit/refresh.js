@@ -1578,7 +1578,6 @@ describe('swiftserver:refresh', function () {
   describe('Generate skeleton web application for bluemix with incorrect custom options', function () {
     var runContext
 
-
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
       var spec = {
