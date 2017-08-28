@@ -1573,13 +1573,11 @@ describe('swiftserver:refresh', function () {
     it('populates the correct values in values.yaml', function () {
       assert.fileContent('chart/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/test')
     })
-
   })
 
   describe('Generate skeleton web application for bluemix with incorrect custom options', function () {
     var runContext
 
-    //CHRISTIAN ToDo: Add testcases for cloud-enablement with these incorrect options
 
     before(function () {
         // Set up the spec file which should create all the necessary files for a server
