@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.8.0"></a>
+# [2.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.7.0...2.8.0) (2017-08-29)
+
+
+### Bug Fixes
+
+* default toolchain type clone ([e0bb80d](https://github.com/IBM-Swift/generator-swiftserver/commit/e0bb80d))
+* override default toolchain type ([4f8b681](https://github.com/IBM-Swift/generator-swiftserver/commit/4f8b681))
+
+
+### Features
+
+* decouple path reformatting from swaggerize ([349cec4](https://github.com/IBM-Swift/generator-swiftserver/commit/349cec4))
+* improve swagger basepath handling ([#269](https://github.com/IBM-Swift/generator-swiftserver/issues/269)) ([810ba5e](https://github.com/IBM-Swift/generator-swiftserver/commit/810ba5e))
+* intial kubernetes support ([8df16e6](https://github.com/IBM-Swift/generator-swiftserver/commit/8df16e6))
+* intial kubernetes support ([b6a259c](https://github.com/IBM-Swift/generator-swiftserver/commit/b6a259c))
+* kubernetes helm support ([d1ab81a](https://github.com/IBM-Swift/generator-swiftserver/commit/d1ab81a))
+* kubernetes helm support ([692ed5f](https://github.com/IBM-Swift/generator-swiftserver/commit/692ed5f))
+* kubernetes support ([25341ea](https://github.com/IBM-Swift/generator-swiftserver/commit/25341ea))
+* kubernetes support ([4227a7a](https://github.com/IBM-Swift/generator-swiftserver/commit/4227a7a))
+* kubernetes support ([d1b7b49](https://github.com/IBM-Swift/generator-swiftserver/commit/d1b7b49))
+* kubernetes support ([694a263](https://github.com/IBM-Swift/generator-swiftserver/commit/694a263))
+
+
+
 <a name="2.7.0"></a>
 # [2.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.6.0...2.7.0) (2017-07-24)
 
