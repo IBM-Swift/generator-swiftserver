@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.8.0"></a>
+# [2.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.7.0...2.8.0) (2017-08-29)
+
+
+### Bug Fixes
+
+* default toolchain type clone ([e0bb80d](https://github.com/IBM-Swift/generator-swiftserver/commit/e0bb80d))
+* override default toolchain type ([4f8b681](https://github.com/IBM-Swift/generator-swiftserver/commit/4f8b681))
+
+
+### Features
+
+* decouple path reformatting from swaggerize ([349cec4](https://github.com/IBM-Swift/generator-swiftserver/commit/349cec4))
+* improve swagger basepath handling ([#269](https://github.com/IBM-Swift/generator-swiftserver/issues/269)) ([810ba5e](https://github.com/IBM-Swift/generator-swiftserver/commit/810ba5e))
+
+
+
 <a name="2.7.0"></a>
 # [2.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.6.0...2.7.0) (2017-07-24)
 

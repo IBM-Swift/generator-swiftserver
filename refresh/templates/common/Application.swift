@@ -24,6 +24,9 @@ import CloudFoundryConfig
 public let router = Router()
 public let manager = ConfigurationManager()
 public var port: Int = 8080
+<% if (basepath) { -%>
+public var basePath = "<%- basepath %>"
+<% } -%>
 
 <% if (Object.keys(services).length > 0) { -%>
 <%   Object.keys(services).forEach(function(serviceType) { -%>

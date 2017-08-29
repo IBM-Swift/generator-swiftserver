@@ -404,7 +404,7 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedSourceFiles)
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(')
-      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
     })
   })
 
@@ -500,7 +500,64 @@ describe('swiftserver:refresh', function () {
       assert.file(expectedSourceFiles)
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(')
-      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("/basepath/persons"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+  })
+
+  describe('Generate scaffolded app from valid swagger but no basepath', function () {
+    var sdkScope
+    var runContext
+
+    before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
+      // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        fromSwagger: path.join(__dirname, '../resources/productSwagger.yaml'),
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    it('generates the swift files', function () {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/ProductsRoutes.swift`,
+        `Sources/${executableModule}/main.swift`
+      ]
+      assert.file(expectedSourceFiles)
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes(')
+      assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products"')
+      assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products/:id"')
+    })
+
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
     })
 
     after(function () {
