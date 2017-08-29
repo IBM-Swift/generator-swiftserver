@@ -164,10 +164,8 @@ module.exports = Generator.extend({
       }
 
       // Bluemix configuration
-      if (this.spec.bluemix === true) {
-        this.bluemix = {}
-      } else if (typeof (this.spec.bluemix) === 'object') {
-        this.bluemix = {}
+      this.bluemix = {}
+      if (typeof (this.spec.bluemix) === 'object') {
         if (typeof (this.spec.bluemix.name) === 'string') {
           this.bluemix.name = this.spec.bluemix.name
         }
@@ -202,6 +200,9 @@ module.exports = Generator.extend({
 
       // Example endpoints
       this.exampleEndpoints = (this.spec.exampleEndpoints === true)
+
+      // Health endpoint
+      this.healthCheck = true // FIXME: Expose this option
 
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
@@ -239,23 +240,13 @@ module.exports = Generator.extend({
         }.bind(this))
       }.bind(this))
 
-      // Capability configuration
-      this.capabilities = this.spec.capabilities || {}
-
       // Metrics
-      this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
-
-      // Autoscaling
-      if (this.capabilities.autoscale === true) {
-        this.capabilities.autoscale = `${this.projectName}ScalingService`
-      } else if (typeof (this.capabilities.autoscale) !== 'string') {
-        this.capabilities.autoscale = undefined
-      }
+      this.metrics = (this.spec.metrics === true || undefined)
 
       // Autoscaling implies monitoring and Bluemix
-      if (this.capabilities.autoscale) {
+      if (this.services.autoscaling && this.services.autoscaling.length > 0) {
         this.bluemix = true
-        this.capabilities.metrics = true
+        this.metrics = true
       }
 
       // SwaggerUI imples web and hostSwagger
@@ -279,11 +270,28 @@ module.exports = Generator.extend({
       // Target dependencies to add to the applicationModule
       this.sdkTargets = []
 
-      // Package dependencies to add the Package.swift file
-      this.sdkPackages = ''
-
       // Files or folders to be ignored in a git repo
       this.itemsToIgnore = []
+
+      // Package dependencies to add to Package.swift
+      // eg this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 7),')
+      this.dependencies = []
+
+      // Initialization code to add to Application.swift by code block
+      // eg this.appInitCode.services.push('try initializeServiceCloudant()')
+      this.appInitCode = {
+        capabilities: [],
+        services: [],
+        middlewares: [],
+        endpoints: []
+      }
+
+      if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
+      if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+      if (this.metrics) {
+        this.appInitCode.capabilities.push('initializeMetrics()')
+        this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
+      }
     },
 
     setDestinationRootFromSpec: function () {
@@ -360,6 +368,60 @@ module.exports = Generator.extend({
       // TODO(tunniclm): Improve how we set these values
       this.projectVersion = '1.0.0'
     }
+  },
+
+  configuring: function () {
+    var bluemixOption = {
+      backendPlatform: 'SWIFT',
+      name: this.projectName, // TODO: check this is the right name
+      server: {
+        name: this.projectName // TODO: check this is the right name
+      }
+    }
+    // NOTE(tunniclm): Set the domain based on the push notification
+    // region to expose it to the service enablement subgenerator
+    if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
+      var push = this.services.pushnotifications[0]
+      switch (push.region) {
+        case 'UK': bluemixOption.server.domain = 'eu-gb.bluemix.net'; break
+        case 'SYDNEY': bluemixOption.server.domain = 'au-syd.bluemix.net'; break
+        case 'US_SOUTH': bluemixOption.server.domain = 'ng.bluemix.net'; break
+        // default: don't alter domain
+      }
+    }
+    // NOTE(tunniclm): Convert our format for specifying services
+    // into the one used by generator-ibm-service-enablement
+    var serviceMapping = {
+      'appid': 'auth',
+      'objectstorage': 'objectStorage',
+      'cloudant': 'cloudant',
+      'watsonconversation': 'conversation',
+      'redis': 'redis',
+      'alertnotification': 'alertnotification',
+      'pushnotifications': 'push',
+      'autoscaling': 'autoscaling'
+    }
+    Object.keys(serviceMapping).forEach(serviceType => {
+      var servicesOfType = this.services[serviceType]
+      if (servicesOfType && servicesOfType.length > 0) {
+        bluemixOption[serviceMapping[serviceType]] = servicesOfType[0].credentials || {}
+        bluemixOption[serviceMapping[serviceType]].serviceInfo = {
+          name: servicesOfType[0].name
+        }
+      }
+    })
+    this.composeWith(require.resolve('generator-ibm-service-enablement'), {
+      bluemix: JSON.stringify(bluemixOption),
+      parentContext: {
+        injectIntoApplication: options => {
+          if (options.capability) this.appInitCode.capabilities.push(options.capability)
+          if (options.service) this.appInitCode.services.push(options.service)
+          if (options.endpoint) this.appInitCode.endpoints.push(options.endpoint)
+          if (options.middleware) this.appInitCode.middlewares.push(options.middleware)
+        },
+        injectDependency: dependency => { this.dependencies.push(dependency) }
+      }
+    })
   },
 
   buildProduct: function () {
@@ -682,6 +744,20 @@ module.exports = Generator.extend({
       })
   },
 
+  addEndpointInitCode: function () {
+    var endpointNames = []
+    if (this.parsedSwagger && this.parsedSwagger.resources) {
+      var resourceNames = Object.keys(this.parsedSwagger.resources)
+      endpointNames = endpointNames.concat(resourceNames)
+    }
+    if (this.healthCheck) endpointNames.push('Health')
+
+    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
+    this.appInitCode.endpoints = this.appInitCode.endpoints.concat(initCodeForEndpoints)
+
+    if (this.hostSwagger) this.appInitCode.endpoints.push(`initializeSwaggerRoutes(path: projectPath + "/definitions/${this.projectName}.yaml")`)
+  },
+
   generateSDKs: function () {
     var shouldGenerateClientWithModel = (!!this.swagger && JSON.stringify(this.swagger['paths']) !== '{}')
     var shouldGenerateClient = (!!this.fromSwagger)
@@ -705,6 +781,7 @@ module.exports = Generator.extend({
     }
 
     function generateServerAsync () {
+      var sdkPackages = []
       return Promise.map(this.serverSwaggerFiles, file => {
         return helpers.loadAsync(file, this.fs)
           .then(loaded => {
@@ -723,7 +800,7 @@ module.exports = Generator.extend({
                       // Since all of the projects generated by the SDK generation
                       // service will have the same pacakge dependencies, it is ok
                       // (for now) to overwrite with the latest set.
-                      this.sdkPackages = sdk.packages
+                      sdkPackages = sdk.packages
                     }
                     // Copy SDK's Sources directory into the project's
                     // Sources directory
@@ -734,6 +811,9 @@ module.exports = Generator.extend({
                     rimraf.sync(sdk.tempDir)
                   })
               })
+          })
+          .then(() => {
+            sdkPackages.forEach(pkg => this.dependencies.push(pkg))
           })
           .catch(err => {
             err.message = chalk.red(this.fromSwagger + ' ' + err.message)
@@ -767,17 +847,6 @@ module.exports = Generator.extend({
         )
       })
 
-      // Check if there is a config.json, create one if there isn't
-      this._ifNotExistsInProject('config.json', (filepath) => {
-        var configToWrite
-        if (this.bluemix) {
-          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services)
-        } else {
-          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services)
-        }
-        this.fs.writeJSON(filepath, configToWrite)
-      })
-
       this._ifNotExistsInProject('.swift-version', (filepath) => {
         this.fs.copy(this.templatePath('common', 'swift-version'),
                      filepath)
@@ -789,31 +858,22 @@ module.exports = Generator.extend({
                             filepath)
       })
 
+      this._ifNotExistsInProject(['Sources', this.applicationModule, 'InitializationError.swift'], (filepath) => {
+        this.fs.copy(this.templatePath('common', 'InitializationError.swift'),
+                     filepath)
+      })
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-        var basepath
-        var resources
-        if (this.parsedSwagger) {
-          if (this.parsedSwagger.basepath) {
-            basepath = this.parsedSwagger.basepath
-          }
-          if (this.parsedSwagger.resources) {
-            resources = Object.keys(this.parsedSwagger.resources)
-          }
-        }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
           filepath,
           {
             appType: this.appType,
-            appName: this.projectName,
             generatedModule: this.generatedModule,
-            services: this.services,
             bluemix: this.bluemix,
-            capabilities: this.capabilities,
+            appInitCode: this.appInitCode,
             web: this.web,
-            hostSwagger: this.hostSwagger,
-            resources: resources,
-            basepath: basepath
+            healthCheck: this.healthCheck,
+            basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
         )
       })
@@ -849,11 +909,29 @@ module.exports = Generator.extend({
           )
       })
 
+      if (this.metrics) {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Metrics.swift'], (filepath) => {
+          this.fs.copy(
+            this.templatePath('common', 'Metrics.swift'),
+            filepath
+          )
+        })
+      }
+
+      if (this.healthCheck) {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'HealthRoutes.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'HealthRoutes.swift'),
+            filepath
+          )
+        })
+      }
+
       if (this.hostSwagger) {
         this.fs.write(this.destinationPath('definitions', '.keep'), '')
-        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoutes.swift'], (filepath) => {
           this.fs.copyTpl(
-            this.templatePath('common', 'SwaggerRoute.swift'),
+            this.templatePath('common', 'SwaggerRoutes.swift'),
             filepath
           )
         })
@@ -887,8 +965,8 @@ module.exports = Generator.extend({
             docker: this.docker,
             hostSwagger: this.hostSwagger,
             exampleEndpoints: this.exampleEndpoints,
-            metrics: this.capabilities.metrics,
-            autoscale: this.capabilities.autoscale,
+            metrics: this.metrics,
+            autoscaling: this.services.autoscaling && this.services.autoscaling.length > 0,
             cloudant: this.services.cloudant && this.services.cloudant.length > 0,
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
@@ -1102,6 +1180,7 @@ module.exports = Generator.extend({
       }.bind(this))
     },
 
+    /*
     createExtensionFiles: function () {
       if (!this.bluemix) {
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift'], (filepath) => {
@@ -1190,6 +1269,7 @@ module.exports = Generator.extend({
         }
       }.bind(this))
     },
+    */
 
     writeMainSwift: function () {
       // Adding the main.swift file by searching for it in the folders
@@ -1261,7 +1341,6 @@ module.exports = Generator.extend({
           { cleanAppName: this.cleanAppName,
             executableName: this.executableModule,
             services: this.services,
-            capabilities: this.capabilities,
             hostSwagger: this.hostSwagger,
             bluemix: this.bluemix
           }
@@ -1274,7 +1353,6 @@ module.exports = Generator.extend({
           filepath,
           { appName: this.projectName,
             services: this.services,
-            capabilities: this.capabilities,
             helpers: helpers }
         )
       })
@@ -1312,11 +1390,8 @@ module.exports = Generator.extend({
             executableModule: this.executableModule,
             generatedModule: this.generatedModule,
             applicationModule: this.applicationModule,
-            bluemix: this.bluemix,
-            services: this.services,
-            capabilities: this.capabilities,
             sdkTargets: this.sdkTargets,
-            sdkPackages: this.sdkPackages
+            dependencies: this.dependencies
           }
         )
       })

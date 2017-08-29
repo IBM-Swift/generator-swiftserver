@@ -69,7 +69,7 @@ This application has been generated with the following capabilities and services
 <%   if (pushnotifications) { -%>
 * [Push Notifications](#push-notifications)
 <%   } -%>
-<%   if (autoscale) { -%>
+<%   if (autoscaling) { -%>
 * [Auto-scaling](#auto-scaling)
 <%   } -%>
 <% } else { -%>
@@ -207,7 +207,7 @@ Boilerplate code for creating a client object for the Push Notifications API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Push Notifications client in the boilerplate code.
 <%   } -%>
-<%   if (autoscale) { -%>
+<%   if (autoscaling) { -%>
 #### Auto-scaling
 This application uses the [SwiftMetrics package](https://github.com/RuntimeTools/SwiftMetrics) for connecting to the Bluemix Auto-scaling service. You can use this to automatically manage your application capacity when deployed to Bluemix.  You will need to define the Auto-Scaling policy (https://console.ng.bluemix.net/docs/services/Auto-Scaling/index.html) to define the rules used to scale the application.
 

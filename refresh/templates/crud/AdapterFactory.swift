@@ -1,58 +1,34 @@
 import Foundation
 import Configuration
-<% if(bluemix) {-%>
-import CloudFoundryConfig
-<% } -%>
+import CloudEnvironment
 <% if (crudService.type === 'cloudant') { -%>
 import CouchDB
 <% } -%>
 
 public class AdapterFactory {
-    let manager: ConfigurationManager
+    let cloudEnv: CloudEnv
 
-    init(manager: ConfigurationManager) {
-        self.manager = manager
+    init(cloudEnv: CloudEnv) {
+        self.cloudEnv = cloudEnv
     }
 
 <% models.forEach(function(model) { -%>
     public func get<%- model.classname %>Adapter() throws -> <%- model.classname %>Adapter {
 <% if (crudService.type === 'cloudant') { -%>
-<% if (bluemix) { -%>
-      let service = try manager.getCloudantService(name: "<%- crudService.service.name %>")
+      guard let credentials = cloudEnv.getCloudantCredentials(name: "cloudant") else {
+          throw AdapterError.unavailable("Failed to get cloudant credentials")
+      }
       return <%- model.classname %>CloudantAdapter(ConnectionProperties(
-          host:     service.host,
-          port:     Int16(service.port),
-          secured:  service.secured,
-          username: service.username,
-          password: service.password
+          host:     credentials.host,
+          port:     Int16(credentials.port),
+          secured:  credentials.secured,
+          username: credentials.username,
+          password: credentials.password
       ))
-<% } else { -%>
-      // TODO fix optionals here
-      // TODO checking on values
-      let service = try getCloudantConfig(name: "<%- crudService.service.name %>")
-      return <%- model.classname %>CloudantAdapter(ConnectionProperties(
-          host:     service["host"] as? String ?? "localhost",
-          port:     service["port"] as? Int16 ?? 5984,
-          secured:  service["secured"] as? Bool ?? false,
-          username: service["username"] as? String ?? nil,
-          password: service["password"] as? String ?? nil
-      ))
-<% } -%>
 <% } -%>
 <% if (crudService.type === '__memory__') { -%>
       return <%- model.classname %>MemoryAdapter()
 <% } -%>
     }
 <% }); -%>
-
-<% if (crudService.type === 'cloudant' && !bluemix) { -%>
-    struct ConfigError: Error {}
-    func getCloudantConfig(name: String) throws -> [String: Any] {
-      let cloudantServices = manager["services:cloudant"] as? [[String:Any]] ?? []
-      guard let result = cloudantServices.first(where: { $0["name"] as? String == name }) else {
-        throw ConfigError()
-      }
-      return result
-    }
-<% } -%>
 }
