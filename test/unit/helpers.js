@@ -609,4 +609,10 @@ describe('helpers', function () {
         })
     })
   })
+
+  describe('swagger path formatter', function () {
+    it('convert swagger path parameters to swift format', function () {
+      assert(helpers.reformatPathToSwift('/helper/ff/test/{p1}/{p2}') === '/helper/ff/test/:p1/:p2')
+    })
+  })
 })
