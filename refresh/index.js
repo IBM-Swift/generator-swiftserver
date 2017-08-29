@@ -154,6 +154,7 @@ module.exports = Generator.extend({
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
+      this.repoType = this.spec.repoType || 'link'
 
       // App name
       if (this.spec.appName) {
@@ -184,6 +185,9 @@ module.exports = Generator.extend({
         }
         if (typeof (this.spec.bluemix.instances) === 'number') {
           this.bluemix.instances = this.spec.bluemix.instances
+        }
+        if (typeof (this.spec.bluemix.namespace) === 'string') {
+          this.bluemix.namespace = this.spec.bluemix.namespace
         }
       }
 
@@ -667,7 +671,7 @@ module.exports = Generator.extend({
     if (!this.fromSwagger) return
 
     return helpers.loadAsync(this.fromSwagger, this.fs)
-      .then(loaded => swaggerize.parse(loaded))
+      .then(loaded => swaggerize.parse(loaded, helpers.reformatPathToSwift))
       .then(response => {
         this.loadedApi = response.loaded
         this.parsedSwagger = response.parsed
@@ -704,7 +708,7 @@ module.exports = Generator.extend({
       return Promise.map(this.serverSwaggerFiles, file => {
         return helpers.loadAsync(file, this.fs)
           .then(loaded => {
-            return swaggerize.parse(loaded)
+            return swaggerize.parse(loaded, helpers.reformatPathToSwift)
               .then(response => {
                 if (response.loaded.info.title === undefined) {
                   this.env.error(chalk.red('Could not extract title from Swagger API.'))
@@ -1226,8 +1230,10 @@ module.exports = Generator.extend({
                      filepath)
       })
       this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile'),
-                     filepath)
+        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
+                     filepath,
+                     { executableName: this.executableModule }
+        )
       })
       this._ifNotExistsInProject('cli-config.yml', (filepath) => {
         this.fs.copyTpl(
@@ -1257,7 +1263,8 @@ module.exports = Generator.extend({
             services: this.services,
             capabilities: this.capabilities,
             hostSwagger: this.hostSwagger,
-            bluemix: this.bluemix }
+            bluemix: this.bluemix
+          }
         )
       })
 
@@ -1276,7 +1283,8 @@ module.exports = Generator.extend({
         this.fs.copyTpl(
           this.templatePath('bluemix', 'toolchain.yml'),
           filepath,
-          { appName: this.projectName }
+          { appName: this.projectName,
+            repoType: this.repoType }
         )
       })
 
@@ -1284,6 +1292,13 @@ module.exports = Generator.extend({
         this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
                      filepath)
       })
+    },
+
+    writeKubernetesFiles: function () {
+      if (!this.docker) return
+
+      var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }})
     },
 
     writePackageSwift: function () {
