@@ -22,7 +22,7 @@
     "generator"
   ],
   "dependencies": {
-    "generator-ibm-cloud-enablement": "0.0.54",
+    "generator-ibm-cloud-enablement": "0.0.57",
     "bluebird": "^3.5.0",
     "chalk": "^1.1.0",
     "debug": "^2.2.0",
