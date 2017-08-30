@@ -154,6 +154,7 @@ module.exports = Generator.extend({
         this.env.error(chalk.red(`Property appType is invalid: ${this.spec.appType}`))
       }
       this.appType = this.spec.appType
+      this.repoType = this.spec.repoType || 'link'
 
       // App name
       if (this.spec.appName) {
@@ -786,9 +787,15 @@ module.exports = Generator.extend({
       })
 
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
+        var basepath
         var resources
-        if (this.parsedSwagger && this.parsedSwagger.resources) {
-          resources = Object.keys(this.parsedSwagger.resources)
+        if (this.parsedSwagger) {
+          if (this.parsedSwagger.basepath) {
+            basepath = this.parsedSwagger.basepath
+          }
+          if (this.parsedSwagger.resources) {
+            resources = Object.keys(this.parsedSwagger.resources)
+          }
         }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
@@ -802,7 +809,8 @@ module.exports = Generator.extend({
             capabilities: this.capabilities,
             web: this.web,
             hostSwagger: this.hostSwagger,
-            resources: resources
+            resources: resources,
+            basepath: basepath
           }
         )
       })
@@ -1219,8 +1227,10 @@ module.exports = Generator.extend({
                      filepath)
       })
       this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile'),
-                     filepath)
+        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
+                     filepath,
+                     { executableName: this.executableModule }
+        )
       })
       this._ifNotExistsInProject('cli-config.yml', (filepath) => {
         this.fs.copyTpl(
@@ -1269,7 +1279,8 @@ module.exports = Generator.extend({
         this.fs.copyTpl(
           this.templatePath('bluemix', 'toolchain.yml'),
           filepath,
-          { appName: this.projectName }
+          { appName: this.projectName,
+            repoType: this.repoType }
         )
       })
 
