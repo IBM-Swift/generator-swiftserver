@@ -21,13 +21,6 @@ function baseName (thepath) {
   return path.basename(thepath).split('.')[0]
 }
 
-function convertToSwiftParameterFormat (thepath) {
-  // take a swagger path and convert the parameters to swift format.
-  // i.e. convert "/path/to/{param1}/{param2}" to "/path/to/:param1/:param2"
-  var newPath = thepath.replace(/{/g, ':')
-  return newPath.replace(/}/g, '')
-}
-
 function resourceNameFromPath (thepath) {
   // grab the first valid element of a path (or partial path) and return it capitalized.
   var resource = thepath.match(/^\/*([^/]+)/)[1]
@@ -39,6 +32,5 @@ function getRefName (ref) {
 }
 
 module.exports = {baseName,
-  convertToSwiftParameterFormat,
   resourceNameFromPath,
   getRefName}

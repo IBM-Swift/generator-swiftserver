@@ -24,10 +24,6 @@ describe('swagger generator', function () {
       assert(utils.baseName('/hh/ff/test.txt') === 'test')
     })
 
-    it('can convert Swagger parameters to swift format', function () {
-      assert(utils.convertToSwiftParameterFormat('/helper/ff/test{p1} {p2}') === '/helper/ff/test:p1 :p2')
-    })
-
     it('can extract the resource name from a path', function () {
       assert(utils.resourceNameFromPath('/helper/ff/test{p1} {p2}') === 'Helper')
     })
