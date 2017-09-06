@@ -26,6 +26,11 @@ var helpers = require('yeoman-test')
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var buildGeneratorPath = path.join(__dirname, '../../../build')
 
+// Require config to alter sdkgen delay between
+// status checks to speed up unit tests
+var config = require('../../../config')
+var sdkGenCheckDelaySaved
+
 describe('Spec option and build integration tests for app generator', function () {
   describe('A CRUD application with a cloudant service is able to build', function () {
     // Swift build is slow so we need to set a longer timeout for the test
@@ -66,6 +71,10 @@ describe('Spec option and build integration tests for app generator', function (
     }
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 10000
+
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
@@ -77,6 +86,12 @@ describe('Spec option and build integration tests for app generator', function (
                                         .cd(dir + '/swiftserver')
                                         .toPromise()
                         })
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     it('compiles the application', function () {
@@ -122,6 +137,10 @@ describe('Spec option and build integration tests for app generator', function (
     }
 
     before(function () {
+      // alter delay between status checks to speed up unit tests
+      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
+      config.sdkGenCheckDelay = 10000
+
       runContext = helpers.run(appGeneratorPath)
                           .withOptions({
                             spec: JSON.stringify(spec)
@@ -133,6 +152,12 @@ describe('Spec option and build integration tests for app generator', function (
                                        .cd(dir + '/swiftserver')
                                        .toPromise()
                        })
+    })
+
+    after('restore sdkgen status check delay', function () {
+      // restore delay between status checks so integration tests
+      // remain resilient
+      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
     })
 
     it('compiles the application', function () {

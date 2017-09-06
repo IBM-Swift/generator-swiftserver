@@ -51,6 +51,16 @@ var expectedBluemixFiles = ['manifest.yml',
   '.bluemix/toolchain.yml',
   '.bluemix/deploy.json']
 
+var expectedDockerFiles = ['cli-config.yml',
+  '.dockerignore',
+  'Dockerfile',
+  'Dockerfile-tools']
+
+var expectedKubernetesFiles = [`chart/${appName}/Chart.yaml`,
+  `chart/${appName}/values.yaml`,
+  `chart/${appName}/templates/deployment.yaml`,
+  `chart/${appName}/templates/service.yaml`]
+
 describe('swiftserver:refresh', function () {
   before('set sdkgen status check delay to 1ms', function () {
     // alter delay between status checks to speed up unit tests
@@ -538,9 +548,23 @@ describe('swiftserver:refresh', function () {
   })
 
   describe('Generate scaffolded app from valid swagger but no basepath', function () {
+    var sdkScope
     var runContext
 
     before(function () {
+      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
+        .filteringRequestBody(/.*/, '*')
+        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
+        .reply(200, { job: { id: 'myid' } })
+        .get('/sdkgen/api/generator/myid/status')
+        .reply(200, { status: 'FINISHED' })
+        .get('/sdkgen/api/generator/myid')
+        .replyWithFile(
+          200,
+          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
+          { 'Content-Type': 'application/zip' }
+        )
+
       // Mock the options, set up an output folder and run the generator
       var spec = {
         appType: 'scaffold',
@@ -570,7 +594,12 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Routes/ProductsRoutes.swift`, 'router.get("/products/:id"')
     })
 
+    it('requested iOS SDK over http', function () {
+      assert(sdkScope.isDone())
+    })
+
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
     })
   })
@@ -967,6 +996,14 @@ describe('swiftserver:refresh', function () {
       assert.noFile(expectedBluemixFiles)
     })
 
+    it('does not generate the docker files', function () {
+      assert.noFile(expectedDockerFiles)
+    })
+
+    it('does not generate the kubernetes files', function () {
+      assert.noFile(expectedKubernetesFiles)
+    })
+
     it('does not generate any capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
@@ -1104,6 +1141,7 @@ describe('swiftserver:refresh', function () {
           logger: 'helium',
           port: 4567
         },
+        docker: true,
         'models': [
           {
             'name': modelName,
@@ -1155,6 +1193,14 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles)
+    })
+
+    it('generates the docker files', function () {
+      assert.file(expectedDockerFiles)
+    })
+
+    it('generates the expected kubernetes files', function () {
+      assert.file(expectedKubernetesFiles)
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
@@ -1480,12 +1526,14 @@ describe('swiftserver:refresh', function () {
         bluemix: {
           'name': 'test',
           'host': 'myhost',
-          'domain': 'mydomain.net'
+          'domain': 'mydomain.net',
+          'namespace': 'mynamespace'
         },
         config: {
           logger: 'helium',
           port: 4567
-        }
+        },
+        docker: true
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
@@ -1540,6 +1588,18 @@ describe('swiftserver:refresh', function () {
 
     it('produces the correct disk quota in the manifest', function () {
       assert.fileContent('manifest.yml', 'disk_quota: 1024M')
+    })
+
+    it('adds the proper chart-path in cli-config.yml', function () {
+      assert.fileContent('cli-config.yml', 'chart-path : "chart/test"')
+    })
+
+    it('populates the correct name in Chart.yaml', function () {
+      assert.fileContent('chart/test/Chart.yaml', 'name: test')
+    })
+
+    it('populates the correct values in values.yaml', function () {
+      assert.fileContent('chart/test/values.yaml', 'repository: registry.mydomain.net/mynamespace/test')
     })
   })
 
@@ -1628,6 +1688,14 @@ describe('swiftserver:refresh', function () {
 
     it('does not generate the bluemix files', function () {
       assert.noFile(expectedBluemixFiles)
+    })
+
+    it('does not generate the docker files', function () {
+      assert.noFile(expectedDockerFiles)
+    })
+
+    it('does not generate the kubernetes files', function () {
+      assert.noFile(expectedKubernetesFiles)
     })
   })
 
@@ -2290,7 +2358,8 @@ describe('swiftserver:refresh', function () {
         config: {
           logger: 'helium',
           port: 4567
-        }
+        },
+        docker: true
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
         .withOptions({
@@ -2322,6 +2391,14 @@ describe('swiftserver:refresh', function () {
 
     it('generates the bluemix files', function () {
       assert.file(expectedBluemixFiles)
+    })
+
+    it('generates the docker files', function () {
+      assert.file(expectedDockerFiles)
+    })
+
+    it('generates the kubernetes files with expected values', function () {
+      assert.file(expectedKubernetesFiles)
     })
 
     it('defines example endpoints', function () {
