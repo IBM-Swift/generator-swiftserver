@@ -166,8 +166,11 @@ module.exports = Generator.extend({
       // Bluemix configuration
       if (this.spec.bluemix === true) {
         this.bluemix = {}
+        this.bluemix.backendPlatform = 'SWIFT'
       } else if (typeof (this.spec.bluemix) === 'object') {
         this.bluemix = {}
+        this.bluemix.backendPlatform = 'SWIFT'
+        //{ backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }
         if (typeof (this.spec.bluemix.name) === 'string') {
           this.bluemix.name = this.spec.bluemix.name
         }
@@ -1221,84 +1224,22 @@ module.exports = Generator.extend({
     writeDockerFiles: function () {
       if (!this.docker) return
 
-      this._ifNotExistsInProject('.dockerignore', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'dockerignore'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile-tools', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile-tools'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
-                     filepath,
-                     { executableName: this.executableModule }
-        )
-      })
-      this._ifNotExistsInProject('cli-config.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('docker', 'cli-config.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule }
-        )
-      })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), {force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
       if (!this.bluemix) return
 
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'))
-      }
-
-      this._ifNotExistsInProject('manifest.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'manifest.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule,
-            services: this.services,
-            capabilities: this.capabilities,
-            hostSwagger: this.hostSwagger,
-            bluemix: this.bluemix
-          }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'pipeline.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'pipeline.yml'),
-          filepath,
-          { appName: this.projectName,
-            services: this.services,
-            capabilities: this.capabilities,
-            helpers: helpers }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'toolchain.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'toolchain.yml'),
-          filepath,
-          { appName: this.projectName,
-            repoType: this.repoType }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'deploy.json'], (filepath) => {
-        this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
-                     filepath)
-      })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), {force: this.force, bluemix: this.bluemix })
     },
 
     writeKubernetesFiles: function () {
       if (!this.docker) return
 
       var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }})
+      this.bluemix.server = server
+      this.bluemix.appName = this.cleanAppName
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: this.bluemix })
     },
 
     writePackageSwift: function () {

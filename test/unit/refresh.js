@@ -1194,16 +1194,6 @@ describe('swiftserver:refresh', function () {
         appid: [{ name: 'myAppIDService' }]
       }
     }
-    var userOwnedFiles = ['manifest.yml',
-      '.bluemix/pipeline.yml',
-      '.bluemix/toolchain.yml',
-      '.bluemix/deploy.json',
-      'README.md',
-      `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
-      `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
-      `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
-      `Sources/${applicationModule}/Extensions/AppIDExtension.swift`]
-    var dummyContent = '==Dummy existing content=='
 
     before(function () {
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
