@@ -229,7 +229,6 @@ describe('swiftserver:refresh', function () {
 
   describe('Generate a blank application', function () {
     var runContext
-    var sdkScope
 
     before(function () {
       var spec = {
@@ -251,12 +250,8 @@ describe('swiftserver:refresh', function () {
     })
 
     it('contains no Health references', function () {
-      assert.noFileContent('Package.swift', "Health")
-      assert.noFileContent('Sources/Application/Application.swift', "Health")
-    })
-
-    it('contains no extraneous files', function () {
-      assert.noFile('Sources/Application/Routes/.keep')
+      assert.noFileContent('Package.swift', 'Health')
+      assert.noFileContent('Sources/Application/Application.swift', 'Health')
     })
   })
 

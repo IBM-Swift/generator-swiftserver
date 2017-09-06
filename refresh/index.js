@@ -221,9 +221,7 @@ module.exports = Generator.extend({
       this.swaggerUI = (this.spec.swaggerUI === true)
 
       // Healthcheck - defaults to true
-      console.log("Christian " + this.spec.healthcheck)
       this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
-      console.log("Christian RES " + this.healthcheck)
 
       // Service configuration
       this.services = this.spec.services || {}
@@ -774,7 +772,6 @@ module.exports = Generator.extend({
         if (this.bluemix) {
           configToWrite = helpers.generateCloudConfig(this.spec.config, this.services)
         } else {
-          //CHristian To invesitagte turning this off
           configToWrite = helpers.generateLocalConfig(this.spec.config, this.services)
         }
         this.fs.writeJSON(filepath, configToWrite)
@@ -902,9 +899,7 @@ module.exports = Generator.extend({
             pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
           }
         )
-        if (this.healthcheck) {  //CHRISTIAN fix
-          this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
-        }
+        this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
     },
 
