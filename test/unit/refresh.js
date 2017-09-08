@@ -1496,10 +1496,12 @@ describe('swiftserver:refresh', function () {
         appName: appName,
         web: true,
         bluemix: {
-          'name': 'test',
-          'host': 'myhost',
-          'domain': 'mydomain.net',
-          'namespace': 'mynamespace'
+          'server': {
+            'name': 'test',
+            'host': 'myhost',
+            'domain': 'mydomain.net',
+            'namespace': 'mynamespace'
+          }
         },
         config: {
           logger: 'helium',
@@ -1585,9 +1587,11 @@ describe('swiftserver:refresh', function () {
         appName: appName,
         web: true,
         bluemix: {
-          'name': {},
-          'host': {},
-          'domain': true
+          'server': {
+            'name': {},
+            'host': {},
+            'domain': true
+          }
         },
         config: {
           logger: 'helium',
@@ -2546,6 +2550,84 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'WebAppKituraCredentialsPlugin(')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials = Credentials()')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'kituraCredentials?.register(plugin: ')
+    })
+  })
+
+  describe('Generate application with openApi spec and fromSwagger', function () {
+    var runContext
+    var error
+
+    before(function () {
+      var swagger = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8'))
+      var swagStr = JSON.stringify(swagger)
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: {openApiServers: [{spec: swagStr}]},
+        fromSwagger: path.join(__dirname, '../resources/person_dino.json'),
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise().catch(function (err) {
+        error = err
+      })
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    it('aborts the generator with an error', function () {
+      assert(error, 'Should throw an error')
+      assert(error.message.match('cannot handle two sources of API definition'), 'Both bluemix openApiServers and fromSwagger options have been set')
+    })
+  })
+
+  describe('Generate application from openApi spec document', function () {
+    var runContext
+
+    before(function () {
+      var swagger = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8'))
+      var swagStr = JSON.stringify(swagger)
+      var spec = {
+        appType: 'scaffold',
+        appName: appName,
+        bluemix: {openApiServers: [{spec: swagStr}]},
+        web: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    it('generates the swift files', function () {
+      var expectedSourceFiles = [
+        `Sources/${applicationModule}/Application.swift`,
+        `Sources/${applicationModule}/Routes/DinosaursRoutes.swift`,
+        `Sources/${applicationModule}/Routes/PersonsRoutes.swift`,
+        `Sources/${executableModule}/main.swift`
+      ]
+      assert.file(expectedSourceFiles)
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializePersonsRoutes(')
+      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeDinosaursRoutes(')
+      assert.fileContent(`Sources/${applicationModule}/Routes/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
     })
   })
 })
