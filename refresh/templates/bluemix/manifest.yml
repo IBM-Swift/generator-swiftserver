@@ -27,7 +27,7 @@ applications:
 <%     }); -%>
 <%   }); -%>
 <% } -%>
-<% if (capabilities.autoscale) { -%>
-  - <%- capabilities.autoscale %>
+<% if (services.autoscale) { -%>
+  - <%- services.autoscale %>
 <% } -%>
   timeout: 180

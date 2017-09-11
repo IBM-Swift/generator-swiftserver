@@ -30,8 +30,8 @@ stages:
       cf create-service "<%-service.label || helpers.getBluemixServiceLabel(serviceType)%>" "<%-service.plan || helpers.getBluemixDefaultPlan(serviceType)%>" "<%-service.name%>"
 <%   }); -%>
 <% }); -%>
-<% if (capabilities.autoscale) { -%>
-      cf create-service Auto-scaling free "<%-capabilities.autoscale%>"
+<% if (services.autoscale) { -%>
+      cf create-service Auto-scaling free "<%-services.autoscale%>"
 <% } -%>
       cf push "${CF_APP}"
       # cf logs "${CF_APP}" --recent

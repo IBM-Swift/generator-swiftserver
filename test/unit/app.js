@@ -829,7 +829,7 @@ describe('swiftserver:app', function () {
         }
       }
       assert.objectContent(spec, expectedSpec)
-      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'))
+      assert(spec.services.autoscale[0].name.startsWith('mysite-AutoScaling-'))
     })
   })
 
@@ -897,7 +897,8 @@ describe('swiftserver:app', function () {
         }
       }
       assert.objectContent(spec, expectedSpec)
-      assert(spec.capabilities.autoscale.startsWith('mysite-AutoScaling-'))
+      console.log(spec.services)
+      assert(spec.services.autoscale[0].name.startsWith('mysite-AutoScaling-'))
     })
   })
 

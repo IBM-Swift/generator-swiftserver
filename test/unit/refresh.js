@@ -1138,7 +1138,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
-      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"')
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC : "/swagger/api"')
     })
   })
 
@@ -1445,10 +1445,12 @@ describe('swiftserver:refresh', function () {
         web: true,
         bluemix: {
           'name': 'test',
-          'host': 'myhost',
-          'domain': 'mydomain.net',
-          'namespace': 'mynamespace',
-          'disk_quota': '1024M'
+          server: {
+            'host': 'myhost',
+            'domain': 'mydomain.net',
+            'namespace': 'mynamespace',
+            'disk_quota': '1024M'
+          }
         },
         config: {
           logger: 'helium',
@@ -1535,8 +1537,10 @@ describe('swiftserver:refresh', function () {
         web: true,
         bluemix: {
           'name': {},
-          'host': {},
-          'domain': true
+          server: {
+            'host': {},
+            'domain': true
+          }
         },
         config: {
           logger: 'helium',
@@ -2346,7 +2350,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
-      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"')
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC : "/swagger/api"')
     })
 
     it('does not generate NOTICES.txt', function () {

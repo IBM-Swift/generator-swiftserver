@@ -156,18 +156,19 @@ module.exports = Generator.extend({
       this.appType = this.spec.appType
       this.repoType = this.spec.repoType || 'link'
 
-      // App name
+      // App name - CHRISTIAN address this - no more "appName"
       if (this.spec.appName) {
         this.projectName = this.spec.appName
       } else {
         this.env.error(chalk.red('Property appName missing from the specification'))
       }
 
-      // Capability configuration
+      // Capability & Service configuration
+      this.services = this.spec.services || {}
       this.capabilities = this.spec.capabilities || {}
 
       // Autoscaling implies monitoring and Bluemix
-      if (this.capabilities.autoscale) {
+      if (this.services.autoscale) {
         this.spec.bluemix = true
         this.capabilities.metrics = true
       }
@@ -195,23 +196,23 @@ module.exports = Generator.extend({
           this.bluemix.name = helpers.sanitizeAppName(this.projectName)
           this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
         }
-        if (typeof (this.spec.bluemix.host) === 'string') {
-          this.bluemix.server.host = this.spec.bluemix.host
+        if (typeof (this.spec.bluemix.server.host) === 'string') {
+          this.bluemix.server.host = this.spec.bluemix.server.host
         }
-        if (typeof (this.spec.bluemix.domain) === 'string') {
-          this.bluemix.server.domain = this.spec.bluemix.domain
+        if (typeof (this.spec.bluemix.server.domain) === 'string') {
+          this.bluemix.server.domain = this.spec.bluemix.server.domain
         }
-        if (typeof (this.spec.bluemix.memory) === 'string') {
-          this.bluemix.server.memory = this.spec.bluemix.memory
+        if (typeof (this.spec.bluemix.server.memory) === 'string') {
+          this.bluemix.server.memory = this.spec.bluemix.server.memory
         }
-        if (typeof (this.spec.bluemix.disk_quota) === 'string') {
-          this.bluemix.server.disk_quota = this.spec.bluemix.disk_quota
+        if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
+          this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
         }
-        if (typeof (this.spec.bluemix.instances) === 'number') {
-          this.bluemix.server.instances = this.spec.bluemix.instances
+        if (typeof (this.spec.bluemix.server.instances) === 'number') {
+          this.bluemix.server.instances = this.spec.bluemix.server.instances
         }
-        if (typeof (this.spec.bluemix.namespace) === 'string') {
-          this.bluemix.server.namespace = this.spec.bluemix.namespace
+        if (typeof (this.spec.bluemix.server.namespace) === 'string') {
+          this.bluemix.server.namespace = this.spec.bluemix.server.namespace
         }
       }
 
@@ -251,17 +252,16 @@ module.exports = Generator.extend({
       // Swagger hosting
       this.hostSwagger = (this.spec.hostSwagger === true)
 
-      if (this.hostSwagger && this.bluemix && this.bluemix.server) this.bluemix.server.env.OPENAPI_SPEC = "/swagger/api"
-
       // Swagger UI
       this.swaggerUI = (this.spec.swaggerUI === true)
 
       // Service configuration
-      this.services = this.spec.services || {}
       if (this.services && this.bluemix && this.bluemix.server) this.bluemix.server.services = []
       console.log(this.services)
       // Ensure every service has a credentials object to
       // make life easier for templates
+
+      if (this.services.autoscale === true) this.services.autoscale = `${this.projectName}ScalingService`
 
       Object.keys(this.services).forEach(function (serviceType) {
         this.services[serviceType].forEach(function (service, index) {
@@ -271,7 +271,7 @@ module.exports = Generator.extend({
           }
 
           if (this.bluemix && !service.label) {
-            //get servcie label based on serviceType, only if bluemix is true
+            //get service label based on serviceType, only if bluemix is true
           }
 
           if (this.bluemix && !service.plan) {
@@ -288,11 +288,16 @@ module.exports = Generator.extend({
       this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
 
       // Autoscaling
-      if (this.capabilities.autoscale === true) {
-        this.capabilities.autoscale = `${this.projectName}ScalingService`
-      } else if (typeof (this.capabilities.autoscale) !== 'string') {
-        this.capabilities.autoscale = undefined
-      }
+      /*if (this.services.autoscale === true) {
+        //this.services.autoscale = `${this.projectName}ScalingService`
+        this.services.autoscale = [{
+          label: "Auto-scaling",
+          plan: "free",
+          name: `${this.projectName}ScalingService`
+        }]
+      } else if (typeof (this.services.autoscale) !== 'string') {
+        this.services.autoscale = undefined
+      }*/
 
       // SwaggerUI imples web and hostSwagger
       if (this.swaggerUI) {
@@ -306,6 +311,9 @@ module.exports = Generator.extend({
         this.swaggerUI = true
         this.web = true
       }
+
+      // Define OPENAPI_SPEC
+      if (this.hostSwagger && this.bluemix && this.bluemix.server) this.bluemix.server.env.OPENAPI_SPEC = "\"/swagger/api\""
 
       // Set the names of the modules
       this.generatedModule = 'Generated'
@@ -924,7 +932,7 @@ module.exports = Generator.extend({
             hostSwagger: this.hostSwagger,
             exampleEndpoints: this.exampleEndpoints,
             metrics: this.capabilities.metrics,
-            autoscale: this.capabilities.autoscale,
+            autoscale: this.services.autoscale,
             cloudant: this.services.cloudant && this.services.cloudant.length > 0,
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
@@ -1262,9 +1270,7 @@ module.exports = Generator.extend({
 
     writeBluemixDeploymentFiles: function () {
       if (!this.bluemix) return
-
-      console.log(JSON.stringify(this.repoType))
-      //if (this.bluemix.server && this.services) this.bluemix.server.services = this.services
+      if (this.bluemix && this.services) this.bluemix.services = this.services
       console.log(JSON.stringify(this.bluemix))
 
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), {force: this.force, bluemix: this.bluemix, repoType: this.repoType })
