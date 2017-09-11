@@ -22,11 +22,11 @@
     "generator"
   ],
   "dependencies": {
-    "generator-ibm-cloud-enablement": "0.0.57",
     "bluebird": "^3.5.0",
     "chalk": "^1.1.0",
     "debug": "^2.2.0",
-    "handlebars": "^4.0.5",
+    "generator-ibm-cloud-enablement": "0.0.69",
+    "handlebars": "^4.0.10",
     "js-yaml": "^3.9.1",
     "request": "^2.81.0",
     "rimraf": "^2.5.2",

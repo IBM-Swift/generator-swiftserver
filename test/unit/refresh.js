@@ -846,44 +846,6 @@ describe('swiftserver:refresh', function () {
     })
   })
 
-  describe('Generate the config file from the spec', function () {
-    var runContext
-
-    before(function () {
-        // Mock the options, set up an output folder and run the generator
-      var spec = {
-        appType: 'crud',
-        appName: appName,
-        bluemix: true,
-        config: {
-          logger: 'helium',
-          port: 4567
-        }
-      }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-      return runContext.toPromise()
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('generated the correct config file', function () {
-      assert.jsonFileContent('config.json', { vcap: { services: {} } })
-    })
-
-    it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles)
-    })
-
-    it('generates the swift files', function () {
-      assert.file(expectedSourceFiles)
-    })
-  })
-
   describe('Generate a skeleton CRUD application without bluemix', function () {
     var runContext
     var sdkScope
@@ -1204,11 +1166,6 @@ describe('swiftserver:refresh', function () {
                             fs.mkdirSync('Sources')
                             fs.mkdirSync(`Sources/${applicationModule}`)
                             fs.mkdirSync(`Sources/${applicationModule}/Extensions`)
-                            userOwnedFiles.forEach((filename) => {
-                              fs.writeFileSync(path.join(tmpDir, filename),
-                                               dummyContent)
-                            })
-
                             fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
                             fs.writeFileSync(path.join(tmpDir, 'spec.json'),
                                              JSON.stringify(spec))
@@ -1220,10 +1177,11 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    userOwnedFiles.forEach((filename) => {
-      it(`does not overwrite user-owned file ${filename}`, function () {
-        assert.fileContent(filename, dummyContent)
-      })
+    it('propogates service section of manifest', function () {
+      assert.fileContent('manifest.yml', 'myCloudantService')
+      assert.fileContent('manifest.yml', 'myRedisService')
+      assert.fileContent('manifest.yml', 'myObjectStorageService')
+      assert.fileContent('manifest.yml', 'myAppIDService')
     })
   })
 
@@ -1489,7 +1447,8 @@ describe('swiftserver:refresh', function () {
           'name': 'test',
           'host': 'myhost',
           'domain': 'mydomain.net',
-          'namespace': 'mynamespace'
+          'namespace': 'mynamespace',
+          'disk_quota': '1024M'
         },
         config: {
           logger: 'helium',
@@ -2484,6 +2443,44 @@ describe('swiftserver:refresh', function () {
 
     it('pipeline.yml quotes service name', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"')
+    })
+  })
+
+  describe('Generate the config file from the spec', function () {
+    var runContext
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    it('generated the correct config file', function () {
+      assert.jsonFileContent('config.json', { vcap: { services: {} } })
+    })
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles)
+    })
+
+    it('generates the swift files', function () {
+      assert.file(expectedSourceFiles)
     })
   })
 
