@@ -1156,6 +1156,16 @@ describe('swiftserver:refresh', function () {
         appid: [{ name: 'myAppIDService' }]
       }
     }
+    var userOwnedFiles = ['.swift-version',
+      'README.md',
+      'LICENSE',
+      'Package.swift',
+      'config.json',
+      `Sources/${executableModule}/main.swift`,
+      `Sources/${applicationModule}/Application.swift`,
+      `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
+      `Sources/${applicationModule}/Routes/SwaggerRoute.swift`]
+    var dummyContent = '==Dummy existing content=='
 
     before(function () {
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
@@ -1166,6 +1176,10 @@ describe('swiftserver:refresh', function () {
                             fs.mkdirSync('Sources')
                             fs.mkdirSync(`Sources/${applicationModule}`)
                             fs.mkdirSync(`Sources/${applicationModule}/Extensions`)
+                            userOwnedFiles.forEach((filename) => {
+                              fs.writeFileSync(path.join(tmpDir, filename),
+                                               dummyContent)
+                            })
                             fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
                             fs.writeFileSync(path.join(tmpDir, 'spec.json'),
                                              JSON.stringify(spec))
@@ -1177,11 +1191,10 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('propogates service section of manifest', function () {
-      assert.fileContent('manifest.yml', 'myCloudantService')
-      assert.fileContent('manifest.yml', 'myRedisService')
-      assert.fileContent('manifest.yml', 'myObjectStorageService')
-      assert.fileContent('manifest.yml', 'myAppIDService')
+    userOwnedFiles.forEach((filename) => {
+      it(`does not overwrite user-owned file ${filename}`, function () {
+        assert.fileContent(filename, dummyContent)
+      })
     })
   })
 
@@ -1449,6 +1462,12 @@ describe('swiftserver:refresh', function () {
             'disk_quota': '1024M'
           }
         },
+        services: {
+          cloudant: [{ name: 'myCloudantService' }],
+          redis: [{ name: 'myRedisService' }],
+          objectstorage: [{ name: 'myObjectStorageService' }],
+          appid: [{ name: 'myAppIDService' }]
+        },
         config: {
           logger: 'helium',
           port: 4567
@@ -1476,6 +1495,13 @@ describe('swiftserver:refresh', function () {
 
     it('produces the correct domain in the manifest', function () {
       assert.fileContent('manifest.yml', 'domain: mydomain.net')
+    })
+
+    it('propogates service section of manifest', function () {
+      assert.fileContent('manifest.yml', '- myCloudantService')
+      assert.fileContent('manifest.yml', '- myObjectStorageService')
+      assert.fileContent('manifest.yml', '- myAppIDService')
+      assert.fileContent('manifest.yml', '- myRedisService')
     })
 
     it('generates web only files and folders', function () {
