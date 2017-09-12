@@ -210,14 +210,14 @@ module.exports = Generator.extend({
 
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
-        this.endpointSwaggerLocation = this.spec.fromSwagger
+        this.openApiFileOrUrl = this.spec.fromSwagger
       }
 
       if (this.exampleEndpoints) {
-        if (this.endpointSwaggerLocation) {
+        if (this.openApiFileOrUrl) {
           this.env.error('Only one of: swagger file and example endpoints allowed')
         }
-        this.endpointSwaggerLocation = this.templatePath('common', 'productSwagger.yaml')
+        this.openApiFileOrUrl = this.templatePath('common', 'productSwagger.yaml')
       }
 
       // Swagger file paths for server SDKs
@@ -675,18 +675,18 @@ module.exports = Generator.extend({
   loadOpenApiDocument: function () {
     this.openApiDocumentBytes = this.openApiServers && this.openApiServers[0] && this.openApiServers[0].spec
 
-    if (!this.endpointSwaggerLocation && !this.openApiDocumentBytes) {
+    if (!this.openApiFileOrUrl && !this.openApiDocumentBytes) {
       debug('neither bluemix openApiServers or fromSwagger options have been set')
       return
     }
 
-    if (this.endpointSwaggerLocation && this.openApiDocumentBytes) {
+    if (this.openApiFileOrUrl && this.openApiDocumentBytes) {
       debug('both bluemix openApiServers and fromSwagger options have been set')
       throw new Error('cannot handle two sources of API definition')
     }
 
-    if (this.endpointSwaggerLocation) {
-      return helpers.loadAsync(this.endpointSwaggerLocation, this.fs)
+    if (this.openApiFileOrUrl) {
+      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
         .then(loaded => {
           this.openApiDocumentBytes = loaded
         })
@@ -701,8 +701,8 @@ module.exports = Generator.extend({
           this.parsedSwagger = response.parsed
         })
         .catch(err => {
-          if (this.endpointSwaggerLocation) {
-            err.message = chalk.red('failed to parse:' + this.endpointSwaggerLocation + ' ' + err.message)
+          if (this.openApiFileOrUrl) {
+            err.message = chalk.red('failed to parse:' + this.openApiFileOrUrl + ' ' + err.message)
           } else {
             err.message = chalk.red('failed to parse document from bluemix.openApiServers ' + err.message)
           }
@@ -713,7 +713,7 @@ module.exports = Generator.extend({
 
   generateSDKs: function () {
     var shouldGenerateClientWithModel = (!!this.swagger && JSON.stringify(this.swagger['paths']) !== '{}')
-    var shouldGenerateClient = (!!this.endpointSwaggerLocation)
+    var shouldGenerateClient = (!!this.openApiDocumentBytes)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
     if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
 
@@ -765,7 +765,7 @@ module.exports = Generator.extend({
               })
           })
           .catch(err => {
-            err.message = chalk.red(this.endpointSwaggerLocation + ' ' + err.message)
+            err.message = chalk.red(this.openApiFileOrUrl + ' ' + err.message)
             throw err
           })
       })
