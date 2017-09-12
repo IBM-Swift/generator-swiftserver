@@ -156,7 +156,7 @@ module.exports = Generator.extend({
       this.appType = this.spec.appType
       this.repoType = this.spec.repoType || 'link'
 
-      // App name - CHRISTIAN address this - no more "appName"
+      // App name
       if (this.spec.appName) {
         this.projectName = this.spec.appName
       } else {
@@ -175,20 +175,22 @@ module.exports = Generator.extend({
 
       // Bluemix configuration
       if (this.spec.bluemix === true) {
-        this.bluemix = {server: {
-          env: {}
-        }}
-        this.bluemix.backendPlatform = 'SWIFT'
-        this.bluemix.name = helpers.sanitizeAppName(this.projectName)   //Sloppy
-        //CHRISTIAN PROBLEM:   Kubernetes uses bluemix.name, but CloudFoundry uses bluemix.server -> bluemix.server.name
+        this.bluemix = {
+          backendPlatform: 'SWIFT',
+          server: {
+            env: {}
+          }
+        }
+        this.bluemix.name = helpers.sanitizeAppName(this.projectName)
+        // CHRISTIAN PROBLEM:   Kubernetes uses bluemix.name, but CloudFoundry uses bluemix.server -> bluemix.server.name
         this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
       } else if (typeof (this.spec.bluemix) === 'object') {
-        this.bluemix = {}
-        this.bluemix.server = {}
-        this.bluemix.server.env = {}
-        this.bluemix.backendPlatform = 'SWIFT'
-        //TO-DO: something about bluemix.name
-        //{ backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }
+        this.bluemix = {
+          backendPlatform: 'SWIFT',
+          server: {
+            env: {}
+          }
+        }
         if (typeof (this.spec.bluemix.name) === 'string') {
           this.bluemix.server.name = this.spec.bluemix.name
           this.bluemix.name = this.spec.bluemix.name
@@ -215,15 +217,6 @@ module.exports = Generator.extend({
           this.bluemix.server.namespace = this.spec.bluemix.server.namespace
         }
       }
-
-
-      //console.log("Christian")
-
-      // Clean app name (for containers and other uses)
-      //this.cleanAppName = helpers.sanitizeAppName((this.bluemix && this.bluemix.name) || this.projectName)
-      //this.appName = helpers.sanitizeAppName((this.bluemix && this.bluemix.name) || this.projectName)
-
-      //Sloppy - fix CHRISTIAN
 
       // Docker configuration
       this.docker = (this.spec.docker === true)
@@ -257,10 +250,8 @@ module.exports = Generator.extend({
 
       // Service configuration
       if (this.services && this.bluemix && this.bluemix.server) this.bluemix.server.services = []
-      console.log(this.services)
-      // Ensure every service has a credentials object to
-      // make life easier for templates
 
+      // Ensure every service has a credentials object, plan, & label
       if (this.services.autoscale === true) this.services.autoscale = `${this.projectName}ScalingService`
 
       Object.keys(this.services).forEach(function (serviceType) {
@@ -271,33 +262,20 @@ module.exports = Generator.extend({
           }
 
           if (this.bluemix && !service.label) {
-            //get service label based on serviceType, only if bluemix is true
+            service.label = helpers.getBluemixServiceLabel(serviceType)
           }
 
           if (this.bluemix && !service.plan) {
-            //get service plan based on serviceType, only if bluemix is true
+            service.plan = helpers.getBluemixDefaultPlan(serviceType)
           }
 
           if (this.bluemix && this.bluemix.server) this.bluemix.server.services.push(service.name)
-
           service.credentials = service.credentials || {}
         }.bind(this))
       }.bind(this))
 
       // Metrics
       this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
-
-      // Autoscaling
-      /*if (this.services.autoscale === true) {
-        //this.services.autoscale = `${this.projectName}ScalingService`
-        this.services.autoscale = [{
-          label: "Auto-scaling",
-          plan: "free",
-          name: `${this.projectName}ScalingService`
-        }]
-      } else if (typeof (this.services.autoscale) !== 'string') {
-        this.services.autoscale = undefined
-      }*/
 
       // SwaggerUI imples web and hostSwagger
       if (this.swaggerUI) {
@@ -313,7 +291,7 @@ module.exports = Generator.extend({
       }
 
       // Define OPENAPI_SPEC
-      if (this.hostSwagger && this.bluemix && this.bluemix.server) this.bluemix.server.env.OPENAPI_SPEC = "\"/swagger/api\""
+      if (this.hostSwagger && this.bluemix && this.bluemix.server) this.bluemix.server.env.OPENAPI_SPEC = '"/swagger/api"'
 
       // Set the names of the modules
       this.generatedModule = 'Generated'
@@ -1264,28 +1242,18 @@ module.exports = Generator.extend({
 
     writeDockerFiles: function () {
       if (!this.docker) return
-
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), {force: this.force, bluemix: this.bluemix })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
       if (!this.bluemix) return
       if (this.bluemix && this.services) this.bluemix.services = this.services
-      console.log(JSON.stringify(this.bluemix))
-
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), {force: this.force, bluemix: this.bluemix, repoType: this.repoType })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
-      //this.log('Christian')
       if (!this.docker) return
-
-
-      //var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined
-      //this.bluemix.server = server
-      //this.bluemix.appName = this.cleanAppName
-      //console.log(JSON.stringify(this.bluemix))
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: this.bluemix })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
     },
 
     writePackageSwift: function () {

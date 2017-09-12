@@ -1199,8 +1199,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         },
         capabilities: {
-          'metrics': true,
-          'autoscale': 'myAutoScalingService'
+          'metrics': true
         }
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
@@ -1214,13 +1213,11 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:')
     })
   })
 
@@ -1252,7 +1249,7 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics\nimport SwiftMetricsDash')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(')
@@ -1639,8 +1636,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         },
         capabilities: {
-          'metrics': true,
-          'autoscale': 'myAutoScalingService'
+          'metrics': true
         }
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
@@ -1659,8 +1655,6 @@ describe('swiftserver:refresh', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:')
     })
   })
 
