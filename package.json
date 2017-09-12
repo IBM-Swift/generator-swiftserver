@@ -34,7 +34,7 @@
     "swagger-schema-official": "^2.0.0-d79c205",
     "swaggerize-routes": "^1.0.0",
     "unzip2": "^0.2.5",
-    "yeoman-generator": "^1.1.1"
+    "yeoman-generator": "^2.0.0"
   },
   "devDependencies": {
     "codecov": "^2.3.0",
