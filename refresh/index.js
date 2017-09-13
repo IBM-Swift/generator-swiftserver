@@ -1241,20 +1241,18 @@ module.exports = Generator.extend({
     },
 
     writeDockerFiles: function () {
-      if (!this.docker || this.existingProject) return
+      if (!this.docker || this.existingProject || !this.bluemix) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
-      console.log(this.existingProject)
       if (!this.bluemix || this.existingProject) return
       if (this.bluemix && this.services) this.bluemix.services = this.services
-      console.log(!this.bluemix && this.existingProject)
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
-      if (!this.docker || this.existingProject) return
+      if (!this.docker || this.existingProject || !this.bluemix) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
     },
 

@@ -1676,7 +1676,7 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()')
