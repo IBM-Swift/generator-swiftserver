@@ -1156,15 +1156,15 @@ describe('swiftserver:refresh', function () {
         appid: [{ name: 'myAppIDService' }]
       }
     }
-    var userOwnedFiles = ['.swift-version',
+    var userOwnedFiles = ['manifest.yml',
+      '.bluemix/pipeline.yml',
+      '.bluemix/toolchain.yml',
+      '.bluemix/deploy.json',
       'README.md',
-      'LICENSE',
-      'Package.swift',
-      'config.json',
-      `Sources/${executableModule}/main.swift`,
-      `Sources/${applicationModule}/Application.swift`,
-      `Sources/${applicationModule}/Extensions/ConfigurationManagerExtension.swift`,
-      `Sources/${applicationModule}/Routes/SwaggerRoute.swift`]
+      `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
+      `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
+      `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
+      `Sources/${applicationModule}/Extensions/AppIDExtension.swift`]
     var dummyContent = '==Dummy existing content=='
 
     before(function () {
