@@ -215,6 +215,9 @@ module.exports = Generator.extend({
         if (typeof (this.spec.bluemix.server.namespace) === 'string') {
           this.bluemix.server.namespace = this.spec.bluemix.server.namespace
         }
+        if (typeof (this.spec.bluemix.openApiServers) === 'object') {
+          this.openApiServers = this.spec.bluemix.openApiServers
+        }
       }
 
       // Docker configuration
@@ -228,14 +231,14 @@ module.exports = Generator.extend({
 
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
-        this.fromSwagger = this.spec.fromSwagger
+        this.openApiFileOrUrl = this.spec.fromSwagger
       }
 
       if (this.exampleEndpoints) {
-        if (this.fromSwagger) {
+        if (this.openApiFileOrUrl) {
           this.env.error('Only one of: swagger file and example endpoints allowed')
         }
-        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml')
+        this.openApiFileOrUrl = this.templatePath('common', 'productSwagger.yaml')
       }
 
       // Swagger file paths for server SDKs
@@ -688,24 +691,48 @@ module.exports = Generator.extend({
     this.swagger = swagger
   },
 
-  parseFromSwagger: function () {
-    if (!this.fromSwagger) return
+  loadOpenApiDocument: function () {
+    this.openApiDocumentBytes = this.openApiServers && this.openApiServers[0] && this.openApiServers[0].spec
 
-    return helpers.loadAsync(this.fromSwagger, this.fs)
-      .then(loaded => swaggerize.parse(loaded, helpers.reformatPathToSwift))
-      .then(response => {
-        this.loadedApi = response.loaded
-        this.parsedSwagger = response.parsed
-      })
-      .catch(err => {
-        err.message = chalk.red('failed to parse:' + this.fromSwagger + ' ' + err.message)
-        throw err
-      })
+    if (!this.openApiFileOrUrl && !this.openApiDocumentBytes) {
+      debug('neither bluemix openApiServers or fromSwagger options have been set')
+      return
+    }
+
+    if (this.openApiFileOrUrl && this.openApiDocumentBytes) {
+      debug('both bluemix openApiServers and fromSwagger options have been set')
+      throw new Error('cannot handle two sources of API definition')
+    }
+
+    if (this.openApiFileOrUrl) {
+      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
+        .then(loaded => {
+          this.openApiDocumentBytes = loaded
+        })
+    }
+  },
+
+  parseOpenApiDocument: function () {
+    if (this.openApiDocumentBytes) {
+      return swaggerize.parse(this.openApiDocumentBytes, helpers.reformatPathToSwift)
+        .then(response => {
+          this.loadedApi = response.loaded
+          this.parsedSwagger = response.parsed
+        })
+        .catch(err => {
+          if (this.openApiFileOrUrl) {
+            err.message = chalk.red('failed to parse:' + this.openApiFileOrUrl + ' ' + err.message)
+          } else {
+            err.message = chalk.red('failed to parse document from bluemix.openApiServers ' + err.message)
+          }
+          throw err
+        })
+    }
   },
 
   generateSDKs: function () {
     var shouldGenerateClientWithModel = (!!this.swagger && JSON.stringify(this.swagger['paths']) !== '{}')
-    var shouldGenerateClient = (!!this.fromSwagger)
+    var shouldGenerateClient = (!!this.openApiDocumentBytes)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
     if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
 
@@ -757,7 +784,7 @@ module.exports = Generator.extend({
               })
           })
           .catch(err => {
-            err.message = chalk.red(this.fromSwagger + ' ' + err.message)
+            err.message = chalk.red(this.openApiFileOrUrl + ' ' + err.message)
             throw err
           })
       })
