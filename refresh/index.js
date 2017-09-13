@@ -182,7 +182,6 @@ module.exports = Generator.extend({
           }
         }
         this.bluemix.name = helpers.sanitizeAppName(this.projectName)
-        // CHRISTIAN PROBLEM:   Kubernetes uses bluemix.name, but CloudFoundry uses bluemix.server -> bluemix.server.name
         this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
       } else if (typeof (this.spec.bluemix) === 'object') {
         this.bluemix = {
