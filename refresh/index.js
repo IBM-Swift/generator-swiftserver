@@ -160,7 +160,7 @@ module.exports = Generator.extend({
       if (this.spec.appName) {
         this.projectName = this.spec.appName
       } else {
-        this.env.error(chalk.red('Property appName missing from the specification'))
+        this.env.error(chalk.red('Property appName is missing from the specification'))
       }
 
       // Bluemix configuration
@@ -231,6 +231,9 @@ module.exports = Generator.extend({
       // make life easier for templates
 
       Object.keys(this.services).forEach(function (serviceType) {
+        if (!Array.isArray(this.services[serviceType])) {
+          this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
+        }
         this.services[serviceType].forEach(function (service, index) {
           // TODO: Further checking that service name is valid?
           if (!service.name) {
@@ -371,6 +374,8 @@ module.exports = Generator.extend({
   },
 
   configuring: function () {
+    if (this.existingProject) return
+
     var bluemixOption = {
       backendPlatform: 'SWIFT',
       name: this.projectName, // TODO: check this is the right name
@@ -402,11 +407,16 @@ module.exports = Generator.extend({
       'autoscaling': 'autoscaling'
     }
     Object.keys(serviceMapping).forEach(serviceType => {
+      var bluemixServiceProperty = serviceMapping[serviceType]
       var servicesOfType = this.services[serviceType]
       if (servicesOfType && servicesOfType.length > 0) {
-        bluemixOption[serviceMapping[serviceType]] = servicesOfType[0].credentials || {}
-        bluemixOption[serviceMapping[serviceType]].serviceInfo = {
-          name: servicesOfType[0].name
+        // NOTE: for now only handle 1 service
+        var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
+        bluemixOption[bluemixServiceProperty] = service.credentials || {}
+        bluemixOption[bluemixServiceProperty].serviceInfo = {
+          name: servicesOfType[0].name,
+          label: servicesOfType[0].label,
+          plan: servicesOfType[0].plan
         }
       }
     })
@@ -1373,6 +1383,7 @@ module.exports = Generator.extend({
     },
 
     writeKubernetesFiles: function () {
+      if (this.existingProject) return
       if (!this.docker) return
 
       var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined

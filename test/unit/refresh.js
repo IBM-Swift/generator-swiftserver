@@ -18,7 +18,9 @@
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
 var path = require('path')
+var fs = require('fs')
 var nock = require('nock')
+var mkdirp = require('mkdirp')
 
 var refreshGeneratorPath = path.join(__dirname, '../../refresh')
 var commonTest = require('../lib/common_test.js')
@@ -57,6 +59,142 @@ describe('swiftserver:refresh', function () {
     // restore delay between status checks so integration tests
     // remain resilient
     config.sdkGenCheckDelay = sdkGenCheckDelaySaved
+  })
+
+  describe('invalid spec', function () {
+    describe('missing appType', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({ specObj: {} })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('^.*appType is missing.*$'), 'Thrown error should be about missing appType, it was: ' + error)
+      })
+    })
+
+    describe('invalid appType', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'tomato'
+                              }
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('^.*appType is invalid.*$'), 'Thrown error should be about invalid appType, it was: ' + error)
+      })
+    })
+
+    describe('missing appName', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold'
+                              }
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('^.*appName is missing.*$'), 'Thrown error should be about missing appName, it was: ' + error)
+      })
+    })
+
+    describe('invalid service', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: 'myapp',
+                                services: {
+                                  objectstorage: {}
+                                }
+                              }
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('services.objectstorage must be an array'), 'Thrown error should be about invalid service value, it was: ' + error)
+      })
+    })
+
+    describe('service missing name', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: 'myapp',
+                                services: {
+                                  objectstorage: [{}]
+                                }
+                              }
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name, it was: ' + error)
+      })
+    })
   })
 
   describe('crud', function () {
@@ -178,6 +316,81 @@ describe('swiftserver:refresh', function () {
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
           assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+        })
+      })
+
+      describe('update existing without overwriting user-owned files', function () {
+        var runContext
+        var dummyContent = '{ "dummyContent": "==Dummy existing content==" }'
+        var userOwnedFiles = [ commonTest.readmeFile,
+          commonTest.packageFile,
+          commonTest.bxdevConfigFile,
+          commonTest.configMappingsFile,
+          commonTest.configCredentialsFile,
+          commonTest.applicationSourceFile,
+          commonTest.applicationSourceDir + '/Metrics.swift',
+          commonTest.routesSourceDir + '/SwaggerRoutes.swift',
+          commonTest.routesSourceDir + '/HealthRoutes.swift',
+          commonTest.servicesSourceDir + '/ServiceAppid.swift',
+          commonTest.servicesSourceDir + '/ServiceCloudant.swift',
+          commonTest.servicesSourceDir + '/ServiceRedis.swift',
+          commonTest.servicesSourceDir + '/ServiceObjectStorage.swift',
+          commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
+          commonTest.servicesSourceDir + '/ServicePush.swift',
+          commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
+          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift' ]
+          .concat(commonTest.cloudFoundryFiles)
+          .concat(commonTest.bluemixFiles)
+          .concat(commonTest.dockerFiles)
+          .concat(commonTest.kubernetesFilesGenerator(applicationName))
+          // TODO: add server sdk source file as user owned
+
+        var spec = {
+          appType: 'crud',
+          appName: applicationName,
+          models: [ todoModel ],
+          docker: true,
+          services: {
+            appid: [{ name: 'myAppIDService' }],
+            cloudant: [{ name: 'myCloudantService' }],
+            redis: [{ name: 'myRedisService' }],
+            objectstorage: [{ name: 'myObjectStorageService' }],
+            watsonconversation: [{ name: 'myConversationService' }],
+            pushnotifications: [{ name: 'myPushService' }],
+            alertnotification: [{ name: 'myAlertService' }],
+            autoscaling: [{ name: 'myAutoscalingService' }]
+          },
+          crudservice: 'myCloudantService'
+        }
+
+        before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .inTmpDir(function (tmpDir) {
+                                // Create dummy project
+                                fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
+                                fs.writeFileSync(path.join(tmpDir, 'spec.json'),
+                                                 JSON.stringify(spec))
+
+                                // Write dummy content to user owned files
+                                userOwnedFiles.forEach((filename) => {
+                                  mkdirp.sync(path.dirname(filename))
+                                  fs.writeFileSync(path.join(tmpDir, filename),
+                                                   dummyContent)
+                                })
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        userOwnedFiles.forEach(filename => {
+          it(`does not overwrite user-owned file ${filename}`, function () {
+            assert.fileContent(filename, dummyContent)
+          })
         })
       })
 
@@ -1302,154 +1515,8 @@ describe('swiftserver:refresh', function () {
     })
   })
 
+// -- 2
 //  TODO: convert these
-//  describe('Updating a skeleton CRUD application with bluemix and services', function () {
-//    var runContext
-//    var spec = {
-//      appType: 'crud',
-//      appName: appName,
-//      services: {
-//        cloudant: [{ name: 'myCloudantService' }],
-//        redis: [{ name: 'myRedisService' }],
-//        objectstorage: [{ name: 'myObjectStorageService' }],
-//        appid: [{ name: 'myAppIDService' }]
-//      }
-//    }
-//    var userOwnedFiles = ['manifest.yml',
-//      '.bluemix/pipeline.yml',
-//      '.bluemix/toolchain.yml',
-//      '.bluemix/deploy.json',
-//      'README.md',
-//      `Sources/${applicationModule}/Extensions/CouchDBExtension.swift`,
-//      `Sources/${applicationModule}/Extensions/RedisExtension.swift`,
-//      `Sources/${applicationModule}/Extensions/ObjStorageExtension.swift`,
-//      `Sources/${applicationModule}/Extensions/AppIDExtension.swift`]
-//    var dummyContent = '==Dummy existing content=='
-//
-//    before(function () {
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//                          .inTmpDir(function (tmpDir) {
-//                            // Create a dummy file for each one that should
-//                            // not be overwritten by the update
-//                            fs.mkdirSync('.bluemix')
-//                            fs.mkdirSync('Sources')
-//                            fs.mkdirSync(`Sources/${applicationModule}`)
-//                            fs.mkdirSync(`Sources/${applicationModule}/Extensions`)
-//                            userOwnedFiles.forEach((filename) => {
-//                              fs.writeFileSync(path.join(tmpDir, filename),
-//                                               dummyContent)
-//                            })
-//
-//                            fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
-//                            fs.writeFileSync(path.join(tmpDir, 'spec.json'),
-//                                             JSON.stringify(spec))
-//                          })
-//      return runContext.toPromise()
-//    })
-//
-//    after(function () {
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    userOwnedFiles.forEach((filename) => {
-//      it(`does not overwrite user-owned file ${filename}`, function () {
-//        assert.fileContent(filename, dummyContent)
-//      })
-//    })
-//  })
-//
-//  // -- 2
-//  describe('Rejected spec missing appType', function () {
-//    var runContext
-//    var error = null
-//
-//    before(function () {
-//      var spec = {
-//        appName: appName,
-//        services: {}
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise().catch(function (err) {
-//        error = err
-//      })
-//    })
-//
-//    after(function () {
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('aborts the generator with an error', function () {
-//      assert(error, 'Should throw an error')
-//      assert(error.message.match('^.*appType is missing.*$'), 'Thrown error should be about missing appType')
-//    })
-//  })
-//
-//  describe('Rejected spec with invalid appType', function () {
-//    var runContext
-//    var error = null
-//
-//    before(function () {
-//      var spec = {
-//        appType: 'tomato',
-//        appName: appName,
-//        services: {}
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise().catch(function (err) {
-//        error = err
-//      })
-//    })
-//
-//    after(function () {
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('aborts the generator with an error', function () {
-//      assert(error, 'Should throw an error')
-//      assert(error.message.match('^.*appType is invalid.*$'), 'Thrown error should be about missing appType')
-//    })
-//  })
-//
-//  describe('Rejected spec containing a service with no name', function () {
-//    var runContext
-//    var error = null
-//
-//    before(function () {
-//      var spec = {
-//        appType: 'scaffold',
-//        appName: appName,
-//        web: true,
-//        services: {
-//          objectstorage: [{
-//            label: 'Object-Storage'
-//          }]
-//        }
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise().catch(function (err) {
-//        error = err
-//      })
-//    })
-//
-//    after(function () {
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('aborts the generator with an error', function () {
-//      assert(error, 'Should throw an error')
-//      assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name')
-//    })
-//  })
-//
 //  describe('Generate application with example endpoints and hosted Swagger', function () {
 //    var runContext
 //    var sdkScope

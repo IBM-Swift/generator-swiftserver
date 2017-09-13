@@ -27,6 +27,17 @@ exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
 exports.bluemixFiles = [ exports.bluemixPipelineFile,
   '.bluemix/toolchain.yml',
   '.bluemix/deploy.json' ]
+exports.dockerFiles = [ 'Dockerfile', 'Dockerfile-tools', '.dockerignore' ]
+exports.kubernetesChartFileGenerator = (applicationName) => `chart/${applicationName}/Chart.yaml`
+exports.kubernetesValuesFileGenerator = (applicationName) => `chart/${applicationName}/values.yaml`
+exports.kubernetesDeploymentFileGenerator = (applicationName) => `chart/${applicationName}/templates/deployment.yaml`
+exports.kubernetesServiceFileGenerator = (applicationName) => `chart/${applicationName}/templates/service.yaml`
+exports.kubernetesFilesGenerator = (applicationName) => [
+  exports.kubernetesChartFileGenerator(applicationName),
+  exports.kubernetesValuesFileGenerator(applicationName),
+  exports.kubernetesDeploymentFileGenerator(applicationName),
+  exports.kubernetesServiceFileGenerator(applicationName)
+]
 
 exports.itUsedDestinationDirectory = function (dir) {
   it('uses correct destination directory according to dir value', function () {
@@ -124,10 +135,8 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
 }
 
 exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
-  var dockerFiles = [ 'Dockerfile', 'Dockerfile-tools', '.dockerignore' ]
-
   it('created docker files', function () {
-    assert.file(dockerFiles)
+    assert.file(exports.dockerFiles)
   })
 
   it('cli-config.yml contains expected docker properties', function () {
@@ -142,17 +151,16 @@ exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
   })
 }
 
+
 exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
   var domain = opts.domain || 'ng.bluemix.net'
   var namespace = opts.namespace || 'replace-me-namespace'
 
-  var chartFile = `chart/${applicationName}/Chart.yaml`
-  var valuesFile = `chart/${applicationName}/values.yaml`
-  var deploymentFile = `chart/${applicationName}/templates/deployment.yaml`
-  var serviceFile = `chart/${applicationName}/templates/service.yaml`
-  var kubernetesFiles = [ chartFile, valuesFile, deploymentFile, serviceFile ]
+  var chartFile = exports.kubernetesChartFileGenerator(applicationName)
+  var valuesFile = exports.kubernetesValuesFileGenerator(applicationName)
+  var kubernetesFiles = exports.kubernetesFilesGenerator(applicationName)
 
   it('created kubernetes files', function () {
     assert.file(kubernetesFiles)
@@ -315,14 +323,14 @@ exports.pushnotifications = {
 exports.alertnotification = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName) {
     exports.itHasServiceConfig('alert notification', 'alert_notification', serviceName)
-    exports.itCreatedServiceBoilerplate('alert notification', 'ServiceAlertnotification.swift', 'initializeServiceAlertnotification')
+    exports.itCreatedServiceBoilerplate('alert notification', 'ServiceAlertNotification.swift', 'initializeServiceAlertNotification')
 
     it('alert notification boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceAlertnotification.swift`
+      var serviceFile = `${exports.servicesSourceDir}/ServiceAlertNotification.swift`
       assert.fileContent([
         [serviceFile, 'import AlertNotifications'],
         [serviceFile, 'serviceCredentials: ServiceCredentials'],
-        [serviceFile, 'func initializeServiceAlertnotification() throws'],
+        [serviceFile, 'func initializeServiceAlertNotification() throws'],
         [serviceFile, 'ServiceCredentials(']
       ])
     })

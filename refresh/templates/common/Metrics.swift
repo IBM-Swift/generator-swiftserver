@@ -7,9 +7,12 @@ var swiftMetricsDash: SwiftMetricsDash?
 
 func initializeMetrics() {
     do {
-      swiftMetrics = try SwiftMetrics()
-      swiftMetricsDash = try SwiftMetricsDash(swiftMetricsInstance: swiftMetrics, endpoint: router)
-      Log.info("Initialized metrics.")
+        let metrics = try SwiftMetrics()
+        let dashboard = try SwiftMetricsDash(swiftMetricsInstance: metrics, endpoint: router)
+
+        swiftMetrics = metrics
+        swiftMetricsDash = dashboard
+        Log.info("Initialized metrics.")
     } catch {
         Log.warning("Failed to initialize metrics: \(error)")
     }
