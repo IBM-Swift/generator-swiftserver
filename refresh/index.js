@@ -197,23 +197,25 @@ module.exports = Generator.extend({
           this.bluemix.name = helpers.sanitizeAppName(this.projectName)
           this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
         }
-        if (typeof (this.spec.bluemix.server.host) === 'string') {
-          this.bluemix.server.host = this.spec.bluemix.server.host
-        }
-        if (typeof (this.spec.bluemix.server.domain) === 'string') {
-          this.bluemix.server.domain = this.spec.bluemix.server.domain
-        }
-        if (typeof (this.spec.bluemix.server.memory) === 'string') {
-          this.bluemix.server.memory = this.spec.bluemix.server.memory
-        }
-        if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
-          this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
-        }
-        if (typeof (this.spec.bluemix.server.instances) === 'number') {
-          this.bluemix.server.instances = this.spec.bluemix.server.instances
-        }
-        if (typeof (this.spec.bluemix.server.namespace) === 'string') {
-          this.bluemix.server.namespace = this.spec.bluemix.server.namespace
+        if (this.spec.bluemix.server) {
+          if (typeof (this.spec.bluemix.server.host) === 'string') {
+            this.bluemix.server.host = this.spec.bluemix.server.host
+          }
+          if (typeof (this.spec.bluemix.server.domain) === 'string') {
+            this.bluemix.server.domain = this.spec.bluemix.server.domain
+          }
+          if (typeof (this.spec.bluemix.server.memory) === 'string') {
+            this.bluemix.server.memory = this.spec.bluemix.server.memory
+          }
+          if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
+            this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
+          }
+          if (typeof (this.spec.bluemix.server.instances) === 'number') {
+            this.bluemix.server.instances = this.spec.bluemix.server.instances
+          }
+          if (typeof (this.spec.bluemix.server.namespace) === 'string') {
+            this.bluemix.server.namespace = this.spec.bluemix.server.namespace
+          }
         }
         if (typeof (this.spec.bluemix.openApiServers) === 'object') {
           this.openApiServers = this.spec.bluemix.openApiServers
