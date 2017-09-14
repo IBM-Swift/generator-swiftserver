@@ -41,13 +41,6 @@ var bluemixFiles = commonTest.bluemixFiles
 var config = require('../../config')
 var sdkGenCheckDelaySaved
 
-// ------- below is draft
-
-//  var expectedModelFiles = [`models/${modelName}.json`, `Sources/${generatedModule}/${className}.swift`,
-//  `Sources/${generatedModule}/${className}Adapter.swift`, `Sources/${generatedModule}/${className}Resource.swift`,
-//  `Sources/${generatedModule}/AdapterError.swift`, `Sources/${generatedModule}/ModelError.swift`,
-//  `Sources/${generatedModule}/AdapterFactory.swift`, `Sources/${generatedModule}/CRUDResources.swift`]
-
 describe('swiftserver:refresh', function () {
   before('set sdkgen status check delay to 1ms', function () {
     // alter delay between status checks to speed up unit tests
@@ -264,6 +257,18 @@ describe('swiftserver:refresh', function () {
 
         commonTest.itDidNotCreateServiceFiles()
         commonTest.itDidNotCreateMetricsFiles()
+
+        it('created CRUD source files', function () {
+          assert.file(commonTest.crudSourceFiles)
+        })
+
+        it(`created ${todoModel.name} model file`, function () {
+          assert.file(commonTest.modelFileGenerator(todoModel.name))
+        })
+
+        it(`created ${todoModel.name} source files`, function () {
+          assert.file(commonTest.modelSourceFilesGenerator(todoModel.classname))
+        })
 
         it('created memory adapter', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}MemoryAdapter.swift`)

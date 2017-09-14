@@ -20,6 +20,7 @@ exports.configCredentialsFile = 'config/localdev-config.json'
 
 exports.generatedModule = 'Generated'
 exports.generatedSourceDir = `Sources/${exports.generatedModule}`
+exports.modelDir = 'models'
 exports.applicationModule = 'Application'
 exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
@@ -27,6 +28,19 @@ exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
 exports.webDir = 'public'
 exports.swaggerUIDir = `${exports.webDir}/explorer`
+
+exports.modelFileGenerator = (modelName) => `${exports.modelDir}/${modelName}.json`
+exports.modelSourceFilesGenerator = (className) => [
+  `Sources/${exports.generatedModule}/${className}.swift`,
+  `Sources/${exports.generatedModule}/${className}Adapter.swift`,
+  `Sources/${exports.generatedModule}/${className}Resource.swift`
+]
+exports.crudSourceFiles = [
+  `Sources/${exports.generatedModule}/AdapterError.swift`,
+  `Sources/${exports.generatedModule}/ModelError.swift`,
+  `Sources/${exports.generatedModule}/AdapterFactory.swift`,
+  `Sources/${exports.generatedModule}/CRUDResources.swift`
+]
 
 exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
