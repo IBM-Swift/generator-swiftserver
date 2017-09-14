@@ -3,6 +3,8 @@ var path = require('path')
 
 var helpers = require('../../lib/helpers')
 
+exports.generatorVersion = require('../../package.json').version
+
 //
 // Files
 //
@@ -100,6 +102,12 @@ exports.itCreatedCommonFiles = function (opts) {
       assert.file(filepath)
     })
   })
+  if (!opts.singleshot) {
+    var expectedConfig = { 'generator-swiftserver': { version: exports.generatorVersion } }
+    it(`${exports.generatorConfigFile} contains generator version`, function () {
+      assert.jsonFileContent(exports.generatorConfigFile, expectedConfig)
+    })
+  }
 }
 
 //

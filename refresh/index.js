@@ -90,22 +90,8 @@ module.exports = Generator.extend({
   },
 
   initializing: {
-    config: function () {
-      if (!this.options.singleShot) {
-        this.generatorVersion = require('../package.json').version
-        this.config.defaults({ version: this.generatorVersion })
-
-        // Ensure generator major version match
-        // TODO Use node-semver? Strip leading non-digits?
-        var generatorMajorVersion = this.generatorVersion.split('.')[0]
-        var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0]
-        if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
-          this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`)
-        }
-      }
-    },
-
     readSpec: function () {
+      this.generatorVersion = require('../package.json').version
       this.existingProject = false
 
       if (this.options.specfile) {
@@ -294,6 +280,24 @@ module.exports = Generator.extend({
       if (this.metrics) {
         this.appInitCode.capabilities.push('initializeMetrics()')
         this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
+      }
+    },
+
+    ensureGeneratorIsCompatibleWithProject: function () {
+      if (!this.existingProject) return
+
+      var generatorMajorVersion = this.generatorVersion.split('.')[0]
+      var projectGeneratedWithVersion = this.config.get('version')
+
+      if (!projectGeneratedWithVersion) {
+        this.env.error(`Project was generated with an incompatible version of the generator (project was generated with an unknown version, current generator is v${generatorMajorVersion})`)
+      }
+
+      // Ensure generator major version match
+      // TODO Use node-semver? Strip leading non-digits?
+      var projectGeneratedWithMajorVersion = projectGeneratedWithVersion.split('.')[0]
+      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
+        this.env.error(`Project was generated with an incompatible version of the generator (project was generated with v${projectGeneratedWithMajorVersion}, current generator is v${generatorMajorVersion})`)
       }
     },
 
@@ -838,7 +842,7 @@ module.exports = Generator.extend({
       // Check if we should create generator metadata files
       if (!this.options.singleShot) {
         // Root directory
-        this.config.save()
+        this.config.defaults({ version: this.generatorVersion })
 
         // Check if there is a .swiftservergenerator-project, create one if there isn't
         this._ifNotExistsInProject('.swiftservergenerator-project', (filepath) => {

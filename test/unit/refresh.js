@@ -375,9 +375,15 @@ describe('swiftserver:refresh', function () {
           runContext = helpers.run(refreshGeneratorPath)
                               .inTmpDir(function (tmpDir) {
                                 // Create dummy project
-                                fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
-                                fs.writeFileSync(path.join(tmpDir, 'spec.json'),
-                                                 JSON.stringify(spec))
+                                var projectMarkerFile = `${tmpDir}/${commonTest.projectMarkerFile}`
+                                var generatorSpecFile = `${tmpDir}/${commonTest.generatorSpecFile}`
+                                var generatorConfigFile = `${tmpDir}/${commonTest.generatorConfigFile}`
+
+                                var config = { 'generator-swiftserver': { version: commonTest.generatorVersion } }
+
+                                fs.writeFileSync(projectMarkerFile, '')
+                                fs.writeFileSync(generatorSpecFile, JSON.stringify(spec))
+                                fs.writeFileSync(generatorConfigFile, JSON.stringify(config))
 
                                 // Write dummy content to user owned files
                                 userOwnedFiles.forEach((filename) => {
