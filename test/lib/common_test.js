@@ -81,33 +81,54 @@ exports.itUsedDefaultDestinationDirectory = function () {
 //
 // Common
 //
-exports.itCreatedCommonFiles = function (opts) {
+exports.itCreatedCommonFiles = function (executableModule) {
   var files = [
     exports.packageFile,
     exports.licenseFile,
     exports.readmeFile,
-    `Sources/${opts.executableModule}/main.swift`,
+    exports.generatorSpecFile,
+    `Sources/${executableModule}/main.swift`,
     'Sources/Application/Application.swift',
     'Tests/ApplicationTests/RouteTests.swift',
     'Tests/LinuxMain.swift'
   ]
-  if (!opts.singleshot) {
-    files.push(exports.projectMarkerFile)
-    files.push(exports.generatorConfigFile)
-    files.push(exports.generatorSpecFile)
-  }
   files.forEach(filepath => {
     var filename = path.basename(filepath)
     it(`created a ${filename} file`, function () {
       assert.file(filepath)
     })
   })
-  if (!opts.singleshot) {
-    var expectedConfig = { 'generator-swiftserver': { version: exports.generatorVersion } }
-    it(`${exports.generatorConfigFile} contains generator version`, function () {
-      assert.jsonFileContent(exports.generatorConfigFile, expectedConfig)
+}
+
+exports.itHasCorrectFilesForSingleShotTrue = function () {
+  var files = [
+    exports.projectMarkerFile,
+    exports.generatorConfigFile
+  ]
+  files.forEach(filepath => {
+    var filename = path.basename(filepath)
+    it(`did not create ${filename} file`, function () {
+      assert.noFile(filepath)
     })
-  }
+  })
+}
+
+exports.itHasCorrectFilesForSingleShotFalse = function () {
+  var files = [
+    exports.projectMarkerFile,
+    exports.generatorConfigFile
+  ]
+  files.forEach(filepath => {
+    var filename = path.basename(filepath)
+    it(`created a ${filename} file`, function () {
+      assert.file(filepath)
+    })
+  })
+
+  var expectedConfig = { 'generator-swiftserver': { version: exports.generatorVersion } }
+  it(`${exports.generatorConfigFile} contains generator version`, function () {
+    assert.jsonFileContent(exports.generatorConfigFile, expectedConfig)
+  })
 }
 
 //

@@ -238,10 +238,8 @@ describe('swiftserver:refresh', function () {
 
         commonTest.itUsedDefaultDestinationDirectory()
 
-        commonTest.itCreatedCommonFiles({
-          singleshot: false,
-          executableModule: executableModule
-        })
+        commonTest.itCreatedCommonFiles(executableModule)
+        commonTest.itHasCorrectFilesForSingleShotFalse()
 
         commonTest.itHasPackageDependencies([
           'Kitura',
@@ -608,10 +606,8 @@ describe('swiftserver:refresh', function () {
 
       commonTest.itUsedDefaultDestinationDirectory()
 
-      commonTest.itCreatedCommonFiles({
-        singleshot: false,
-        executableModule: executableModule
-      })
+      commonTest.itCreatedCommonFiles(executableModule)
+      commonTest.itHasCorrectFilesForSingleShotFalse()
 
       commonTest.itHasPackageDependencies([
         'Kitura',
@@ -668,6 +664,31 @@ describe('swiftserver:refresh', function () {
       it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
         assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
       })
+    })
+
+    describe('with single shot option', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName
+                              },
+                              'single-shot': true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itUsedDefaultDestinationDirectory()
+
+      commonTest.itCreatedCommonFiles(executableModule)
+      commonTest.itHasCorrectFilesForSingleShotTrue()
     })
 
     describe('with custom bluemix options', function () {
@@ -930,10 +951,8 @@ describe('swiftserver:refresh', function () {
 
             commonTest.itUsedDefaultDestinationDirectory()
 
-            commonTest.itCreatedCommonFiles({
-              singleshot: false,
-              executableModule: executableModule
-            })
+            commonTest.itCreatedCommonFiles(executableModule)
+            commonTest.itHasCorrectFilesForSingleShotFalse()
 
             commonTest.itCreatedRoutes([
               'Dinosaurs',
