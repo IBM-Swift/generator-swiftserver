@@ -1340,6 +1340,30 @@ describe('swiftserver:refresh', function () {
       })
     })
 
+    describe('with a service whose name contains a space', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                services: {
+                                  cloudant: [{ name: 'name with spaces' }]
+                                }
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.cloudant.itCreatedServiceFilesWithExpectedContent('name with spaces')
+    })
+
     describe('with cloudant', function () {
       var runContext
 
@@ -1548,34 +1572,4 @@ describe('swiftserver:refresh', function () {
       commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService')
     })
   })
-
-// -- 2
-//  describe('Generate application with a service whose name contains spaces', function () {
-//    var runContext
-//
-//    before(function () {
-//        // Set up the spec file which should create all the necessary files for a server
-//      var spec = {
-//        appType: 'scaffold',
-//        appName: appName,
-//        web: true,
-//        services: {
-//          cloudant: [{ name: 'name with spaces' }]
-//        }
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise()
-//    })
-//
-//    after(function () {
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('pipeline.yml quotes service name', function () {
-//      assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"')
-//    })
-//  })
 })
