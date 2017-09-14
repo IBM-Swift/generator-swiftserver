@@ -826,13 +826,13 @@ module.exports = Generator.extend({
                   })
               })
           })
-          .then(() => {
-            sdkPackages.forEach(pkg => this.dependencies.push(pkg))
-          })
           .catch(err => {
             err.message = chalk.red(this.fromSwagger + ' ' + err.message)
             throw err
           })
+      })
+      .then(() => {
+        sdkPackages.forEach(pkg => this.dependencies.push(pkg))
       })
     }
   },
