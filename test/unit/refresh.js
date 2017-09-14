@@ -263,6 +263,7 @@ describe('swiftserver:refresh', function () {
         ])
 
         commonTest.itDidNotCreateServiceFiles()
+        commonTest.itDidNotCreateMetricsFiles()
 
         it('created memory adapter', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}MemoryAdapter.swift`)
@@ -298,7 +299,8 @@ describe('swiftserver:refresh', function () {
             [ cloudFoundryManifestFile, 'instances: 1' ],
             [ cloudFoundryManifestFile, 'memory: 128M' ],
             [ cloudFoundryManifestFile, 'disk_quota: 1024M' ],
-            [ cloudFoundryManifestFile, 'timeout: 180' ]
+            [ cloudFoundryManifestFile, 'timeout: 180' ],
+            [ cloudFoundryManifestFile, 'OPENAPI_SPEC:' ]
           ])
           assert.noFileContent([
             [ cloudFoundryManifestFile, 'domain:' ],
@@ -616,6 +618,9 @@ describe('swiftserver:refresh', function () {
       ])
 
       commonTest.itDidNotCreateServiceFiles()
+      commonTest.itDidNotCreateMetricsFiles()
+      commonTest.itDidNotCreateWebFiles()
+      commonTest.itDidNotCreateSwaggerUIFiles()
 
       it('created cloudfoundry files', function () {
         assert.file(cloudFoundryFiles)
@@ -637,7 +642,8 @@ describe('swiftserver:refresh', function () {
         assert.noFileContent([
           [ cloudFoundryManifestFile, 'domain:' ],
           [ cloudFoundryManifestFile, 'host:' ],
-          [ cloudFoundryManifestFile, 'namespace:' ]
+          [ cloudFoundryManifestFile, 'namespace:' ],
+          [ cloudFoundryManifestFile, 'OPENAPI_SPEC:' ]
         ])
       })
 
@@ -804,16 +810,7 @@ describe('swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
-      commonTest.itDidNotCreateServiceFiles()
-
-      it('created a web content directory', function () {
-        assert.file('public/.keep')
-      })
-
-      it('application initializes file serving middleware', function () {
-        assert.fileContent(applicationSourceFile,
-                           'router.all(middleware: StaticFileServer())')
-      })
+      commonTest.itCreatedWebFiles()
     })
 
     describe('with server sdk', function () {
@@ -886,7 +883,7 @@ describe('swiftserver:refresh', function () {
       })
     })
 
-    describe('from swagger file', function () {
+    describe('from swagger', function () {
       var outputSwaggerFile = `definitions/${applicationName}.yaml`
 
       describe('from local file', function () {
@@ -1053,57 +1050,94 @@ describe('swiftserver:refresh', function () {
           })
         })
 
-        describe('using product swagger (yaml, no basepath)', function () {
-          var inputSwaggerFile = path.join(__dirname, '../resources/productSwagger.yaml')
+        describe('using example product swagger (yaml, no basepath)', function () {
+          describe('base', function () {
+            var runContext
+            var sdkScope
 
-          var runContext
-          var sdkScope
+            before(function () {
+              sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+              runContext = helpers.run(refreshGeneratorPath)
+                                  .withOptions({
+                                    specObj: {
+                                      appType: 'scaffold',
+                                      appName: applicationName,
+                                      hostSwagger: true,
+                                      exampleEndpoints: true
+                                    }
+                                  })
+              return runContext.toPromise()
+            })
 
-          before(function () {
-            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-            runContext = helpers.run(refreshGeneratorPath)
-                                .withOptions({
-                                  specObj: {
-                                    appType: 'scaffold',
-                                    appName: applicationName,
-                                    hostSwagger: true,
-                                    fromSwagger: inputSwaggerFile
-                                  }
-                                })
-            return runContext.toPromise()
-          })
+            after(function () {
+              nock.cleanAll()
+              runContext.cleanTestDirectory()
+            })
 
-          after(function () {
-            nock.cleanAll()
-            runContext.cleanTestDirectory()
-          })
+            commonTest.itDidNotCreateSwaggerUIFiles()
 
-          it('requested client sdk over http', function () {
-            assert(sdkScope.isDone())
-          })
+            it('requested client sdk over http', function () {
+              assert(sdkScope.isDone())
+            })
 
-          commonTest.itCreatedRoutes([
-            'Products',
-            'Swagger'
-          ])
-
-          it('created a swagger definition file', function () {
-            assert.file(outputSwaggerFile)
-          })
-
-          it('application does not define base path', function () {
-            assert.noFileContent(applicationSourceFile, 'basePath =')
-          })
-
-          it('swagger routes match definition', function () {
-            var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
-            assert.fileContent([
-              [ productsRoutesFile, 'router.get("/products"' ],
-              [ productsRoutesFile, 'router.post("/products"' ],
-              [ productsRoutesFile, 'router.get("/products/:id"' ],
-              [ productsRoutesFile, 'router.delete("/products/:id"' ],
-              [ productsRoutesFile, 'router.put("/products/:id"' ]
+            commonTest.itCreatedRoutes([
+              'Products',
+              'Swagger'
             ])
+
+            it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
+              assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+            })
+
+            it('created a swagger definition file', function () {
+              assert.file(outputSwaggerFile)
+            })
+
+            it('application does not define base path', function () {
+              assert.noFileContent(applicationSourceFile, 'basePath =')
+            })
+
+            it('swagger routes match definition', function () {
+              var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+              assert.fileContent([
+                [ productsRoutesFile, 'router.get("/products"' ],
+                [ productsRoutesFile, 'router.post("/products"' ],
+                [ productsRoutesFile, 'router.get("/products/:id"' ],
+                [ productsRoutesFile, 'router.delete("/products/:id"' ],
+                [ productsRoutesFile, 'router.put("/products/:id"' ]
+              ])
+            })
+          })
+
+          describe('with swaggerui', function () {
+            var runContext
+            var sdkScope
+
+            before(function () {
+              sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+              runContext = helpers.run(refreshGeneratorPath)
+                                  .withOptions({
+                                    specObj: {
+                                      appType: 'scaffold',
+                                      appName: applicationName,
+                                      hostSwagger: true,
+                                      exampleEndpoints: true,
+                                      swaggerUI: true
+                                    }
+                                  })
+              return runContext.toPromise()
+            })
+
+            after(function () {
+              nock.cleanAll()
+              runContext.cleanTestDirectory()
+            })
+
+            it('requested client sdk over http', function () {
+              assert(sdkScope.isDone())
+            })
+
+            commonTest.itCreatedSwaggerUIFiles()
           })
         })
       })
@@ -1516,159 +1550,6 @@ describe('swiftserver:refresh', function () {
   })
 
 // -- 2
-//  TODO: convert these
-//  describe('Generate application with example endpoints and hosted Swagger', function () {
-//    var runContext
-//    var sdkScope
-//
-//    before(function () {
-//      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
-//        .filteringRequestBody(/.*/, '*')
-//        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
-//        .reply(200, { job: { id: 'myid' } })
-//        .get('/sdkgen/api/generator/myid/status')
-//        .reply(200, { status: 'FINISHED' })
-//        .get('/sdkgen/api/generator/myid')
-//        .replyWithFile(
-//          200,
-//          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
-//          { 'Content-Type': 'application/zip' }
-//        )
-//
-//      // Set up the spec file which should create all the necessary files for a server
-//      var spec = {
-//        appType: 'scaffold',
-//        appName: appName,
-//        hostSwagger: true,
-//        exampleEndpoints: true,
-//        docker: true
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise()
-//    })
-//
-//    after(function () {
-//      nock.cleanAll()
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('requested iOS SDK over http', function () {
-//      assert(sdkScope.isDone())
-//    })
-//
-//    it('generates the expected files in the root of the project', function () {
-//      assert.file(expectedFiles)
-//    })
-//
-//    it('generates the main.swift in the correct directory', function () {
-//      assert.file('Sources/todo/main.swift')
-//    })
-//
-//    it('generates Application.swift', function () {
-//      assert.file(`Sources/${applicationModule}/Application.swift`)
-//    })
-//
-//    it('generates the bluemix files', function () {
-//      assert.file(expectedBluemixFiles)
-//    })
-//
-//    it('generates the docker files', function () {
-//      assert.file(expectedDockerFiles)
-//    })
-//
-//    it('generates the kubernetes files with expected values', function () {
-//      assert.file(expectedKubernetesFiles)
-//    })
-//
-//    it('defines example endpoints', function () {
-//      var productsRoutesFile = `Sources/${applicationModule}/Routes/ProductsRoutes.swift`
-//      assert.file(productsRoutesFile)
-//      assert.fileContent(productsRoutesFile, '"/products"')
-//      assert.fileContent(productsRoutesFile, '"/products/:id"')
-//      assert.fileContent(productsRoutesFile, 'send(json: [:])')
-//      assert.fileContent(productsRoutesFile, 'router.get(')
-//      assert.fileContent(productsRoutesFile, 'router.post(')
-//      assert.fileContent(productsRoutesFile, 'router.put(')
-//      assert.fileContent(productsRoutesFile, 'router.delete(')
-//    })
-//
-//    it('init example endpoint routes', function () {
-//      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeProductsRoutes()')
-//    })
-//
-//    it('hosts swagger definition', function () {
-//      assert.file(`Sources/${applicationModule}/Routes/SwaggerRoutes.swift`)
-//      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'initializeSwaggerRoutes(')
-//      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'definitions')
-//      assert.fileContent(`Sources/${applicationModule}/Application.swift`, appName + '.yaml')
-//    })
-//
-//    it('defines OPENAPI_SPEC environment variable', function () {
-//      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"')
-//    })
-//
-//    it('does not generate NOTICES.txt', function () {
-//      assert.noFile('NOTICES.txt')
-//    })
-//  })
-//
-//  describe('Generate application with example endpoints, hosted Swagger and SwaggerUI', function () {
-//    var runContext
-//    var sdkScope
-//
-//    before(function () {
-//      sdkScope = nock('https://mobilesdkgen.ng.bluemix.net')
-//        .filteringRequestBody(/.*/, '*')
-//        .post(`/sdkgen/api/generator/${appName}_iOS_SDK/ios_swift`, '*')
-//        .reply(200, { job: { id: 'myid' } })
-//        .get('/sdkgen/api/generator/myid/status')
-//        .reply(200, { status: 'FINISHED' })
-//        .get('/sdkgen/api/generator/myid')
-//        .replyWithFile(
-//          200,
-//          path.join(__dirname, '../resources/dummy_iOS_SDK.zip'),
-//          { 'Content-Type': 'application/zip' }
-//        )
-//
-//      // Set up the spec file which should create all the necessary files for a server
-//      var spec = {
-//        appType: 'scaffold',
-//        appName: appName,
-//        web: true,
-//        hostSwagger: true,
-//        swaggerUI: true,
-//        exampleEndpoints: true
-//      }
-//      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-//        .withOptions({
-//          specObj: spec
-//        })
-//      return runContext.toPromise()
-//    })
-//
-//    after(function () {
-//      nock.cleanAll()
-//      runContext.cleanTestDirectory()
-//    })
-//
-//    it('requested iOS SDK over http', function () {
-//      assert(sdkScope.isDone())
-//    })
-//
-//    it('generates SwaggerUI', function () {
-//      assert.file('public/explorer/index.html')
-//      assert.file('public/explorer/swagger-ui.js')
-//      assert.file('public/explorer/css/style.css')
-//    })
-//
-//    it('generates NOTICES.txt', function () {
-//      assert.file('NOTICES.txt')
-//    })
-//  })
-//
 //  describe('Generate application with a service whose name contains spaces', function () {
 //    var runContext
 //

@@ -1,12 +1,18 @@
 var assert = require('yeoman-assert')
 var path = require('path')
 
+var helpers = require('../../lib/helpers')
+
+//
+// Files
+//
 exports.defaultProjectDirectory = 'swiftserver'
 exports.packageFile = 'Package.swift'
 exports.projectMarkerFile = '.swiftservergenerator-project'
 exports.generatorConfigFile = '.yo-rc.json'
 exports.generatorSpecFile = 'spec.json'
 exports.licenseFile = 'LICENSE'
+exports.noticesFile = 'NOTICES.txt'
 exports.readmeFile = 'README.md'
 
 exports.configMappingsFile = 'config/mappings.json'
@@ -19,6 +25,8 @@ exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
 exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
+exports.webDir = 'public'
+exports.swaggerUIDir = `${exports.webDir}/explorer`
 
 exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
@@ -39,6 +47,9 @@ exports.kubernetesFilesGenerator = (applicationName) => [
   exports.kubernetesServiceFileGenerator(applicationName)
 ]
 
+//
+// Destination directory
+//
 exports.itUsedDestinationDirectory = function (dir) {
   it('uses correct destination directory according to dir value', function () {
     assert.equal(path.basename(process.cwd()), dir)
@@ -51,6 +62,9 @@ exports.itUsedDefaultDestinationDirectory = function () {
   })
 }
 
+//
+// Common
+//
 exports.itCreatedCommonFiles = function (opts) {
   var files = [
     exports.packageFile,
@@ -74,6 +88,9 @@ exports.itCreatedCommonFiles = function (opts) {
   })
 }
 
+//
+// Routes
+//
 exports.itCreatedRoutes = function (routeNameOrRouteNames) {
   var routeNames = Array.isArray(routeNameOrRouteNames) ? routeNameOrRouteNames : [routeNameOrRouteNames]
   routeNames.forEach(routeName => {
@@ -100,6 +117,9 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
   })
 }
 
+//
+// Package dependencies
+//
 exports.itHasPackageDependencies = function (depOrDeps) {
   var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
   deps.forEach(dep => {
@@ -109,16 +129,26 @@ exports.itHasPackageDependencies = function (depOrDeps) {
   })
 }
 
-exports.itCreatedMetricsFilesWithExpectedContent = function () {
-  var applicationSourceDir = exports.applicationSourceDir
-  var applicationSourceFile = exports.applicationSourceFile
+//
+// Metrics
+//
+exports.itDidNotCreateMetricsFiles = function () {
+  it('did not create metrics boilerplate', function () {
+    assert.noFile(`${exports.applicationSourceDir}/Metrics.swift`)
+  })
 
+  it('application does not initialize metrics', function () {
+    assert.noFileContent(exports.applicationSourceFile, 'initializeMetrics()')
+  })
+}
+
+exports.itCreatedMetricsFilesWithExpectedContent = function () {
   it('created metrics boilerplate', function () {
-    assert.file(`${applicationSourceDir}/Metrics.swift`)
+    assert.file(`${exports.applicationSourceDir}/Metrics.swift`)
   })
 
   it('metrics boilerplate contains expected content', function () {
-    var metricsFile = `${applicationSourceDir}/Metrics.swift`
+    var metricsFile = `${exports.applicationSourceDir}/Metrics.swift`
     assert.fileContent([
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
@@ -130,10 +160,65 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
   })
 
   it('application initializes metrics', function () {
-    assert.fileContent(applicationSourceFile, 'initializeMetrics()')
+    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics()')
   })
 }
 
+//
+// Web
+//
+exports.itDidNotCreateWebFiles = function () {
+  it('did not create a web content directory', function () {
+    assert.noFile(`${exports.webDir}/.keep`)
+  })
+
+  it('application does not initialize file serving middleware', function () {
+    assert.noFileContent(exports.applicationSourceFile,
+                         'router.all(middleware: StaticFileServer())')
+  })
+}
+
+exports.itCreatedWebFiles = function () {
+  it('created a web content directory', function () {
+    assert.file(`${exports.webDir}/.keep`)
+  })
+
+  it('application initializes file serving middleware', function () {
+    assert.fileContent(exports.applicationSourceFile,
+                       'router.all(middleware: StaticFileServer())')
+  })
+}
+
+//
+// SwaggerUI
+//
+exports.itDidNotCreateSwaggerUIFiles = function () {
+  it('did not create swaggerui files', function () {
+    assert.noFile(`${exports.swaggerUIDir}/index.html`)
+    assert.noFile(`${exports.swaggerUIDir}/swagger-ui.js`)
+    assert.noFile(`${exports.swaggerUIDir}/css/style.css`)
+  })
+
+  it('did not create a notices file', function () {
+    assert.noFile(exports.noticesFile)
+  })
+}
+
+exports.itCreatedSwaggerUIFiles = function () {
+  it('created swaggerui files', function () {
+    assert.file(`${exports.swaggerUIDir}/index.html`)
+    assert.file(`${exports.swaggerUIDir}/swagger-ui.js`)
+    assert.file(`${exports.swaggerUIDir}/css/style.css`)
+  })
+
+  it('created a notices file', function () {
+    assert.file(exports.noticesFile)
+  })
+}
+
+//
+// Docker
+//
 exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
   it('created docker files', function () {
     assert.file(exports.dockerFiles)
@@ -151,6 +236,9 @@ exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
   })
 }
 
+//
+// Kubernetes
+//
 exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
@@ -206,8 +294,9 @@ exports.itCreatedServiceConfigFiles = function () {
   })
 }
 
-exports.itHasServiceConfig = function (serviceDescription, mappingName, serviceName) {
+exports.itHasServiceInConfig = function (serviceDescription, mappingName, serviceName) {
   it(`service configuration mapping file contains ${serviceDescription} mapping`, function () {
+    assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
       [mappingName]: {
         searchPatterns: [
@@ -224,6 +313,21 @@ exports.itHasServiceConfig = function (serviceDescription, mappingName, serviceN
   })
 }
 
+exports.itHasServiceInCloudFoundryManifest = function (serviceDescription, serviceName) {
+  it(`cloudfoundry manifest contains ${serviceDescription} entry`, function () {
+    assert.fileContent([
+      [exports.cloudFoundryManifestFile, 'services:'],
+      [exports.cloudFoundryManifestFile, `- ${serviceName}`]
+    ])
+  })
+}
+
+exports.itHasServiceInBluemixPipeline = function (serviceDescription, serviceLabel, servicePlan, serviceName) {
+  it(`bluemix pipeline contains ${serviceDescription} create-service command`, function () {
+    assert.fileContent(exports.bluemixPipelineFile, `cf create-service "${serviceLabel}" "${servicePlan}" "${serviceName}"`)
+  })
+}
+
 exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, initFuncName) {
   it(`created ${serviceDescription} boilerplate`, function () {
     assert.file(`${exports.servicesSourceDir}/${fileName}`)
@@ -234,9 +338,18 @@ exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, in
   })
 }
 
+// Autoscaling
 exports.autoscaling = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itCreatedServiceBoilerplate('autoscaling', 'ServiceAutoscaling.swift', 'initializeServiceAutoscaling')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'autoscaling'
+    var label = 'Auto-Scaling'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('autoscaling')
+    var sourceFile = 'ServiceAutoscaling.swift'
+    var initFunction = 'initializeServiceAutoscaling'
+
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('autoscaling boilerplate contains expected content', function () {
       var autoscalingFile = `${exports.servicesSourceDir}/ServiceAutoscaling.swift`
@@ -249,10 +362,20 @@ exports.autoscaling = {
   }
 }
 
+// Cloudant
 exports.cloudant = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('cloudant', 'cloudant', serviceName)
-    exports.itCreatedServiceBoilerplate('cloudant', 'ServiceCloudant.swift', 'initializeServiceCloudant')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'cloudant'
+    var mapping = 'cloudant'
+    var label = 'cloudantNoSQLDB'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('cloudant')
+    var sourceFile = 'ServiceCloudant.swift'
+    var initFunction = 'initializeServiceCloudant'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('cloudant boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceCloudant.swift`
@@ -266,10 +389,20 @@ exports.cloudant = {
   }
 }
 
+// AppID
 exports.appid = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('appid', 'appid', serviceName)
-    exports.itCreatedServiceBoilerplate('appid', 'ServiceAppid.swift', 'initializeServiceAppid')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'appid'
+    var mapping = 'appid'
+    var label = 'AppID'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('appid')
+    var sourceFile = 'ServiceAppid.swift'
+    var initFunction = 'initializeServiceAppid'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('appid boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceAppid.swift`
@@ -285,10 +418,20 @@ exports.appid = {
   }
 }
 
+// Watson conversation
 exports.watsonconversation = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('watson conversation', 'watson_conversation', serviceName)
-    exports.itCreatedServiceBoilerplate('watson conversation', 'ServiceWatsonConversation.swift', 'initializeServiceWatsonConversation')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'watson conversation'
+    var mapping = 'watson_conversation'
+    var label = 'conversation'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('watsonconversation')
+    var sourceFile = 'ServiceWatsonConversation.swift'
+    var initFunction = 'initializeServiceWatsonConversation'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('watson conversation boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceWatsonConversation.swift`
@@ -302,10 +445,20 @@ exports.watsonconversation = {
   }
 }
 
+// Push notifications
 exports.pushnotifications = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('push notifications', 'push', serviceName)
-    exports.itCreatedServiceBoilerplate('push notifications', 'ServicePush.swift', 'initializeServicePush')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'push notifications'
+    var mapping = 'push'
+    var label = 'imfpush'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('pushnotifications')
+    var sourceFile = 'ServicePush.swift'
+    var initFunction = 'initializeServicePush'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('push notifications boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServicePush.swift`
@@ -319,10 +472,20 @@ exports.pushnotifications = {
   }
 }
 
+// Alert notification
 exports.alertnotification = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('alert notification', 'alert_notification', serviceName)
-    exports.itCreatedServiceBoilerplate('alert notification', 'ServiceAlertNotification.swift', 'initializeServiceAlertNotification')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'alert notification'
+    var mapping = 'alert_notification'
+    var label = 'AlertNotification'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertnotification')
+    var sourceFile = 'ServiceAlertNotification.swift'
+    var initFunction = 'initializeServiceAlertNotification'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('alert notification boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceAlertNotification.swift`
@@ -336,10 +499,20 @@ exports.alertnotification = {
   }
 }
 
+// Object storage
 exports.objectstorage = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('object storage', 'object_storage', serviceName)
-    exports.itCreatedServiceBoilerplate('object storage', 'ServiceObjectStorage.swift', 'initializeServiceObjectStorage')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'object storage'
+    var mapping = 'object_storage'
+    var label = 'Object-Storage'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectstorage')
+    var sourceFile = 'ServiceObjectStorage.swift'
+    var initFunction = 'initializeServiceObjectStorage'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('object storage boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceObjectStorage.swift`
@@ -353,10 +526,20 @@ exports.objectstorage = {
   }
 }
 
+// Redis
 exports.redis = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName) {
-    exports.itHasServiceConfig('redis', 'redis', serviceName)
-    exports.itCreatedServiceBoilerplate('redis', 'ServiceRedis.swift', 'initializeServiceRedis')
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'redis'
+    var mapping = 'redis'
+    var label = 'compose-for-redis'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('redis')
+    var sourceFile = 'ServiceRedis.swift'
+    var initFunction = 'initializeServiceRedis'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('redis boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/ServiceRedis.swift`
