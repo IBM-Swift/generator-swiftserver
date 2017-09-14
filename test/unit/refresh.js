@@ -846,44 +846,6 @@ describe('swiftserver:refresh', function () {
     })
   })
 
-  describe('Generate the config file from the spec', function () {
-    var runContext
-
-    before(function () {
-        // Mock the options, set up an output folder and run the generator
-      var spec = {
-        appType: 'crud',
-        appName: appName,
-        bluemix: true,
-        config: {
-          logger: 'helium',
-          port: 4567
-        }
-      }
-      runContext = helpers.run(path.join(__dirname, '../../refresh'))
-        .withOptions({
-          specObj: spec
-        })
-      return runContext.toPromise()
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('generated the correct config file', function () {
-      assert.jsonFileContent('config.json', { vcap: { services: {} } })
-    })
-
-    it('generates the expected files in the root of the project', function () {
-      assert.file(expectedFiles)
-    })
-
-    it('generates the swift files', function () {
-      assert.file(expectedSourceFiles)
-    })
-  })
-
   describe('Generate a skeleton CRUD application without bluemix', function () {
     var runContext
     var sdkScope
@@ -1176,7 +1138,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
-      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"')
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC : "/swagger/api"')
     })
   })
 
@@ -1218,7 +1180,6 @@ describe('swiftserver:refresh', function () {
                               fs.writeFileSync(path.join(tmpDir, filename),
                                                dummyContent)
                             })
-
                             fs.writeFileSync(path.join(tmpDir, '.swiftservergenerator-project'), '')
                             fs.writeFileSync(path.join(tmpDir, 'spec.json'),
                                              JSON.stringify(spec))
@@ -1251,8 +1212,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         },
         capabilities: {
-          'metrics': true,
-          'autoscale': 'myAutoScalingService'
+          'metrics': true
         }
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
@@ -1266,13 +1226,11 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:')
     })
   })
 
@@ -1304,7 +1262,7 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics\nimport SwiftMetricsDash')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetrics()')
       assert.noFileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(')
@@ -1496,12 +1454,19 @@ describe('swiftserver:refresh', function () {
         appName: appName,
         web: true,
         bluemix: {
-          'server': {
-            'name': 'test',
+          'name': 'test',
+          server: {
             'host': 'myhost',
             'domain': 'mydomain.net',
-            'namespace': 'mynamespace'
+            'namespace': 'mynamespace',
+            'disk_quota': '1024M'
           }
+        },
+        services: {
+          cloudant: [{ name: 'myCloudantService' }],
+          redis: [{ name: 'myRedisService' }],
+          objectstorage: [{ name: 'myObjectStorageService' }],
+          appid: [{ name: 'myAppIDService' }]
         },
         config: {
           logger: 'helium',
@@ -1530,6 +1495,13 @@ describe('swiftserver:refresh', function () {
 
     it('produces the correct domain in the manifest', function () {
       assert.fileContent('manifest.yml', 'domain: mydomain.net')
+    })
+
+    it('propogates service section of manifest', function () {
+      assert.fileContent('manifest.yml', '- myCloudantService')
+      assert.fileContent('manifest.yml', '- myObjectStorageService')
+      assert.fileContent('manifest.yml', '- myAppIDService')
+      assert.fileContent('manifest.yml', '- myRedisService')
     })
 
     it('generates web only files and folders', function () {
@@ -1587,8 +1559,8 @@ describe('swiftserver:refresh', function () {
         appName: appName,
         web: true,
         bluemix: {
-          'server': {
-            'name': {},
+          'name': {},
+          server: {
             'host': {},
             'domain': true
           }
@@ -1690,8 +1662,7 @@ describe('swiftserver:refresh', function () {
           port: 4567
         },
         capabilities: {
-          'metrics': true,
-          'autoscale': 'myAutoScalingService'
+          'metrics': true
         }
       }
       runContext = helpers.run(path.join(__dirname, '../../refresh'))
@@ -1705,13 +1676,11 @@ describe('swiftserver:refresh', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('generates metrics and autoscale capabilities', function () {
+    it('generates metrics capabilities', function () {
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetrics')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsDash')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetrics()')
       assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'try SwiftMetricsDash(swiftMetricsInstance')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'import SwiftMetricsBluemix')
-      assert.fileContent(`Sources/${applicationModule}/Application.swift`, 'SwiftMetricsBluemix(swiftMetricsInstance:')
     })
   })
 
@@ -2401,7 +2370,7 @@ describe('swiftserver:refresh', function () {
     })
 
     it('defines OPENAPI_SPEC environment variable', function () {
-      assert.fileContent('manifest.yml', 'OPENAPI_SPEC: "/swagger/api"')
+      assert.fileContent('manifest.yml', 'OPENAPI_SPEC : "/swagger/api"')
     })
 
     it('does not generate NOTICES.txt', function () {
@@ -2498,6 +2467,44 @@ describe('swiftserver:refresh', function () {
 
     it('pipeline.yml quotes service name', function () {
       assert.fileContent('.bluemix/pipeline.yml', '"name with spaces"')
+    })
+  })
+
+  describe('Generate the config file from the spec', function () {
+    var runContext
+
+    before(function () {
+        // Mock the options, set up an output folder and run the generator
+      var spec = {
+        appType: 'crud',
+        appName: appName,
+        bluemix: true,
+        config: {
+          logger: 'helium',
+          port: 4567
+        }
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    it('generated the correct config file', function () {
+      assert.jsonFileContent('config.json', { vcap: { services: {} } })
+    })
+
+    it('generates the expected files in the root of the project', function () {
+      assert.file(expectedFiles)
+    })
+
+    it('generates the swift files', function () {
+      assert.file(expectedSourceFiles)
     })
   })
 
