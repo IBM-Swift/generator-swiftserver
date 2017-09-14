@@ -173,6 +173,25 @@ exports.itHasPackageDependencies = function (depOrDeps) {
 }
 
 //
+// Build output
+//
+exports.itCompiledExecutableModule = function (executableModule) {
+  var executableFile = `.build/debug/${executableModule}`
+
+  it(`compiled executable module ${executableModule}`, function () {
+    assert.file(executableFile)
+  })
+}
+
+exports.itCreatedXCodeProjectWorkspace = function (applicationName) {
+  var workspaceFile = `${applicationName}.xcodeproj`
+
+  it(`created an XCode project workspace file ${workspaceFile}`, function () {
+    assert.file(workspaceFile)
+  })
+}
+
+//
 // Metrics
 //
 exports.itDidNotCreateMetricsFiles = function () {

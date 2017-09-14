@@ -41,7 +41,7 @@ var bluemixFiles = commonTest.bluemixFiles
 var config = require('../../config')
 var sdkGenCheckDelaySaved
 
-describe('swiftserver:refresh', function () {
+describe('Unit tests for swiftserver:refresh', function () {
   before('set sdkgen status check delay to 1ms', function () {
     // alter delay between status checks to speed up unit tests
     sdkGenCheckDelaySaved = config.sdkGenCheckDelay
