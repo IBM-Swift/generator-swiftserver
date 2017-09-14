@@ -151,7 +151,6 @@ exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
   })
 }
 
-
 exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'

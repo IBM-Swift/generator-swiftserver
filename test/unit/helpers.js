@@ -15,7 +15,7 @@
  */
 
 'use strict'
-var assert = require('assert')
+var assert = require('yeoman-assert')
 var helpers = require('../../lib/helpers')
 var nock = require('nock')
 var path = require('path')
@@ -74,125 +74,33 @@ describe('helpers', function () {
     })
   })
 
-  describe('generateLocalConfig', function () {
-    it('get default local config: no credentials, no specConfig', function () {
-      var specConfig = {}
-      var services = {}
-      var expected = {services: {}, logger: 'helium', port: 8080}
-      var config = helpers.generateLocalConfig(specConfig, services)
-
-      assert.objectContent(config, expected)
-    })
-
-    it('get default local config: no credentials, supplied specConfig', function () {
-      var specConfig = {logger: 'nitrogen', port: 1234}
-      var services = {}
-      var expected = {services: {}, logger: 'nitrogen', port: 1234}
-      var config = helpers.generateLocalConfig(specConfig, services)
-
-      assert.objectContent(config, expected)
-    })
-
-    it('get default local config: default credentials', function () {
-      var specConfig = {}
-      var cloudantCredentials = {}
-      var redisCredentials = {}
-      var objectstorageCredentials = {}
-      var services = {cloudant: [{credentials: cloudantCredentials}],
-        redis: [{credentials: redisCredentials}],
-        objectstorage: [{credentials: objectstorageCredentials}]
-      }
-      var expected = {services: {cloudant: [{type: 'cloudant', host: 'localhost', port: 5984, secured: false}],
-        redis: [{type: 'redis', host: 'localhost', port: 6397}],
-        objectstorage: [{type: 'objectstorage'}]
-      },
-        logger: 'helium',
-        port: 8080}
-      var config = helpers.generateLocalConfig(specConfig, services)
-
-      assert.objectContent(config, expected)
-    })
-
-    it('get default local config: supplied credentials', function () {
-      var specConfig = {}
-      var cloudantCredentials = {host: 'host', port: 1234, username: 'username', password: 'password'}
-      var redisCredentials = {host: 'host', port: 1234, username: 'username', password: 'password'}
-      var objectstorageCredentials = {auth_url: 'auth_url',
-        project: 'project',
-        projectId: 'projectId',
-        region: 'region',
-        userId: 'userId',
-        username: 'username',
-        password: 'password',
-        domainId: 'domainId',
-        domainName: 'domainName',
-        role: 'role'}
-      var services = {cloudant: [{credentials: cloudantCredentials}],
-        redis: [{credentials: redisCredentials}],
-        objectstorage: [{credentials: objectstorageCredentials}]
-      }
-      var expected = {services: {cloudant: [{type: 'cloudant',
-        host: 'host',
-        port: 1234,
-        secured: false,
-        username: 'username',
-        password: 'password'}],
-        redis: [{type: 'redis',
-          host: 'host',
-          port: 1234,
-          username: 'username',
-          password: 'password'}],
-        objectstorage: [{type: 'objectstorage',
-          auth_url: 'auth_url',
-          project: 'project',
-          projectId: 'projectId',
-          region: 'region',
-          userId: 'userId',
-          username: 'username',
-          password: 'password',
-          domainId: 'domainId',
-          domainName: 'domainName',
-          role: 'role'}]
-      },
-        logger: 'helium',
-        port: 8080}
-      var config = helpers.generateLocalConfig(specConfig, services)
-
-      assert.objectContent(config, expected)
-    })
-  })
-
-  describe('generateCloudConfig', function () {
-    it('get default cloud config: no services', function () {
-      var services = {}
-      var expected = {vcap: {services: {}}}
-      var config = helpers.generateCloudConfig({}, services)
-
-      assert.objectContent(config, expected)
-    })
-
-    it('get default cloud config: all services with default values', function () {
-      var services = {cloudant: [{credentials: {}}],
-        redis: [{credentials: {}}],
-        objectstorage: [{credentials: {}}],
-        appid: [{credentials: {}}],
-        watsonconversation: [{credentials: {}}],
-        alertnotification: [{credentials: {}}],
-        pushnotifications: [{credentials: {}}]
-      }
-      var expected = {vcap: {services: {'cloudantNoSQLDB': [{label: 'cloudantNoSQLDB',
-        tags: [],
-        plan: 'Lite',
-        credentials: {host: 'localhost',
-          port: 5984}}],
-        'compose-for-redis': [{label: 'compose-for-redis',
-          tags: [],
+  describe('sanitizeServiceAndFillInDefaults', function () {
+    describe('default values', function () {
+      var expectedDefaultValues = {
+        cloudant: {
+          label: 'cloudantNoSQLDB',
+          plan: 'Lite',
+          credentials: {
+            url: 'http://localhost:5984',
+            host: 'localhost',
+            username: '',
+            password: '',
+            secured: false,
+            port: 5984
+          }
+        },
+        redis: {
+          label: 'compose-for-redis',
           plan: 'Standard',
-          credentials: {uri: 'redis://admin:@localhost:6397'}}],
-        'Object-Storage': [{label: 'Object-Storage',
-          tags: [],
+          credentials: {
+            uri: 'redis://:@localhost:6397'
+          }
+        },
+        objectstorage: {
+          label: 'Object-Storage',
           plan: 'Free',
-          credentials: {auth_url: '',
+          credentials: {
+            auth_url: 'https://identity.open.softlayer.com',
             project: '',
             projectId: '',
             region: '',
@@ -201,136 +109,252 @@ describe('helpers', function () {
             password: '',
             domainId: '',
             domainName: '',
-            role: ''}}],
-        'AppID': [{label: 'AppID',
-          tags: [],
+            role: ''
+          }
+        },
+        appid: {
+          label: 'AppID',
           plan: 'Graduated tier',
-          credentials: {clientId: '',
+          credentials: {
+            clientId: '',
             oauthServerUrl: '',
             profilesUrl: '',
             secret: '',
             tenantId: '',
-            version: 3}}],
-        'conversation': [{label: 'conversation',
-          tags: [],
-          plan: 'Free',
-          credentials: {username: '',
-            password: '',
-            url: ''}}],
-        'AlertNotification': [{label: 'AlertNotification',
-          tags: [],
-          plan: 'Authorized Users',
-          credentials: {name: '',
-            password: '',
-            url: ''}}],
-        'imfpush': [{label: 'imfpush',
-          tags: [],
-          plan: 'Lite',
-          credentials: {appGuid: '',
-            appSecret: ''}}]
-      }}}
-      var config = helpers.generateCloudConfig({}, services)
-      assert.objectContent(config, expected)
+            version: 3
+          }
+        },
+        watsonconversation: {
+          label: 'conversation',
+          plan: 'free',
+          credentials: {
+            url: 'https://gateway.watsonplatform.net/conversation/api',
+            username: '',
+            password: ''
+          }
+        },
+        alertnotification: {
+          label: 'AlertNotification',
+          plan: 'authorizedusers',
+          credentials: {
+            url: '',
+            name: '',
+            password: ''
+          }
+        },
+        pushnotifications: {
+          label: 'imfpush',
+          plan: 'lite',
+          credentials: {
+            appGuid: '',
+            url: '',
+            admin_url: '',
+            appSecret: '',
+            clientSecret: ''
+          }
+        },
+        autoscaling: {
+          label: 'Auto-Scaling',
+          plan: 'free',
+          credentials: {}
+        }
+      }
+      Object.keys(expectedDefaultValues).forEach(serviceType => {
+        it(`for ${serviceType}`, function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            serviceType, { name: 'myService', credentials: {} }
+          )
+          assert.equal(service.name, 'myService')
+          assert.objectContent(service, expectedDefaultValues[serviceType])
+        })
+      })
     })
 
-    it('get default cloud config: all services with specified values', function () {
-      var services = {cloudant: [{label: 'testcloudant',
-        plan: 'premium',
-        credentials: {host: 'host',
-          url: 'url',
-          username: 'username',
-          password: 'password',
-          port: 1234}}],
-        redis: [{label: 'testredis',
-          plan: 'premium',
-          credentials: {uri: 'uri'}}],
-        objectstorage: [{label: 'testobjectstorage',
-          plan: 'premium',
-          credentials: {auth_url: 'auth_url',
-            project: 'project',
-            projectId: 'projectId',
-            region: 'region',
-            userId: 'userId',
-            username: 'username',
-            password: 'password',
-            domainId: 'domainId',
-            domainName: 'domainName',
-            role: 'role'}}],
-        appid: [{label: 'testappid',
-          plan: 'premium',
-          credentials: {clientId: 'clientId',
-            oauthServerUrl: 'oauthServerUrl',
-            profilesUrl: 'profilesUrl',
-            secret: 'secret',
-            tenantId: 'tenantId',
-            version: 1}}],
-        watsonconversation: [{label: 'testwatsonconversation',
-          plan: 'free',
-          credentials: {username: 'username',
-            password: 'password',
-            url: 'https://api.watson'}}],
-        alertnotification: [{label: 'testalertnotification',
-          plan: 'authorizedusers',
-          credentials: {name: 'username',
-            password: 'password',
-            url: 'https://api.alerts'}}],
-        pushnotifications: [{label: 'testpushnotifications',
-          plan: 'lite',
-          credentials: {appGuid: 'guid',
-            appSecret: 'secret'}}]
+    describe('specified values', function () {
+      var specifiedCredentials = {
+        cloudant: {
+          url: 'https://my-host:5555',
+          host: 'my-host',
+          username: 'my-username',
+          password: 'my-password',
+          secured: true,
+          port: 5555
+        },
+        redis: {
+          uri: 'redis://:my-password@my-host:5555'
+        },
+        objectstorage: {
+          auth_url: 'http://my-auth-host',
+          project: 'my-project',
+          projectId: 'my-project-id',
+          region: 'my-region',
+          userId: 'my-user-id',
+          username: 'my-username',
+          password: 'my-password',
+          domainId: 'my-domain-id',
+          domainName: 'my-domain-name',
+          role: 'my-role'
+        },
+        appid: {
+          clientId: 'my-client-id',
+          oauthServerUrl: 'http://my-oauth-server-host',
+          profilesUrl: 'http://my-profiles-host',
+          secret: 'my-secret',
+          tenantId: 'my-tenant-id',
+          version: 555
+        },
+        watsonconversation: {
+          url: 'http://my-host',
+          username: 'my-username',
+          password: 'my-password'
+        },
+        alertnotification: {
+          url: 'http://my-host',
+          name: 'my-name',
+          password: 'my-password'
+        },
+        pushnotifications: {
+          appGuid: 'my-app-guid',
+          url: 'http://my-host',
+          admin_url: 'http://my-admin-host',
+          appSecret: 'my-app-secret',
+          clientSecret: 'my-client-secret'
+        },
+        autoscaling: {
+        }
       }
-      var expected = {vcap: {services: {testcloudant: [{label: 'testcloudant',
-        tags: [],
-        plan: 'premium',
-        credentials: {host: 'host',
-          url: 'url',
-          username: 'username',
-          password: 'password',
-          port: 1234}}],
-        testredis: [{label: 'testredis',
-          tags: [],
-          plan: 'premium',
-          credentials: {uri: 'uri'}}],
-        testobjectstorage: [{label: 'testobjectstorage',
-          tags: [],
-          plan: 'premium',
-          credentials: {auth_url: 'auth_url',
-            project: 'project',
-            projectId: 'projectId',
-            region: 'region',
-            userId: 'userId',
-            username: 'username',
-            password: 'password',
-            domainId: 'domainId',
-            domainName: 'domainName',
-            role: 'role'}}],
-        testappid: [{label: 'testappid',
-          tags: [],
-          plan: 'premium',
-          credentials: {clientId: 'clientId',
-            oauthServerUrl: 'oauthServerUrl',
-            profilesUrl: 'profilesUrl',
-            secret: 'secret',
-            tenantId: 'tenantId',
-            version: 1}}],
-        testwatsonconversation: [{label: 'testwatsonconversation',
-          tags: [],
-          plan: 'free',
-          credentials: {username: 'username',
-            password: 'password',
-            url: 'https://api.watson'}}],
-        testalertnotification: [{label: 'testalertnotification',
-          tags: [],
-          credentials: {name: 'username',
-            password: 'password',
-            url: 'https://api.alerts'}}],
-        testpushnotifications: [{label: 'testpushnotifications',
-          plan: 'lite',
-          credentials: {appGuid: 'guid',
-            appSecret: 'secret'}}]
-      }}}
-      var config = helpers.generateCloudConfig({}, services)
-      assert.objectContent(config, expected)
+      Object.keys(specifiedCredentials).forEach(serviceType => {
+        it(`for ${serviceType}`, function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            serviceType, { name: 'my-service', label: 'my-label', plan: 'my-plan', credentials: specifiedCredentials[serviceType] }
+          )
+          assert.equal(service.name, 'my-service')
+          assert.equal(service.label, 'my-label')
+          assert.equal(service.plan, 'my-plan')
+          assert.objectContent(service.credentials, specifiedCredentials[serviceType])
+        })
+      })
+    })
+
+    describe('calculated values', function () {
+      describe('for cloudant', function () {
+        it('host, username, password, secured, port from url (merge with default)', function () {
+          var specifiedCredentials = { url: 'http://my-username:my-password@my-host:4444' }
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+          )
+          assert.objectContent(service.credentials, {
+            url: specifiedCredentials.url,
+            host: 'my-host',
+            username: 'my-username',
+            password: 'my-password',
+            secured: false,
+            port: 4444
+          })
+        })
+
+        it('url from host, username, password, port (merge with default)', function () {
+          var specifiedCredentials = {
+            host: 'my-host',
+            username: 'my-username',
+            password: 'my-password',
+            port: 3333
+          }
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+          )
+          assert.objectContent(service.credentials, {
+            url: 'http://my-username:my-password@my-host:3333',
+            host: specifiedCredentials.host,
+            username: specifiedCredentials.username,
+            password: specifiedCredentials.password,
+            secured: false,
+            port: specifiedCredentials.port
+          })
+        })
+
+        it('url from host (merge with default)', function () {
+          var specifiedCredentials = { host: 'my-host' }
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+          )
+          assert.objectContent(service.credentials, {
+            url: 'http://my-host:5984',
+            host: specifiedCredentials.host,
+            username: '',
+            password: '',
+            secured: false,
+            port: 5984
+          })
+        })
+
+        it('url from port (merge with default)', function () {
+          var specifiedCredentials = { port: 1111 }
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+          )
+          assert.objectContent(service.credentials, {
+            url: 'http://localhost:1111',
+            host: 'localhost',
+            username: '',
+            password: '',
+            secured: false,
+            port: specifiedCredentials.port
+          })
+        })
+
+        it('url from username, password (merge with default)', function () {
+          var specifiedCredentials = { username: 'my-username', password: 'my-password' }
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+          )
+          assert.objectContent(service.credentials, {
+            url: 'http://my-username:my-password@localhost:5984',
+            host: 'localhost',
+            username: specifiedCredentials.username,
+            password: specifiedCredentials.password,
+            secured: false,
+            port: 5984
+          })
+        })
+      })
+
+      describe('for redis', function () {
+        it('uri from host, port and password (no merge)', function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'redis', { name: 'my-service', credentials: { password: 'my-password', host: 'my-host', port: 5555 } }
+          )
+          assert.equal(service.credentials.uri, 'redis://:my-password@my-host:5555')
+        })
+
+        it('uri from password (merge with default)', function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'redis', { name: 'my-service', credentials: { password: 'my-password' } }
+          )
+          assert.equal(service.credentials.uri, 'redis://:my-password@localhost:6397')
+        })
+
+        it('uri from host (merge with default)', function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'redis', { name: 'my-service', credentials: { host: 'my-host' } }
+          )
+          assert.equal(service.credentials.uri, 'redis://:@my-host:6397')
+        })
+
+        it('uri from port (merge with default)', function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'redis', { name: 'my-service', credentials: { port: 5555 } }
+          )
+          assert.equal(service.credentials.uri, 'redis://:@localhost:5555')
+        })
+
+        it('uri and host, port and password (no merge)', function () {
+          var service = helpers.sanitizeServiceAndFillInDefaults(
+            'redis', { name: 'my-service', credentials: { uri: 'redis://my-specific-host:1111', password: 'my-password', host: 'my-host', port: 5555 } }
+          )
+          assert.equal(service.credentials.uri, 'redis://my-specific-host:1111')
+        })
+      })
     })
   })
 
@@ -386,15 +410,15 @@ describe('helpers', function () {
     })
 
     it('get default plan for watsonconversation', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('watsonconversation'), 'Free')
+      assert.equal(helpers.getBluemixDefaultPlan('watsonconversation'), 'free')
     })
 
     it('get default plan for alertnotification', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'Authorized Users')
+      assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'authorizedusers')
     })
 
     it('get default plan for pushnotifications', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'Lite')
+      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'lite')
     })
 
     it('get default plan for unrecognised value', function () {
