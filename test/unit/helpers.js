@@ -22,7 +22,7 @@ var path = require('path')
 var memFs = require('mem-fs')
 var editor = require('mem-fs-editor')
 
-describe('helpers', function () {
+describe('Unit tests for helpers', function () {
   describe('generateServiceName', function () {
     var serviceName
 

@@ -26,7 +26,7 @@ var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:build']
 ]
 
-describe('swiftserver:app', function () {
+describe('Unit tests for swiftserver:app', function () {
   describe('Application name and directory name are the same', function () {
     var runContext
     before(function () {

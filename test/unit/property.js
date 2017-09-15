@@ -26,7 +26,7 @@ var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:build']
 ]
 
-describe('swiftserver:property', function () {
+describe('Unit tests for swiftserver:property', function () {
   describe('Basic property test. ' +
             'Check if properties are added to a model', function () {
     var runContext

@@ -18,7 +18,7 @@
 var assert = require('assert')
 var helpers = require('../../lib/helpers')
 
-describe('validators', function () {
+describe('Unit tests for validators', function () {
   describe('validateAppName', function () {
     it('accepts app name with alpha characters only', function () {
       assert(helpers.validateAppName('test') === true)
