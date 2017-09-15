@@ -114,8 +114,7 @@ describe('Spec option and build integration tests for app generator', function (
         port: 4567
       },
       capabilities: {
-        metrics: true,
-        autoscale: 'myAutoScalingService'
+        metrics: true
       },
       'models': [
         {

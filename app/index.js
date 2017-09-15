@@ -795,6 +795,8 @@ module.exports = Generator.extend({
     if (this.skipPrompting) return
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
     // some may only be available via non-prompting route.
+    if (this.autoscale) this._addService('autoscale', { name: this.autoscale })
+
     this.spec = {
       appType: this.appType,
       appName: this.appname,
@@ -809,8 +811,7 @@ module.exports = Generator.extend({
       services: this.services || {},
       crudservice: this.crudservice,
       capabilities: {
-        metrics: this.metrics || undefined,
-        autoscale: this.autoscale || undefined
+        metrics: this.metrics || undefined
       },
       config: {
         logger: 'helium',
