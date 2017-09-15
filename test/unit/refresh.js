@@ -237,6 +237,34 @@ describe('swiftserver:refresh', function () {
     })
   })
 
+  describe('Generate a blank application', function () {
+    var runContext
+
+    before(function () {
+      var spec = {
+        appType: 'scaffold',
+        healthcheck: false,
+        appName: appName,
+        config: {}
+      }
+      runContext = helpers.run(path.join(__dirname, '../../refresh'))
+        .withOptions({
+          specObj: spec
+        })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      nock.cleanAll()
+      runContext.cleanTestDirectory()
+    })
+
+    it('contains no Health references', function () {
+      assert.noFileContent('Package.swift', 'Health')
+      assert.noFileContent('Sources/Application/Application.swift', 'Health')
+    })
+  })
+
   describe('Generate a basic application with a server SDK', function () {
     var runContext
     var sdkScope

@@ -252,6 +252,9 @@ module.exports = Generator.extend({
       // Swagger UI
       this.swaggerUI = (this.spec.swaggerUI === true)
 
+      // Healthcheck - defaults to true
+      this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
+
       // Service configuration
       if (this.services && this.bluemix && this.bluemix.server) this.bluemix.server.services = []
 
@@ -863,7 +866,8 @@ module.exports = Generator.extend({
             web: this.web,
             hostSwagger: this.hostSwagger,
             resources: resources,
-            basepath: basepath
+            basepath: basepath,
+            healthcheck: this.healthcheck
           }
         )
       })
@@ -936,6 +940,7 @@ module.exports = Generator.extend({
             web: this.web,
             docker: this.docker,
             hostSwagger: this.hostSwagger,
+            healthcheck: this.healthcheck,
             exampleEndpoints: this.exampleEndpoints,
             metrics: this.capabilities.metrics,
             autoscale: this.services.autoscale,
@@ -1299,7 +1304,8 @@ module.exports = Generator.extend({
             services: this.services,
             capabilities: this.capabilities,
             sdkTargets: this.sdkTargets,
-            sdkPackages: this.sdkPackages
+            sdkPackages: this.sdkPackages,
+            healthcheck: this.healthcheck
           }
         )
       })
