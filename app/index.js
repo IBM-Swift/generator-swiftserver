@@ -71,6 +71,7 @@ module.exports = Generator.extend({
 
     initAppName: function () {
       if (this.skipPrompting) return
+
       this.appname = null // Discard yeoman default appname
       this.skipPromptingAppName = false
       if (this.options.name) {
@@ -229,7 +230,6 @@ module.exports = Generator.extend({
           case 'docker': return 'Docker files'
           case 'fromSwagger': return 'From Swagger'
           case 'endpoints': return 'Generate endpoints'
-          case 'bluemix': return 'Bluemix cloud deployment'
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`))
         }
@@ -237,24 +237,27 @@ module.exports = Generator.extend({
 
       function defaultCapabilities (appPattern) {
         switch (appPattern) {
-          case 'Basic': return ['Docker files',
-            'Embedded metrics dashboard',
-            'Bluemix cloud deployment']
-          case 'Web': return ['Static web file serving',
-            'Embedded metrics dashboard',
+          case 'Basic': return [
             'Docker files',
-            'Bluemix cloud deployment']
-          case 'Bff': return ['Swagger UI',
+            'Embedded metrics dashboard'
+          ]
+          case 'Web': return [
+            'Static web file serving',
+            'Embedded metrics dashboard',
+            'Docker files'
+          ]
+          case 'BFF': return [
+            'Swagger UI',
             'Embedded metrics dashboard',
             'Static web file serving',
-            'Docker files',
-            'Bluemix cloud deployment']
+            'Docker files'
+          ]
           default:
             self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`))
         }
       }
 
-      var choices = ['metrics', 'docker', 'bluemix']
+      var choices = ['metrics', 'docker']
       var defaults = choices.map(displayName)
 
       if (this.appType === 'scaffold') {
@@ -394,46 +397,29 @@ module.exports = Generator.extend({
       return this.prompt(prompts).then(handleAnswers)
     },
 
-    promptServicesForScaffoldLocal: function () {
+    promptServicesForScaffold: function () {
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
-      if (this.bluemix) return
 
-      var choices = ['CouchDB', 'Redis']
-
+      var choices = [
+        'Cloudant / CouchDB',
+        'Redis',
+        'Object Storage',
+        'AppID',
+        'Auto-scaling',
+        'Watson Conversation',
+        'Alert Notification',
+        'Push Notifications'
+      ]
       var prompts = [{
         name: 'services',
         type: 'checkbox',
-        message: 'Generate boilerplate for local services:',
+        message: 'Generate boilerplate for services:',
         choices: choices,
         default: []
       }]
       return this.prompt(prompts).then((answers) => {
-        if (answers.services.indexOf('CouchDB') !== -1) {
-          this._addService('cloudant', { name: 'couchdb' })
-        }
-        if (answers.services.indexOf('Redis') !== -1) {
-          this._addService('redis', { name: 'redis' })
-        }
-      })
-    },
-
-    promptServicesForScaffoldBluemix: function () {
-      if (this.skipPrompting) return
-      if (this.appType !== 'scaffold') return
-      if (!this.bluemix) return
-
-      var choices = ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
-
-      var prompts = [{
-        name: 'services',
-        type: 'checkbox',
-        message: 'Generate boilerplate for Bluemix services:',
-        choices: choices,
-        default: []
-      }]
-      return this.prompt(prompts).then((answers) => {
-        if (answers.services.indexOf('Cloudant') !== -1) {
+        if (answers.services.indexOf('Cloudant / CouchDB') !== -1) {
           this._addService('cloudant', { name: generateServiceName(this.appname, 'Cloudant') })
         }
         if (answers.services.indexOf('Redis') !== -1) {
@@ -490,17 +476,16 @@ module.exports = Generator.extend({
       })
     },
 
-    promptServicesForCRUDBluemix: function () {
+    promptServicesForCRUD: function () {
       if (this.skipPrompting) return
       if (this.appType !== 'crud') return
-      if (!this.bluemix) return
 
       var choices = ['Auto-scaling']
 
       var prompts = [{
         name: 'services',
         type: 'checkbox',
-        message: 'Generate boilerplate for Bluemix services:',
+        message: 'Generate boilerplate for services:',
         choices: choices,
         default: []
       }]
@@ -560,7 +545,7 @@ module.exports = Generator.extend({
       var prompts = [
         { name: 'cloudantName',
           message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix && this.appType !== 'crud'
+          when: (answers) => this.appType !== 'crud'
         },
         { name: 'cloudantHost', message: 'Enter host name:' },
         {
@@ -605,8 +590,7 @@ module.exports = Generator.extend({
       this.log('Configure Redis')
       var prompts = [
         { name: 'redisName',
-          message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix
+          message: 'Enter name (blank for default):'
         },
         { name: 'redisHost', message: 'Enter host name:' },
         {
@@ -636,8 +620,7 @@ module.exports = Generator.extend({
       this.log('Configure Watson Conversation')
       var prompts = [
         { name: 'watsonConversationName',
-          message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix
+          message: 'Enter name (blank for default):'
         },
         { name: 'watsonConversationUsername', message: 'Enter username (blank for none):' },
         { name: 'watsonConversationPassword', message: 'Enter password:', type: 'password' },
@@ -663,10 +646,7 @@ module.exports = Generator.extend({
       this.log()
       this.log('Configure Alert Notification')
       var prompts = [
-        { name: 'alertNotificationName',
-          message: 'Enter service name (blank for default):',
-          when: (answers) => this.bluemix
-        },
+        { name: 'alertNotificationName', message: 'Enter service name (blank for default):' },
         { name: 'alertNotificationUsername', message: 'Enter username (blank for none):' },
         { name: 'alertNotificationPassword', message: 'Enter password:', type: 'password' },
         { name: 'alertNotificationUrl', message: 'Enter url (blank for none):' }
@@ -690,10 +670,7 @@ module.exports = Generator.extend({
       this.log('Configure Push Notifications')
 
       var prompts = [
-        { name: 'pushNotificationsName',
-          message: 'Enter service name (blank for default):',
-          when: (answers) => this.bluemix
-        },
+        { name: 'pushNotificationsName', message: 'Enter service name (blank for default):' },
         { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
         { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' },
         {
@@ -736,10 +713,7 @@ module.exports = Generator.extend({
         { name: 'objectstorageRole',       message: 'Enter role:' },
         { name: 'objectstorageUsername',   message: 'Enter username:' },
         */
-        { name: 'objectstorageName',
-          message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix
-        },
+        { name: 'objectstorageName', message: 'Enter name (blank for default):' },
         { name: 'objectstorageRegion', message: 'Enter region:' },
         { name: 'objectstorageProjectId', message: 'Enter project ID:' },
         { name: 'objectstorageUserId', message: 'Enter user ID:' },
@@ -772,10 +746,7 @@ module.exports = Generator.extend({
       this.log()
       this.log('Configure AppID')
       var prompts = [
-        { name: 'appIDName',
-          message: 'Enter name (blank for default):',
-          when: (answers) => this.bluemix
-        },
+        { name: 'appIDName', message: 'Enter name (blank for default):' },
         { name: 'appidTenantId', message: 'Enter tenant ID:' },
         { name: 'appidClientId', message: 'Enter client ID:' },
         { name: 'appidSecret', message: 'Enter secret:', type: 'password' }
@@ -798,7 +769,6 @@ module.exports = Generator.extend({
     this.spec = {
       appType: this.appType,
       appName: this.appname,
-      bluemix: this.bluemix || undefined,
       docker: this.docker || undefined,
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
