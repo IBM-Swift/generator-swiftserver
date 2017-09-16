@@ -444,7 +444,7 @@ module.exports = Generator.extend({
             region: 'US_SOUTH' })
         }
         if (answers.services.indexOf('Auto-scaling') !== -1) {
-          this.autoscale = generateServiceName(this.appname, 'AutoScaling')
+          this._addService('autoscaling', { name: generateServiceName(this.appname, 'AutoScaling') })
         }
       })
     },
@@ -519,7 +519,7 @@ module.exports = Generator.extend({
         }
       }
 
-      var choices = Object.keys(this.services)
+      var choices = Object.keys(this.services).filter(s => (s !== 'autoscaling'))
       var prompts = [{
         name: 'configure',
         type: 'checkbox',
@@ -777,16 +777,9 @@ module.exports = Generator.extend({
       serverSwaggerFiles: this.serverSwaggerFiles || undefined,
       hostSwagger: this.hostSwagger || undefined,
       swaggerUI: this.swaggerUI || undefined,
+      metrics: this.metrics || undefined,
       services: this.services || {},
-      crudservice: this.crudservice,
-      capabilities: {
-        metrics: this.metrics || undefined,
-        autoscale: this.autoscale || undefined
-      },
-      config: {
-        logger: 'helium',
-        port: 8080
-      }
+      crudservice: this.crudservice
     }
   },
 
