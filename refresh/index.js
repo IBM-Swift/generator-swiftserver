@@ -406,6 +406,7 @@ module.exports = Generator.extend({
       'cloudant': 'cloudant',
       'watsonconversation': 'conversation',
       'redis': 'redis',
+      'mongodb': 'mongodb',
       'alertnotification': 'alertnotification',
       'pushnotifications': 'push',
       'autoscaling': 'autoscaling'

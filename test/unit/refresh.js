@@ -339,6 +339,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceAppid.swift',
           commonTest.servicesSourceDir + '/ServiceCloudant.swift',
           commonTest.servicesSourceDir + '/ServiceRedis.swift',
+          commonTest.servicesSourceDir + '/ServiceMongodb.swift',
           commonTest.servicesSourceDir + '/ServiceObjectStorage.swift',
           commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
@@ -359,6 +360,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             appid: [{ name: 'myAppIDService' }],
             cloudant: [{ name: 'myCloudantService' }],
             redis: [{ name: 'myRedisService' }],
+            mongodb: [{ name: 'myMongoDBService' }],
             objectstorage: [{ name: 'myObjectStorageService' }],
             watsonconversation: [{ name: 'myConversationService' }],
             pushnotifications: [{ name: 'myPushService' }],
@@ -1600,6 +1602,32 @@ describe('Unit tests for swiftserver:refresh', function () {
       commonTest.itCreatedServiceConfigFiles()
 
       commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService')
+    })
+
+    describe('with mongodb', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                services: {
+                                  mongodb: [{ name: 'myMongoDBService' }]
+                                }
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedServiceConfigFiles()
+
+      commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoDBService')
     })
   })
 })

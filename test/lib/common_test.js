@@ -457,7 +457,7 @@ exports.cloudant = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('cloudant boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceCloudant.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import CouchDB'],
         [serviceFile, 'couchDBClient: CouchDBClient'],
@@ -484,7 +484,7 @@ exports.appid = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('appid boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceAppid.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixAppID'],
         [serviceFile, 'webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin'],
@@ -513,7 +513,7 @@ exports.watsonconversation = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('watson conversation boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceWatsonConversation.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import ConversationV1'],
         [serviceFile, 'conversation: Conversation'],
@@ -540,7 +540,7 @@ exports.pushnotifications = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('push notifications boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServicePush.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixPushNotifications'],
         [serviceFile, 'pushNotifications: PushNotifications'],
@@ -567,7 +567,7 @@ exports.alertnotification = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('alert notification boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceAlertNotification.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import AlertNotifications'],
         [serviceFile, 'serviceCredentials: ServiceCredentials'],
@@ -594,7 +594,7 @@ exports.objectstorage = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('object storage boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceObjectStorage.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixObjectStorage'],
         [serviceFile, 'objStorage: ObjectStorage'],
@@ -621,13 +621,40 @@ exports.redis = {
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('redis boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/ServiceRedis.swift`
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import SwiftRedis'],
         [serviceFile, 'redis = Redis('],
         [serviceFile, 'redisCredentials: RedisCredentials'],
         [serviceFile, 'func initializeServiceRedis() throws'],
         [serviceFile, 'cloudEnv.getRedisCredentials(']
+      ])
+    })
+  }
+}
+
+// MongoDB
+exports.mongodb = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+    var description = 'mongodb'
+    var mapping = 'mongodb'
+    var label = 'compose-for-mongodb'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('mongodb')
+    var sourceFile = 'ServiceMongodb.swift'
+    var initFunction = 'initializeServiceMongodb'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('redis boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import MongoKitten'],
+        [serviceFile, 'mongodb = try Database('],
+        [serviceFile, 'func initializeServiceMongodb() throws'],
+        [serviceFile, 'cloudEnv.getDictionary(']
       ])
     })
   }
