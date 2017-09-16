@@ -179,7 +179,8 @@ module.exports = Generator.extend({
         name: 'appType',
         type: 'list',
         message: 'Select type of project:',
-        choices: [ 'Scaffold a starter', 'Generate a CRUD application' ]
+        choices: [ 'Scaffold a starter', 'Generate a CRUD application' ],
+        default: 'Scaffold a starter'
       }]
       return this.prompt(prompts).then((answers) => {
         switch (answers.appType) {
