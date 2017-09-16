@@ -225,12 +225,9 @@ module.exports = Generator.extend({
       function displayName (property) {
         switch (property) {
           case 'web': return 'Static web file serving'
-          case 'hostSwagger': return 'OpenAPI / Swagger endpoint'
           case 'swaggerUI': return 'Swagger UI'
           case 'metrics': return 'Embedded metrics dashboard'
           case 'docker': return 'Docker files'
-          case 'fromSwagger': return 'From Swagger'
-          case 'endpoints': return 'Generate endpoints'
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`))
         }
@@ -315,22 +312,19 @@ module.exports = Generator.extend({
       var choices = {'customSwagger': 'Custom swagger file',
         'exampleEndpoints': 'Example swagger file'}
 
-      this.hostSwagger = true
       var prompts = [{
         name: 'swaggerChoice',
         type: 'list',
         message: 'Swagger file to use to create endpoints and companion iOS SDK:',
         choices: [choices.customSwagger, choices.exampleEndpoints],
-        default: []
+        default: choices.customSwagger
       }, {
         name: 'path',
         type: 'input',
         message: 'Provide the path to a swagger file:',
-        filter: function (response) { return response.trim() },
-        validate: validateFilePathOrURL,
-        when: function (question) {
-          return (question.swaggerChoice === choices.customSwagger)
-        }
+        filter: (response) => response.trim(),
+        validate: (response) => validateFilePathOrURL(response, this.initialWorkingDir),
+        when: (question) => (question.swaggerChoice === choices.customSwagger)
       }]
       return this.prompt(prompts).then((answers) => {
         if (answers.swaggerChoice === choices.exampleEndpoints) {
@@ -358,12 +352,12 @@ module.exports = Generator.extend({
         message: 'Would you like to generate a Swift server SDK from a Swagger file?',
         default: false
       }, {
-        when: function (props) { return props[Object.keys(props)[0]] },
+        when: (props) => props[Object.keys(props)[0]],
         name: 'serverSwaggerInputPath' + depth,
         type: 'input',
         message: 'Enter Swagger yaml file path:',
-        filter: function (response) { return response.trim() },
-        validate: validateFilePathOrURL
+        filter: (response) => response.trim(),
+        validate: (response) => validateFilePathOrURL(response, this.initialWorkingDir)
       }]
 
       // Declaring a function to handle the answering of these prompts so that
@@ -405,6 +399,7 @@ module.exports = Generator.extend({
       var choices = [
         'Cloudant / CouchDB',
         'Redis',
+        'MongoDB',
         'Object Storage',
         'AppID',
         'Auto-scaling',
@@ -425,6 +420,9 @@ module.exports = Generator.extend({
         }
         if (answers.services.indexOf('Redis') !== -1) {
           this._addService('redis', { name: generateServiceName(this.appname, 'Redis') })
+        }
+        if (answers.services.indexOf('MongoDB') !== -1) {
+          this._addService('mongodb', { name: generateServiceName(this.appname, 'MongoDB') })
         }
         if (answers.services.indexOf('Object Storage') !== -1) {
           this._addService('objectstorage', { name: generateServiceName(this.appname, 'ObjectStorage') })
@@ -509,6 +507,7 @@ module.exports = Generator.extend({
         switch (serviceType) {
           case 'cloudant': return 'Cloudant / CouchDB'
           case 'redis': return 'Redis'
+          case 'mongodb': return 'MongoDB'
           case 'objectstorage': return 'Object Storage'
           case 'appid': return 'AppID'
           case 'watsonconversation': return 'Watson Conversation'
@@ -612,6 +611,38 @@ module.exports = Generator.extend({
       })
     },
 
+    promptConfigureMongoDB: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.mongodb) return
+
+      this.log()
+      this.log('Configure MongoDB')
+      var prompts = [
+        { name: 'mongodbName',
+          message: 'Enter name (blank for default):'
+        },
+        { name: 'mongodbHost', message: 'Enter host name:' },
+        {
+          name: 'mongodbPort',
+          message: 'Enter port:',
+          validate: (port) => validatePort(port),
+          filter: (port) => (port ? parseInt(port) : port)
+        },
+        { name: 'mongodbPassword', message: 'Enter password:', type: 'password' },
+        { name: 'mongodbDatabase', message: 'Enter database name:' }
+      ]
+      return this.prompt(prompts).then((answers) => {
+        this.services.mongodb[0].name = answers.mongodbName || this.services.mongodb[0].name
+        this.services.mongodb[0].credentials = {
+          host: answers.mongodbHost || undefined,
+          port: answers.mongodbPort || undefined,
+          password: answers.mongodbPassword || undefined,
+          database: answers.mongodbDatabase || undefined
+        }
+      })
+    },
+
     promptConfigureWatsonConversation: function () {
       if (this.skipPrompting) return
       if (!this.servicesToConfigure) return
@@ -620,17 +651,13 @@ module.exports = Generator.extend({
       this.log()
       this.log('Configure Watson Conversation')
       var prompts = [
-        { name: 'watsonConversationName',
-          message: 'Enter name (blank for default):'
-        },
+        { name: 'watsonConversationName', message: 'Enter name (blank for default):' },
         { name: 'watsonConversationUsername', message: 'Enter username (blank for none):' },
         { name: 'watsonConversationPassword', message: 'Enter password:', type: 'password' },
-        { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' },
-        { name: 'watsonConversationVersion', message: 'Enter version (blank for none):' }
+        { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' }
       ]
       return this.prompt(prompts).then((answers) => {
         this.services.watsonconversation[0].name = answers.watsonConversationName || this.services.watsonconversation[0].name
-        this.services.watsonconversation[0].version = answers.watsonConversationVersion || this.services.watsonconversation[0].version
         this.services.watsonconversation[0].credentials = {
           username: answers.watsonConversationUsername || undefined,
           password: answers.watsonConversationPassword || undefined,
