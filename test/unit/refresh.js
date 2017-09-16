@@ -525,7 +525,6 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   appType: 'crud',
                                   appName: applicationName,
                                   models: [ todoModel ],
-                                  metrics: true,
                                   services: {
                                     autoscaling: [{ name: 'myAutoscalingService' }]
                                   }
