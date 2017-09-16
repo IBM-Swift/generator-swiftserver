@@ -611,7 +611,7 @@ describe('Unit tests for swiftserver:app', function () {
                             .withPrompts({
                               name: applicationName,
                               appType: 'Scaffold a starter',
-                              capabilities: [],
+                              capabilities: [ 'Static web file serving' ],
                               endpoints: []
                             })
         return runContext.toPromise()
@@ -625,7 +625,7 @@ describe('Unit tests for swiftserver:app', function () {
         runContext: runContext,
         appType: 'scaffold',
         appName: applicationName,
-        capabilities: [],
+        capabilities: [ 'web' ],
         services: {}
       }))
     })
