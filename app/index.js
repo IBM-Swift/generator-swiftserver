@@ -211,7 +211,7 @@ module.exports = Generator.extend({
         switch (answers.appPattern) {
           case 'Basic': this.appPattern = 'Basic'; break
           case 'Web': this.appPattern = 'Web'; break
-          case 'Backend for frontend': this.appPattern = 'Bff'; break
+          case 'Backend for frontend': this.appPattern = 'BFF'; break
           default:
             this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`))
         }
@@ -285,8 +285,8 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (this.appType !== 'scaffold') return
 
-      var choices = ['Swagger file serving endpoint', 'Endpoints from swagger file']
-      var defaults = this.appPattern === 'Bff' ? choices : undefined
+      var choices = [ 'Swagger file serving endpoint', 'Endpoints from swagger file' ]
+      var defaults = this.appPattern === 'BFF' ? choices : []
 
       var prompts = [{
         name: 'endpoints',
