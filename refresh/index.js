@@ -1371,7 +1371,7 @@ module.exports = Generator.extend({
     writeBluemixDeploymentFiles: function () {
       if (this.existingProject) return
       this.bluemix.services = this.services
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
