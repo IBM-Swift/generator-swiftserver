@@ -458,6 +458,7 @@ module.exports = Generator.extend({
       }
     })
     this.composeWith(require.resolve('generator-ibm-service-enablement'), {
+      quiet: true,
       bluemix: JSON.stringify(bluemixOption),
       parentContext: {
         injectIntoApplication: options => {
