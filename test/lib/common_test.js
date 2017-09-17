@@ -680,3 +680,30 @@ exports.mongodb = {
     })
   }
 }
+
+// PostgreSQL
+exports.postgresql = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
+    var description = 'postgresql'
+    var mapping = 'postgre'
+    var label = 'compose-for-postgresql'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('postgresql')
+    var sourceFile = 'ServicePostgre.swift'
+    var initFunction = 'initializeServicePostgre'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('postgresql boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import SwiftKueryPostgreSQL'],
+        [serviceFile, 'postgreSQLConn = PostgreSQLConnection('],
+        [serviceFile, 'func initializeServicePostgre() throws'],
+        [serviceFile, 'cloudEnv.getPostgreSQLCredentials(']
+      ])
+    })
+  }
+}

@@ -817,6 +817,67 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       })
     })
 
+    describe('with postgresql', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'PostgreSQL' ],
+                                configure: [ 'PostgreSQL' ],
+                                postgresqlName: 'myPostgreSQLService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
+          uri: 'postgres://localhost:5432'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'PostgreSQL' ],
+                                configure: [ 'PostgreSQL' ],
+                                postgresqlName: 'myPostgreSQLService',
+                                postgresqlHost: 'myhost',
+                                postgresqlPort: '1234',
+                                postgresqlUsername: 'admin',
+                                postgresqlPassword: 'password1234',
+                                postgresqlDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
+          uri: 'postgres://admin:password1234@myhost:1234/mydb'
+        })
+      })
+    })
+
     describe('with object storage', function () {
       describe('default credentials', function () {
         var runContext
@@ -1177,7 +1238,12 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
   })
 
   describe('crud', function () {
-    // TODO
+    // TODO base
+    // TODO with server sdk
+    // TODO with metrics
+    // TODO with docker
+    // TODO with autoscaling
+    // TODO with cloudant
   })
 
 // -- OLD

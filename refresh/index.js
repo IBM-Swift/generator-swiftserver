@@ -438,6 +438,7 @@ module.exports = Generator.extend({
       'watsonconversation': 'conversation',
       'redis': 'redis',
       'mongodb': 'mongodb',
+      'postgresql': 'postgresql',
       'alertnotification': 'alertnotification',
       'pushnotifications': 'push',
       'autoscaling': 'autoscaling'

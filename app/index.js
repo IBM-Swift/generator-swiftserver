@@ -400,6 +400,7 @@ module.exports = Generator.extend({
         'Cloudant / CouchDB',
         'Redis',
         'MongoDB',
+        'PostgreSQL',
         'Object Storage',
         'AppID',
         'Auto-scaling',
@@ -423,6 +424,9 @@ module.exports = Generator.extend({
         }
         if (answers.services.indexOf('MongoDB') !== -1) {
           this._addService('mongodb', { name: generateServiceName(this.appname, 'MongoDB') })
+        }
+        if (answers.services.indexOf('PostgreSQL') !== -1) {
+          this._addService('postgresql', { name: generateServiceName(this.appname, 'PostgreSQL') })
         }
         if (answers.services.indexOf('Object Storage') !== -1) {
           this._addService('objectstorage', { name: generateServiceName(this.appname, 'ObjectStorage') })
@@ -508,6 +512,7 @@ module.exports = Generator.extend({
           case 'cloudant': return 'Cloudant / CouchDB'
           case 'redis': return 'Redis'
           case 'mongodb': return 'MongoDB'
+          case 'postgresql': return 'PostgreSQL'
           case 'objectstorage': return 'Object Storage'
           case 'appid': return 'AppID'
           case 'autoscaling': return 'Auto-scaling'
@@ -640,6 +645,40 @@ module.exports = Generator.extend({
           port: answers.mongodbPort || undefined,
           password: answers.mongodbPassword || undefined,
           database: answers.mongodbDatabase || undefined
+        }
+      })
+    },
+
+    promptConfigurePostgreSQL: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.postgresql) return
+
+      this.log()
+      this.log('Configure PostgreSQL')
+      var prompts = [
+        { name: 'postgresqlName',
+          message: 'Enter name (blank for default):'
+        },
+        { name: 'postgresqlHost', message: 'Enter host name:' },
+        {
+          name: 'postgresqlPort',
+          message: 'Enter port:',
+          validate: (port) => validatePort(port),
+          filter: (port) => (port ? parseInt(port) : port)
+        },
+        { name: 'postgresqlUsername', message: 'Enter username:' },
+        { name: 'postgresqlPassword', message: 'Enter password:', type: 'password' },
+        { name: 'postgresqlDatabase', message: 'Enter database name:' }
+      ]
+      return this.prompt(prompts).then((answers) => {
+        this.services.postgresql[0].name = answers.postgresqlName || this.services.postgresql[0].name
+        this.services.postgresql[0].credentials = {
+          host: answers.postgresqlHost || undefined,
+          port: answers.postgresqlPort || undefined,
+          username: answers.postgresqlUsername || undefined,
+          password: answers.postgresqlPassword || undefined,
+          database: answers.postgresqlDatabase || undefined
         }
       })
     },
