@@ -162,7 +162,7 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
 
     describe('with all capabilities and services', function () {
       // var petstoreSDKName = 'Swagger_Petstore'
-      // var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
+      var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
       var runContext
 
       before(function () {
