@@ -482,6 +482,72 @@ describe('Unit tests for swiftserver:app', function () {
     }))
   })
 
+  describe('spec option', function () {
+    describe('valid', function () {
+      var runContext
+      var spec = {
+        appType: 'scaffold',
+        appName: 'test',
+        docker: true,
+        fromSwagger: '/a/b/c',
+        services: {}
+      }
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              spec: JSON.stringify(spec),
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('skips prompting', function () {
+        assert(runContext.generator.skipPrompting)
+      })
+
+      it('passes the spec to the refresh generator', function () {
+        assert.strictEqual(typeof (runContext.generator.spec), 'object')
+        assert.deepEqual(runContext.generator.spec, spec)
+      })
+
+      it('passes destinationSet: false to refresh generator', function () {
+        assert(runContext.generator.destination !== true)
+      })
+    })
+
+    describe('invalid', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              spec: 'invalidjson',
+                              testmode: true
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('Unexpected token.*in JSON'), 'Thrown error should be about invalid JSON, it was: ' + error)
+      })
+    })
+  })
+
   describe('scaffold', function () {
     var applicationName = 'myapp'
 
@@ -1682,6 +1748,36 @@ describe('Unit tests for swiftserver:app', function () {
         appName: applicationName,
         capabilities: [ 'docker' ],
         services: {}
+      }))
+    })
+
+    describe('with autoscaling', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Generate a CRUD application',
+                              capabilities: [],
+                              services: [ 'Auto-scaling' ],
+                              store: 'Memory'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'crud',
+        appName: applicationName,
+        capabilities: [],
+        services: { autoscaling: {} }
       }))
     })
 
