@@ -334,7 +334,6 @@ describe('Unit tests for swiftserver:refresh', function () {
             [ cloudFoundryManifestFile, 'random-route: true' ],
             [ cloudFoundryManifestFile, 'instances: 1' ],
             [ cloudFoundryManifestFile, 'memory: 128M' ],
-            [ cloudFoundryManifestFile, 'disk_quota: 1024M' ],
             [ cloudFoundryManifestFile, 'timeout: 180' ],
             [ cloudFoundryManifestFile, 'OPENAPI_SPEC :' ]
           ])
@@ -681,7 +680,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           [ cloudFoundryManifestFile, 'random-route: true' ],
           [ cloudFoundryManifestFile, 'instances: 1' ],
           [ cloudFoundryManifestFile, 'memory: 128M' ],
-          [ cloudFoundryManifestFile, 'disk_quota: 1024M' ],
           [ cloudFoundryManifestFile, 'timeout: 180' ]
         ])
         assert.noFileContent([
@@ -740,7 +738,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appName: applicationName,
                                 bluemix: {
                                   server: {
-                                    name: 'test',
+                                    name: applicationName,
                                     host: 'myhost',
                                     domain: 'mydomain.net',
                                     disk_quota: '1024M'
@@ -757,7 +755,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       it('cloudfoundry manifest contains the custom options', function () {
         assert.fileContent([
-          [ cloudFoundryManifestFile, 'name: test' ],
+          [ cloudFoundryManifestFile, `name: ${applicationName}` ],
           [ cloudFoundryManifestFile, 'host: myhost' ],
           [ cloudFoundryManifestFile, 'domain: mydomain.net' ],
           [ cloudFoundryManifestFile, 'disk_quota: 1024M' ]

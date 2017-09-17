@@ -102,14 +102,13 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           [ cloudFoundryManifestFile, 'random-route: true' ],
           [ cloudFoundryManifestFile, 'instances: 1' ],
           [ cloudFoundryManifestFile, 'memory: 128M' ],
-          [ cloudFoundryManifestFile, 'disk_quota: 1024M' ],
           [ cloudFoundryManifestFile, 'timeout: 180' ]
         ])
         assert.noFileContent([
           [ cloudFoundryManifestFile, 'domain:' ],
           [ cloudFoundryManifestFile, 'host:' ],
           [ cloudFoundryManifestFile, 'namespace:' ],
-          [ cloudFoundryManifestFile, 'OPENAPI_SPEC:' ]
+          [ cloudFoundryManifestFile, 'OPENAPI_SPEC :' ]
         ])
       })
 
@@ -246,7 +245,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itCreatedSwaggerUIFiles()
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-          assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+          assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
         })
 
         it('created a swagger definition file', function () {
@@ -406,7 +405,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       commonTest.itCreatedRoutes([ 'Swagger' ])
 
       it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
       })
 
       commonTest.itCreatedWebFiles()
@@ -435,7 +434,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       commonTest.itCreatedRoutes([ 'Swagger' ])
 
       it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
       })
     })
 

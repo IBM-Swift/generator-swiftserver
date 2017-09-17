@@ -328,10 +328,10 @@ exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
     assert.fileContent([
       [ exports.bxdevConfigFile, `container-name-run : "${applicationName}-swift-run"` ],
       [ exports.bxdevConfigFile, `container-name-tools : "${applicationName}-swift-tools"` ],
-      [ exports.bxdevConfigFile, `image-name-run : "${applicationName}-swiftrun"` ],
-      [ exports.bxdevConfigFile, `image-name-tools: "${applicationName}-swifttools"` ],
-      [ exports.bxdevConfigFile, 'dockerfile-tools: "Dockerfile-tools"' ],
-      [ exports.bxdevConfigFile, 'dockerfile-run: "Dockerfile"' ]
+      [ exports.bxdevConfigFile, `image-name-run : "${applicationName}-swift-run"` ],
+      [ exports.bxdevConfigFile, `image-name-tools : "${applicationName}-swift-tools"` ],
+      [ exports.bxdevConfigFile, 'dockerfile-tools : "Dockerfile-tools"' ],
+      [ exports.bxdevConfigFile, 'dockerfile-run : "Dockerfile"' ]
     ])
   })
 }
