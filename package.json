@@ -8,7 +8,7 @@
     "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
     "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
     "testsdkgen": "standard --env mocha && mocha 'test/sdkgen/**/*.js'",
-    "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/*.js' 'test/integration/*.js'",
+    "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/**/*.js' 'test/integration/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
   "repository": {
