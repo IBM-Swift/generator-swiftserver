@@ -841,7 +841,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
-          authurl: 'https://identity.open.softlayer.com',
+          auth_url: 'https://identity.open.softlayer.com',
           project: '',
           project_id: '',
           region: '',
@@ -878,7 +878,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
-          authurl: 'https://identity.open.softlayer.com',
+          auth_url: 'https://identity.open.softlayer.com',
           project: '',
           project_id: 'myProjectId',
           region: 'dallas',
