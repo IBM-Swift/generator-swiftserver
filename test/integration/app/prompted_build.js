@@ -27,7 +27,7 @@ var appGeneratorPath = path.join(__dirname, '../../../app')
 var commonTest = require('../../lib/common_test.js')
 var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
-describe('Prompt and build integration tests for swiftserver:app', function () {
+describe('Integration tests (prompt build) for swiftserver:app', function () {
   // Swift build is slow so we need to set a longer timeout for the test
   this.timeout(300000)
 
@@ -160,7 +160,7 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe('with all capabilities and services', function () {
+    describe.skip('with all capabilities and services', function () {
       // var petstoreSDKName = 'Swagger_Petstore'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
       var runContext
