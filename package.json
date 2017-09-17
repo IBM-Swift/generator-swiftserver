@@ -26,7 +26,7 @@
     "bluebird": "^3.5.0",
     "chalk": "^1.1.0",
     "debug": "^2.2.0",
-    "generator-ibm-cloud-enablement": "0.0.57",
+    "generator-ibm-cloud-enablement": "0.0.77",
     "generator-ibm-service-enablement": "0.0.55",
     "handlebars": "^4.0.5",
     "js-yaml": "^3.9.1",

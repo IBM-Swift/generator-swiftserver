@@ -336,7 +336,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             [ cloudFoundryManifestFile, 'memory: 128M' ],
             [ cloudFoundryManifestFile, 'disk_quota: 1024M' ],
             [ cloudFoundryManifestFile, 'timeout: 180' ],
-            [ cloudFoundryManifestFile, 'OPENAPI_SPEC:' ]
+            [ cloudFoundryManifestFile, 'OPENAPI_SPEC :' ]
           ])
           assert.noFileContent([
             [ cloudFoundryManifestFile, 'domain:' ],
@@ -353,7 +353,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-          assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+          assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
         })
       })
 
@@ -688,7 +688,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           [ cloudFoundryManifestFile, 'domain:' ],
           [ cloudFoundryManifestFile, 'host:' ],
           [ cloudFoundryManifestFile, 'namespace:' ],
-          [ cloudFoundryManifestFile, 'OPENAPI_SPEC:' ]
+          [ cloudFoundryManifestFile, 'OPENAPI_SPEC :' ]
         ])
       })
 
@@ -742,7 +742,8 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   server: {
                                     name: 'test',
                                     host: 'myhost',
-                                    domain: 'mydomain.net'
+                                    domain: 'mydomain.net',
+                                    disk_quota: '1024M'
                                   }
                                 }
                               }
@@ -758,7 +759,8 @@ describe('Unit tests for swiftserver:refresh', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, 'name: test' ],
           [ cloudFoundryManifestFile, 'host: myhost' ],
-          [ cloudFoundryManifestFile, 'domain: mydomain.net' ]
+          [ cloudFoundryManifestFile, 'domain: mydomain.net' ],
+          [ cloudFoundryManifestFile, 'disk_quota: 1024M' ]
         ])
         assert.noFileContent([
           [ cloudFoundryManifestFile, 'random-route: true' ]
@@ -1163,7 +1165,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             ])
 
             it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-              assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC: "/swagger/api"')
+              assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
             })
 
             it('created a swagger definition file', function () {

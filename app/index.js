@@ -810,6 +810,8 @@ module.exports = Generator.extend({
     if (this.skipPrompting) return
     // NOTE(tunniclm): This spec object may not exploit all possible functionality,
     // some may only be available via non-prompting route.
+    if (this.autoscale) this._addService('autoscale', { name: this.autoscale })
+
     this.spec = {
       appType: this.appType,
       appName: this.appname,

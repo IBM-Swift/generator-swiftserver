@@ -149,40 +149,74 @@ module.exports = Generator.extend({
         this.env.error(chalk.red('Property appName is missing from the specification'))
       }
 
+      // Service configuration
+      this.services = this.spec.services || {}
+
       // Bluemix configuration
-      this.bluemix = {}
-      if (typeof (this.spec.bluemix) === 'object') {
-        this.bluemix = {}
-        if (this.spec.bluemix.server) {
-          if (typeof (this.spec.bluemix.server.name) === 'string') {
-            this.bluemix.name = this.spec.bluemix.server.name
+      this.bluemix = {
+        backendPlatform: 'SWIFT',
+        server: {
+          env: {}
+        }
+      }
+      if (Object.keys(this.services).length > 0) {
+        this.bluemix.server.services = []
+
+        // Ensure every service has a credentials object, plan, & label
+        // and add the services to bluemix.server.services
+        Object.keys(this.services).forEach(function (serviceType) {
+          if (!Array.isArray(this.services[serviceType])) {
+            this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
           }
+          this.services[serviceType].forEach(function (service, index) {
+            // TODO: Further checking that service name is valid?
+            if (!service.name) {
+              this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
+            }
+            if (!service.label) {
+              service.label = helpers.getBluemixServiceLabel(serviceType)
+            }
+            if (!service.plan) {
+              service.plan = helpers.getBluemixDefaultPlan(serviceType)
+            }
+            service.credentials = service.credentials || {}
+            this.bluemix.server.services.push(service.name)
+          }.bind(this))
+        }.bind(this))
+      }
+
+      if (typeof (this.spec.bluemix) === 'object') {
+        if (typeof (this.spec.bluemix.name) === 'string') {
+          this.bluemix.server.name = this.spec.bluemix.name
+          this.bluemix.name = this.spec.bluemix.name
+        } else {
+          this.bluemix.name = helpers.sanitizeAppName(this.projectName)
+          this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
+        }
+        if (this.spec.bluemix.server) {
           if (typeof (this.spec.bluemix.server.host) === 'string') {
-            this.bluemix.host = this.spec.bluemix.server.host
+            this.bluemix.server.host = this.spec.bluemix.server.host
           }
           if (typeof (this.spec.bluemix.server.domain) === 'string') {
-            this.bluemix.domain = this.spec.bluemix.server.domain
+            this.bluemix.server.domain = this.spec.bluemix.server.domain
           }
           if (typeof (this.spec.bluemix.server.memory) === 'string') {
-            this.bluemix.memory = this.spec.bluemix.server.memory
+            this.bluemix.server.memory = this.spec.bluemix.server.memory
           }
-          if (typeof (this.spec.bluemix.server.diskQuota) === 'string') {
-            this.bluemix.diskQuota = this.spec.bluemix.server.diskQuota
+          if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
+            this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
           }
           if (typeof (this.spec.bluemix.server.instances) === 'number') {
-            this.bluemix.instances = this.spec.bluemix.server.instances
+            this.bluemix.server.instances = this.spec.bluemix.server.instances
           }
           if (typeof (this.spec.bluemix.server.namespace) === 'string') {
-            this.bluemix.namespace = this.spec.bluemix.server.namespace
+            this.bluemix.server.namespace = this.spec.bluemix.server.namespace
           }
         }
         if (typeof (this.spec.bluemix.openApiServers) === 'object') {
           this.openApiServers = this.spec.bluemix.openApiServers
         }
       }
-
-      // Clean app name (for containers and other uses)
-      this.cleanAppName = helpers.sanitizeAppName((this.bluemix && this.bluemix.name) || this.projectName)
 
       // Docker configuration
       this.docker = (this.spec.docker === true)
@@ -217,30 +251,11 @@ module.exports = Generator.extend({
       // Swagger UI
       this.swaggerUI = (this.spec.swaggerUI === true)
 
-      // Service configuration
-      this.services = this.spec.services || {}
-      // Ensure every service has a credentials object to
-      // make life easier for templates
-
-      Object.keys(this.services).forEach(function (serviceType) {
-        if (!Array.isArray(this.services[serviceType])) {
-          this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
-        }
-        this.services[serviceType].forEach(function (service, index) {
-          // TODO: Further checking that service name is valid?
-          if (!service.name) {
-            this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
-          }
-          service.credentials = service.credentials || {}
-        }.bind(this))
-      }.bind(this))
-
       // Metrics
       this.metrics = (this.spec.metrics === true || undefined)
 
-      // Autoscaling implies monitoring and Bluemix
+      // Autoscaling implies monitoring
       if (this.services.autoscaling && this.services.autoscaling.length > 0) {
-        this.bluemix = true
         this.metrics = true
       }
 
@@ -255,6 +270,11 @@ module.exports = Generator.extend({
         this.hostSwagger = true
         this.swaggerUI = true
         this.web = true
+      }
+
+      // Define OPENAPI_SPEC
+      if (this.hostSwagger) {
+        this.bluemix.server.env.OPENAPI_SPEC = '"/swagger/api"'
       }
 
       // Set the names of the modules
@@ -1344,85 +1364,19 @@ module.exports = Generator.extend({
     },
 
     writeDockerFiles: function () {
-      if (!this.docker) return
-
-      this._ifNotExistsInProject('.dockerignore', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'dockerignore'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile-tools', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile-tools'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
-                     filepath,
-                     { executableName: this.executableModule }
-        )
-      })
-      this._ifNotExistsInProject('cli-config.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('docker', 'cli-config.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule }
-        )
-      })
+      if (!this.docker || this.existingProject || !this.bluemix) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
-      if (!this.bluemix) return
-
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'))
-      }
-
-      this._ifNotExistsInProject('manifest.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'manifest.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule,
-            services: this.services,
-            hostSwagger: this.hostSwagger,
-            bluemix: this.bluemix
-          }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'pipeline.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'pipeline.yml'),
-          filepath,
-          { appName: this.projectName,
-            services: this.services,
-            helpers: helpers }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'toolchain.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'toolchain.yml'),
-          filepath,
-          { appName: this.projectName,
-            repoType: this.repoType }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'deploy.json'], (filepath) => {
-        this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
-                     filepath)
-      })
+      if (this.existingProject) return
+      this.bluemix.services = this.services
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/cloudfoundry'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
-      if (this.existingProject) return
-      if (!this.docker) return
-
-      var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }})
+      if (!this.docker || this.existingProject) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
     },
 
     writePackageSwift: function () {
