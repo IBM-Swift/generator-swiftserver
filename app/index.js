@@ -490,7 +490,7 @@ module.exports = Generator.extend({
       }]
       return this.prompt(prompts).then((answers) => {
         if (answers.services.indexOf('Auto-scaling') !== -1) {
-          this.autoscale = generateServiceName(this.appname, 'AutoScaling')
+          this._addService('autoscaling', { name: generateServiceName(this.appname, 'AutoScaling') })
         }
       })
     },
@@ -510,6 +510,7 @@ module.exports = Generator.extend({
           case 'mongodb': return 'MongoDB'
           case 'objectstorage': return 'Object Storage'
           case 'appid': return 'AppID'
+          case 'autoscaling': return 'Auto-scaling'
           case 'watsonconversation': return 'Watson Conversation'
           case 'alertnotification': return 'Alert Notification'
           case 'pushnotifications': return 'Push Notifications'
@@ -518,7 +519,7 @@ module.exports = Generator.extend({
         }
       }
 
-      var choices = Object.keys(this.services).filter(s => (s !== 'autoscaling'))
+      var choices = Object.keys(this.services)
       var prompts = [{
         name: 'configure',
         type: 'checkbox',
@@ -640,6 +641,21 @@ module.exports = Generator.extend({
           password: answers.mongodbPassword || undefined,
           database: answers.mongodbDatabase || undefined
         }
+      })
+    },
+
+    promptConfigureAutoscaling: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.autoscaling) return
+
+      this.log()
+      this.log('Configure Autoscaling')
+      var prompts = [
+        { name: 'autoscalingName', message: 'Enter name (blank for default):' }
+      ]
+      return this.prompt(prompts).then((answers) => {
+        this.services.autoscaling[0].name = answers.autoscalingName || this.services.autoscaling[0].name
       })
     },
 
