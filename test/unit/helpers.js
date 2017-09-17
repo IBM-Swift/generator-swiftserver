@@ -120,8 +120,7 @@ describe('Unit tests for helpers', function () {
             oauthServerUrl: '',
             profilesUrl: '',
             secret: '',
-            tenantId: '',
-            version: 3
+            tenantId: ''
           }
         },
         watsonconversation: {
@@ -200,8 +199,7 @@ describe('Unit tests for helpers', function () {
           oauthServerUrl: 'http://my-oauth-server-host',
           profilesUrl: 'http://my-profiles-host',
           secret: 'my-secret',
-          tenantId: 'my-tenant-id',
-          version: 555
+          tenantId: 'my-tenant-id'
         },
         watsonconversation: {
           url: 'http://my-host',
