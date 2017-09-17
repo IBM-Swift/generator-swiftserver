@@ -56,7 +56,7 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
       }
     }
 
-    describe('base @full', function () {
+    describe('base', function () {
       var runContext
 
       before(function () {
