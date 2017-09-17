@@ -82,12 +82,14 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
     })
 
     describe('with all capabilities and services', function () {
-      var runContext
       // var serverSDKFile = path.join(__dirname, '../../resources/petstore.yaml')
       // var serverSDKName = 'Swagger_Petstore'
+      var runContext
 
       before(function () {
         mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO don't include a server sdk until we mock the server sdk
+        // with real content instead of dummy content
         // mockSDKGen.mockServerSDKNetworkRequest(serverSDKName)
         runContext = helpers.run(appGeneratorPath)
                             .withOptions({

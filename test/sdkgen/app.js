@@ -71,7 +71,8 @@ describe('SDKGen service tests (compat) for swiftserver:app', function () {
                               swaggerChoice: 'Custom swagger file',
                               path: petstoreSwaggerFile,
                               serverSwaggerInput0: true,
-                              serverSwaggerInputPath0: petstoreSwaggerFile
+                              serverSwaggerInputPath0: petstoreSwaggerFile,
+                              serverSwaggerInput1: false
                             })
         return runContext.toPromise()
       })

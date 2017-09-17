@@ -232,7 +232,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('requested an client sdk over http', function () {
+        it('requested client sdk over http', function () {
           assert(sdkScope.isDone())
         })
 
@@ -240,6 +240,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
         commonTest.itCreatedCommonFiles(executableModule)
         commonTest.itHasCorrectFilesForSingleShotFalse()
+        commonTest.itCreatedClientSDKFile(applicationName)
 
         commonTest.itHasPackageDependencies([
           'Kitura',
@@ -511,6 +512,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
+        commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
         commonTest.itCreatedMetricsFilesWithExpectedContent()
       })
 
@@ -609,6 +611,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedCommonFiles(executableModule)
       commonTest.itHasCorrectFilesForSingleShotFalse()
+      commonTest.itDidNotCreateClientSDKFile()
 
       commonTest.itHasPackageDependencies([
         'Kitura',
@@ -821,6 +824,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
+      commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
       commonTest.itCreatedMetricsFilesWithExpectedContent()
     })
 
@@ -954,6 +958,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
             commonTest.itCreatedCommonFiles(executableModule)
             commonTest.itHasCorrectFilesForSingleShotFalse()
+            commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
               'Dinosaurs',
@@ -1105,11 +1110,12 @@ describe('Unit tests for swiftserver:refresh', function () {
               runContext.cleanTestDirectory()
             })
 
-            commonTest.itDidNotCreateSwaggerUIFiles()
-
             it('requested client sdk over http', function () {
               assert(sdkScope.isDone())
             })
+
+            commonTest.itDidNotCreateSwaggerUIFiles()
+            commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
               'Products',
@@ -1176,7 +1182,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       describe('from http url', function () {
         describe('using dinosaur swagger (json, with basepath)', function () {
           var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
-
           var runContext
           var swaggerScope
           var sdkScope
@@ -1417,7 +1422,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.cloudant.itCreatedServiceFilesWithExpectedContent('myCloudantService')
     })
 
@@ -1443,7 +1447,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedMetricsFilesWithExpectedContent()
-
       commonTest.autoscaling.itCreatedServiceFilesWithExpectedContent('myAutoscalingService')
     })
 
@@ -1469,7 +1472,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppidService')
     })
 
@@ -1495,7 +1497,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService')
     })
 
@@ -1521,7 +1522,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushService')
     })
 
@@ -1547,7 +1547,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.alertnotification.itCreatedServiceFilesWithExpectedContent('myAlertService')
     })
 
@@ -1573,7 +1572,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService')
     })
 
@@ -1599,7 +1597,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService')
     })
 
@@ -1625,7 +1622,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-
       commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoDBService')
     })
   })

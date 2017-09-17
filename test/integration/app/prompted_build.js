@@ -19,36 +19,20 @@
  * the real build and refresh subgenerators get called.
  */
 'use strict'
-var path = require('path')
 var helpers = require('yeoman-test')
+var path = require('path')
+var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var commonTest = require('../../lib/common_test.js')
-var buildTimeout = 300000
-
-// Require config to alter sdkgen delay between
-// status checks to improve resilience of integration tests
-var config = require('../../../config')
-var sdkGenCheckDelaySaved
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 describe('Prompt and build integration tests for swiftserver:app', function () {
   // Swift build is slow so we need to set a longer timeout for the test
-  this.timeout(buildTimeout)
-
-  before(function () {
-    // alter delay between status checks to improve resilience of
-    // integration tests
-    sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-    config.sdkGenCheckDelay = 10000
-  })
-
-  after('restore sdkgen status check delay', function () {
-    // restore delay between status checks
-    config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-  })
+  this.timeout(300000)
 
   describe('crud', function () {
-    describe('new application', function () {
+    describe('new application @full', function () {
       var applicationName = 'newapp'
       var executableModule = applicationName
 
@@ -56,6 +40,7 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
         var runContext
 
         before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(appGeneratorPath)
                               .withPrompts({
                                 appType: 'Scaffold a starter',
@@ -66,6 +51,7 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
         })
 
         after(function () {
+          nock.cleanAll()
           runContext.cleanTestDirectory()
         })
 
@@ -100,7 +86,7 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe('with web', function () {
+    describe('with web @full', function () {
       var runContext
 
       before(function () {
@@ -122,12 +108,32 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe('with server sdk', function () {
+    // TODO with metrics @full
+    // TODO with swagger file serving endpoint @full
+    // TODO with endpoints from swagger file @full
+    // TODO with cloudant @full
+    // TODO with redis @full
+    // TODO with mongodb @full
+    // TODO with object storage @full
+    // TODO with appid @full
+    // TODO with watson conversation @full
+    // TODO with alert notification @full
+    // TODO with push notifications @full
+    // TODO with autoscaling @full
+
+    describe.skip('with server sdk @full', function () {
+      var petstoreSDKName = 'Swagger_Petstore'
+      var petstore2SDKName = 'Swagger_Petstore_Two'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
       var petstore2SwaggerFile = path.join(__dirname, '../../resources/petstore2.yaml')
       var runContext
 
       before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO this test is in skip mode until we mock the server sdk
+        // with real content instead of dummy content
+        mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
+        mockSDKGen.mockServerSDKNetworkRequest(petstore2SDKName)
         runContext = helpers.run(appGeneratorPath)
                             .withPrompts({
                               appType: 'Scaffold a starter',
@@ -146,6 +152,52 @@ describe('Prompt and build integration tests for swiftserver:app', function () {
       })
 
       after(function () {
+        nock.cleanAll()
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
+    })
+
+    describe('with all capabilities and services', function () {
+      // var petstoreSDKName = 'Swagger_Petstore'
+      // var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
+      var runContext
+
+      before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO don't include a server sdk until we mock the server sdk
+        // with real content instead of dummy content
+        // mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
+        runContext = helpers.run(appGeneratorPath)
+                            .withPrompts({
+                              appType: 'Scaffold a starter',
+                              name: applicationName,
+                              dir: applicationName,
+                              appPattern: 'Backend for frontend',
+                              swaggerChoice: 'Custom swagger file',
+                              path: petstoreSwaggerFile,
+                              // serverSwaggerInput0: true,
+                              // serverSwaggerInputPath0: petstoreSwaggerFile,
+                              // serverSwaggerInput1: false,
+                              services: [
+                                'Cloudant / CouchDB',
+                                'Redis',
+                                'MongoDB',
+                                'Object Storage',
+                                'AppID',
+                                'Auto-scaling',
+                                'Watson Conversation',
+                                'Alert Notification',
+                                'Push Notifications'
+                              ]
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        nock.cleanAll()
         runContext.cleanTestDirectory()
       })
 

@@ -485,6 +485,35 @@ describe('Unit tests for swiftserver:app', function () {
   describe('scaffold', function () {
     var applicationName = 'myapp'
 
+    describe('base', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [],
+        services: {}
+      }))
+    })
+
     describe('app pattern defaults', function () {
       describe('basic', function () {
         var runContext
@@ -570,35 +599,6 @@ describe('Unit tests for swiftserver:app', function () {
           services: {}
         }))
       })
-    })
-
-    describe('base', function () {
-      var runContext
-
-      before(function () {
-        runContext = helpers.run(appGeneratorPath)
-                            .withGenerators(dependentGenerators) // Stub subgenerators
-                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
-                            .withPrompts({
-                              name: applicationName,
-                              appType: 'Scaffold a starter',
-                              capabilities: [],
-                              endpoints: []
-                            })
-        return runContext.toPromise()
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      itCreatedSpecWithServicesAndCapabilities(() => ({
-        runContext: runContext,
-        appType: 'scaffold',
-        appName: applicationName,
-        capabilities: [],
-        services: {}
-      }))
     })
 
     describe('with web', function () {
@@ -882,6 +882,8 @@ describe('Unit tests for swiftserver:app', function () {
         })
       })
     })
+
+    // TODO with server sdk
 
     describe('with cloudant', function () {
       describe('default credentials', function () {
@@ -1622,6 +1624,8 @@ describe('Unit tests for swiftserver:app', function () {
         services: {}
       }))
     })
+
+    // TODO with server sdk
 
     describe('with metrics', function () {
       var runContext

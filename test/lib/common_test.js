@@ -117,6 +117,15 @@ exports.itCreatedCommonFiles = function (executableModule) {
   })
 }
 
+exports.applicationImportsModules = function (moduleNameOrModuleNames) {
+  var moduleNames = Array.isArray(moduleNameOrModuleNames) ? moduleNameOrModuleNames : [moduleNameOrModuleNames]
+  moduleNames.forEach(moduleName => {
+    it(`application imports $(moduleName)`, function () {
+      assert.fileContent(exports.applicationSourceFile, `import ${moduleName}`)
+    })
+  })
+}
+
 exports.itHasCorrectFilesForSingleShotTrue = function () {
   var files = [
     exports.projectMarkerFile,
@@ -145,6 +154,18 @@ exports.itHasCorrectFilesForSingleShotFalse = function () {
   var expectedConfig = { 'generator-swiftserver': { version: exports.generatorVersion } }
   it(`${exports.generatorConfigFile} contains generator version`, function () {
     assert.jsonFileContent(exports.generatorConfigFile, expectedConfig)
+  })
+}
+
+exports.itDidNotCreateClientSDKFile = function (applicationName) {
+  it('did not create a client sdk zip file', function () {
+    assert.noFile(applicationName + '_iOS_SDK.zip')
+  })
+}
+
+exports.itCreatedClientSDKFile = function (applicationName) {
+  it('created a client sdk zip file', function () {
+    assert.file(applicationName + '_iOS_SDK.zip')
   })
 }
 
@@ -373,7 +394,7 @@ exports.itCreatedServiceConfigFiles = function () {
   })
 }
 
-exports.itHasServiceInConfig = function (serviceDescription, mappingName, serviceName) {
+exports.itHasServiceInConfig = function (serviceDescription, mappingName, serviceName, serviceCredentials) {
   it(`service configuration mapping file contains ${serviceDescription} mapping`, function () {
     assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
@@ -388,7 +409,7 @@ exports.itHasServiceInConfig = function (serviceDescription, mappingName, servic
   })
 
   it(`service configuration credentials file contains ${serviceDescription} entry`, function () {
-    assert.jsonFileContent(exports.configCredentialsFile, { [serviceName]: {} })
+    assert.jsonFileContent(exports.configCredentialsFile, { [serviceName]: serviceCredentials || {} })
   })
 }
 
@@ -419,7 +440,7 @@ exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, in
 
 // Autoscaling
 exports.autoscaling = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'autoscaling'
     var label = 'Auto-Scaling'
     var plan = servicePlan || helpers.getBluemixDefaultPlan('autoscaling')
@@ -443,7 +464,7 @@ exports.autoscaling = {
 
 // Cloudant
 exports.cloudant = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'cloudant'
     var mapping = 'cloudant'
     var label = 'cloudantNoSQLDB'
@@ -451,7 +472,7 @@ exports.cloudant = {
     var sourceFile = 'ServiceCloudant.swift'
     var initFunction = 'initializeServiceCloudant'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -470,7 +491,7 @@ exports.cloudant = {
 
 // AppID
 exports.appid = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'appid'
     var mapping = 'appid'
     var label = 'AppID'
@@ -478,7 +499,7 @@ exports.appid = {
     var sourceFile = 'ServiceAppid.swift'
     var initFunction = 'initializeServiceAppid'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -499,7 +520,7 @@ exports.appid = {
 
 // Watson conversation
 exports.watsonconversation = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'watson conversation'
     var mapping = 'watson_conversation'
     var label = 'conversation'
@@ -507,7 +528,7 @@ exports.watsonconversation = {
     var sourceFile = 'ServiceWatsonConversation.swift'
     var initFunction = 'initializeServiceWatsonConversation'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -526,7 +547,7 @@ exports.watsonconversation = {
 
 // Push notifications
 exports.pushnotifications = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'push notifications'
     var mapping = 'push'
     var label = 'imfpush'
@@ -534,7 +555,7 @@ exports.pushnotifications = {
     var sourceFile = 'ServicePush.swift'
     var initFunction = 'initializeServicePush'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -553,7 +574,7 @@ exports.pushnotifications = {
 
 // Alert notification
 exports.alertnotification = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'alert notification'
     var mapping = 'alert_notification'
     var label = 'AlertNotification'
@@ -561,7 +582,7 @@ exports.alertnotification = {
     var sourceFile = 'ServiceAlertNotification.swift'
     var initFunction = 'initializeServiceAlertNotification'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -580,7 +601,7 @@ exports.alertnotification = {
 
 // Object storage
 exports.objectstorage = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'object storage'
     var mapping = 'object_storage'
     var label = 'Object-Storage'
@@ -588,7 +609,7 @@ exports.objectstorage = {
     var sourceFile = 'ServiceObjectStorage.swift'
     var initFunction = 'initializeServiceObjectStorage'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -607,7 +628,7 @@ exports.objectstorage = {
 
 // Redis
 exports.redis = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'redis'
     var mapping = 'redis'
     var label = 'compose-for-redis'
@@ -615,7 +636,7 @@ exports.redis = {
     var sourceFile = 'ServiceRedis.swift'
     var initFunction = 'initializeServiceRedis'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
@@ -635,7 +656,7 @@ exports.redis = {
 
 // MongoDB
 exports.mongodb = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, servicePlan) {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'mongodb'
     var mapping = 'mongodb'
     var label = 'compose-for-mongodb'
@@ -643,7 +664,7 @@ exports.mongodb = {
     var sourceFile = 'ServiceMongodb.swift'
     var initFunction = 'initializeServiceMongodb'
 
-    exports.itHasServiceInConfig(description, mapping, serviceName)
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
