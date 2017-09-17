@@ -155,7 +155,9 @@ module.exports = Generator.extend({
       // Bluemix configuration
       this.bluemix = {
         backendPlatform: 'SWIFT',
+        name: helpers.sanitizeAppName(this.projectName),
         server: {
+          name: helpers.sanitizeAppName(this.projectName),
           env: {}
         }
       }
@@ -189,9 +191,6 @@ module.exports = Generator.extend({
         if (typeof (this.spec.bluemix.name) === 'string') {
           this.bluemix.server.name = this.spec.bluemix.name
           this.bluemix.name = this.spec.bluemix.name
-        } else {
-          this.bluemix.name = helpers.sanitizeAppName(this.projectName)
-          this.bluemix.server.name = helpers.sanitizeAppName(this.projectName)
         }
         if (this.spec.bluemix.server) {
           if (typeof (this.spec.bluemix.server.host) === 'string') {
