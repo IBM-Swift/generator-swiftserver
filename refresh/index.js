@@ -271,6 +271,12 @@ module.exports = Generator.extend({
         this.web = true
       }
 
+      // Define health-check-type and health-check-http-endpoint
+      if (this.healthCheck) {
+        this.bluemix.server['health-check-type'] = 'http'
+        this.bluemix.server['health-check-http-endpoint'] = '/health'
+      }
+
       // Define OPENAPI_SPEC
       if (this.hostSwagger) {
         this.bluemix.server.env.OPENAPI_SPEC = '"/swagger/api"'
