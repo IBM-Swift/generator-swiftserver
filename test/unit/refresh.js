@@ -188,6 +188,38 @@ describe('Unit tests for swiftserver:refresh', function () {
         assert(error.message.match('Service name is missing.*$'), 'Thrown error should be about missing service name, it was: ' + error)
       })
     })
+
+    describe('both openApi spec and fromSwagger specified', function () {
+      var runContext
+      var error
+
+      before(function () {
+        // var swagger = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8'))
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: 'myapp',
+                                bluemix: {
+                                  openApiServers: [{ spec: '{ swagger doc }' }]
+                                },
+                                fromSwagger: '/path/to/swagger/file'
+                              }
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('cannot handle two sources of API definition'), 'Thrown error should be about two sources for API definition, it was: ' + error)
+      })
+    })
   })
 
   describe('crud', function () {
@@ -421,8 +453,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   models: [ todoModel ],
                                   docker: true,
                                   bluemix: {
-                                    domain: 'mydomain.net',
-                                    namespace: 'mynamespace'
+                                    server: {
+                                      domain: 'mydomain.net',
+                                      namespace: 'mynamespace'
+                                    }
                                   }
                                 }
                               })
@@ -705,9 +739,11 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: applicationName,
                                 bluemix: {
-                                  name: 'test',
-                                  host: 'myhost',
-                                  domain: 'mydomain.net'
+                                  server: {
+                                    name: 'test',
+                                    host: 'myhost',
+                                    domain: 'mydomain.net'
+                                  }
                                 }
                               }
                             })
@@ -740,9 +776,11 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: applicationName,
                                 bluemix: {
-                                  name: {},
-                                  host: {},
-                                  domain: true
+                                  server: {
+                                    name: {},
+                                    host: {},
+                                    domain: true
+                                  }
                                 }
                               }
                             })
@@ -777,8 +815,10 @@ describe('Unit tests for swiftserver:refresh', function () {
               appName: applicationName,
               docker: true,
               bluemix: {
-                domain: 'mydomain.net',
-                namespace: 'mynamespace'
+                server: {
+                  domain: 'mydomain.net',
+                  namespace: 'mynamespace'
+                }
               }
             }
           })
@@ -1220,6 +1260,53 @@ describe('Unit tests for swiftserver:refresh', function () {
           it('requested client sdk over http', function () {
             assert(sdkScope.isDone())
           })
+
+          it('created a swagger definition file', function () {
+            assert.file(outputSwaggerFile)
+          })
+
+          it('application defines base path', function () {
+            assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
+          })
+
+          it('swagger routes prepend base path', function () {
+            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+          })
+        })
+      })
+
+      describe('embedded in spec (raw string)', function () {
+        var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
+        var swagger = JSON.parse(fs.readFileSync(inputSwaggerFile, 'utf8'))
+
+        describe('using dinosaur swagger (json, with basepath)', function () {
+          var runContext
+
+          before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+            runContext = helpers.run(refreshGeneratorPath)
+                                .withOptions({
+                                  specObj: {
+                                    appType: 'scaffold',
+                                    appName: applicationName,
+                                    bluemix: {
+                                      openApiServers: [{ spec: JSON.stringify(swagger) }]
+                                    }
+                                  }
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            nock.cleanAll()
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itCreatedRoutes([
+            'Dinosaurs',
+            'Persons'
+          ])
 
           it('created a swagger definition file', function () {
             assert.file(outputSwaggerFile)
