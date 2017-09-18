@@ -1,4 +1,12 @@
 # Script to release to NPM and publish tag
+
+# Exit if we are a scheduled build
+if [[ $TRAVIS_EVENT_TYPE == "cron" ]]
+then
+  echo This is a cron build - exiting
+  exit 0
+fi
+
 if [[ $TRAVIS_BRANCH == "master" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]]; then
   git remote rm origin
   git remote add origin https://SwiftDevOps:${GH_TOKEN}@github.com/IBM-Swift/generator-swiftserver
