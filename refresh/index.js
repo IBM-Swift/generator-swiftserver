@@ -824,7 +824,7 @@ module.exports = Generator.extend({
     }
     if (this.healthcheck) {
       endpointNames.push('Health')
-      this.dependencies.push('.Package(url: ""https://github.com/IBM-Swift/Health.git"", majorVersion: 0),')
+      this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Health.git", majorVersion: 0),')
     }
 
     var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
