@@ -86,40 +86,65 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe('with web @full', function () {
-      var runContext
+    var capabilitiesToTest = [ 'web', 'metrics', 'docker' ]
+    capabilitiesToTest.forEach(capability => {
+      var capabilityDisplayName = commonTest.capabilityDisplayNames[capability]
 
-      before(function () {
-        runContext = helpers.run(appGeneratorPath)
-                            .withPrompts({
-                              appType: 'Scaffold a starter',
-                              name: applicationName,
-                              dir: applicationName,
-                              capabilities: [ 'Static web file serving' ]
-                            })
-        return runContext.toPromise()
+      describe(`with ${capability} @full`, function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withPrompts({
+                                appType: 'Scaffold a starter',
+                                name: applicationName,
+                                dir: applicationName,
+                                capabilities: [ capabilityDisplayName ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCompiledExecutableModule(executableModule)
+        commonTest.itCreatedXCodeProjectWorkspace(applicationName)
       })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      commonTest.itCompiledExecutableModule(executableModule)
-      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    // TODO with metrics @full
     // TODO with swagger file serving endpoint @full
     // TODO with endpoints from swagger file @full
-    // TODO with cloudant @full
-    // TODO with redis @full
-    // TODO with mongodb @full
-    // TODO with object storage @full
-    // TODO with appid @full
-    // TODO with watson conversation @full
-    // TODO with alert notification @full
-    // TODO with push notifications @full
-    // TODO with autoscaling @full
+
+    var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql',
+      'objectstorage', 'appid', 'watsonconversation', 'alertnotification',
+      /* 'pushnotifications', */ 'autoscaling' ]
+    servicesToTest.forEach(service => {
+      var serviceDisplayName = commonTest.serviceDisplayNames[service]
+
+      describe(`with ${service} @full`, function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withPrompts({
+                                appType: 'Scaffold a starter',
+                                name: applicationName,
+                                dir: applicationName,
+                                capabilities: [],
+                                services: [ serviceDisplayName ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCompiledExecutableModule(executableModule)
+        commonTest.itCreatedXCodeProjectWorkspace(applicationName)
+      })
+    })
 
     describe.skip('with server sdk @full', function () {
       var petstoreSDKName = 'Swagger_Petstore'

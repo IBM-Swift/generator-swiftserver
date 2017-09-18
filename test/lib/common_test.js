@@ -81,6 +81,29 @@ exports.kubernetesFilesGenerator = (applicationName) => [
 ]
 
 //
+// Prompts
+//
+exports.capabilityDisplayNames = {
+  web: 'Static web file serving',
+  swaggerUI: 'Swagger UI',
+  metrics: 'Embedded metrics dashboard',
+  docker: 'Docker files'
+}
+
+exports.serviceDisplayNames = {
+  cloudant: 'Cloudant / CouchDB',
+  redis: 'Redis',
+  mongodb: 'MongoDB',
+  postgresql: 'PostreSQL',
+  objectstorage: 'Object Storage',
+  appid: 'AppID',
+  watsonconversation: 'Watson Conversation',
+  alertnotification: 'Alert Notification',
+  pushnotifications: 'Push Notifications',
+  autoscaling: 'Auto-scaling'
+}
+
+//
 // Destination directory
 //
 exports.itUsedDestinationDirectory = function (dir) {
