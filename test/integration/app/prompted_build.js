@@ -185,7 +185,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe.skip('with all capabilities and services', function () {
+    describe('with all capabilities and services', function () {
       // var petstoreSDKName = 'Swagger_Petstore'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
       var runContext
@@ -214,8 +214,8 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                                 'AppID',
                                 'Auto-scaling',
                                 'Watson Conversation',
-                                'Alert Notification',
-                                'Push Notifications'
+                                'Alert Notification' // ,
+                                // 'Push Notifications' -- disabled for now due to dependency graph resolution problem
                               ]
                             })
         return runContext.toPromise()

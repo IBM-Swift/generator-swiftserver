@@ -81,7 +81,7 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
       commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    describe.skip('with all capabilities and services', function () {
+    describe('with all capabilities and services', function () {
       // var serverSDKFile = path.join(__dirname, '../../resources/petstore.yaml')
       // var serverSDKName = 'Swagger_Petstore'
       var runContext
