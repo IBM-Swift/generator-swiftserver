@@ -439,6 +439,34 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
       })
 
+      describe('Generate a blank application', function () {
+        var runContext
+
+        before(function () {
+          var spec = {
+            appType: 'scaffold',
+            healthcheck: false,
+            appName: applicationName,
+            config: {}
+          }
+          runContext = helpers.run(path.join(__dirname, '../../refresh'))
+            .withOptions({
+              specObj: spec
+            })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        it('contains no Health references', function () {
+          assert.noFileContent('Package.swift', 'Health')
+          assert.noFileContent('Sources/Application/Application.swift', 'Health')
+        })
+      })
+
       describe('with docker', function () {
         var runContext
 

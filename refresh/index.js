@@ -227,7 +227,7 @@ module.exports = Generator.extend({
       this.exampleEndpoints = (this.spec.exampleEndpoints === true)
 
       // Health endpoint
-      this.healthCheck = true // FIXME: Expose this option
+      this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
 
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
@@ -272,7 +272,7 @@ module.exports = Generator.extend({
       }
 
       // Define health-check-type and health-check-http-endpoint
-      if (this.healthCheck) {
+      if (this.healthcheck) {
         this.bluemix.server['health-check-type'] = 'http'
         this.bluemix.server['health-check-http-endpoint'] = '/health'
       }
@@ -822,7 +822,10 @@ module.exports = Generator.extend({
       var resourceNames = Object.keys(this.parsedSwagger.resources)
       endpointNames = endpointNames.concat(resourceNames)
     }
-    if (this.healthCheck) endpointNames.push('Health')
+    if (this.healthcheck) {
+      endpointNames.push('Health')
+      this.dependencies.push('.Package(url: ""https://github.com/IBM-Swift/Health.git"", majorVersion: 0),')
+    }
 
     var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
     this.appInitCode.endpoints = this.appInitCode.endpoints.concat(initCodeForEndpoints)
@@ -944,7 +947,7 @@ module.exports = Generator.extend({
             bluemix: this.bluemix,
             appInitCode: this.appInitCode,
             web: this.web,
-            healthCheck: this.healthCheck,
+            healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
         )
@@ -990,7 +993,7 @@ module.exports = Generator.extend({
         })
       }
 
-      if (this.healthCheck) {
+      if (this.healthcheck) {
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'HealthRoutes.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'HealthRoutes.swift'),
