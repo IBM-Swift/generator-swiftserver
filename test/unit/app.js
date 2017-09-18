@@ -543,7 +543,7 @@ describe('Unit tests for swiftserver:app', function () {
 
       it('aborted the generator with an error', function () {
         assert(error, 'Should throw an error')
-        assert(error.message.match('Unexpected token.*in JSON'), 'Thrown error should be about invalid JSON, it was: ' + error)
+        assert(error.message.match('Unexpected token'), 'Thrown error should be about invalid JSON, it was: ' + error)
       })
     })
   })
