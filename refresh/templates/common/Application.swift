@@ -6,7 +6,7 @@ import CloudEnvironment
 <% if (appType === 'crud') { -%>
 import <%- generatedModule %>
 <% } -%>
-<% if (healthCheck) { -%>
+<% if (healthcheck) { -%>
 import Health
 <% } -%>
 
@@ -17,7 +17,7 @@ public var port: Int = 8080
 <% if (basepath) { -%>
 public var basePath = "<%- basepath %>"
 <% } -%>
-<% if (healthCheck) { -%>
+<% if (healthcheck) { -%>
 public let health = Health()
 <% } -%>
 
