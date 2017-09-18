@@ -118,7 +118,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
 
     var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql',
       'objectstorage', 'appid', 'watsonconversation', 'alertnotification',
-      /* 'pushnotifications', */ 'autoscaling' ]
+      'pushnotifications', 'autoscaling' ]
     servicesToTest.forEach(service => {
       var serviceDisplayName = commonTest.serviceDisplayNames[service]
 
@@ -214,8 +214,8 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                                 'AppID',
                                 'Auto-scaling',
                                 'Watson Conversation',
-                                'Alert Notification' // ,
-                                // 'Push Notifications' -- disabled for now due to dependency graph resolution problem
+                                'Alert Notification',
+                                'Push Notifications'
                               ]
                             })
         return runContext.toPromise()
