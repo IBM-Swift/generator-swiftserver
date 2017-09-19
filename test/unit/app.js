@@ -885,7 +885,7 @@ describe('Unit tests for swiftserver:app', function () {
               runContext = helpers.run(appGeneratorPath)
                                   .withGenerators(dependentGenerators) // Stub subgenerators
                                   .inTmpDir(function (tmpDir) {
-                                    destinationDir = tmpDir
+                                    destinationDir = fs.realpathSync(tmpDir)
                                   })
                                   .withOptions({ testmode: true })     // Workaround to stub subgenerators
                                   .withPrompts({
