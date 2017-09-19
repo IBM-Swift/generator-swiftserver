@@ -90,22 +90,8 @@ module.exports = Generator.extend({
   },
 
   initializing: {
-    config: function () {
-      if (!this.options.singleShot) {
-        this.generatorVersion = require('../package.json').version
-        this.config.defaults({ version: this.generatorVersion })
-
-        // Ensure generator major version match
-        // TODO Use node-semver? Strip leading non-digits?
-        var generatorMajorVersion = this.generatorVersion.split('.')[0]
-        var projectGeneratedWithMajorVersion = this.config.get('version').split('.')[0]
-        if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
-          this.env.error(`Project was generated with a different major version of the generator (project with v${projectGeneratedWithMajorVersion}, current v${generatorMajorVersion})`)
-        }
-      }
-    },
-
     readSpec: function () {
+      this.generatorVersion = require('../package.json').version
       this.existingProject = false
 
       if (this.options.specfile) {
@@ -160,39 +146,76 @@ module.exports = Generator.extend({
       if (this.spec.appName) {
         this.projectName = this.spec.appName
       } else {
-        this.env.error(chalk.red('Property appName missing from the specification'))
+        this.env.error(chalk.red('Property appName is missing from the specification'))
       }
+
+      // Service configuration
+      this.services = this.spec.services || {}
 
       // Bluemix configuration
-      if (this.spec.bluemix === true) {
-        this.bluemix = {}
-      } else if (typeof (this.spec.bluemix) === 'object') {
-        this.bluemix = {}
-        if (typeof (this.spec.bluemix.name) === 'string') {
-          this.bluemix.name = this.spec.bluemix.name
-        }
-        if (typeof (this.spec.bluemix.host) === 'string') {
-          this.bluemix.host = this.spec.bluemix.host
-        }
-        if (typeof (this.spec.bluemix.domain) === 'string') {
-          this.bluemix.domain = this.spec.bluemix.domain
-        }
-        if (typeof (this.spec.bluemix.memory) === 'string') {
-          this.bluemix.memory = this.spec.bluemix.memory
-        }
-        if (typeof (this.spec.bluemix.diskQuota) === 'string') {
-          this.bluemix.diskQuota = this.spec.bluemix.diskQuota
-        }
-        if (typeof (this.spec.bluemix.instances) === 'number') {
-          this.bluemix.instances = this.spec.bluemix.instances
-        }
-        if (typeof (this.spec.bluemix.namespace) === 'string') {
-          this.bluemix.namespace = this.spec.bluemix.namespace
+      this.bluemix = {
+        backendPlatform: 'SWIFT',
+        name: helpers.sanitizeAppName(this.projectName),
+        server: {
+          name: helpers.sanitizeAppName(this.projectName),
+          env: {}
         }
       }
+      if (Object.keys(this.services).length > 0) {
+        this.bluemix.server.services = []
 
-      // Clean app name (for containers and other uses)
-      this.cleanAppName = helpers.sanitizeAppName((this.bluemix && this.bluemix.name) || this.projectName)
+        // Ensure every service has a credentials object, plan, & label
+        // and add the services to bluemix.server.services
+        Object.keys(this.services).forEach(function (serviceType) {
+          if (!Array.isArray(this.services[serviceType])) {
+            this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
+          }
+          this.services[serviceType].forEach(function (service, index) {
+            // TODO: Further checking that service name is valid?
+            if (!service.name) {
+              this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
+            }
+            if (!service.label) {
+              service.label = helpers.getBluemixServiceLabel(serviceType)
+            }
+            if (!service.plan) {
+              service.plan = helpers.getBluemixDefaultPlan(serviceType)
+            }
+            service.credentials = service.credentials || {}
+            this.bluemix.server.services.push(service.name)
+          }.bind(this))
+        }.bind(this))
+      }
+
+      if (typeof (this.spec.bluemix) === 'object') {
+        if (typeof (this.spec.bluemix.name) === 'string') {
+          this.bluemix.server.name = this.spec.bluemix.name
+          this.bluemix.name = this.spec.bluemix.name
+        }
+        if (this.spec.bluemix.server) {
+          if (typeof (this.spec.bluemix.server.host) === 'string') {
+            this.bluemix.server.host = this.spec.bluemix.server.host
+          }
+          if (typeof (this.spec.bluemix.server.domain) === 'string') {
+            this.bluemix.server.domain = this.spec.bluemix.server.domain
+          }
+          if (typeof (this.spec.bluemix.server.memory) === 'string') {
+            this.bluemix.server.memory = this.spec.bluemix.server.memory
+          }
+          if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
+            this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
+          }
+          if (typeof (this.spec.bluemix.server.instances) === 'number') {
+            this.bluemix.server.instances = this.spec.bluemix.server.instances
+          }
+          if (typeof (this.spec.bluemix.server.namespace) === 'string') {
+            this.bluemix.server.namespace = this.spec.bluemix.server.namespace
+          }
+        }
+        if (typeof (this.spec.bluemix.openApiServers) === 'object') {
+          this.openApiServers = this.spec.bluemix.openApiServers
+        }
+      }
 
       // Docker configuration
       this.docker = (this.spec.docker === true)
@@ -203,16 +226,19 @@ module.exports = Generator.extend({
       // Example endpoints
       this.exampleEndpoints = (this.spec.exampleEndpoints === true)
 
+      // Health endpoint
+      this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
+
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
-        this.fromSwagger = this.spec.fromSwagger
+        this.openApiFileOrUrl = this.spec.fromSwagger
       }
 
       if (this.exampleEndpoints) {
-        if (this.fromSwagger) {
+        if (this.openApiFileOrUrl) {
           this.env.error('Only one of: swagger file and example endpoints allowed')
         }
-        this.fromSwagger = this.templatePath('common', 'productSwagger.yaml')
+        this.openApiFileOrUrl = this.templatePath('common', 'productSwagger.yaml')
       }
 
       // Swagger file paths for server SDKs
@@ -224,38 +250,12 @@ module.exports = Generator.extend({
       // Swagger UI
       this.swaggerUI = (this.spec.swaggerUI === true)
 
-      // Service configuration
-      this.services = this.spec.services || {}
-      // Ensure every service has a credentials object to
-      // make life easier for templates
-
-      Object.keys(this.services).forEach(function (serviceType) {
-        this.services[serviceType].forEach(function (service, index) {
-          // TODO: Further checking that service name is valid?
-          if (!service.name) {
-            this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
-          }
-          service.credentials = service.credentials || {}
-        }.bind(this))
-      }.bind(this))
-
-      // Capability configuration
-      this.capabilities = this.spec.capabilities || {}
-
       // Metrics
-      this.capabilities.metrics = (this.capabilities.metrics === true || undefined)
+      this.metrics = (this.spec.metrics === true || undefined)
 
-      // Autoscaling
-      if (this.capabilities.autoscale === true) {
-        this.capabilities.autoscale = `${this.projectName}ScalingService`
-      } else if (typeof (this.capabilities.autoscale) !== 'string') {
-        this.capabilities.autoscale = undefined
-      }
-
-      // Autoscaling implies monitoring and Bluemix
-      if (this.capabilities.autoscale) {
-        this.bluemix = true
-        this.capabilities.metrics = true
+      // Autoscaling implies monitoring
+      if (this.services.autoscaling && this.services.autoscaling.length > 0) {
+        this.metrics = true
       }
 
       // SwaggerUI imples web and hostSwagger
@@ -271,6 +271,17 @@ module.exports = Generator.extend({
         this.web = true
       }
 
+      // Define health-check-type and health-check-http-endpoint
+      if (this.healthcheck) {
+        this.bluemix.server['health-check-type'] = 'http'
+        this.bluemix.server['health-check-http-endpoint'] = '/health'
+      }
+
+      // Define OPENAPI_SPEC
+      if (this.hostSwagger) {
+        this.bluemix.server.env.OPENAPI_SPEC = '"/swagger/api"'
+      }
+
       // Set the names of the modules
       this.generatedModule = 'Generated'
       this.applicationModule = 'Application'
@@ -279,11 +290,46 @@ module.exports = Generator.extend({
       // Target dependencies to add to the applicationModule
       this.sdkTargets = []
 
-      // Package dependencies to add the Package.swift file
-      this.sdkPackages = ''
-
       // Files or folders to be ignored in a git repo
       this.itemsToIgnore = []
+
+      // Package dependencies to add to Package.swift
+      // eg this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 7),')
+      this.dependencies = []
+
+      // Initialization code to add to Application.swift by code block
+      // eg this.appInitCode.services.push('try initializeServiceCloudant()')
+      this.appInitCode = {
+        capabilities: [],
+        services: [],
+        middlewares: [],
+        endpoints: []
+      }
+
+      if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
+      if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+      if (this.metrics) {
+        this.appInitCode.capabilities.push('initializeMetrics()')
+        this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
+      }
+    },
+
+    ensureGeneratorIsCompatibleWithProject: function () {
+      if (!this.existingProject) return
+
+      var generatorMajorVersion = this.generatorVersion.split('.')[0]
+      var projectGeneratedWithVersion = this.config.get('version')
+
+      if (!projectGeneratedWithVersion) {
+        this.env.error(`Project was generated with an incompatible version of the generator (project was generated with an unknown version, current generator is v${generatorMajorVersion})`)
+      }
+
+      // Ensure generator major version match
+      // TODO Use node-semver? Strip leading non-digits?
+      var projectGeneratedWithMajorVersion = projectGeneratedWithVersion.split('.')[0]
+      if (projectGeneratedWithMajorVersion !== generatorMajorVersion) {
+        this.env.error(`Project was generated with an incompatible version of the generator (project was generated with v${projectGeneratedWithMajorVersion}, current generator is v${generatorMajorVersion})`)
+      }
     },
 
     setDestinationRootFromSpec: function () {
@@ -360,6 +406,70 @@ module.exports = Generator.extend({
       // TODO(tunniclm): Improve how we set these values
       this.projectVersion = '1.0.0'
     }
+  },
+
+  configuring: function () {
+    if (this.existingProject) return
+
+    var bluemixOption = {
+      backendPlatform: 'SWIFT',
+      name: this.projectName, // TODO: check this is the right name
+      server: {
+        name: this.projectName // TODO: check this is the right name
+      }
+    }
+    // NOTE(tunniclm): Set the domain based on the push notification
+    // region to expose it to the service enablement subgenerator
+    if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
+      var push = this.services.pushnotifications[0]
+      switch (push.region) {
+        case 'UK': bluemixOption.server.domain = 'eu-gb.bluemix.net'; break
+        case 'SYDNEY': bluemixOption.server.domain = 'au-syd.bluemix.net'; break
+        case 'US_SOUTH': bluemixOption.server.domain = 'ng.bluemix.net'; break
+        // default: don't alter domain
+      }
+    }
+    // NOTE(tunniclm): Convert our format for specifying services
+    // into the one used by generator-ibm-service-enablement
+    var serviceMapping = {
+      'appid': 'auth',
+      'objectstorage': 'objectStorage',
+      'cloudant': 'cloudant',
+      'watsonconversation': 'conversation',
+      'redis': 'redis',
+      'mongodb': 'mongodb',
+      'postgresql': 'postgresql',
+      'alertnotification': 'alertnotification',
+      'pushnotifications': 'push',
+      'autoscaling': 'autoscaling'
+    }
+    Object.keys(serviceMapping).forEach(serviceType => {
+      var bluemixServiceProperty = serviceMapping[serviceType]
+      var servicesOfType = this.services[serviceType]
+      if (servicesOfType && servicesOfType.length > 0) {
+        // NOTE: for now only handle 1 service
+        var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
+        bluemixOption[bluemixServiceProperty] = service.credentials || {}
+        bluemixOption[bluemixServiceProperty].serviceInfo = {
+          name: servicesOfType[0].name,
+          label: servicesOfType[0].label,
+          plan: servicesOfType[0].plan
+        }
+      }
+    })
+    this.composeWith(require.resolve('generator-ibm-service-enablement'), {
+      quiet: true,
+      bluemix: JSON.stringify(bluemixOption),
+      parentContext: {
+        injectIntoApplication: options => {
+          if (options.capability) this.appInitCode.capabilities.push(options.capability)
+          if (options.service) this.appInitCode.services.push(options.service)
+          if (options.endpoint) this.appInitCode.endpoints.push(options.endpoint)
+          if (options.middleware) this.appInitCode.middlewares.push(options.middleware)
+        },
+        injectDependency: dependency => { this.dependencies.push(dependency) }
+      }
+    })
   },
 
   buildProduct: function () {
@@ -667,24 +777,65 @@ module.exports = Generator.extend({
     this.swagger = swagger
   },
 
-  parseFromSwagger: function () {
-    if (!this.fromSwagger) return
+  loadOpenApiDocument: function () {
+    this.openApiDocumentBytes = this.openApiServers && this.openApiServers[0] && this.openApiServers[0].spec
 
-    return helpers.loadAsync(this.fromSwagger, this.fs)
-      .then(loaded => swaggerize.parse(loaded, helpers.reformatPathToSwift))
-      .then(response => {
-        this.loadedApi = response.loaded
-        this.parsedSwagger = response.parsed
-      })
-      .catch(err => {
-        err.message = chalk.red('failed to parse:' + this.fromSwagger + ' ' + err.message)
-        throw err
-      })
+    if (!this.openApiFileOrUrl && !this.openApiDocumentBytes) {
+      debug('neither bluemix openApiServers or fromSwagger options have been set')
+      return
+    }
+
+    if (this.openApiFileOrUrl && this.openApiDocumentBytes) {
+      debug('both bluemix openApiServers and fromSwagger options have been set')
+      throw new Error('cannot handle two sources of API definition')
+    }
+
+    if (this.openApiFileOrUrl) {
+      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
+        .then(loaded => {
+          this.openApiDocumentBytes = loaded
+        })
+    }
+  },
+
+  parseOpenApiDocument: function () {
+    if (this.openApiDocumentBytes) {
+      return swaggerize.parse(this.openApiDocumentBytes, helpers.reformatPathToSwift)
+        .then(response => {
+          this.loadedApi = response.loaded
+          this.parsedSwagger = response.parsed
+        })
+        .catch(err => {
+          if (this.openApiFileOrUrl) {
+            err.message = chalk.red('failed to parse:' + this.openApiFileOrUrl + ' ' + err.message)
+          } else {
+            err.message = chalk.red('failed to parse document from bluemix.openApiServers ' + err.message)
+          }
+          throw err
+        })
+    }
+  },
+
+  addEndpointInitCode: function () {
+    var endpointNames = []
+    if (this.parsedSwagger && this.parsedSwagger.resources) {
+      var resourceNames = Object.keys(this.parsedSwagger.resources)
+      endpointNames = endpointNames.concat(resourceNames)
+    }
+    if (this.healthcheck) {
+      endpointNames.push('Health')
+      this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Health.git", majorVersion: 0),')
+    }
+
+    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
+    this.appInitCode.endpoints = this.appInitCode.endpoints.concat(initCodeForEndpoints)
+
+    if (this.hostSwagger) this.appInitCode.endpoints.push(`initializeSwaggerRoutes(path: projectPath + "/definitions/${this.projectName}.yaml")`)
   },
 
   generateSDKs: function () {
     var shouldGenerateClientWithModel = (!!this.swagger && JSON.stringify(this.swagger['paths']) !== '{}')
-    var shouldGenerateClient = (!!this.fromSwagger)
+    var shouldGenerateClient = (!!this.openApiDocumentBytes)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
     if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
 
@@ -705,6 +856,7 @@ module.exports = Generator.extend({
     }
 
     function generateServerAsync () {
+      var sdkPackages = []
       return Promise.map(this.serverSwaggerFiles, file => {
         return helpers.loadAsync(file, this.fs)
           .then(loaded => {
@@ -723,7 +875,7 @@ module.exports = Generator.extend({
                       // Since all of the projects generated by the SDK generation
                       // service will have the same pacakge dependencies, it is ok
                       // (for now) to overwrite with the latest set.
-                      this.sdkPackages = sdk.packages
+                      sdkPackages = sdk.packages
                     }
                     // Copy SDK's Sources directory into the project's
                     // Sources directory
@@ -736,9 +888,12 @@ module.exports = Generator.extend({
               })
           })
           .catch(err => {
-            err.message = chalk.red(this.fromSwagger + ' ' + err.message)
+            err.message = chalk.red(this.openApiFileOrUrl + ' ' + err.message)
             throw err
           })
+      })
+      .then(() => {
+        sdkPackages.forEach(pkg => this.dependencies.push(pkg))
       })
     }
   },
@@ -748,7 +903,7 @@ module.exports = Generator.extend({
       // Check if we should create generator metadata files
       if (!this.options.singleShot) {
         // Root directory
-        this.config.save()
+        this.config.defaults({ version: this.generatorVersion })
 
         // Check if there is a .swiftservergenerator-project, create one if there isn't
         this._ifNotExistsInProject('.swiftservergenerator-project', (filepath) => {
@@ -767,17 +922,6 @@ module.exports = Generator.extend({
         )
       })
 
-      // Check if there is a config.json, create one if there isn't
-      this._ifNotExistsInProject('config.json', (filepath) => {
-        var configToWrite
-        if (this.bluemix) {
-          configToWrite = helpers.generateCloudConfig(this.spec.config, this.services)
-        } else {
-          configToWrite = helpers.generateLocalConfig(this.spec.config, this.services)
-        }
-        this.fs.writeJSON(filepath, configToWrite)
-      })
-
       this._ifNotExistsInProject('.swift-version', (filepath) => {
         this.fs.copy(this.templatePath('common', 'swift-version'),
                      filepath)
@@ -789,31 +933,22 @@ module.exports = Generator.extend({
                             filepath)
       })
 
+      this._ifNotExistsInProject(['Sources', this.applicationModule, 'InitializationError.swift'], (filepath) => {
+        this.fs.copy(this.templatePath('common', 'InitializationError.swift'),
+                     filepath)
+      })
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-        var basepath
-        var resources
-        if (this.parsedSwagger) {
-          if (this.parsedSwagger.basepath) {
-            basepath = this.parsedSwagger.basepath
-          }
-          if (this.parsedSwagger.resources) {
-            resources = Object.keys(this.parsedSwagger.resources)
-          }
-        }
         this.fs.copyTpl(
           this.templatePath('common', 'Application.swift'),
           filepath,
           {
             appType: this.appType,
-            appName: this.projectName,
             generatedModule: this.generatedModule,
-            services: this.services,
             bluemix: this.bluemix,
-            capabilities: this.capabilities,
+            appInitCode: this.appInitCode,
             web: this.web,
-            hostSwagger: this.hostSwagger,
-            resources: resources,
-            basepath: basepath
+            healthcheck: this.healthcheck,
+            basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
         )
       })
@@ -849,11 +984,29 @@ module.exports = Generator.extend({
           )
       })
 
+      if (this.metrics) {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Metrics.swift'], (filepath) => {
+          this.fs.copy(
+            this.templatePath('common', 'Metrics.swift'),
+            filepath
+          )
+        })
+      }
+
+      if (this.healthcheck) {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'HealthRoutes.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'HealthRoutes.swift'),
+            filepath
+          )
+        })
+      }
+
       if (this.hostSwagger) {
         this.fs.write(this.destinationPath('definitions', '.keep'), '')
-        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoute.swift'], (filepath) => {
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'SwaggerRoutes.swift'], (filepath) => {
           this.fs.copyTpl(
-            this.templatePath('common', 'SwaggerRoute.swift'),
+            this.templatePath('common', 'SwaggerRoutes.swift'),
             filepath
           )
         })
@@ -887,8 +1040,8 @@ module.exports = Generator.extend({
             docker: this.docker,
             hostSwagger: this.hostSwagger,
             exampleEndpoints: this.exampleEndpoints,
-            metrics: this.capabilities.metrics,
-            autoscale: this.capabilities.autoscale,
+            metrics: this.metrics,
+            autoscaling: this.services.autoscaling && this.services.autoscaling.length > 0,
             cloudant: this.services.cloudant && this.services.cloudant.length > 0,
             redis: this.services.redis && this.services.redis.length > 0,
             objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
@@ -1082,115 +1235,6 @@ module.exports = Generator.extend({
       }
     },
 
-    createConfigFiles: function () {
-      if (this.bluemix) return
-
-      // Only create these files if we are running locally
-      Object.keys(this.services).forEach(function (serviceType) {
-        if (serviceType === 'cloudant') {
-          this.fs.copy(
-            this.templatePath('local', 'CloudantConfig.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'CloudantConfig.swift')
-          )
-        }
-        if (serviceType === 'redis') {
-          this.fs.copy(
-            this.templatePath('local', 'RedisConfig.swift'),
-            this.destinationPath('Sources', this.applicationModule, 'RedisConfig.swift')
-          )
-        }
-      }.bind(this))
-    },
-
-    createExtensionFiles: function () {
-      if (!this.bluemix) {
-        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ConfigurationManagerExtension.swift'], (filepath) => {
-          // Add the extension for the configuration manager
-          this.fs.copy(
-            this.templatePath('extensions', 'ConfigurationManagerExtension.swift'),
-            filepath
-          )
-        })
-        return
-      }
-
-      // Create all the extension files
-      Object.keys(this.services).forEach(function (serviceType) {
-        if (serviceType === 'cloudant') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'CouchDBExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'CouchDBExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'mysql') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'MySQLExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'MySQLExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'postgresql') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PostgreSQLExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'PostgreSQLExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'redis') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'RedisExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'RedisExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'objectstorage') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'ObjStorageExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'ObjStorageExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'appid') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AppIDExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'AppIDExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'watsonconversation') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'WatsonConversationExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'WatsonConversationExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'alertnotification') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'AlertNotificationExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'AlertNotificationExtension.swift'),
-              filepath
-            )
-          })
-        }
-        if (serviceType === 'pushnotifications') {
-          this._ifNotExistsInProject(['Sources', this.applicationModule, 'Extensions', 'PushNotificationsExtension.swift'], (filepath) => {
-            this.fs.copy(
-              this.templatePath('extensions', 'PushNotificationsExtension.swift'),
-              filepath
-            )
-          })
-        }
-      }.bind(this))
-    },
-
     writeMainSwift: function () {
       // Adding the main.swift file by searching for it in the folders
       // and adding it if it is not there.
@@ -1219,86 +1263,19 @@ module.exports = Generator.extend({
     },
 
     writeDockerFiles: function () {
-      if (!this.docker) return
-
-      this._ifNotExistsInProject('.dockerignore', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'dockerignore'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile-tools', (filepath) => {
-        this.fs.copy(this.templatePath('docker', 'Dockerfile-tools'),
-                     filepath)
-      })
-      this._ifNotExistsInProject('Dockerfile', (filepath) => {
-        this.fs.copyTpl(this.templatePath('docker', 'Dockerfile'),
-                     filepath,
-                     { executableName: this.executableModule }
-        )
-      })
-      this._ifNotExistsInProject('cli-config.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('docker', 'cli-config.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule }
-        )
-      })
+      if (!this.docker || this.existingProject || !this.bluemix) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
-      if (!this.bluemix) return
-
-      // Check if there is a .cfignore, create one if there isn't
-      if (!this.fs.exists(this.destinationPath('.cfignore'))) {
-        this.fs.copy(this.templatePath('common', 'cfignore'),
-                     this.destinationPath('.cfignore'))
-      }
-
-      this._ifNotExistsInProject('manifest.yml', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'manifest.yml'),
-          filepath,
-          { cleanAppName: this.cleanAppName,
-            executableName: this.executableModule,
-            services: this.services,
-            capabilities: this.capabilities,
-            hostSwagger: this.hostSwagger,
-            bluemix: this.bluemix
-          }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'pipeline.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'pipeline.yml'),
-          filepath,
-          { appName: this.projectName,
-            services: this.services,
-            capabilities: this.capabilities,
-            helpers: helpers }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'toolchain.yml'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('bluemix', 'toolchain.yml'),
-          filepath,
-          { appName: this.projectName,
-            repoType: this.repoType }
-        )
-      })
-
-      this._ifNotExistsInProject(['.bluemix', 'deploy.json'], (filepath) => {
-        this.fs.copy(this.templatePath('bluemix', 'deploy.json'),
-                     filepath)
-      })
+      if (this.existingProject) return
+      this.bluemix.services = this.services
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
-      if (!this.docker) return
-
-      var server = (this.bluemix && this.bluemix.domain && this.bluemix.namespace) ? { domain: this.bluemix.domain, namespace: this.bluemix.namespace } : undefined
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), {force: this.force, bluemix: { backendPlatform: 'SWIFT', name: this.cleanAppName, server: server }})
+      if (!this.docker || this.existingProject) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
     },
 
     writePackageSwift: function () {
@@ -1312,11 +1289,8 @@ module.exports = Generator.extend({
             executableModule: this.executableModule,
             generatedModule: this.generatedModule,
             applicationModule: this.applicationModule,
-            bluemix: this.bluemix,
-            services: this.services,
-            capabilities: this.capabilities,
             sdkTargets: this.sdkTargets,
-            sdkPackages: this.sdkPackages
+            dependencies: this.dependencies
           }
         )
       })
