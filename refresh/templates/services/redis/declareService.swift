@@ -1,1 +1,0 @@
-internal var redis: Redis?

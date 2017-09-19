@@ -19,128 +19,215 @@
  * the real build and refresh subgenerators get called.
  */
 'use strict'
-var path = require('path')
-var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
+var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
-var testResourcesPath = path.join(__dirname, '../../../test/resources')
-var buildTimeout = 300000
+var commonTest = require('../../lib/common_test.js')
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
-// Require config to alter sdkgen delay between
-// status checks to speed up unit tests
-var config = require('../../../config')
-var sdkGenCheckDelaySaved
+describe('Integration tests (prompt build) for swiftserver:app', function () {
+  // Swift build is slow so we need to set a longer timeout for the test
+  this.timeout(300000)
 
-describe('Prompt and build integration tests for app generator', function () {
-  describe('Basic application', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout)
-    var runContext
+  describe('crud', function () {
+    describe('new application @full', function () {
+      var applicationName = 'newapp'
+      var executableModule = applicationName
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: []
-                          })
-      return runContext.toPromise()
-    })
+      describe('base', function () {
+        var runContext
 
-    it('compiles the application', function () {
-      assert.file('.build/debug/notes')
-    })
-    it('generates an .xcodeproj file', function () {
-      assert.file('notes.xcodeproj')
-    })
-  })
+        before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(appGeneratorPath)
+                              .withPrompts({
+                                appType: 'Scaffold a starter',
+                                name: applicationName,
+                                dir: applicationName
+                              })
+          return runContext.toPromise()
+        })
 
-  describe('Web application @full', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout)
-    var runContext
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: ['Static web file serving']
-                          })
-      return runContext.toPromise()
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/notes')
+        commonTest.itCompiledExecutableModule(executableModule)
+        commonTest.itCreatedXCodeProjectWorkspace(applicationName)
+      })
     })
   })
 
-  describe('CRUD application @full', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(buildTimeout)
-    var runContext
+  describe('scaffold', function () {
+    var applicationName = 'myapp'
+    var executableModule = applicationName
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withPrompts({
-                            appType: 'Generate a CRUD application',
-                            name: 'notes',
-                            dir: 'notes'
-                          })
-      return runContext.toPromise()
+    describe('base', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withPrompts({
+                              appType: 'Scaffold a starter',
+                              name: applicationName,
+                              dir: applicationName
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    it('compiles the application', function () {
-      assert.file(process.cwd() + '/.build/debug/notes')
-    })
-    it('generates an .xcodeproj file', function () {
-      assert.file('notes.xcodeproj')
-    })
-  })
+    var capabilitiesToTest = [ 'web', 'metrics', 'docker' ]
+    capabilitiesToTest.forEach(capability => {
+      var capabilityDisplayName = commonTest.capabilityDisplayNames[capability]
 
-  describe('Starter with generated SDK integration', function () {
-    var runContext
-    var appName = 'notes'
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
+      describe(`with ${capability} @full`, function () {
+        var runContext
 
-      // Swift build is slow so we need to set a longer timeout for the test
-      this.timeout(buildTimeout)
-      runContext = helpers.run(appGeneratorPath)
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: appName,
-                            dir: appName,
-                            appPattern: 'Basic',
-                            endpoints: 'Endpoints from swagger file',
-                            swaggerChoice: 'Custom swagger file',
-                            path: testResourcesPath + '/petstore.yaml',
-                            serverSwaggerInput0: true,
-                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
-                            serverSwaggerInput1: true,
-                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
-                            serverSwaggerInput2: false
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withPrompts({
+                                appType: 'Scaffold a starter',
+                                name: applicationName,
+                                dir: applicationName,
+                                capabilities: [ capabilityDisplayName ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCompiledExecutableModule(executableModule)
+        commonTest.itCreatedXCodeProjectWorkspace(applicationName)
+      })
     })
 
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
+    // TODO with swagger file serving endpoint @full
+    // TODO with endpoints from swagger file @full
+
+    var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql',
+      'objectstorage', 'appid', 'watsonconversation', 'alertnotification',
+      'pushnotifications', 'autoscaling' ]
+    servicesToTest.forEach(service => {
+      var serviceDisplayName = commonTest.serviceDisplayNames[service]
+
+      describe(`with ${service} @full`, function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withPrompts({
+                                appType: 'Scaffold a starter',
+                                name: applicationName,
+                                dir: applicationName,
+                                capabilities: [],
+                                services: [ serviceDisplayName ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCompiledExecutableModule(executableModule)
+        commonTest.itCreatedXCodeProjectWorkspace(applicationName)
+      })
     })
 
-    it('compiles the application', function () {
-      assert.file(process.cwd() + '/.build/debug/' + appName)
+    describe.skip('with server sdk @full', function () {
+      var petstoreSDKName = 'Swagger_Petstore'
+      var petstore2SDKName = 'Swagger_Petstore_Two'
+      var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
+      var petstore2SwaggerFile = path.join(__dirname, '../../resources/petstore2.yaml')
+      var runContext
+
+      before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO this test is in skip mode until we mock the server sdk
+        // with real content instead of dummy content
+        mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
+        mockSDKGen.mockServerSDKNetworkRequest(petstore2SDKName)
+        runContext = helpers.run(appGeneratorPath)
+                            .withPrompts({
+                              appType: 'Scaffold a starter',
+                              name: applicationName,
+                              dir: applicationName,
+                              endpoints: 'Endpoints from swagger file',
+                              swaggerChoice: 'Custom swagger file',
+                              path: petstoreSwaggerFile,
+                              serverSwaggerInput0: true,
+                              serverSwaggerInputPath0: petstoreSwaggerFile,
+                              serverSwaggerInput1: true,
+                              serverSwaggerInputPath1: petstore2SwaggerFile,
+                              serverSwaggerInput2: false
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        nock.cleanAll()
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    it('generates an .xcodeproj file', function () {
-      assert.file(appName + '.xcodeproj')
+    describe('with all capabilities and services', function () {
+      // var petstoreSDKName = 'Swagger_Petstore'
+      var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
+      var runContext
+
+      before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO don't include a server sdk until we mock the server sdk
+        // with real content instead of dummy content
+        // mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
+        runContext = helpers.run(appGeneratorPath)
+                            .withPrompts({
+                              appType: 'Scaffold a starter',
+                              name: applicationName,
+                              dir: applicationName,
+                              appPattern: 'Backend for frontend',
+                              swaggerChoice: 'Custom swagger file',
+                              path: petstoreSwaggerFile,
+                              // serverSwaggerInput0: true,
+                              // serverSwaggerInputPath0: petstoreSwaggerFile,
+                              // serverSwaggerInput1: false,
+                              services: [
+                                'Cloudant / CouchDB',
+                                'Redis',
+                                'MongoDB',
+                                'Object Storage',
+                                'AppID',
+                                'Auto-scaling',
+                                'Watson Conversation',
+                                'Alert Notification',
+                                'Push Notifications'
+                              ]
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        nock.cleanAll()
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
   })
 })

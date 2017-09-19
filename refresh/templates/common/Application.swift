@@ -1,90 +1,50 @@
 import Foundation
 import Kitura
 import LoggerAPI
-import Health
 import Configuration
+import CloudEnvironment
 <% if (appType === 'crud') { -%>
 import <%- generatedModule %>
 <% } -%>
-<% if(bluemix) { -%>
-import CloudFoundryConfig
+<% if (healthcheck) { -%>
+import Health
 <% } -%>
-<% if (Object.keys(capabilities).length > 0) { -%>
-<%   Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<%     if(capabilities[capabilityType] === true || typeof(capabilities[capabilityType]) === 'string') { -%>
-<%-      include(`../capabilities/${capabilityType}/importModule.swift`) -%>
-<%     } -%>
-<%   }); -%>
-<% } -%>
-<% if (Object.keys(services).length > 0) { -%>
-<%   Object.keys(services).forEach(function(serviceType) { -%>
-<%-    include(`../services/${serviceType}/importModule.swift`) -%>
-<%   }); -%>
-<% } %>
+
 public let router = Router()
-public let manager = ConfigurationManager()
+public let cloudEnv = CloudEnv()
+public let projectPath = ConfigurationManager.BasePath.project.path
 public var port: Int = 8080
 <% if (basepath) { -%>
 public var basePath = "<%- basepath %>"
 <% } -%>
-
-<% if (Object.keys(services).length > 0) { -%>
-<%   Object.keys(services).forEach(function(serviceType) { -%>
-<%-    include(`../services/${serviceType}/declareService.swift`) -%>
-<%   }); %>
+<% if (healthcheck) { -%>
+public let health = Health()
 <% } -%>
+
 public func initialize() throws {
+    // Configuration
+    port = cloudEnv.port
 
-    manager.load(file: "config.json", relativeFrom: .project)
-           .load(.environmentVariables)
+    // Capabilities
+<% appInitCode.capabilities.forEach(function(capability) { -%>
+    <%- capability %>
+<% }); -%>
 
-    port = manager.port
+    // Services
+<% appInitCode.services.forEach(function(service) { -%>
+    <%- service %>
+<% }); -%>
 
-<% if (Object.keys(capabilities).length > 0) { -%>
-<%   Object.keys(capabilities).forEach(function(capabilityType) { -%>
-<%     if (capabilities[capabilityType]) { -%>
-<%-      include(`../capabilities/${capabilityType}/declareCapability.swift`) %>
-<%     } -%>
-<%   }); -%>
-<% } -%>
-<% if (Object.keys(services).length > 0) { -%>
-<%   Object.keys(services).forEach(function(serviceType) { -%>
-<%     services[serviceType].forEach(function(service) { -%>
-<%       if (bluemix) { -%>
-<%-        include(`../services/${serviceType}/initializeBluemixService.swift`, { service: service }) %>
-<%       } else { -%>
-<%-        include(`../services/${serviceType}/initializeService.swift`, { service: service}) %>
-<%       } -%>
-<%     }); -%>
-<%   }); -%>
-<% } -%>
-    router.all("/*", middleware: BodyParser())
-<% if (web) { -%>
-    router.all("/", middleware: StaticFileServer())
-<% } -%>
-<% if (appType === 'crud') { %>
-    try initializeCRUDResources(manager: manager, router: router)
-<% } -%>
+    // Middleware
+    router.all(middleware: BodyParser())
+<% appInitCode.middlewares.forEach(function(middleware) { -%>
+    <%- middleware %>
+<% }); -%>
 
-<% if (resources) { -%>
-<%   resources.forEach(function(resource) { -%>
-    initialize<%- resource %>Routes()
-<%   }); -%>
-<% } -%>
-
-<% if (hostSwagger) { -%>
-    initializeSwaggerRoute(path: ConfigurationManager.BasePath.project.path + "/definitions/<%- appName %>.yaml")
-<% } -%>
-    let health = Health()
-    
-    router.get("/health") { request, response, _ in
-        let result = health.status.toSimpleDictionary()
-        if health.status.state == .UP {
-            try response.send(json: result).end()
-        } else {
-            try response.status(.serviceUnavailable).send(json: result).end()
-        }
-    }
+    // Endpoints
+<% appInitCode.endpoints.forEach(function(endpoint) { -%>
+    <%- endpoint %>
+<% }); -%>
 }
 
 public func run() throws {

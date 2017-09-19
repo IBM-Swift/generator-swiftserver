@@ -1,2 +1,0 @@
-import SwiftMetrics
-import SwiftMetricsDash

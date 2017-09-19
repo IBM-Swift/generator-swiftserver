@@ -15,10 +15,13 @@
  */
 
 'use strict'
-var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
 var fs = require('fs')
+
+var appGeneratorPath = path.join(__dirname, '../../app')
+var commonTest = require('../lib/common_test.js')
 
 // Subgenerators to be stubbed
 var dependentGenerators = [
@@ -26,411 +29,100 @@ var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:build']
 ]
 
-describe('swiftserver:app', function () {
-  describe('Application name and directory name are the same', function () {
-    var runContext
-    before(function () {
-      // Mock the options, set up an output folder and run the generator
+function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
+  it('created a spec object containing the expected config', function () {
+    var opts = optsGenerator()
+    var runContext = opts.runContext
+    var appType = opts.appType
+    var appName = opts.appName
+    var capabilities = opts.capabilities
+    var services = opts.services
+    var crudservice = opts.crudservice
+    var fromSwagger = opts.fromSwagger
 
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators) // Stub subgenerators
-        .withOptions({ testmode: true })    // Workaround to stub subgenerators
-        .withPrompts({                       // Mock the prompt answers
-          appType: 'Generate a CRUD application',
-          name: 'notes',
-          dir: 'notes'
-        })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
+    function hasCapability (name) {
+      return (capabilities.indexOf(name) !== -1)
+    }
 
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'notes')
-    })
-
-    it('create a spec object containing the config', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'crud',
-        appName: 'notes',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
+    var spec = runContext.generator.spec
+    var expectedSpec = {
+      appName: appName,
+      appType: appType,
+      docker: hasCapability('docker') || undefined,
+      metrics: hasCapability('metrics') || undefined,
+      web: hasCapability('web') || undefined,
+      exampleEndpoints: hasCapability('exampleEndpoints') || undefined,
+      hostSwagger: hasCapability('hostSwagger') || undefined,
+      swaggerUI: hasCapability('swaggerUI') || undefined,
+      fromSwagger: fromSwagger || undefined,
+      serverSwaggerFiles: undefined,
+      services: {},
+      crudservice: crudservice || undefined
+    }
+    // deal with services
+    Object.keys(services).forEach(serviceType => {
+      var expectedService = { credentials: {} }
+      if (services[serviceType].name) {
+        expectedService.name = services[serviceType].name
       }
-      assert.objectContent(spec, expectedSpec)
-    })
-  })
-
-  describe('Application name and directory names are not the same', function () {
-    var runContext
-    before(function () {
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application',
-          name: 'applicationName',
-          dir: 'directoryName'
-        })
-      return runContext.toPromise()       // Get a Promise back for when the generator finishes
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'directoryName')
-    })
-
-    it('create a spec object containing the config', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'crud',
-        appName: 'applicationName',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
+      if (services[serviceType].credentials) {
+        expectedService.credentials = services[serviceType].credentials
       }
-      assert.objectContent(spec, expectedSpec)
+      expectedSpec.services[serviceType] = [expectedService]
     })
-  })
+    assert.objectContent(spec, expectedSpec)
 
-  describe('Application type and name only is supplied (via the prompt)', function () {
+    // keep this test relevant by ensuring all key set by the
+    // app generator are tested (ie there is no key in spec that
+    // is not in expectedSpec)
+    var unexpectedKeys = Object.keys(spec).filter(key => !expectedSpec.hasOwnProperty(key))
+    assert.deepEqual(unexpectedKeys, [], 'unexpected properties in spec, test may be out of date')
+  })
+}
+
+describe('Unit tests for swiftserver:app', function () {
+  describe('no application name or directory (should default to current dir)', function () {
     var runContext
+
     before(function () {
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application',
-          name: 'appNameOnly'
-        })
-      return runContext.toPromise()       // Get a Promise back for when the generator finishes
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators) // Stub subgenerators
+                          .inTmpDir(function (tmpDir) {
+                            // Run the test inside a directory with a known name
+                            // we can use to check against later (since the test
+                            // dir has a randomly generated name)
+                            this.inDir(path.join(tmpDir, 'appDir'))
+                          })
+                          .withOptions({ testmode: true })     // Workaround to stub subgenerators
+      return runContext.toPromise()
     })
 
     after(function () {
       runContext.cleanTestDirectory()
     })
 
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'appNameOnly')
-    })
+    commonTest.itUsedDestinationDirectory('appDir')
 
-    it('create a spec object containing the config', function () {
+    it('created a spec object with appName defaulted to current dir and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appType: 'crud',
-        appName: 'appNameOnly',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
-      }
-      assert.objectContent(spec, expectedSpec)
-    })
-  })
-
-  // Create a testing directory, then supply no arguments via the prompt.
-  // We should default to this for the application and directory values.
-  describe('Create an application directory and change into it. Supply no arguments via the prompt. ' +
-           'The app and dir prompt values should default to application directory.', function () {
-    var runContext
-    before(function () {
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'appDir'))
-        })
-      return runContext.toPromise()        // Get a Promise back for when the generator finishes
-        .then(function (dir) {
-          assert.equal(path.basename(process.cwd()), 'appDir')
-        })
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'appDir')
-    })
-
-    it('create a spec object containing the config', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'crud',
         appName: 'appDir',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
+        appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
     })
   })
 
-  // Create a directory and change into it for testing. Try supplying the directory
-  // name as . (this should work)
-  describe('Create an application directory and change into it. Supply dir prompt as .', function () {
-    var runContext
-    before(function () {
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application',
-          name: 'differentAppName',
-          dir: '.'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'currentDir'))
-        })
-      return runContext.toPromise()        // Get a Promise back for when the generator finishes
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'currentDir')
-    })
-
-    it('create a spec object containing the config', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'crud',
-        appName: 'differentAppName',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
-      }
-      assert.objectContent(spec, expectedSpec)
-    })
-  })
-
-  describe('Application name is supplied via the command line options (not prompt)', function () {
-    var runContext
-    before(function () {
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withArguments(['nameOnCommandLine'])
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-      return runContext.toPromise()       // Get a Promise back for when the generator finishes
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'nameOnCommandLine')
-    })
-
-    it('create a spec object containing the config', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'crud',
-        appName: 'nameOnCommandLine',
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
-      }
-      assert.objectContent(spec, expectedSpec)
-    })
-  })
-
-  describe('An invalid application name is supplied via the command line options. ' +
-           'Check that we fall back to using the current directory.',
-            function () {
-              var runContext
-              before(function () {
-      // Mock the options, set up an output folder and run the generator
-                runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withArguments(['inva&%*lid'])
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'validDir'))
-        })
-                return runContext.toPromise()        // Get a Promise back for when the generator finishes
-        .then(function (dir) {
-          assert.equal(path.basename(process.cwd()), 'validDir')
-        })
-              })
-
-              after(function () {
-                runContext.cleanTestDirectory()
-              })
-
-              it('created and changed into a folder according to dir value', function () {
-                assert.equal(path.basename(process.cwd()), 'validDir')
-              })
-
-              it('create a spec object containing the config', function () {
-                var spec = runContext.generator.spec
-                var expectedSpec = {
-                  appType: 'crud',
-                  appName: 'validDir',
-                  config: {
-                    logger: 'helium',
-                    port: 8080
-                  }
-                }
-                assert.objectContent(spec, expectedSpec)
-              })
-            })
-
-  describe('An invalid application name is supplied via the command line. ' +
-           'The current directory is also an invalid application name format ' +
-           'which cannot be sanitized. ' +
-           'Ensure that we fall back to the default name of "app".',
-            function () {
-              var runContext
-              before(function () {
-      // Mock the options, set up an output folder and run the generator
-                runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withArguments(['inva&%*lid'])
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'inva&%*lid'))
-        })
-                return runContext.toPromise()        // Get a Promise back for when the generator finishes
-              })
-
-              after(function () {
-                runContext.cleanTestDirectory()
-              })
-
-              it('created and changed into a folder according to dir value', function () {
-                assert.equal(path.basename(process.cwd()), 'app')
-              })
-
-              it('create a spec object containing the config', function () {
-                var spec = runContext.generator.spec
-                var expectedSpec = {
-                  appType: 'crud',
-                  appName: 'app',
-                  config: {
-                    logger: 'helium',
-                    port: 8080
-                  }
-                }
-                assert.objectContent(spec, expectedSpec)
-              })
-            })
-
-  describe('An invalid application name is supplied via the command line. ' +
-           'The current directory is also an invalid application name format. ' +
-           'Check that the current directory name can be sanitized and then used.',
-           function () {
-             var runContext
-             before(function () {
-      // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withArguments(['ext&%*ra'])
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'))
-        })
-               return runContext.toPromise()        // Get a Promise back for when the generator finishes
-             })
-
-             after(function () {
-               runContext.cleanTestDirectory()
-             })
-
-             it('created and changed into a folder according to dir value', function () {
-               assert.equal(path.basename(process.cwd()), 'inv-l-l-l-l-lid')
-             })
-
-             it('create a spec object containing the config', function () {
-               var spec = runContext.generator.spec
-               var expectedSpec = {
-                 appType: 'crud',
-                 appName: 'inv-l-l-l-l-lid',
-                 config: {
-                   logger: 'helium',
-                   port: 8080
-                 }
-               }
-               assert.objectContent(spec, expectedSpec)
-             })
-           })
-
-  describe('Create a directory and change into it for testing. ' +
-           'Enter the application name as the same name, we should use the directory ' +
-           'which already existed, not create a new one of the same name.',
-           function () {
-             var runContext
-             before(function () {
-      // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({      // Mock the prompt answers
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'testDir'))
-        })
-               return runContext.toPromise()        // Get a Promise back for when the generator finishes
-             })
-
-             after(function () {
-               runContext.cleanTestDirectory()
-             })
-
-             it('used the empty directory for the project', function () {
-               assert.equal(path.basename(process.cwd()), 'testDir')
-               assert(runContext.generator.destinationSet)
-             })
-           })
-
-  describe('CRUD application with bluemix', function () {
+  describe('application name and directory name are the same', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-                          .withGenerators(dependentGenerators)
-                          .withOptions({ testmode: true })
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators) // Stub subgenerators
+                          .withOptions({ testmode: true })     // Workaround to stub subgenerators
                           .withPrompts({
-                            appType: 'Generate a CRUD application',
                             name: 'notes',
-                            dir: 'notes',
-                            store: 'Memory',
-                            capabilities: ['Bluemix cloud deployment']
+                            dir: 'notes'
                           })
       return runContext.toPromise()
     })
@@ -439,34 +131,33 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('has the expected spec object', function () {
+    commonTest.itUsedDestinationDirectory('notes')
+
+    it('created a spec object with correct appName and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appType: 'crud',
         appName: 'notes',
-        bluemix: true,
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
+        appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
     })
   })
 
-  describe('CRUD application with metrics', function () {
+  describe('application name matches current directory, no directory supplied', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-                          .withGenerators(dependentGenerators)
-                          .withOptions({ testmode: true })
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators) // Stub subgenerators
+                          .inTmpDir(function (tmpDir) {
+                            // Run the test inside a directory with a known name
+                            // we can use to check against later (since the test
+                            // dir has a randomly generated name)
+                            this.inDir(path.join(tmpDir, 'notes'))
+                          })
+                          .withOptions({ testmode: true })     // Workaround to stub subgenerators
                           .withPrompts({
-                            appType: 'Generate a CRUD application',
-                            name: 'notes',
-                            dir: 'notes',
-                            store: 'Memory',
-                            capabilities: ['Embedded metrics dashboard']
+                            name: 'notes'
                           })
       return runContext.toPromise()
     })
@@ -475,302 +166,32 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('has the expected spec object', function () {
+    commonTest.itUsedDestinationDirectory('notes')
+
+    it('uses current directory not create a new one inside', function () {
+      assert.notEqual(path.basename(path.dirname(process.cwd())), 'notes')
+    })
+
+    it('created a spec object with appName defaulted to current dir and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appType: 'crud',
         appName: 'notes',
-        capabilities: {
-          metrics: true
-        },
-        config: {
-          logger: 'helium',
-          port: 8080
-        }
+        appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
     })
   })
 
-  describe('CRUD application using cloudant',
-           function () {
-             var runContext
-             before(function () {
-      // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({
-          appType: 'Generate a CRUD application',
-          name: 'notes',
-          dir: 'notes',
-          store: 'Cloudant'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'testDir'))
-        })
-               return runContext.toPromise()        // Get a Promise back for when the generator finishes
-             })
-
-             after(function () {
-               runContext.cleanTestDirectory()
-             })
-
-             it('creates and changes into a folder according to dir value', function () {
-               assert.equal(path.basename(process.cwd()), 'notes')
-             })
-
-             it('has the expected spec object', function () {
-               var spec = runContext.generator.spec
-               var expectedSpec = {
-                 appType: 'crud',
-                 appName: 'notes',
-                 services: {
-                   cloudant: [{
-                     credentials: {}
-                   }]
-                 },
-                 config: {
-                   logger: 'helium',
-                   port: 8080
-                 }
-               }
-               assert.objectContent(spec, expectedSpec)
-             })
-           })
-
-  describe('CRUD application using cloudant with non-default' +
-           ' connection details',
-           function () {
-             var runContext
-             before(function () {
-      // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({
-          appType: 'Generate a CRUD application',
-          name: 'notes',
-          dir: 'notes',
-          store: 'Cloudant',
-          configure: ['Cloudant / CouchDB'],
-          cloudantHost: 'cloudanthost',
-          cloudantPort: 4568,
-          cloudantSecured: true
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'testDir'))
-        })
-               return runContext.toPromise()        // Get a Promise back for when the generator finishes
-             })
-
-             after(function () {
-               runContext.cleanTestDirectory()
-             })
-
-             it('created and changed into a folder according to dir value', function () {
-               assert.equal(path.basename(process.cwd()), 'notes')
-             })
-
-             it('has the expected spec object', function () {
-               var spec = runContext.generator.spec
-               var expectedSpec = {
-                 appType: 'crud',
-                 appName: 'notes',
-                 services: {
-                   cloudant: [{
-                     credentials: {
-                       host: 'cloudanthost',
-                       port: 4568,
-                       secured: true
-                     }
-                   }]
-                 },
-                 config: {
-                   logger: 'helium',
-                   port: 8080
-                 }
-               }
-               assert.objectContent(spec, expectedSpec)
-             })
-           })
-
-  describe('CRUD application using cloudant with non-default' +
-           ' connection details and credentials',
-           function () {
-             var runContext
-             before(function () {
-      // Mock the options, set up an output folder and run the generator
-               runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({
-          appType: 'Generate a CRUD application',
-          name: 'notes',
-          dir: 'notes',
-          store: 'Cloudant',
-          configure: ['Cloudant / CouchDB'],
-          cloudantUsername: 'admin',
-          cloudantPassword: 'password123'
-        })
-        .inTmpDir(function (tmpDir) {
-          this.inDir(path.join(tmpDir, 'testDir'))
-        })
-               return runContext.toPromise()        // Get a Promise back for when the generator finishes
-             })
-
-             after(function () {
-               runContext.cleanTestDirectory()
-             })
-
-             it('created and changed into a folder according to dir value', function () {
-               assert.equal(path.basename(process.cwd()), 'notes')
-             })
-
-             it('has the expected spec object', function () {
-               var spec = runContext.generator.spec
-               var expectedSpec = {
-                 appType: 'crud',
-                 appName: 'notes',
-                 services: {
-                   cloudant: [{
-                     credentials: {
-                       username: 'admin',
-                       password: 'password123'
-                     }
-                   }]
-                 },
-                 config: {
-                   logger: 'helium',
-                   port: 8080
-                 }
-               }
-               assert.objectContent(spec, expectedSpec)
-             })
-           })
-
-  describe('Attempt to create a project in a non-empty directory.', function () {
-    var runContext
-    before(function () {
-      var success = false
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators) // Stub subgenerators
-        .withOptions({ testmode: true })    // Workaround to stub subgenerators
-        .withPrompts({
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          var tmpFile = path.join(tmpDir, 'non_empty.txt')    // Created to make the dir a non-empty
-          fs.writeFileSync(tmpFile, '')
-        })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes\
-        .catch(function (err) {
-          success = true
-          assert(err.message.match('is not an empty directory.*$'), 'Current directory is non-empty and should have thrown an error')
-        })
-        .then(function () {
-          assert(success, 'Current directory is non-empty and should have thrown an error')
-        })
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('did not generate a project in the current directory', function () {
-      var spec = runContext.generator.spec
-      assert.objectContent(spec, {})
-    })
-  })
-
-  describe('Attempt to create a project in a non-empty directory with prompt.', function () {
-    var runContext
-    before(function () {
-      var success = false
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators) // Stub subgenerators
-        .withOptions({ testmode: true })    // Workaround to stub subgenerators
-        .withPrompts({
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          fs.mkdirSync(path.join(tmpDir, 'tmpDir'))
-          var tmpFile = path.join(tmpDir, 'tmpDir', 'non_empty.txt')    // Created to make the dir non-empty
-          fs.writeFileSync(tmpFile, '')
-        })
-        .withPrompts({
-          name: 'test',
-          dir: 'tmpDir'
-        })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes\
-        .catch(function (err) {              // Should catch the expected error
-          success = true
-          assert(err.message.match('is not an empty directory.*$'), 'Specified directory is non-empty and should have thrown an error')
-        })
-        .then(function () {
-          assert(success, 'Specified directory is non-empty and should have thrown an error')
-        })
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('did not generate a project in the specified directory', function () {
-      var spec = runContext.generator.spec
-      assert.objectContent(spec, {})
-    })
-  })
-
-  describe('Attempt to create a project in a pre-existing project.', function () {
-    var runContext
-    before(function () {
-      var success = false
-      // Mock the options, set up an output folder and run the generator
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators) // Stub subgenerators
-        .withOptions({ testmode: true })    // Workaround to stub subgenerators
-        .withPrompts({
-          appType: 'Generate a CRUD application'
-        })
-        .inTmpDir(function (tmpDir) {
-          var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')    // Created to make the dir non-empty
-          fs.writeFileSync(tmpFile, '')
-        })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes\
-        .catch(function (err) {
-          success = true
-          assert(err.message.match('is already a Swift Server Generator project directory.*$'), 'Directory is already a project and should have thrown an error')
-        })
-        .then(function () {
-          assert(success, 'Directory is already a project and should have thrown an error')
-        })
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('did not generate a project', function () {
-      var spec = runContext.generator.spec
-      assert.objectContent(spec, {})
-    })
-  })
-
-  describe('Basic application', function () {
+  describe('application name and directory name are not the same', function () {
     var runContext
 
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withGenerators(dependentGenerators)
                           .withOptions({ testmode: true })
                           .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'mysite',
-                            dir: 'mysite',
-                            capabilities: []
+                            name: 'applicationName',
+                            dir: 'directoryName'
                           })
       return runContext.toPromise()
     })
@@ -779,38 +200,31 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('spec object has no capabilities', function () {
+    commonTest.itUsedDestinationDirectory('directoryName')
+
+    it('created a spec object with correct appName and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appType: 'scaffold',
-        appName: 'mysite',
-        bluemix: undefined,
-        docker: undefined,
-        web: undefined,
-        hostSwagger: undefined,
-        swaggerUI: undefined,
-        capabilities: {},
-        services: {}
+        appName: 'applicationName',
+        appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
     })
   })
 
-  describe('Basic application with bluemix, autoscaling and metrics', function () {
+  describe('application directory is .', function () {
     var runContext
+
     before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
+      runContext = helpers.run(appGeneratorPath)
                           .withGenerators(dependentGenerators)
+                          .inTmpDir(function (tmpDir) {
+                            this.inDir(path.join(tmpDir, 'appDir'))
+                          })
                           .withOptions({ testmode: true })
                           .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'mysite',
-                            dir: 'mysite',
-                            capabilities: [
-                              'Embedded metrics dashboard',
-                              'Bluemix cloud deployment'
-                            ],
-                            services: ['Auto-scaling']
+                            name: 'applicationName',
+                            dir: '.'
                           })
       return runContext.toPromise()
     })
@@ -819,119 +233,1676 @@ describe('swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('has expected spec object', function () {
+    commonTest.itUsedDestinationDirectory('appDir')
+
+    it('uses current directory not create a new one inside', function () {
+      assert.notEqual(path.basename(path.dirname(process.cwd())), 'notes')
+    })
+
+    it('created a spec object with correct appName and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appType: 'scaffold',
-        bluemix: true,
-        capabilities: {
-          metrics: true
-        }
-      }
-      assert.objectContent(spec, expectedSpec)
-      assert(spec.services.autoscale[0].name.startsWith('mysite-AutoScaling-'))
-    })
-  })
-
-  describe('Web application', function () {
-    var runContext
-    before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-                          .withGenerators(dependentGenerators)
-                          .withOptions({ testmode: true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'mysite',
-                            dir: 'mysite',
-                            capabilities: ['Static web file serving']
-                          })
-      return runContext.toPromise()
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('spec object has web', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        web: true
+        appName: 'applicationName',
+        appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
     })
   })
 
-  describe('Web application with bluemix, autoscaling and metrics', function () {
-    var runContext
+  describe('application directory is not empty', function () {
+    describe('current directory', function () {
+      var runContext
+      var error = null
 
-    before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-                          .withGenerators(dependentGenerators)
-                          .withOptions({ testmode: true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'mysite',
-                            dir: 'mysite',
-                            capabilities: [
-                              'Static web file serving',
-                              'Embedded metrics dashboard',
-                              'Bluemix cloud deployment'
-                            ],
-                            services: ['Auto-scaling']
-                          })
-      return runContext.toPromise()
-    })
-
-    after(function () {
-      runContext.cleanTestDirectory()
-    })
-
-    it('has expected spec object', function () {
-      var spec = runContext.generator.spec
-      var expectedSpec = {
-        appType: 'scaffold',
-        web: true,
-        bluemix: true,
-        capabilities: {
-          metrics: true
-        }
-      }
-      assert.objectContent(spec, expectedSpec)
-      console.log(spec.services)
-      assert(spec.services.autoscale[0].name.startsWith('mysite-AutoScaling-'))
-    })
-  })
-
-  describe('Rejected web application with push notifications service with invalid region', function () {
-    var runContext
-    var error = null
-
-    before(function () {
-      runContext = helpers.run(path.join(__dirname, '../../app'))
-        .withGenerators(dependentGenerators)
-        .withOptions({ testmode: true })
-        .withPrompts({
-          appType: 'Scaffold a starter',
-          capabilities: [
-            'Bluemix cloud deployment'
-          ],
-          services: ['Push Notifications'],
-          configure: ['Push Notifications'],
-          pushNotificationsRegion: 'NotARegion'
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              var tmpFile = path.join(tmpDir, 'non_empty.txt')
+                              fs.writeFileSync(tmpFile, '')
+                            })
+                            .withOptions({ testmode: true })
+        return runContext.toPromise().catch(function (err) {
+          error = err
         })
-      return runContext.toPromise()
-      .catch(function (err) {
-        error = err
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('is not an empty directory'), 'Thrown error should be about directory not being empty, it was: ' + error)
       })
     })
 
+    describe('new directory', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              fs.mkdirSync(path.join(tmpDir, 'newDir'))
+                              var tmpFile = path.join(tmpDir, 'newDir', 'non_empty.txt')
+                              fs.writeFileSync(tmpFile, '')
+                            })
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: 'notes',
+                              dir: 'newDir'
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('is not an empty directory'), 'Thrown error should be about directory not being empty, it was: ' + error)
+      })
+    })
+
+    describe('existing project directory', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              var tmpFile = path.join(tmpDir, commonTest.projectMarkerFile)
+                              fs.writeFileSync(tmpFile, '')
+                            })
+                            .withOptions({ testmode: true })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('is already a Swift Server Generator project directory'), 'Thrown error should be about directory being an existing project, it was: ' + error)
+      })
+    })
+  })
+
+  describe('application name supplied as option (not prompt)', function () {
+    var runContext
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators)
+                          .withOptions({ testmode: true })
+                          .withArguments([ 'nameFromOption' ])
+      return runContext.toPromise()
+    })
+
     after(function () {
       runContext.cleanTestDirectory()
     })
 
-    it('aborts the generator with an error', function () {
-      assert(error, 'Should throw an error')
-      assert(error.message.match('^.*unknown region.*$'), 'Thrown error should be about unknown region')
+    commonTest.itUsedDestinationDirectory('nameFromOption')
+
+    it('created a spec object with correct appName and no appDir', function () {
+      var spec = runContext.generator.spec
+      var expectedSpec = {
+        appName: 'nameFromOption',
+        appDir: undefined
+      }
+      assert.objectContent(spec, expectedSpec)
+    })
+  })
+
+  describe('invalid application name supplied as option', function () {
+    describe('in dir with valid name', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              this.inDir(path.join(tmpDir, 'validDir'))
+                            })
+                            .withOptions({ testmode: true })
+                            .withArguments(['inva&%*lid'])
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itUsedDestinationDirectory('validDir')
+
+      it('created a spec object with appName defaulting to dir and no appDir', function () {
+        var spec = runContext.generator.spec
+        var expectedSpec = {
+          appName: 'validDir',
+          appDir: undefined
+        }
+        assert.objectContent(spec, expectedSpec)
+      })
+    })
+
+    describe('in dir with invalid and sanitizable name', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'))
+                            })
+                            .withOptions({ testmode: true })
+                            .withArguments(['inva&%*lid'])
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itUsedDestinationDirectory('inv-l-l-l-l-lid')
+
+      it('created a spec object with appName defaulting to dir and no appDir', function () {
+        var spec = runContext.generator.spec
+        var expectedSpec = {
+          appName: 'inv-l-l-l-l-lid',
+          appDir: undefined
+        }
+        assert.objectContent(spec, expectedSpec)
+      })
+    })
+
+    describe('in dir with invalid and unsanitizable name', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .inTmpDir(function (tmpDir) {
+                              this.inDir(path.join(tmpDir, 'inva&%*lid'))
+                            })
+                            .withOptions({ testmode: true })
+                            .withArguments(['inva&%*lid'])
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itUsedDestinationDirectory('app')
+
+      it('created a spec object with appName defaulting to dir and no appDir', function () {
+        var spec = runContext.generator.spec
+        var expectedSpec = {
+          appName: 'app',
+          appDir: undefined
+        }
+        assert.objectContent(spec, expectedSpec)
+      })
+    })
+  })
+
+  describe('application name only, all other answers default', function () {
+    var runContext
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators) // Stub subgenerators
+                          .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                          .withPrompts({ name: 'notes' })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    commonTest.itUsedDestinationDirectory('notes')
+
+    itCreatedSpecWithServicesAndCapabilities(() => ({
+      runContext: runContext,
+      appType: 'scaffold',
+      appName: 'notes',
+      capabilities: [ 'docker', 'metrics' ],
+      services: {}
+    }))
+  })
+
+  describe('spec option', function () {
+    describe('valid', function () {
+      var runContext
+      var spec = {
+        appType: 'scaffold',
+        appName: 'test',
+        docker: true,
+        fromSwagger: '/a/b/c',
+        services: {}
+      }
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              spec: JSON.stringify(spec),
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('skips prompting', function () {
+        assert(runContext.generator.skipPrompting)
+      })
+
+      it('passes the spec to the refresh generator', function () {
+        assert.strictEqual(typeof (runContext.generator.spec), 'object')
+        assert.deepEqual(runContext.generator.spec, spec)
+      })
+
+      it('passes destinationSet: false to refresh generator', function () {
+        assert(runContext.generator.destination !== true)
+      })
+    })
+
+    describe('invalid', function () {
+      var runContext
+      var error = null
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              spec: 'invalidjson',
+                              testmode: true
+                            })
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('Unexpected token'), 'Thrown error should be about invalid JSON, it was: ' + error)
+      })
+    })
+  })
+
+  describe('scaffold', function () {
+    var applicationName = 'myapp'
+
+    describe('base', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [],
+        services: {}
+      }))
+    })
+
+    describe('app pattern defaults', function () {
+      describe('basic', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators) // Stub subgenerators
+                              .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Basic'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [ 'docker', 'metrics' ],
+          services: {}
+        }))
+      })
+
+      describe('web', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators) // Stub subgenerators
+                              .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Web'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [ 'docker', 'metrics', 'web' ],
+          services: {}
+        }))
+      })
+
+      describe('bff', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators) // Stub subgenerators
+                              .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Backend for frontend',
+                                swaggerChoice: 'Example swagger file'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [ 'docker', 'metrics', 'web', 'hostSwagger', 'swaggerUI', 'exampleEndpoints' ],
+          services: {}
+        }))
+      })
+    })
+
+    describe('with web', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Static web file serving' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [ 'web' ],
+        services: {}
+      }))
+    })
+
+    describe('with metrics', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Embedded metrics dashboard' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [ 'metrics' ],
+        services: {}
+      }))
+    })
+
+    describe('with docker', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Docker files' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [ 'docker' ],
+        services: {}
+      }))
+    })
+
+    describe('with swaggerui', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Swagger UI' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [ 'swaggerUI' ],
+        services: {}
+      }))
+    })
+
+    describe('with swagger file serving endpoint', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: [ 'Swagger file serving endpoint' ]
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [ 'hostSwagger' ],
+        services: {}
+      }))
+    })
+
+    describe('with endpoints from swagger file', function () {
+      describe('example swagger file', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators) // Stub subgenerators
+                              .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                endpoints: [ 'Endpoints from swagger file' ],
+                                swaggerChoice: 'Example swagger file'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [ 'exampleEndpoints' ],
+          services: {}
+        }))
+      })
+
+      describe('custom swagger file', function () {
+        describe('from local file', function () {
+          describe('absolute path', function () {
+            var runContext
+
+            before(function () {
+              runContext = helpers.run(appGeneratorPath)
+                                  .withGenerators(dependentGenerators) // Stub subgenerators
+                                  .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                                  .withPrompts({
+                                    name: applicationName,
+                                    appType: 'Scaffold a starter',
+                                    capabilities: [],
+                                    endpoints: [ 'Endpoints from swagger file' ],
+                                    swaggerChoice: 'Custom swagger file',
+                                    path: '/absolute/path/to/my/swagger/file.json'
+                                  })
+              return runContext.toPromise()
+            })
+
+            after(function () {
+              runContext.cleanTestDirectory()
+            })
+
+            itCreatedSpecWithServicesAndCapabilities(() => ({
+              runContext: runContext,
+              appType: 'scaffold',
+              appName: applicationName,
+              capabilities: [],
+              services: {},
+              fromSwagger: '/absolute/path/to/my/swagger/file.json'
+            }))
+          })
+
+          describe('relative path', function () {
+            var runContext
+            var destinationDir
+
+            before(function () {
+              runContext = helpers.run(appGeneratorPath)
+                                  .withGenerators(dependentGenerators) // Stub subgenerators
+                                  .inTmpDir(function (tmpDir) {
+                                    destinationDir = fs.realpathSync(tmpDir)
+                                  })
+                                  .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                                  .withPrompts({
+                                    name: applicationName,
+                                    dir: 'appDir',
+                                    appType: 'Scaffold a starter',
+                                    capabilities: [],
+                                    endpoints: [ 'Endpoints from swagger file' ],
+                                    swaggerChoice: 'Custom swagger file',
+                                    path: 'relative/path/to/my/swagger/file.json'
+                                  })
+              return runContext.toPromise()
+            })
+
+            after(function () {
+              runContext.cleanTestDirectory()
+            })
+
+            itCreatedSpecWithServicesAndCapabilities(() => ({
+              runContext: runContext,
+              appType: 'scaffold',
+              appName: applicationName,
+              capabilities: [],
+              services: {},
+              fromSwagger: `${destinationDir}/relative/path/to/my/swagger/file.json`
+            }))
+          })
+        })
+
+        describe('from http url', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators) // Stub subgenerators
+                                .withOptions({ testmode: true })     // Workaround to stub subgenerators
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  endpoints: [ 'Endpoints from swagger file' ],
+                                  swaggerChoice: 'Custom swagger file',
+                                  path: 'http://dino.io/stuff'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'scaffold',
+            appName: applicationName,
+            capabilities: [],
+            services: {},
+            fromSwagger: 'http://dino.io/stuff'
+          }))
+        })
+      })
+    })
+
+    // TODO with server sdk
+
+    describe('with cloudant', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Cloudant / CouchDB' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { cloudant: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        describe('without username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Cloudant / CouchDB' ],
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantName: 'myCloudantService',
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'scaffold',
+            appName: applicationName,
+            capabilities: [],
+            services: {
+              'cloudant': {
+                name: 'myCloudantService',
+                credentials: {
+                  host: 'cloudanthost',
+                  port: 4568,
+                  secured: true
+                }
+              }
+            }
+          }))
+        })
+
+        describe('with username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Cloudant / CouchDB' ],
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantName: 'myCloudantService',
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true,
+                                  cloudantUsername: 'admin',
+                                  cloudantPassword: 'password123'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'scaffold',
+            appName: applicationName,
+            capabilities: [],
+            services: {
+              cloudant: {
+                name: 'myCloudantService',
+                credentials: {
+                  host: 'cloudanthost',
+                  port: 4568,
+                  secured: true,
+                  username: 'admin',
+                  password: 'password123'
+                }
+              }
+            }
+          }))
+        })
+      })
+    })
+
+    describe('with redis', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Redis' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { redis: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Redis' ],
+                                configure: [ 'Redis' ],
+                                redisName: 'myRedisService',
+                                redisHost: 'myhost',
+                                redisPort: '1234',
+                                redisPassword: 'password1234'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            redis: {
+              name: 'myRedisService',
+              credentials: {
+                host: 'myhost',
+                port: 1234,
+                password: 'password1234'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with mongodb', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'MongoDB' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { mongodb: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'MongoDB' ],
+                                configure: [ 'MongoDB' ],
+                                mongodbName: 'myMongoService',
+                                mongodbHost: 'myhost',
+                                mongodbPort: '1234',
+                                mongodbPassword: 'password1234',
+                                mongodbDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            mongodb: {
+              name: 'myMongoService',
+              credentials: {
+                host: 'myhost',
+                port: 1234,
+                password: 'password1234',
+                database: 'mydb'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with object storage', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Object Storage' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { objectstorage: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Object Storage' ],
+                                configure: [ 'Object Storage' ],
+                                objectstorageName: 'myObjectStorageService',
+                                objectstorageRegion: 'dallas',
+                                objectstorageProjectId: 'myProjectId',
+                                objectstorageUserId: 'admin',
+                                objectstoragePassword: 'password1234'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            objectstorage: {
+              name: 'myObjectStorageService',
+              credentials: {
+                region: 'dallas',
+                projectId: 'myProjectId',
+                userId: 'admin',
+                password: 'password1234'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with appid', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'AppID' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { appid: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'AppID' ],
+                                configure: [ 'AppID' ],
+                                appIDName: 'myAppIDService',
+                                appidTenantId: 'myTenantId',
+                                appidClientId: 'myClientId',
+                                appidSecret: 'mySecret'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            appid: {
+              name: 'myAppIDService',
+              credentials: {
+                tenantId: 'myTenantId',
+                clientId: 'myClientId',
+                secret: 'mySecret'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with watson conversation', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Watson Conversation' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { watsonconversation: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Watson Conversation' ],
+                                configure: [ 'Watson Conversation' ],
+                                watsonConversationName: 'myConversationService',
+                                watsonConversationUsername: 'admin',
+                                watsonConversationPassword: 'password1234',
+                                watsonConversationUrl: 'https://myhost'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            watsonconversation: {
+              name: 'myConversationService',
+              credentials: {
+                username: 'admin',
+                password: 'password1234',
+                url: 'https://myhost'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with alert notification', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Alert Notification' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { alertnotification: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Alert Notification' ],
+                                configure: [ 'Alert Notification' ],
+                                alertNotificationName: 'myAlertNotificationService',
+                                alertNotificationUsername: 'admin',
+                                alertNotificationPassword: 'password1234',
+                                alertNotificationUrl: 'https://myhost'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: {
+            alertnotification: {
+              name: 'myAlertNotificationService',
+              credentials: {
+                name: 'admin',
+                password: 'password1234',
+                url: 'https://myhost'
+              }
+            }
+          }
+        }))
+      })
+    })
+
+    describe('with push notifications', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Push Notifications' ]
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'scaffold',
+          appName: applicationName,
+          capabilities: [],
+          services: { pushnotifications: {} }
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        describe('valid', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Push Notifications' ],
+                                  configure: [ 'Push Notifications' ],
+                                  pushNotificationsName: 'myPushNotificationsService',
+                                  pushNotificationsAppGuid: 'myAppGuid',
+                                  pushNotificationsAppSecret: 'myAppSecret',
+                                  pushNotificationsRegion: 'US South'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'scaffold',
+            appName: applicationName,
+            capabilities: [],
+            services: {
+              pushnotifications: {
+                name: 'myPushNotificationsService',
+                region: 'US_SOUTH',
+                credentials: {
+                  appGuid: 'myAppGuid',
+                  appSecret: 'myAppSecret'
+                }
+              }
+            }
+          }))
+        })
+
+        describe('invalid region', function () {
+          var runContext
+          var error = null
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Push Notifications' ],
+                                  configure: [ 'Push Notifications' ],
+                                  pushNotificationsRegion: 'NotARegion'
+                                })
+            return runContext.toPromise().catch(function (err) {
+              error = err
+            })
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          it('aborted the generator with an error', function () {
+            assert(error, 'Should throw an error')
+            assert(error.message.match('unknown region'), 'Thrown error should be about unknown region, it was: ' + error)
+          })
+        })
+      })
+    })
+
+    describe('with autoscaling', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              services: [ 'Auto-scaling' ]
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'scaffold',
+        appName: applicationName,
+        capabilities: [],
+        services: { autoscaling: {} }
+      }))
+    })
+  })
+
+  describe('crud', function () {
+    var applicationName = 'notes'
+
+    describe('base', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Generate a CRUD application',
+                              capabilities: [],
+                              store: 'Memory'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'crud',
+        appName: applicationName,
+        capabilities: [],
+        services: {}
+      }))
+    })
+
+    // TODO with server sdk
+
+    describe('with metrics', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Generate a CRUD application',
+                              capabilities: [ 'Embedded metrics dashboard' ],
+                              store: 'Memory'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'crud',
+        appName: applicationName,
+        capabilities: [ 'metrics' ],
+        services: {}
+      }))
+    })
+
+    describe('with docker', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Generate a CRUD application',
+                              capabilities: [ 'Docker files' ],
+                              store: 'Memory'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'crud',
+        appName: applicationName,
+        capabilities: [ 'docker' ],
+        services: {}
+      }))
+    })
+
+    describe('with autoscaling', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators)
+                            .withOptions({ testmode: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Generate a CRUD application',
+                              capabilities: [],
+                              services: [ 'Auto-scaling' ],
+                              store: 'Memory'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      itCreatedSpecWithServicesAndCapabilities(() => ({
+        runContext: runContext,
+        appType: 'crud',
+        appName: applicationName,
+        capabilities: [],
+        services: { autoscaling: {} }
+      }))
+    })
+
+    describe('with cloudant', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withGenerators(dependentGenerators)
+                              .withOptions({ testmode: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Generate a CRUD application',
+                                capabilities: [],
+                                store: 'Cloudant'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        itCreatedSpecWithServicesAndCapabilities(() => ({
+          runContext: runContext,
+          appType: 'crud',
+          appName: applicationName,
+          capabilities: [],
+          services: { cloudant: { name: 'crudDataStore' } },
+          crudservice: 'crudDataStore'
+        }))
+      })
+
+      describe('non-default credentials', function () {
+        describe('without username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Generate a CRUD application',
+                                  capabilities: [],
+                                  store: 'Cloudant',
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'crud',
+            appName: applicationName,
+            capabilities: [],
+            services: {
+              'cloudant': {
+                name: 'crudDataStore',
+                credentials: {
+                  host: 'cloudanthost',
+                  port: 4568,
+                  secured: true
+                }
+              }
+            },
+            crudservice: 'crudDataStore'
+          }))
+        })
+
+        describe('with username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withGenerators(dependentGenerators)
+                                .withOptions({ testmode: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Generate a CRUD application',
+                                  capabilities: [],
+                                  store: 'Cloudant',
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true,
+                                  cloudantUsername: 'admin',
+                                  cloudantPassword: 'password123'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          itCreatedSpecWithServicesAndCapabilities(() => ({
+            runContext: runContext,
+            appType: 'crud',
+            appName: applicationName,
+            capabilities: [],
+            services: {
+              'cloudant': {
+                name: 'crudDataStore',
+                credentials: {
+                  host: 'cloudanthost',
+                  port: 4568,
+                  secured: true,
+                  username: 'admin',
+                  password: 'password123'
+                }
+              }
+            },
+            crudservice: 'crudDataStore'
+          }))
+        })
+      })
     })
   })
 })
