@@ -19,12 +19,19 @@
  * the real build and refresh subgenerators get called.
  */
 'use strict'
-var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
 var fs = require('fs')
+var nock = require('nock')
 
 var modelGeneratorPath = path.join(__dirname, '../../../model')
+var commonTest = require('../../lib/common_test')
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
+
+var yorcJSON = JSON.stringify({
+  'generator-swiftserver': { version: commonTest.generatorVersion }
+})
 
 describe('Prompt and no build integration tests for model generator', function () {
   describe('Prompt model when not in a generator', function () {
@@ -54,7 +61,7 @@ describe('Prompt and no build integration tests for model generator', function (
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
                             var tmpYorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmpYorc, '{}')
+                            fs.writeFileSync(tmpYorc, yorcJSON)
                             var spec = {
                               appName: 'test',
                               appType: 'scaffold'
@@ -79,16 +86,16 @@ describe('Prompt and no build integration tests for model generator', function (
   })
 
   describe('Create a new model, creating a new model json file and update the spec.json', function () {
-    this.timeout(300000)
     var runContext
 
     before(function () {
+      mockSDKGen.mockClientSDKNetworkRequest('test')
       runContext = helpers.run(modelGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
                             var tmpYorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmpYorc, '{}')
+                            fs.writeFileSync(tmpYorc, yorcJSON)
                             var spec = {
                               appName: 'test',
                               appType: 'crud',
@@ -106,6 +113,7 @@ describe('Prompt and no build integration tests for model generator', function (
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
     })
 

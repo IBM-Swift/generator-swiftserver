@@ -17,439 +17,106 @@
 /**
  * Tests here do not stub out the subgenerators, so for the app generator
  * the real build and refresh subgenerators get called.
+ *
+ * IMPORTANT:
+ * Only put tests here if you cannot drive the required behaviour through
+ * prompting (eg creation of a CRUD project with models in one run of the
+ * generator, or other features only available by providing a spec directly)
+ *
+ * These are build tests, only test build related behaviour in this file.
  */
 'use strict'
-var path = require('path')
-var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
+var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
-var buildGeneratorPath = path.join(__dirname, '../../../build')
+var commonTest = require('../../lib/common_test.js')
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
-// Require config to alter sdkgen delay between
-// status checks to speed up unit tests
-var config = require('../../../config')
-var sdkGenCheckDelaySaved
+describe('Integration tests (spec build) for swiftserver:app', function () {
+  // Swift build is slow so we need to set a long timeout for the test
+  this.timeout(300000)
 
-describe('Spec option and build integration tests for app generator', function () {
-  describe('A CRUD application with a cloudant service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'crud',
-      appName: 'todo',
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        cloudant: [{
-          name: 'myCloudantService'
-        }]
-      },
-      'models': [
-        {
-          'name': 'todo',
-          'plural': 'todos',
-          'classname': 'Todo',
-          'properties': {
-            'id': {
-              'type': 'string',
-              'id': true
-            },
-            'title': {
-              'type': 'string'
-            }
-          }
+  describe('crud', function () {
+    var applicationName = 'todo'
+    var executableModule = applicationName
+    var todoModel = {
+      name: 'todo',
+      plural: 'todos',
+      classname: 'Todo',
+      properties: {
+        id: {
+          type: 'string',
+          id: true
+        },
+        title: {
+          type: 'string'
         }
-      ],
-      crudservice: 'myCloudantService'
-    }
-
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
-
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                        .then(function (dir) {
-                          return helpers.run(buildGeneratorPath)
-                                        .cd(dir + '/swiftserver')
-                                        .toPromise()
-                        })
-    })
-
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('A CRUD application with metrics and autoscaling is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'crud',
-      appName: 'todo',
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      capabilities: {
-        metrics: true,
-        autoscale: 'myAutoScalingService'
-      },
-      'models': [
-        {
-          'name': 'todo',
-          'plural': 'todos',
-          'classname': 'Todo',
-          'properties': {
-            'id': {
-              'type': 'string',
-              'id': true
-            },
-            'title': {
-              'type': 'string'
-            }
-          }
-        }
-      ],
-      crudService: 'myCloudantService'
-    }
-
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
-
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                       .then(function (dir) {
-                         return helpers.run(buildGeneratorPath)
-                                       .cd(dir + '/swiftserver')
-                                       .toPromise()
-                       })
-    })
-
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with a cloudant service and is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        cloudant: [{
-          name: 'myCloudantService'
-        }]
       }
     }
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
+    describe('base', function () {
+      var runContext
 
-      return runContext.toPromise()
-                       .then(function (dir) {
-                         return helpers.run(buildGeneratorPath)
-                                       .cd(dir + '/swiftserver')
-                                       .toPromise()
-                       })
+      before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({
+                              spec: JSON.stringify({
+                                appType: 'crud',
+                                appName: applicationName,
+                                models: [ todoModel ]
+                              })
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        nock.cleanAll()
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
 
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
+    describe('with all capabilities and services', function () {
+      // var serverSDKFile = path.join(__dirname, '../../resources/petstore.yaml')
+      // var serverSDKName = 'Swagger_Petstore'
+      var runContext
 
-  describe('Web application with a redis service and is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
+      before(function () {
+        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+        // TODO don't include a server sdk until we mock the server sdk
+        // with real content instead of dummy content
+        // mockSDKGen.mockServerSDKNetworkRequest(serverSDKName)
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({
+                              spec: JSON.stringify({
+                                appType: 'crud',
+                                appName: applicationName,
+                                models: [ todoModel ],
+                                docker: true,
+                                metrics: true,
+                                // serverSwaggerFiles: [ serverSDKFile ],
+                                services: {
+                                  cloudant: [{ name: 'myCloudantService' }],
+                                  autoscaling: [{ name: 'myAutoscalingService' }]
+                                },
+                                crudservice: 'myCloudantService'
+                              })
+                            })
+        return runContext.toPromise()
+      })
 
-    var runContext
+      after(function () {
+        nock.cleanAll()
+        runContext.cleanTestDirectory()
+      })
 
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        redis: [{
-          name: 'myRedisService'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with an appid service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        appid: [{
-          name: 'myAppIDService'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with an object storage service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        objectstorage: [{
-          name: 'mObjectStorageService'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with a watson conversation service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        watsonconversation: [{
-          name: 'myWatsonConversationService'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with an alert notification service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        alertnotification: [{
-          name: 'myAlertNotificationService'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
-    })
-  })
-
-  describe('Web application with a push notifications service is able to build', function () {
-    // Swift build is slow so we need to set a longer timeout for the test
-    this.timeout(300000)
-
-    var runContext
-
-    var spec = {
-      appType: 'scaffold',
-      appName: 'todo',
-      web: true,
-      bluemix: true,
-      config: {
-        logger: 'helium',
-        port: 4567
-      },
-      services: {
-        pushnotifications: [{
-          name: 'myPushNotificationsService',
-          region: 'UK'
-        }]
-      }
-    }
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            spec: JSON.stringify(spec)
-                          })
-
-      return runContext.toPromise()
-                         .then(function (dir) {
-                           return helpers.run(buildGeneratorPath)
-                                         .cd(dir + '/swiftserver')
-                                         .toPromise()
-                         })
-    })
-
-    it('compiles the application', function () {
-      assert.file('.build/debug/todo')
+      commonTest.itCompiledExecutableModule(executableModule)
+      commonTest.itCreatedXCodeProjectWorkspace(applicationName)
     })
   })
 })

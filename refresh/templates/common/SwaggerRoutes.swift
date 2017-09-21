@@ -1,6 +1,6 @@
 import LoggerAPI
 
-func initializeSwaggerRoute(path swaggerPath: String) {
+func initializeSwaggerRoutes(path swaggerPath: String) {
     // Host swagger definition
     router.get("/swagger/api") { request, response, next in
         do {

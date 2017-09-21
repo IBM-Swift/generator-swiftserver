@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.8.0...v3.0.0) (2017-09-19)
+
+
+### Features
+
+* leverage generator-ibm-cloud-enablement ([#297](https://github.com/IBM-Swift/generator-swiftserver/issues/297)) ([72cb394](https://github.com/IBM-Swift/generator-swiftserver/commit/72cb394))
+* leverage generator-ibm-service-enablement generator ([#300](https://github.com/IBM-Swift/generator-swiftserver/issues/300)) ([b52f8ac](https://github.com/IBM-Swift/generator-swiftserver/commit/b52f8ac))
+* support openApi doc from bluemix ([5f469b8](https://github.com/IBM-Swift/generator-swiftserver/commit/5f469b8))
+
+
+### BREAKING CHANGES
+
+* Format of the project spec and prompts have changed
+
+
+
 <a name="2.8.0"></a>
 # [2.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.7.0...2.8.0) (2017-08-30)
 

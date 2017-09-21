@@ -16,9 +16,14 @@
 
 'use strict'
 var assert = require('assert')
+var os = require('os')
+var path = require('path')
+var fs = require('fs')
+var rimraf = require('rimraf')
+
 var helpers = require('../../lib/helpers')
 
-describe('validators', function () {
+describe('Unit tests for validators', function () {
   describe('validateAppName', function () {
     it('accepts app name with alpha characters only', function () {
       assert(helpers.validateAppName('test') === true)
@@ -57,6 +62,65 @@ describe('validators', function () {
     })
     it('rejects empty directory name', function () {
       assert(helpers.validateDirName('') !== true)
+    })
+  })
+
+  describe('validateFilePathOrURL', function () {
+    var tmpdir
+
+    before(function () {
+      tmpdir = fs.mkdtempSync(path.join(os.tmpdir(),
+                              'test-validators-generator-swiftserver-'))
+      assert(path.isAbsolute(tmpdir))
+      process.chdir(tmpdir)
+      fs.writeFileSync('file-that-exists')
+      fs.mkdirSync('otherdir')
+      fs.writeFileSync('otherdir/other-file-that-exists')
+    })
+
+    after(function () {
+      rimraf.sync(tmpdir)
+    })
+
+    it('empty path', function () {
+      assert.equal(helpers.validateFilePathOrURL(''), 'Path is required')
+    })
+    it('invalid path', function () {
+      assert(helpers.validateFilePathOrURL('&').match('not a valid path'))
+      assert(helpers.validateFilePathOrURL('.').match('not a valid path'))
+    })
+    it('current dir (.)', function () {
+      assert(helpers.validateFilePathOrURL('./') === true)
+    })
+    it('parent dir (..)', function () {
+      assert(helpers.validateFilePathOrURL('../') === true)
+    })
+    it('absolute file path (exists)', function () {
+      assert(helpers.validateFilePathOrURL(`${tmpdir}/file-that-exists`) === true)
+    })
+    it('absolute file path (does not exist)', function () {
+      var filepath = path.join(tmpdir, '__unlikely__to__exist__')
+      assert(helpers.validateFilePathOrURL(filepath).match('path does not exist'))
+    })
+    it('relative file path (exists)', function () {
+      assert(helpers.validateFilePathOrURL('file-that-exists') === true)
+    })
+    it('relative file path (does not exist)', function () {
+      assert(helpers.validateFilePathOrURL('__unlikely__to__exist__').match('path does not exist'))
+    })
+    it('file path relative to specific dir (exists)', function () {
+      var dir = path.join(tmpdir, 'otherdir')
+      assert(helpers.validateFilePathOrURL('other-file-that-exists', dir) === true)
+    })
+    it('file path relative to specific dir (does not exist)', function () {
+      var dir = path.join(tmpdir, 'otherdir')
+      assert(helpers.validateFilePathOrURL('__unlikely__to__exist__', dir).match('path does not exist'))
+    })
+    it('http url', function () {
+      assert(helpers.validateFilePathOrURL('http:///a.com/b/c') === true)
+    })
+    it('https url', function () {
+      assert(helpers.validateFilePathOrURL('https:///a.com/b/c') === true)
     })
   })
 
