@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/IBM-Swift/generator-swiftserver/compare/3.0.0...3.0.1) (2017-09-21)
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.8.0...v3.0.0) (2017-09-19)
 
