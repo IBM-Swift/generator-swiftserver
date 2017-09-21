@@ -18,7 +18,7 @@
 var assert = require('assert')
 var utils = require('../../refresh/fromswagger/generatorUtils')
 
-describe('swagger generator', function () {
+describe('Unit tests for swagger generator utils', function () {
   describe('generator utils', function () {
     it('extracts basename', function () {
       assert(utils.baseName('/hh/ff/test.txt') === 'test')

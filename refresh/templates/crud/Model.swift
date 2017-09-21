@@ -78,11 +78,10 @@ public struct <%- model.classname %> {
     }
 
     public func toJSON() -> JSON {
-        var result = JSON([
-            <%_ propertyInfos.filter((info) => !info.optional).forEach(function(info) { _%>
-            "<%- info.name %>": JSON(<%- info.name %>),
-            <%_ }); _%>
-        ])
+        var result = JSON([:])
+        <%_ propertyInfos.filter((info) => !info.optional).forEach(function(info) { _%>
+        result["<%- info.name %>"] = JSON(<%- info.name %>)
+        <%_ }); _%>
         <%_ propertyInfos.filter((info) => info.optional).forEach(function(info) { _%>
         if let <%- info.name %> = <%- info.name %> {
             result["<%- info.name %>"] = JSON(<%- info.name %>)
