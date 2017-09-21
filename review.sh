@@ -1,26 +1,5 @@
 # Script to create a review branch 
 
-# Exit if we are a scheduled build
-if [[ $TRAVIS_EVENT_TYPE == "cron" ]]
-then
-  echo This is a cron build - exiting
-  exit 0
-fi
-
-# Exit if we are not building on develop
-if [[ $TRAVIS_BRANCH != "develop" ]]
-then
-  echo This is not on develop - exiting
-  exit 0
-fi
-
-# Exit if we are building a pull request
-if [[ $TRAVIS_PULL_REQUEST != "false" ]]
-then
-  echo This is a pull request - exiting
-  exit 0
-fi
-
 # Exit if this is a merge from master
 COMMIT_REGEX="Merge pull request #[0-9]+ from .+\s*Release [0-9]+\.[0-9]+\.[0-9]+"
 if [[ $TRAVIS_COMMIT_MESSAGE =~ $COMMIT_REGEX ]]
