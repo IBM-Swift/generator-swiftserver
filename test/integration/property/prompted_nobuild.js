@@ -19,12 +19,19 @@
  * the real build and refresh subgenerators get called.
  */
 'use strict'
-var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
 var fs = require('fs')
+var nock = require('nock')
 
 var propertyGeneratorPath = path.join(__dirname, '../../../property')
+var commonTest = require('../../lib/common_test')
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
+
+var yorcJSON = JSON.stringify({
+  'generator-swiftserver': { version: commonTest.generatorVersion }
+})
 
 describe('Prompt and no build integration tests for property generator', function () {
   describe('Prompt property when not in a project', function () {
@@ -54,7 +61,7 @@ describe('Prompt and no build integration tests for property generator', functio
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
                             var tmpYorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmpYorc, '{}')
+                            fs.writeFileSync(tmpYorc, yorcJSON)
                             var spec = {
                               appType: 'scaffold'
                             }
@@ -82,7 +89,7 @@ describe('Prompt and no build integration tests for property generator', functio
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
                             var tmpYorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmpYorc, '{}')
+                            fs.writeFileSync(tmpYorc, yorcJSON)
                             var spec = {
                               appType: 'crud'
                             }
@@ -104,12 +111,13 @@ describe('Prompt and no build integration tests for property generator', functio
     var runContext
 
     before(function () {
+      mockSDKGen.mockClientSDKNetworkRequest('test')
       runContext = helpers.run(propertyGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
                             fs.writeFileSync(tmpFile, '')
                             var tmpYorc = path.join(tmpDir, '.yo-rc.json')
-                            fs.writeFileSync(tmpYorc, '{}')
+                            fs.writeFileSync(tmpYorc, yorcJSON)
                             var spec = {
                               appType: 'crud',
                               appName: 'test',
@@ -154,6 +162,7 @@ describe('Prompt and no build integration tests for property generator', functio
     })
 
     after(function () {
+      nock.cleanAll()
       runContext.cleanTestDirectory()
     })
 

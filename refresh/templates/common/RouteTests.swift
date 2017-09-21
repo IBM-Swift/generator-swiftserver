@@ -9,40 +9,39 @@ import SwiftyJSON
 @testable import <%- applicationModule %>
 
 class RouteTests: XCTestCase {
-    
+
     static var allTests : [(String, (RouteTests) -> () throws -> Void)] {
         return [
             ("testGetStatic", testGetStatic)
         ]
     }
-        
+
     override func setUp() {
         super.setUp()
-        
+
         HeliumLogger.use()
         do {
+            print("------------------------------")
+            print("------------New Test----------")
+            print("------------------------------")
+
             try <%- applicationModule %>.initialize()
+            Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: <%- applicationModule %>.router)
+            Kitura.start()
         } catch {
-            Log.error("Couldn't start <%- applicationModule %> test server. Exiting test.")
+            XCTFail("Couldn't start <%- applicationModule %> test server: \(error)")
         }
-        
-        Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: <%- applicationModule %>.router)
-        Kitura.start()
-        
-        print("------------------------------")
-        print("------------New Test----------")
-        print("------------------------------")
     }
-    
+
     override func tearDown() {
         Kitura.stop()
         super.tearDown()
     }
-    
+
     func testGetStatic() {
-        
+
         let printExpectation = expectation(description: "The /route will serve static HTML content.")
-        
+
         URLRequest(forTestWithMethod: "GET")?
             .sendForTestingWithKitura { data, statusCode in
                 if let getResult = String(data: data, encoding: String.Encoding.utf8){
@@ -52,18 +51,18 @@ class RouteTests: XCTestCase {
                 } else {
                     XCTFail("Return value from / was nil!")
                 }
-                
+
                 printExpectation.fulfill()
         }
-        
+
         waitForExpectations(timeout: 10.0, handler: nil)
     }
-    
+
 }
 
 
 private extension URLRequest {
-    
+
     init?(forTestWithMethod method: String, route: String = "", body: Data? = nil) {
         if let url = URL(string: "http://127.0.0.1:\(<%- applicationModule %>.port)/" + route){
             self.init(url: url)
@@ -74,24 +73,24 @@ private extension URLRequest {
                 httpBody = body
             }
         } else {
-            XCTFail("URL is nil... )")
+            XCTFail("URL is nil...")
             return nil
         }
     }
-    
+
     func sendForTestingWithKitura(fn: @escaping (Data, Int) -> Void) {
 
         guard let method = httpMethod, var path = url?.path, let headers = allHTTPHeaderFields else {
             XCTFail("Invalid request params")
             return
         }
-        
+
         if let query = url?.query {
             path += "?" + query
         }
-        
+
         let requestOptions: [ClientRequest.Options] = [.method(method), .hostname("localhost"), .port(8080), .path(path), .headers(headers)]
-        
+
         let req = HTTP.request(requestOptions) { resp in
 
             if let resp = resp, resp.statusCode == HTTPStatusCode.OK || resp.statusCode == HTTPStatusCode.accepted {

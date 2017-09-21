@@ -25,7 +25,7 @@ var dependentGenerators = [
   [helpers.createDummyGenerator(), 'swiftserver:property']
 ]
 
-describe('swiftserver:model', function () {
+describe('Unit tests for swiftserver:model', function () {
   describe('Basic model test. ' +
            'Check the spec object is correct.', function () {
     this.timeout(10000)

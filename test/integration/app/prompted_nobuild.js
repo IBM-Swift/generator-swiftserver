@@ -19,929 +19,1320 @@
  * the real build and refresh subgenerators get called.
  */
 'use strict'
-var path = require('path')
 var assert = require('yeoman-assert')
 var helpers = require('yeoman-test')
+var path = require('path')
+var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
-var testResourcesPath = path.join(__dirname, '../../../test/resources')
-var extendedTimeout = 300000
+var commonTest = require('../../lib/common_test.js')
+var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
-// Require config to alter sdkgen delay between
-// status checks to speed up unit tests
-var config = require('../../../config')
-var sdkGenCheckDelaySaved
+// Short names for commonTest values
+var applicationSourceFile = commonTest.applicationSourceFile
+var routesSourceDir = commonTest.routesSourceDir
 
-describe('Prompt and no build integration tests for app generator', function () {
-  describe('Basic application', function () {
-    this.timeout(10000) // Allow first test to be slow
-    var runContext
+var bxdevConfigFile = commonTest.bxdevConfigFile
+var cloudFoundryManifestFile = commonTest.cloudFoundryManifestFile
+var cloudFoundryFiles = commonTest.cloudFoundryFiles
+var bluemixFiles = commonTest.bluemixFiles
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: []
-                          })
-      return runContext.toPromise()
-    })
+describe('Integration tests (prompt no build) for swiftserver:app', function () {
+  describe('scaffold', function () {
+    var applicationName = 'myapp'
+    var executableModule = applicationName
 
-    it('created and changed into a folder according to dir value', function () {
-      assert.equal(path.basename(process.cwd()), 'notes')
-    })
+    describe('base', function () {
+      var runContext
 
-    it('created a .swiftservergenerator-project file', function () {
-      assert.file('.swiftservergenerator-project')
-    })
-
-    it('created a .yo-rc.json file', function () {
-      assert.file('.yo-rc.json')
-    })
-
-    it('created a LICENSE file', function () {
-      assert.file('LICENSE')
-    })
-
-    it('created a spec.json file', function () {
-      assert.file('spec.json')
-    })
-
-    it('created a Package.swift file', function () {
-      assert.file('Package.swift')
-    })
-
-    it('created a main.swift file', function () {
-      assert.file('Sources/notes/main.swift')
-    })
-
-    it('created an Application.swift file', function () {
-      assert.file('Sources/Application/Application.swift')
-    })
-
-    it('created an RouteTests.swift file', function () {
-      assert.file('Tests/ApplicationTests/RouteTests.swift')
-    })
-
-    it('created an LinuxMain.swift file', function () {
-      assert.file('Tests/LinuxMain.swift')
-    })
-
-    it('Package.swift contains Configuration dependency', function () {
-      assert.fileContent('Package.swift', '/Configuration')
-    })
-
-    it('Application.swift references Configuration', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'import Configuration')
-    })
-
-    it('Package.swift contains Health dependency', function () {
-      assert.fileContent('Package.swift', '/Health')
-    })
-
-    it('Application.swift imports the Health module', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'import Health')
-    })
-
-    it('Application.swift declares a Health instance', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'let health = Health()')
-    })
-
-    it('Application.swift contains a health endpoint', function () {
-      assert.fileContent('Sources/Application/Application.swift', '"/health"')
-    })
-
-    it('did not create NOTICES.txt', function () {
-      assert.noFile('NOTICES.txt')
-    })
-  })
-
-  describe('Basic application with single-shot', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({
-                            'skip-build': true,
-                            'single-shot': true
-                          })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: []
-                          })
-      return runContext.toPromise()
-    })
-
-    it('did not create a .yo-rc.json file', function () {
-      assert.noFile('.yo-rc.json')
-    })
-
-    it('did not create a .swiftservergenerator-project file', function () {
-      assert.noFile('.swiftservergenerator-project')
-    })
-  })
-
-  describe('Basic application with bluemix', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: ['Bluemix cloud deployment']
-                          })
-      return runContext.toPromise()
-    })
-
-    it('Package.swift contains CloudConfiguration dependency', function () {
-      assert.fileContent('Package.swift', '/CloudConfiguration')
-    })
-  })
-
-  describe('Basic application with metrics', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: ['Embedded metrics dashboard']
-                          })
-      return runContext.toPromise()
-    })
-
-    it('Package.swift contains SwiftMetrics dependency', function () {
-      assert.fileContent('Package.swift', '/SwiftMetrics')
-    })
-
-    it('Application.swift imports SwiftMetrics', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetrics')
-    })
-
-    it('Application.swift imports SwiftMetricsDash', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetricsDash')
-    })
-  })
-
-  describe('Basic application with autoscaling', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            capabilities: [
-                              'Embedded metrics dashboard',
-                              'Bluemix cloud deployment'
-                            ],
-                            services: ['Auto-scaling']
-                          })
-      return runContext.toPromise()
-    })
-
-    it('Application.swift imports SwiftMetricsBluemix', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetricsBluemix')
-    })
-
-    it('Application.swift references SwiftMetricsBluemix', function () {
-      assert.fileContent('Sources/Application/Application.swift', 'SwiftMetricsBluemix(')
-    })
-  })
-
-  describe('BFF application', function () {
-    this.timeout(extendedTimeout) // NOTE: prevent failures on Travis macOS
-    var runContext
-    var appName = 'notes'
-
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
-
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: appName,
-                            dir: 'notes',
-                            appPattern: 'Backend for frontend',
-                            endpoints: 'Endpoints from swagger file',
-                            swaggerChoice: 'Example swagger file'
-                          })
-      return runContext.toPromise()
-    })
-
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-    })
-
-    describe('Static web file serving', function () {
-      it('created public web directory', function () {
-        assert.file('public')
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
       })
 
-      it('created Application.swift with web serving of public directory', function () {
-        assert.fileContent('Sources/Application/Application.swift', 'StaticFileServer()')
-      })
-    })
-
-    describe('OpenAPI / Swagger endpoint', function () {
-      it('created swagger endpoint route', function () {
-        assert.file(`Sources/Application/Routes/SwaggerRoute.swift`)
-      })
-    })
-
-    describe('Example endpoints', function () {
-      it('created example endpoints', function () {
-        assert.file(`Sources/Application/Routes/ProductsRoutes.swift`)
+      after(function () {
+        runContext.cleanTestDirectory()
       })
 
-      it('created example swagger definition', function () {
-        assert.file(`definitions/notes.yaml`)
-      })
-    })
+      commonTest.itUsedDestinationDirectory(applicationName)
 
-    describe('Static web file serving + Example endpoints', function () {
-      it('created SwaggerUI', function () {
-        assert.file('public/explorer/index.html')
-        assert.file('public/explorer/swagger-ui.js')
-        assert.file('public/explorer/css/style.css')
-      })
+      commonTest.itCreatedCommonFiles(executableModule)
+      commonTest.itHasCorrectFilesForSingleShotFalse()
 
-      it('created NOTICES.txt', function () {
-        assert.file('NOTICES.txt')
-      })
-    })
+      commonTest.itDidNotCreateClientSDKFile()
+      commonTest.itDidNotCreateRoutes([ 'Swagger' ])
+      commonTest.itDidNotCreateServiceFiles()
+      commonTest.itDidNotCreateMetricsFiles()
+      commonTest.itDidNotCreateWebFiles()
+      commonTest.itDidNotCreateSwaggerUIFiles()
 
-    describe('Embedded metrics dashboard', function () {
-      it('created Application.swift with metrics', function () {
-        assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetrics')
-      })
-
-      it('created Application.swift with metrics dashboard', function () {
-        assert.fileContent('Sources/Application/Application.swift', 'import SwiftMetricsDash')
-      })
-    })
-
-    describe('Docker files', function () {
-      it('created tools docker file', function () {
-        assert.file('Dockerfile-tools')
-      })
-
-      it('created run docker file', function () {
-        assert.file('Dockerfile')
-      })
-
-      it('should have the executableName property set in Dockerfile', () => {
-        assert.fileContent('Dockerfile', `CMD [ "sh", "-c", "cd /swift-project && .build-ubuntu/release/${appName}" ]`)
-      })
-    })
-
-    describe('Kubernetes files', function () {
-      it('created helm chart file', function () {
-        assert.file('chart/notes/Chart.yaml')
-      })
-
-      it('created helm deployment file', function () {
-        assert.file('chart/notes/templates/deployment.yaml')
-      })
-
-      it('created helm service file', function () {
-        assert.file('chart/notes/templates/service.yaml')
-      })
-
-      it('created helm values file', function () {
-        assert.file('chart/notes/values.yaml')
-      })
-    })
-
-    describe('Bluemix cloud deployment', function () {
-      it('created CloudFoundry manifest file', function () {
-        assert.file('manifest.yml')
-      })
-
-      it('created Bluemix toolchain files', function () {
-        assert.file('.bluemix/pipeline.yml')
-        assert.file('.bluemix/toolchain.yml')
-        assert.file('.bluemix/deploy.json')
-      })
-    })
-
-    describe('Bluemix cloud deployment + Docker files', function () {
-      it('created bluemix dev CLI config file', function () {
-        assert.file('cli-config.yml')
-      })
-    })
-  })
-
-  describe('BFF application with custom swagger', function () {
-    this.timeout(extendedTimeout) // NOTE: prevent failures on Travis macOS
-    var runContext
-
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
-
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Backend for frontend',
-                            endpoints: 'Endpoints from swagger file',
-                            swaggerChoice: 'Custom swagger file',
-                            path: path.join(__dirname, '../../resources/person_dino.json')
-                          })
-
-      return runContext.toPromise()
-    })
-
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-    })
-
-    describe('Example endpoints', function () {
-      it('created example endpoints', function () {
-        assert.file(`Sources/Application/Routes/PersonsRoutes.swift`)
-        assert.file(`Sources/Application/Routes/DinosaursRoutes.swift`)
-      })
-    })
-  })
-
-  describe('Starter with generated iOS and Swift Server SDK', function () {
-    this.timeout(extendedTimeout)
-    var runContext
-    var appName = 'notes'
-
-    before(function () {
-      // alter delay between status checks to speed up unit tests
-      sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-      config.sdkGenCheckDelay = 10000
-
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: appName,
-                            dir: appName,
-                            appPattern: 'Basic',
-                            endpoints: 'Endpoints from swagger file',
-                            swaggerChoice: 'Custom swagger file',
-                            path: testResourcesPath + '/petstore.yaml',
-                            serverSwaggerInput0: true,
-                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
-                            serverSwaggerInput1: true,
-                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
-                            serverSwaggerInput2: false
-                          })
-
-      return runContext.toPromise()
-    })
-
-    after('restore sdkgen status check delay', function () {
-      // restore delay between status checks so integration tests
-      // remain resilient
-      config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-    })
-
-    it('created a iOS SDK zip file', function () {
-      assert.file(appName + '_iOS_SDK.zip')
-    })
-
-    it('modified .gitignore to include the generated iOS SDK', function () {
-      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*')
-    })
-
-    it('deleted a server SDK zip file', function () {
-      assert.noFile('Swagger_Petstore_ServerSDK.zip')
-    })
-
-    it('unzipped server SDK folder was deleted', function () {
-      assert.noFile('Swagger_Petstore_ServerSDK/README.md')
-    })
-
-    it('created Pet model from swagger file', function () {
-      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift')
-    })
-
-    it('modified Package.swift to include server SDK module', function () {
-      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK')
-    })
-
-    it('deleted the second server SDK zip file', function () {
-      assert.noFile('Swagger_Petstore_Two_ServerSDK.zip')
-    })
-
-    it('unzipped the second server SDK folder was deleted', function () {
-      assert.noFile('Swagger_Petstore_Two_ServerSDK/README.md')
-    })
-
-    it('created Pet model from the second swagger file', function () {
-      assert.file('Sources/Swagger_Petstore_Two_ServerSDK/Pet.swift')
-    })
-
-    it('modified Package.swift to include the second server SDK module', function () {
-      assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK')
-    })
-  })
-
-  describe('CRUD application where application name and directory name are the current (empty) directory', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Generate a CRUD application',
-                            name: 'notes'
-                          })
-                          .inTmpDir(function (tmpDir) {
-                            this.inDir(path.join(tmpDir, 'notes'))
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('used the empty directory for the project', function () {
-      assert.equal(path.basename(process.cwd()), 'notes')
-      assert.file('.swiftservergenerator-project')
-    })
-  })
-
-  describe('Bluemix application where service application name is provided', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            cloudantName: 'testCloudant',
-                            redisName: 'testRedis',
-                            objectstorageName: 'testObjectStorage',
-                            appIDName: 'testAppID',
-                            watsonConversationName: 'testWatsonConversation',
-                            alertNotificationName: 'testAlertNotification',
-                            pushNotificationsName: 'testPushNotifications'
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('config.json contains the correct values for cloudant, redis, objectstorage, appid, watsonconversation, alertnotification and pushnotifications service names', function () {
-      var expected = {
-        vcap: {
-          services: {
-            cloudantNoSQLDB: [{
-              name: 'testCloudant'
-            }],
-            'compose-for-redis': [{
-              name: 'testRedis'
-            }],
-            'Object-Storage': [{
-              name: 'testObjectStorage'
-            }],
-            AppID: [{
-              name: 'testAppID'
-            }],
-            conversation: [{
-              name: 'testWatsonConversation'
-            }],
-            'AlertNotification': [{
-              name: 'testAlertNotification'
-            }],
-            imfpush: [{
-              name: 'testPushNotifications'
-            }]
-          }
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
-    })
-  })
-
-  describe('Bluemix application where service application name is defaulted', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('config.json contains the correct values for cloudant, redis, objectstorage and appid service names', function () {
-      assert.fileContent([ ['config.json', /\s"name":\s"notes-Cloudant-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-Redis-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-ObjectStorage-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-AppID-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-WatsonConversation-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-AlertNotification-\w{4}",/],
-                           ['config.json', /\s"name":\s"notes-PushNotifications-\w{4}",/]
+      commonTest.itHasPackageDependencies([
+        'Kitura',
+        'HeliumLogger',
+        'CloudEnvironment',
+        'Health'
       ])
-    })
-  })
 
-  describe('Non bluemix where service application name should not be provided', function () {
-    var runContext
+      commonTest.applicationImportsModules([
+        'Kitura',
+        'CloudEnvironment',
+        'Health'
+      ])
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
-                            services: ['CouchDB', 'Redis'],
-                            configure: ['Cloudant / CouchDB', 'Redis']
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
+      commonTest.itCreatedRoutes([ 'Health' ])
 
-    it('config.json contains the correct values for cloudant and redis service names', function () {
-      var expected = {
-        services: {
-          cloudant: [{
-            name: 'couchdb'
-          }],
-          'redis': [{
-            name: 'redis'
-          }]
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
-    })
-  })
+      it('created cloudfoundry files', function () {
+        assert.file(cloudFoundryFiles)
+      })
 
-  describe('Non bluemix application where default service credentials are used', function () {
-    var runContext
+      it('created bluemix files', function () {
+        assert.file(bluemixFiles)
+      })
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
-                            services: ['CouchDB', 'Redis'],
-                            configure: ['Cloudant / CouchDB', 'Redis']
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+      it('cloudfoundry manifest contains the expected content', function () {
+        assert.fileContent([
+          [ cloudFoundryManifestFile, `name: ${applicationName}` ],
+          [ cloudFoundryManifestFile, 'random-route: true' ],
+          [ cloudFoundryManifestFile, 'instances: 1' ],
+          [ cloudFoundryManifestFile, 'memory: 128M' ],
+          [ cloudFoundryManifestFile, 'timeout: 180' ]
+        ])
+        assert.noFileContent([
+          [ cloudFoundryManifestFile, 'domain:' ],
+          [ cloudFoundryManifestFile, 'host:' ],
+          [ cloudFoundryManifestFile, 'namespace:' ],
+          [ cloudFoundryManifestFile, 'OPENAPI_SPEC :' ]
+        ])
+      })
+
+      it('cloudfoundry manifest defines health check details', function () {
+        assert.fileContent([
+          [ cloudFoundryManifestFile, 'health-check-type: http' ],
+          [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
+        ])
+      })
+
+      it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
+        assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
+      })
     })
 
-    it('config.json contains the correct default service credentials for cloudant and redis credentials', function () {
-      var expected = {
-        services: {
-          cloudant: [{
-            name: 'couchdb',
-            type: 'cloudant',
-            host: 'localhost',
-            port: 5984,
-            secured: false
-          }],
-          'redis': [{
-            name: 'redis',
-            type: 'redis',
-            host: 'localhost',
-            port: 6397
-          }]
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
+    describe('app pattern defaults', function () {
+      describe('basic', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Basic'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itDidNotCreateClientSDKFile()
+        commonTest.itDidNotCreateRoutes([ 'Swagger' ])
+        commonTest.itDidNotCreateServiceFiles()
+        commonTest.itDidNotCreateWebFiles()
+        commonTest.itDidNotCreateSwaggerUIFiles()
+
+        commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
+
+        commonTest.itCreatedMetricsFilesWithExpectedContent()
+
+        it('created bx dev config file', function () {
+          assert.file(bxdevConfigFile)
+        })
+
+        commonTest.itCreatedDockerFilesWithExpectedContent(applicationName)
+
+        // NOTE(tunniclm): For now we have overloaded the docker
+        // option to produce kubernetes files as well
+        commonTest.itCreatedKubernetesFilesWithExpectedContent({
+          applicationName: applicationName
+        })
+      })
+
+      describe('web', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Web'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itDidNotCreateClientSDKFile()
+        commonTest.itDidNotCreateRoutes([ 'Swagger' ])
+        commonTest.itDidNotCreateServiceFiles()
+        commonTest.itDidNotCreateSwaggerUIFiles()
+
+        commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
+
+        commonTest.itCreatedMetricsFilesWithExpectedContent()
+        commonTest.itCreatedWebFiles()
+
+        it('created bx dev config file', function () {
+          assert.file(bxdevConfigFile)
+        })
+
+        commonTest.itCreatedDockerFilesWithExpectedContent(applicationName)
+
+        // NOTE(tunniclm): For now we have overloaded the docker
+        // option to produce kubernetes files as well
+        commonTest.itCreatedKubernetesFilesWithExpectedContent({
+          applicationName: applicationName
+        })
+      })
+
+      describe('bff', function () {
+        var outputSwaggerFile = `definitions/${applicationName}.yaml`
+        var runContext
+        var sdkScope
+
+        before(function () {
+          sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                appPattern: 'Backend for frontend',
+                                swaggerChoice: 'Example swagger file'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itDidNotCreateServiceFiles()
+
+        it('requested client sdk over http', function () {
+          assert(sdkScope.isDone())
+        })
+
+        commonTest.itCreatedClientSDKFile(applicationName)
+        commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
+        commonTest.itCreatedRoutes([ 'Products', 'Swagger' ])
+
+        commonTest.itCreatedMetricsFilesWithExpectedContent()
+        commonTest.itCreatedWebFiles()
+        commonTest.itCreatedSwaggerUIFiles()
+
+        it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
+          assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
+        })
+
+        it('created a swagger definition file', function () {
+          assert.file(outputSwaggerFile)
+        })
+
+        it('application does not define base path', function () {
+          assert.noFileContent(applicationSourceFile, 'basePath =')
+        })
+
+        it('swagger routes match definition', function () {
+          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          assert.fileContent([
+            [ productsRoutesFile, 'router.get("/products"' ],
+            [ productsRoutesFile, 'router.post("/products"' ],
+            [ productsRoutesFile, 'router.get("/products/:id"' ],
+            [ productsRoutesFile, 'router.delete("/products/:id"' ],
+            [ productsRoutesFile, 'router.put("/products/:id"' ]
+          ])
+        })
+
+        it('created bx dev config file', function () {
+          assert.file(bxdevConfigFile)
+        })
+
+        commonTest.itCreatedDockerFilesWithExpectedContent(applicationName)
+
+        // NOTE(tunniclm): For now we have overloaded the docker
+        // option to produce kubernetes files as well
+        commonTest.itCreatedKubernetesFilesWithExpectedContent({
+          applicationName: applicationName
+        })
+      })
     })
-  })
 
-  describe('Non bluemix application where service credentials are provided', function () {
-    var runContext
+    describe('with single shot option', function () {
+      var runContext
 
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            capabilities: ['Embedded metrics dashboard', 'Docker files'],
-                            services: ['CouchDB', 'Redis'],
-                            configure: ['Cloudant / CouchDB', 'Redis'],
-                            cloudantType: 'cloudant',
-                            cloudantHost: 'cloudy.ibm.com',
-                            cloudantPort: 4568,
-                            cloudantSecured: true,
-                            cloudantUsername: 'admin',
-                            cloudantPassword: 'password',
-                            redisType: 'redis',
-                            redisHost: 'reducto.ibm.com',
-                            redisPort: 4569,
-                            redisPassword: 'gimble'
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true, singleShot: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itUsedDestinationDirectory(applicationName)
+
+      commonTest.itCreatedCommonFiles(executableModule)
+      commonTest.itHasCorrectFilesForSingleShotTrue()
     })
 
-    it('config.json contains the correct service credentials for cloudant and redis credentials', function () {
-      var expected = {
-        services: {
-          cloudant: [{
-            name: 'couchdb',
-            type: 'cloudant',
-            host: 'cloudy.ibm.com',
-            port: 4568,
-            secured: true,
+    describe('with web', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Static web file serving' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedWebFiles()
+    })
+
+    describe('with metrics', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Embedded metrics dashboard' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
+      commonTest.itCreatedMetricsFilesWithExpectedContent()
+    })
+
+    describe('with docker', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Docker files' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('created bx dev config file', function () {
+        assert.file(bxdevConfigFile)
+      })
+
+      commonTest.itCreatedDockerFilesWithExpectedContent(applicationName)
+
+      // NOTE(tunniclm): For now we have overloaded the docker
+      // option to produce kubernetes files as well
+      commonTest.itCreatedKubernetesFilesWithExpectedContent({
+        applicationName: applicationName
+      })
+    })
+
+    describe('with swaggerui', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Swagger UI' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedRoutes([ 'Swagger' ])
+
+      it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
+        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
+      })
+
+      commonTest.itCreatedWebFiles()
+      commonTest.itCreatedSwaggerUIFiles()
+    })
+
+    describe('with swagger file serving endpoint', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              endpoints: [ 'Swagger file serving endpoint' ]
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedRoutes([ 'Swagger' ])
+
+      it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
+        assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
+      })
+    })
+
+    describe('with endpoints from swagger file', function () {
+      var outputSwaggerFile = `definitions/${applicationName}.yaml`
+
+      describe('example swagger file', function () {
+        var runContext
+        var sdkScope
+
+        before(function () {
+          sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                endpoints: [ 'Endpoints from swagger file' ],
+                                swaggerChoice: 'Example swagger file'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        it('requested client sdk over http', function () {
+          assert(sdkScope.isDone())
+        })
+
+        commonTest.itCreatedClientSDKFile(applicationName)
+        commonTest.itCreatedRoutes([ 'Products' ])
+
+        it('created a swagger definition file', function () {
+          assert.file(outputSwaggerFile)
+        })
+
+        it('application does not define base path', function () {
+          assert.noFileContent(applicationSourceFile, 'basePath =')
+        })
+
+        it('swagger routes match definition', function () {
+          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          assert.fileContent([
+            [ productsRoutesFile, 'router.get("/products"' ],
+            [ productsRoutesFile, 'router.post("/products"' ],
+            [ productsRoutesFile, 'router.get("/products/:id"' ],
+            [ productsRoutesFile, 'router.delete("/products/:id"' ],
+            [ productsRoutesFile, 'router.put("/products/:id"' ]
+          ])
+        })
+      })
+
+      describe('custom swagger file (dinosaur swagger)', function () {
+        var inputSwaggerFile = path.join(__dirname, '../../resources/person_dino.json')
+
+        describe('from local file', function () {
+          var runContext
+          var sdkScope
+
+          before(function () {
+            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+            runContext = helpers.run(appGeneratorPath)
+                                .withOptions({ skipBuild: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  endpoints: [ 'Endpoints from swagger file' ],
+                                  swaggerChoice: 'Custom swagger file',
+                                  path: inputSwaggerFile
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            nock.cleanAll()
+            runContext.cleanTestDirectory()
+          })
+
+          it('requested client sdk over http', function () {
+            assert(sdkScope.isDone())
+          })
+
+          commonTest.itCreatedClientSDKFile(applicationName)
+
+          commonTest.itCreatedRoutes([
+            'Dinosaurs',
+            'Persons'
+          ])
+
+          it('created a swagger definition file', function () {
+            assert.file(outputSwaggerFile)
+          })
+
+          it('application defines base path', function () {
+            assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
+          })
+
+          it('swagger routes prepend base path', function () {
+            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+          })
+        })
+
+        describe('from http url', function () {
+          var runContext
+          var swaggerScope
+          var sdkScope
+
+          before(function () {
+            swaggerScope = nock('http://dino.io')
+              .get('/stuff')
+              .replyWithFile(200, inputSwaggerFile)
+
+            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+            runContext = helpers.run(appGeneratorPath)
+                                .withOptions({ skipBuild: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  endpoints: [ 'Endpoints from swagger file' ],
+                                  swaggerChoice: 'Custom swagger file',
+                                  path: 'http://dino.io/stuff'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            nock.cleanAll()
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itCreatedRoutes([
+            'Dinosaurs',
+            'Persons'
+          ])
+
+          it('requested swagger over http', function () {
+            assert(swaggerScope.isDone())
+          })
+
+          it('requested client sdk over http', function () {
+            assert(sdkScope.isDone())
+          })
+
+          it('created a swagger definition file', function () {
+            assert.file(outputSwaggerFile)
+          })
+
+          it('application defines base path', function () {
+            assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
+          })
+
+          it('swagger routes prepend base path', function () {
+            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+          })
+        })
+      })
+    })
+
+    // TODO with server sdk
+
+    describe('with cloudant', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Cloudant / CouchDB' ],
+                                configure: [ 'Cloudant / CouchDB' ],
+                                cloudantName: 'myCloudantService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.cloudant.itCreatedServiceFilesWithExpectedContent('myCloudantService', {
+          url: 'http://localhost:5984'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        describe('without username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withOptions({ skipBuild: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Cloudant / CouchDB' ],
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantName: 'myCloudantService',
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itCreatedServiceConfigFiles()
+          commonTest.cloudant.itCreatedServiceFilesWithExpectedContent('myCloudantService', {
+            url: 'https://cloudanthost:4568'
+          })
+        })
+
+        describe('with username and password', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(appGeneratorPath)
+                                .withOptions({ skipBuild: true })
+                                .withPrompts({
+                                  name: applicationName,
+                                  appType: 'Scaffold a starter',
+                                  capabilities: [],
+                                  services: [ 'Cloudant / CouchDB' ],
+                                  configure: [ 'Cloudant / CouchDB' ],
+                                  cloudantName: 'myCloudantService',
+                                  cloudantHost: 'cloudanthost',
+                                  cloudantPort: 4568,
+                                  cloudantSecured: true,
+                                  cloudantUsername: 'admin',
+                                  cloudantPassword: 'password1234'
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itCreatedServiceConfigFiles()
+          commonTest.cloudant.itCreatedServiceFilesWithExpectedContent('myCloudantService', {
             username: 'admin',
-            password: 'password'
-          }],
-          'redis': [{
-            name: 'redis',
-            type: 'redis',
-            host: 'reducto.ibm.com',
-            port: 4569,
-            password: 'gimble'
-          }]
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
+            password: 'password1234',
+            url: 'https://admin:password1234@cloudanthost:4568'
+          })
+        })
+      })
+    })
+
+    describe('with redis', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Redis' ],
+                                configure: [ 'Redis' ],
+                                redisName: 'myRedisService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService', {
+          uri: 'redis://:@localhost:6397'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Redis' ],
+                                configure: [ 'Redis' ],
+                                redisName: 'myRedisService',
+                                redisHost: 'myhost',
+                                redisPort: '1234',
+                                redisPassword: 'password1234'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService', {
+          uri: 'redis://:password1234@myhost:1234'
+        })
+      })
+    })
+
+    describe('with mongodb', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'MongoDB' ],
+                                configure: [ 'MongoDB' ],
+                                mongodbName: 'myMongoService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoService', {
+          uri: 'mongodb://localhost:27017'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'MongoDB' ],
+                                configure: [ 'MongoDB' ],
+                                mongodbName: 'myMongoService',
+                                mongodbHost: 'myhost',
+                                mongodbPort: '1234',
+                                mongodbPassword: 'password1234',
+                                mongodbDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoService', {
+          uri: 'mongodb://:password1234@myhost:1234/mydb'
+        })
+      })
+    })
+
+    describe('with postgresql', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'PostgreSQL' ],
+                                configure: [ 'PostgreSQL' ],
+                                postgresqlName: 'myPostgreSQLService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
+          uri: 'postgres://localhost:5432'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'PostgreSQL' ],
+                                configure: [ 'PostgreSQL' ],
+                                postgresqlName: 'myPostgreSQLService',
+                                postgresqlHost: 'myhost',
+                                postgresqlPort: '1234',
+                                postgresqlUsername: 'admin',
+                                postgresqlPassword: 'password1234',
+                                postgresqlDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
+          uri: 'postgres://admin:password1234@myhost:1234/mydb'
+        })
+      })
+    })
+
+    describe('with object storage', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Object Storage' ],
+                                configure: [ 'Object Storage' ],
+                                objectstorageName: 'myObjectStorageService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
+          auth_url: 'https://identity.open.softlayer.com',
+          project: '',
+          project_id: '',
+          region: '',
+          user_id: '',
+          password: '',
+          domainName: ''
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Object Storage' ],
+                                configure: [ 'Object Storage' ],
+                                objectstorageName: 'myObjectStorageService',
+                                objectstorageRegion: 'dallas',
+                                objectstorageProjectId: 'myProjectId',
+                                objectstorageUserId: 'admin',
+                                objectstoragePassword: 'password1234'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
+          auth_url: 'https://identity.open.softlayer.com',
+          project: '',
+          project_id: 'myProjectId',
+          region: 'dallas',
+          user_id: 'admin',
+          password: 'password1234',
+          domainName: ''
+        })
+      })
+    })
+
+    describe('with appid', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'AppID' ],
+                                configure: [ 'AppID' ],
+                                appIDName: 'myAppIDService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
+          tenant_id: '',
+          client_id: '',
+          secret: '',
+          oauth_server_url: '',
+          profiles_url: ''
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'AppID' ],
+                                configure: [ 'AppID' ],
+                                appIDName: 'myAppIDService',
+                                appidTenantId: 'myTenantId',
+                                appidClientId: 'myClientId',
+                                appidSecret: 'mySecret'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
+          tenant_id: 'myTenantId',
+          client_id: 'myClientId',
+          secret: 'mySecret',
+          oauth_server_url: '',
+          profiles_url: ''
+        })
+      })
+    })
+
+    describe('with watson conversation', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Watson Conversation' ],
+                                configure: [ 'Watson Conversation' ],
+                                watsonConversationName: 'myConversationService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService', {
+          url: 'https://gateway.watsonplatform.net/conversation/api',
+          username: '',
+          password: ''
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Watson Conversation' ],
+                                configure: [ 'Watson Conversation' ],
+                                watsonConversationName: 'myConversationService',
+                                watsonConversationUsername: 'admin',
+                                watsonConversationPassword: 'password1234',
+                                watsonConversationUrl: 'https://myhost'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService', {
+          url: 'https://myhost',
+          username: 'admin',
+          password: 'password1234'
+        })
+      })
+    })
+
+    describe('with alert notification', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Alert Notification' ],
+                                configure: [ 'Alert Notification' ],
+                                alertNotificationName: 'myAlertNotificationService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.alertnotification.itCreatedServiceFilesWithExpectedContent('myAlertNotificationService', {
+          url: '',
+          name: '',
+          password: ''
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Alert Notification' ],
+                                configure: [ 'Alert Notification' ],
+                                alertNotificationName: 'myAlertNotificationService',
+                                alertNotificationUsername: 'admin',
+                                alertNotificationPassword: 'password1234',
+                                alertNotificationUrl: 'https://myhost'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.alertnotification.itCreatedServiceFilesWithExpectedContent('myAlertNotificationService', {
+          url: 'https://myhost',
+          name: 'admin',
+          password: 'password1234'
+        })
+      })
+    })
+
+    describe('with push notifications', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Push Notifications' ],
+                                configure: [ 'Push Notifications' ],
+                                pushNotificationsName: 'myPushNotificationsService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
+          app_guid: '',
+          app_secret: '',
+          client_secret: ''
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'Push Notifications' ],
+                                configure: [ 'Push Notifications' ],
+                                pushNotificationsName: 'myPushNotificationsService',
+                                pushNotificationsAppGuid: 'myAppGuid',
+                                pushNotificationsAppSecret: 'myAppSecret',
+                                pushNotificationsRegion: 'United Kingdom'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
+          app_guid: 'myAppGuid',
+          app_secret: 'myAppSecret',
+          client_secret: ''
+        })
+
+        it(`push notifications boilerplate contains correct region`, function () {
+          var serviceFile = `${commonTest.servicesSourceDir}/ServicePush.swift`
+          assert.fileContent(serviceFile, 'bluemixRegion: PushNotifications.Region.UK')
+        })
+      })
+    })
+
+    describe('with autoscaling (implies metrics)', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [],
+                              services: [ 'Auto-scaling' ],
+                              configure: [ 'Auto-scaling' ],
+                              autoscalingName: 'myAutoscalingService'
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedMetricsFilesWithExpectedContent()
+      commonTest.autoscaling.itCreatedServiceFilesWithExpectedContent('myAutoscalingService')
     })
   })
 
-  describe('Bluemix application where default service credentials are used', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications']
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('config.json contains the correct default service credentials for cloudant, redis, objectstorage, appid, watsonconversation, alertnotification and pushnotifications services', function () {
-      var expected = {
-        vcap: {
-          services: {
-            cloudantNoSQLDB: [{
-              credentials: {
-                host: 'localhost',
-                url: '',
-                username: '',
-                password: '',
-                port: 5984
-              }
-            }],
-            'compose-for-redis': [{
-              credentials: {
-                uri: 'redis://admin:@localhost:6397'
-              }
-            }],
-            'Object-Storage': [{
-              credentials: {
-                'auth_url': '',
-                project: '',
-                projectId: '',
-                region: '',
-                userId: '',
-                username: '',
-                password: '',
-                domainId: '',
-                domainName: '',
-                role: ''
-              }
-            }],
-            AppID: [{
-              credentials: {
-                clientId: '',
-                oauthServerUrl: '',
-                profilesUrl: '',
-                secret: '',
-                tenantId: '',
-                version: 3
-              }
-            }],
-            conversation: [{
-              credentials: {
-                username: '',
-                password: '',
-                url: ''
-              }
-            }],
-            AlertNotification: [{
-              credentials: {
-                name: '',
-                password: '',
-                url: ''
-              }
-            }],
-            imfpush: [{
-              credentials: {
-                appGuid: '',
-                appSecret: ''
-              }
-            }]
-          }
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
-    })
+  describe('crud', function () {
+    // TODO base
+    // TODO with server sdk
+    // TODO with metrics
+    // TODO with docker
+    // TODO with autoscaling
+    // TODO with cloudant
   })
 
-  describe('Bluemix application where service credentials are specified', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            cloudantHost: 'bluemix.cloudant',
-                            cloudantPort: 443,
-                            cloudantSecured: true,
-                            cloudantUsername: 'admin',
-                            cloudantPassword: 'password',
-                            redisHost: 'bluemix.redis',
-                            redisPort: '443',
-                            redisPassword: 'password',
-                            objectstorageRegion: 'earth',
-                            objectstorageProjectId: 'PROJECT_ID',
-                            objectstorageUserId: 'USER_ID',
-                            objectstoragePassword: 'password',
-                            appidTenantId: 'TENANT_ID',
-                            appidClientId: 'CLIENT_ID',
-                            appidSecret: 'APP_ID_SECRET',
-                            watsonConversationUsername: 'WC_USERNAME',
-                            watsonConversationPassword: 'WC_PASSWORD',
-                            watsonConversationUrl: 'WC_URL',
-                            alertNotificationUsername: 'AN_USERNAME',
-                            alertNotificationPassword: 'AN_PASSWORD',
-                            alertNotificationUrl: 'AN_URL',
-                            pushNotificationsAppGuid: 'PN_APP_GUID',
-                            pushNotificationsAppSecret: 'PN_APP_SECRET'
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('config.json contains the credentials specified by the user', function () {
-      var expected = {
-        vcap: {
-          services: {
-            cloudantNoSQLDB: [{
-              credentials: {
-                host: 'bluemix.cloudant',
-                url: '',
-                username: 'admin',
-                password: 'password',
-                port: 443
-              }
-            }],
-            'compose-for-redis': [{
-              credentials: {
-                uri: 'redis://admin:password@bluemix.redis:443'
-              }
-            }],
-            'Object-Storage': [{
-              credentials: {
-                'auth_url': '',
-                project: '',
-                projectId: 'PROJECT_ID',
-                region: 'earth',
-                userId: 'USER_ID',
-                username: '',
-                password: 'password',
-                domainId: '',
-                domainName: '',
-                role: ''
-              }
-            }],
-            AppID: [{
-              credentials: {
-                clientId: 'CLIENT_ID',
-                oauthServerUrl: '',
-                profilesUrl: '',
-                secret: 'APP_ID_SECRET',
-                tenantId: 'TENANT_ID',
-                version: 3
-              }
-            }],
-            conversation: [{
-              credentials: {
-                username: 'WC_USERNAME',
-                password: 'WC_PASSWORD',
-                url: 'WC_URL'
-              }
-            }],
-            AlertNotification: [{
-              credentials: {
-                name: 'AN_USERNAME',
-                password: 'AN_PASSWORD',
-                url: 'AN_URL'
-              }
-            }],
-            imfpush: [{
-              credentials: {
-                appGuid: 'PN_APP_GUID',
-                appSecret: 'PN_APP_SECRET'
-              }
-            }]
-          }
-        }
-      }
-      assert.jsonFileContent('config.json', expected)
-    })
-  })
-
-  describe('Bluemix where service plan type is not provided', function () {
-    var runContext
-
-    before(function () {
-      runContext = helpers.run(appGeneratorPath)
-                          .withOptions({ 'skip-build': true })
-                          .withPrompts({
-                            appType: 'Scaffold a starter',
-                            name: 'notes',
-                            dir: 'notes',
-                            appPattern: 'Basic',
-                            services: ['Cloudant', 'Redis', 'Object Storage', 'AppID', 'Auto-scaling', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            configure: ['Cloudant / CouchDB', 'Redis', 'Object Storage', 'AppID', 'Watson Conversation', 'Alert Notification', 'Push Notifications'],
-                            cloudantName: 'cloudantService',
-                            redisName: 'redisService',
-                            objectstorageName: 'objStoreService',
-                            appIDName: 'appIDService',
-                            watsonConversationName: 'watsonConversationService',
-                            alertNotificationName: 'alertNotificationService',
-                            pushNotificationsName: 'pushNotificationsService'
-                          })
-      return runContext.toPromise()                        // Get a Promise back when the generator finishes
-    })
-
-    it('sets the correct plan for cloudant', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Lite" "cloudantService"')
-    })
-
-    it('sets the correct plan for redis', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Standard" "redisService"')
-    })
-
-    it('sets the correct plan for object storage', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Free" "objStoreService"')
-    })
-
-    it('sets the correct plan for appID', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Graduated tier" "appIDService"')
-    })
-
-    it('sets the correct plan for watson conversation', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Free" "watsonConversationService"')
-    })
-
-    it('sets the correct plan for alert notification', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Authorized Users" "alertNotificationService"')
-    })
-
-    it('sets the correct plan for push notifications', function () {
-      assert.fileContent('.bluemix/pipeline.yml', '"Lite" "pushNotificationsService"')
-    })
-  })
+// -- OLD
+//  describe('Starter with generated iOS and Swift Server SDK', function () {
+//    this.timeout(extendedTimeout)
+//    var runContext
+//    var appName = 'notes'
+//
+//    before(function () {
+//      runContext = helpers.run(appGeneratorPath)
+//                          .withOptions({ 'skip-build': true })
+//                          .withPrompts({
+//                            appType: 'Scaffold a starter',
+//                            name: appName,
+//                            dir: appName,
+//                            appPattern: 'Basic',
+//                            endpoints: 'Endpoints from swagger file',
+//                            swaggerChoice: 'Custom swagger file',
+//                            path: testResourcesPath + '/petstore.yaml',
+//                            serverSwaggerInput0: true,
+//                            serverSwaggerInputPath0: testResourcesPath + '/petstore.yaml',
+//                            serverSwaggerInput1: true,
+//                            serverSwaggerInputPath1: testResourcesPath + '/petstore2.yaml',
+//                            serverSwaggerInput2: false
+//                          })
+//
+//      return runContext.toPromise()
+//    })
+//
+//    it('created a iOS SDK zip file', function () {
+//      assert.file(appName + '_iOS_SDK.zip')
+//    })
+//
+//    it('modified .gitignore to include the generated iOS SDK', function () {
+//      assert.fileContent('.gitignore', '/' + appName + '_iOS_SDK*')
+//    })
+//
+//    it('deleted a server SDK zip file', function () {
+//      assert.noFile('Swagger_Petstore_ServerSDK.zip')
+//    })
+//
+//    it('unzipped server SDK folder was deleted', function () {
+//      assert.noFile('Swagger_Petstore_ServerSDK/README.md')
+//    })
+//
+//    it('created Pet model from swagger file', function () {
+//      assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift')
+//    })
+//
+//    it('modified Package.swift to include server SDK module', function () {
+//      assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK')
+//    })
+//
+//    it('deleted the second server SDK zip file', function () {
+//      assert.noFile('Swagger_Petstore_Two_ServerSDK.zip')
+//    })
+//
+//    it('unzipped the second server SDK folder was deleted', function () {
+//      assert.noFile('Swagger_Petstore_Two_ServerSDK/README.md')
+//    })
+//
+//    it('created Pet model from the second swagger file', function () {
+//      assert.file('Sources/Swagger_Petstore_Two_ServerSDK/Pet.swift')
+//    })
+//
+//    it('modified Package.swift to include the second server SDK module', function () {
+//      assert.fileContent('Package.swift', 'Swagger_Petstore_Two_ServerSDK')
+//    })
+//  })
+//
+//  describe('CRUD application where application name and directory name are the current (empty) directory', function () {
+//    var runContext
+//
+//    before(function () {
+//      runContext = helpers.run(appGeneratorPath)
+//                          .withOptions({ 'skip-build': true })
+//                          .withPrompts({
+//                            appType: 'Generate a CRUD application',
+//                            name: 'notes'
+//                          })
+//                          .inTmpDir(function (tmpDir) {
+//                            this.inDir(path.join(tmpDir, 'notes'))
+//                          })
+//      return runContext.toPromise()                        // Get a Promise back when the generator finishes
+//    })
+//
+//    it('used the empty directory for the project', function () {
+//      assert.equal(path.basename(process.cwd()), 'notes')
+//      assert.file('.swiftservergenerator-project')
+//    })
+//  })
 })
