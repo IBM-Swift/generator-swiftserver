@@ -344,12 +344,12 @@ describe('Unit tests for swiftserver:refresh', function () {
           ])
         })
 
-        it('cloudfoundry manifest defines health check details', function () {
+        /* it('cloudfoundry manifest defines health check details', function () {
           assert.fileContent([
             [ cloudFoundryManifestFile, 'health-check-type: http' ],
             [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
           ])
-        })
+        }) */
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
           assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
@@ -718,12 +718,12 @@ describe('Unit tests for swiftserver:refresh', function () {
         ])
       })
 
-      it('cloudfoundry manifest defines health check details', function () {
+      /* it('cloudfoundry manifest defines health check details', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, 'health-check-type: http' ],
           [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
         ])
-      })
+      }) */
 
       it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
         assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
