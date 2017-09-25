@@ -28,7 +28,7 @@ var fs = require('fs')
 
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
-var swaggerize = require('./fromswagger/swaggerize')
+var swaggerize = require('ibm-openapi-support')
 var sdkHelper = require('../lib/sdkGenHelper')
 var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
 var getClientSDKAsync = sdkHelper.getClientSDKAsync
@@ -799,8 +799,13 @@ module.exports = Generator.extend({
   },
 
   parseOpenApiDocument: function () {
+    let formatters = {
+      'pathFormatter': helpers.reformatPathToSwiftKitura,
+      'resourceFormatter': helpers.resourceNameFromPath
+    }
+
     if (this.openApiDocumentBytes) {
-      return swaggerize.parse(this.openApiDocumentBytes, helpers.reformatPathToSwift)
+      return swaggerize.parse(this.openApiDocumentBytes, formatters)
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
@@ -1058,6 +1063,7 @@ module.exports = Generator.extend({
     createFromSwagger: function () {
       if (this.parsedSwagger) {
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
+          debug(resource)
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
