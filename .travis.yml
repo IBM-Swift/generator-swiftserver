@@ -33,9 +33,11 @@ jobs:
   - stage: Review
     node_js: '6'
     script: "./review.sh"
+    if: type = push AND branch = develop
   - stage: Releases
     language: ruby
     script: "./release.sh"
+    if: type = push AND branch = master
 env:
   global:
   - CXX=g++-4.8
