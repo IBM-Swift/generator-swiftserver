@@ -112,12 +112,12 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         ])
       })
 
-      it('cloudfoundry manifest defines health check details', function () {
+      /* it('cloudfoundry manifest defines health check details', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, 'health-check-type: http' ],
           [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
         ])
-      })
+      }) */
 
       it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
         assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
