@@ -698,7 +698,7 @@ exports.mongodb = {
         [serviceFile, 'import MongoKitten'],
         [serviceFile, 'mongodb = try Database('],
         [serviceFile, 'func initializeServiceMongodb() throws'],
-        [serviceFile, 'cloudEnv.getDictionary(']
+        [serviceFile, 'cloudEnv.getMongoDBCredentials(']
       ])
     })
   }
