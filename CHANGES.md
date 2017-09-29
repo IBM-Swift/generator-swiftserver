@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/3.0.0...3.1.0) (2017-09-29)
+
+
+### Bug Fixes
+
+* removing manifest health definitions and tests ([#315](https://github.com/IBM-Swift/generator-swiftserver/issues/315)) ([972b47a](https://github.com/IBM-Swift/generator-swiftserver/commit/972b47a))
+* **package:** update chalk to version 2.1.0 ([#277](https://github.com/IBM-Swift/generator-swiftserver/issues/277)) ([b328ed8](https://github.com/IBM-Swift/generator-swiftserver/commit/b328ed8))
+* **package:** update debug to version 3.0.0 ([#278](https://github.com/IBM-Swift/generator-swiftserver/issues/278)) ([a376d6a](https://github.com/IBM-Swift/generator-swiftserver/commit/a376d6a))
+* **package:** update generator-ibm-cloud-enablement to version 0.0.91 ([#308](https://github.com/IBM-Swift/generator-swiftserver/issues/308)) ([6300a0e](https://github.com/IBM-Swift/generator-swiftserver/commit/6300a0e))
+* **package:** update generator-ibm-cloud-enablement to version 0.0.92 ([#320](https://github.com/IBM-Swift/generator-swiftserver/issues/320)) ([df90b7e](https://github.com/IBM-Swift/generator-swiftserver/commit/df90b7e))
+* **package:** update generator-ibm-service-enablement to version 0.0.81 ([#314](https://github.com/IBM-Swift/generator-swiftserver/issues/314)) ([68dfd3c](https://github.com/IBM-Swift/generator-swiftserver/commit/68dfd3c))
+* **package:** update ibm-openapi-support to version 0.0.8 ([#323](https://github.com/IBM-Swift/generator-swiftserver/issues/323)) ([fb6b6b4](https://github.com/IBM-Swift/generator-swiftserver/commit/fb6b6b4))
+* **travis:** Updated travis to use their conditions ([#306](https://github.com/IBM-Swift/generator-swiftserver/issues/306)) ([27bea57](https://github.com/IBM-Swift/generator-swiftserver/commit/27bea57))
+
+
+### Features
+
+* use public ibm-openapi-support instead of internal swaggerize function ([#317](https://github.com/IBM-Swift/generator-swiftserver/issues/317)) ([cb6e809](https://github.com/IBM-Swift/generator-swiftserver/commit/cb6e809))
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/2.8.0...v3.0.0) (2017-09-19)
 
