@@ -27,7 +27,7 @@
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
     "generator-ibm-cloud-enablement": "0.0.97",
-    "generator-ibm-service-enablement": "0.0.84",
+    "generator-ibm-service-enablement": "0.0.85",
     "handlebars": "^4.0.5",
     "js-yaml": "^3.9.1",
     "request": "^2.81.0",
