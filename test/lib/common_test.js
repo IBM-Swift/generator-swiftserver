@@ -366,7 +366,7 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
   var domain = opts.domain || 'ng.bluemix.net'
-  var namespace = opts.namespace || 'replace-me-namespace'
+  var namespace = opts.namespace || 'my-namespace'
 
   var chartFile = exports.kubernetesChartFileGenerator(applicationName)
   var valuesFile = exports.kubernetesValuesFileGenerator(applicationName)
