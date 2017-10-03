@@ -482,7 +482,12 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   bluemix: {
                                     server: {
                                       domain: 'mydomain.net',
-                                      namespace: 'mynamespace'
+                                      namespace: 'mynamespace',
+                                      cloudDeploymentType: 'Kube',
+                                      cloudDeploymentOptions: {
+                                        kubeClusterName: 'devex-default',
+                                        kubeClusterNamespace: 'myClusterNamespace'
+                                      }
                                     }
                                   }
                                 }
@@ -507,6 +512,11 @@ describe('Unit tests for swiftserver:refresh', function () {
           applicationName: applicationName,
           domain: 'mydomain.net',
           namespace: 'mynamespace'
+        })
+
+        commonTest.itCreatedKubernetesPipelineFilesWithExpectedContent({
+          clusterName: 'devex-default',
+          clusterNamespace: 'myClusterNamespace'
         })
       })
 
