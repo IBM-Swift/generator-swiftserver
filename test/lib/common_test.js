@@ -400,7 +400,6 @@ exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
   var clusterName = opts.clusterName
   var clusterNamespace = opts.clusterNamespace || 'default'
 
-
   it('created kubernetes bluemix pipeline files', function () {
     assert.file(exports.bluemixFiles)
     assert.file(exports.kubernetesPipelineFiles)
