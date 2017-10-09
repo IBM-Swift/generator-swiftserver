@@ -211,6 +211,12 @@ module.exports = Generator.extend({
           if (typeof (this.spec.bluemix.server.namespace) === 'string') {
             this.bluemix.server.namespace = this.spec.bluemix.server.namespace
           }
+          if (typeof (this.spec.bluemix.server.cloudDeploymentType) === 'string') {
+            this.bluemix.server.cloudDeploymentType = this.spec.bluemix.server.cloudDeploymentType
+          }
+          if (typeof (this.spec.bluemix.server.cloudDeploymentOptions) === 'object') {
+            this.bluemix.server.cloudDeploymentOptions = this.spec.bluemix.server.cloudDeploymentOptions
+          }
         }
         if (typeof (this.spec.bluemix.openApiServers) === 'object') {
           this.openApiServers = this.spec.bluemix.openApiServers

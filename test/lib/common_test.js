@@ -65,9 +65,12 @@ exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
 exports.cloudFoundryFiles = [ exports.cloudFoundryManifestFile, '.cfignore' ]
 exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
+exports.bluemixToolchainFile = '.bluemix/toolchain.yml'
 exports.bluemixFiles = [ exports.bluemixPipelineFile,
-  '.bluemix/toolchain.yml',
+  exports.bluemixToolchainFile,
   '.bluemix/deploy.json' ]
+exports.kubernetesPipelineFiles = [ '.bluemix/container_build.sh',
+  '.bluemix/kube_deploy.sh' ]
 exports.dockerFiles = [ 'Dockerfile', 'Dockerfile-tools', '.dockerignore' ]
 exports.kubernetesChartFileGenerator = (applicationName) => `chart/${applicationName}/Chart.yaml`
 exports.kubernetesValuesFileGenerator = (applicationName) => `chart/${applicationName}/values.yaml`
@@ -386,6 +389,25 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
 
   it('bx dev config contains expected chart-path', function () {
     assert.fileContent(exports.bxdevConfigFile, `chart-path : "chart/${applicationName}"`)
+  })
+}
+
+//
+// Kuberneetes Pipeline
+//
+exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
+  opts = opts || {}
+  var clusterName = opts.clusterName
+  var clusterNamespace = opts.clusterNamespace || 'default'
+
+  it('created kubernetes bluemix pipeline files', function () {
+    assert.file(exports.bluemixFiles)
+    assert.file(exports.kubernetesPipelineFiles)
+  })
+
+  it('bluemix pipeline files contains proper kube values', function () {
+    assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
+    assert.fileContent(exports.bluemixPipelineFile, `value: ${clusterNamespace}`)
   })
 }
 
