@@ -407,6 +407,7 @@ exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
 
   it('bluemix pipeline files contains proper kube values', function () {
     assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
+    assert.fileContent(exports.bluemixToolchainFile, `cluster-namespace: ${clusterNamespace}`)
     assert.fileContent(exports.bluemixPipelineFile, 'mv Dockerfile-tools Dockerfile')
   })
 }
