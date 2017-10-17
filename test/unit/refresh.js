@@ -482,7 +482,12 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   bluemix: {
                                     server: {
                                       domain: 'mydomain.net',
-                                      namespace: 'mynamespace'
+                                      cloudDeploymentType: 'Kube',
+                                      cloudDeploymentOptions: {
+                                        kubeClusterName: 'devex-default',
+                                        kubeClusterNamespace: 'myClusterNamespace',
+                                        imageRegistryNamespace: 'mynamespace'
+                                      }
                                     }
                                   }
                                 }
@@ -506,7 +511,12 @@ describe('Unit tests for swiftserver:refresh', function () {
         commonTest.itCreatedKubernetesFilesWithExpectedContent({
           applicationName: applicationName,
           domain: 'mydomain.net',
-          namespace: 'mynamespace'
+          imageRegistryNamespace: 'mynamespace'
+        })
+
+        commonTest.itCreatedKubernetesPipelineFilesWithExpectedContent({
+          clusterName: 'devex-default',
+          clusterNamespace: 'myClusterNamespace'
         })
       })
 
@@ -844,8 +854,7 @@ describe('Unit tests for swiftserver:refresh', function () {
               docker: true,
               bluemix: {
                 server: {
-                  domain: 'mydomain.net',
-                  namespace: 'mynamespace'
+                  domain: 'mydomain.net'
                 }
               }
             }
@@ -868,8 +877,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       // option to produce kubernetes files as well
       commonTest.itCreatedKubernetesFilesWithExpectedContent({
         applicationName: applicationName,
-        domain: 'mydomain.net',
-        namespace: 'mynamespace'
+        domain: 'mydomain.net'
       })
     })
 
