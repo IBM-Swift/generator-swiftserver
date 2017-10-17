@@ -69,8 +69,8 @@ exports.bluemixToolchainFile = '.bluemix/toolchain.yml'
 exports.bluemixFiles = [ exports.bluemixPipelineFile,
   exports.bluemixToolchainFile,
   '.bluemix/deploy.json' ]
-exports.kubernetesPipelineFiles = [ '.bluemix/container_build.sh',
-  '.bluemix/kube_deploy.sh' ]
+exports.kubernetesPipelineFiles = [ '.bluemix/scripts/container_build.sh',
+  '.bluemix/scripts/kube_deploy.sh' ]
 exports.dockerFiles = [ 'Dockerfile', 'Dockerfile-tools', '.dockerignore' ]
 exports.kubernetesChartFileGenerator = (applicationName) => `chart/${applicationName}/Chart.yaml`
 exports.kubernetesValuesFileGenerator = (applicationName) => `chart/${applicationName}/values.yaml`
@@ -369,7 +369,7 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
   var domain = opts.domain || 'ng.bluemix.net'
-  var namespace = opts.namespace || 'replace-me-namespace'
+  var namespace = opts.imageRegistryNamespace || 'replace-me-namespace'
 
   var chartFile = exports.kubernetesChartFileGenerator(applicationName)
   var valuesFile = exports.kubernetesValuesFileGenerator(applicationName)
@@ -407,7 +407,8 @@ exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
 
   it('bluemix pipeline files contains proper kube values', function () {
     assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
-    assert.fileContent(exports.bluemixPipelineFile, `value: ${clusterNamespace}`)
+    assert.fileContent(exports.bluemixToolchainFile, `cluster-namespace: ${clusterNamespace}`)
+    assert.fileContent(exports.bluemixPipelineFile, 'mv Dockerfile-tools Dockerfile')
   })
 }
 
