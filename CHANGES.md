@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.1.1"></a>
+## [3.1.1](https://github.com/IBM-Swift/generator-swiftserver/compare/3.1.0...3.1.1) (2017-10-17)
+
+
+### Bug Fixes
+
+* **package:** update ibm-openapi-support to version 0.0.9 ([#337](https://github.com/IBM-Swift/generator-swiftserver/issues/337)) ([3d71c1d](https://github.com/IBM-Swift/generator-swiftserver/commit/3d71c1d))
+* ibm-cloud-enablement package & test update ([#346](https://github.com/IBM-Swift/generator-swiftserver/issues/346)) ([6f09339](https://github.com/IBM-Swift/generator-swiftserver/commit/6f09339))
+* kubernetes pipeline deployment ([#339](https://github.com/IBM-Swift/generator-swiftserver/issues/339)) ([caab227](https://github.com/IBM-Swift/generator-swiftserver/commit/caab227))
+
+
+
 <a name="3.1.0"></a>
 # [3.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/3.0.0...3.1.0) (2017-09-30)
 
