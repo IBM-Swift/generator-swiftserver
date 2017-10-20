@@ -65,14 +65,8 @@ module.exports = Generator.extend({
     ensureNotInProject: actions.ensureNotInProject,
 
     initSpec: function () {
-      // save the initial directory for use by the fromSwagger processing.
-      this.initialWorkingDir = process.cwd()
-
       if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
-        // appname is taken from the basename of the CWD
-        this.appname = path.basename(this.initialWorkingDir)
-        this.destinationRoot(this.initialWorkingDir)
         this.destinationSet = true
         this.skipPrompting = true
         this.appPattern = 'Basic'
@@ -95,6 +89,9 @@ module.exports = Generator.extend({
 
     initAppName: function () {
       if (this.skipPrompting) return
+
+      // save the initial directory for use by the fromSwagger processing.
+      this.initialWorkingDir = process.cwd()
 
       this.appname = null // Discard yeoman default appname
       this.skipPromptingAppName = false

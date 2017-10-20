@@ -484,14 +484,15 @@ describe('Unit tests for swiftserver:app', function () {
 
   describe('--init flag specified', function () {
     var runContext
-    var generationDir
+    var appName
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
                           .withGenerators(dependentGenerators) // Stub subgenerators
                           .withOptions({ testmode: true, init: true })     // Workaround to stub subgenerators
-                          .inTmpDir(function (tmpDir) {})
-      generationDir = runContext.targetDirectory
+                          .inTmpDir(function (tmpDir) {
+                            appName = path.basename(tmpDir)
+                          })
       return runContext.toPromise()
     })
 
@@ -499,14 +500,10 @@ describe('Unit tests for swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    it('it used the correct path', function () {
-      assert.equal(process.cwd(), generationDir)
-    })
-
     itCreatedSpecWithServicesAndCapabilities(() => ({
       runContext: runContext,
       appType: 'scaffold',
-      appName: path.basename(generationDir),
+      appName: appName,
       capabilities: [ 'docker', 'metrics' ],
       services: {}
     }))
