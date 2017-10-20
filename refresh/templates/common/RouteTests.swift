@@ -25,8 +25,9 @@ class RouteTests: XCTestCase {
             print("------------New Test----------")
             print("------------------------------")
 
-            try <%- applicationModule %>.initialize()
-            Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: <%- applicationModule %>.router)
+            let app = try App()
+            try app.postInit()
+            Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: app.router)
             Kitura.start()
         } catch {
             XCTFail("Couldn't start <%- applicationModule %> test server: \(error)")

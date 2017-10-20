@@ -308,6 +308,8 @@ module.exports = Generator.extend({
       this.appInitCode = {
         capabilities: [],
         services: [],
+        service_imports: [],
+        service_variables: [],
         middlewares: [],
         endpoints: []
       }
@@ -315,7 +317,7 @@ module.exports = Generator.extend({
       if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
       if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
       if (this.metrics) {
-        this.appInitCode.capabilities.push('initializeMetrics()')
+        this.appInitCode.capabilities.push('initializeMetrics(app: self)')
         this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
       }
     },
@@ -470,6 +472,8 @@ module.exports = Generator.extend({
         injectIntoApplication: options => {
           if (options.capability) this.appInitCode.capabilities.push(options.capability)
           if (options.service) this.appInitCode.services.push(options.service)
+          if (options.service_import) this.appInitCode.service_imports.push(options.service_import)
+          if (options.service_variable) this.appInitCode.service_variables.push(options.service_variable)
           if (options.endpoint) this.appInitCode.endpoints.push(options.endpoint)
           if (options.middleware) this.appInitCode.middlewares.push(options.middleware)
         },
@@ -838,10 +842,13 @@ module.exports = Generator.extend({
       this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Health.git", majorVersion: 0),')
     }
 
-    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
+    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes(app: self)`)
     this.appInitCode.endpoints = this.appInitCode.endpoints.concat(initCodeForEndpoints)
 
-    if (this.hostSwagger) this.appInitCode.endpoints.push(`initializeSwaggerRoutes(path: projectPath + "/definitions/${this.projectName}.yaml")`)
+    if (this.hostSwagger) {
+      this.appInitCode.endpoints.push(`initializeSwaggerRoutes(app: self)`)
+      this.swaggerPath = `let swaggerPath = projectPath + "/definitions/${this.projectName}.yaml"`
+    }
   },
 
   generateSDKs: function () {
@@ -957,6 +964,7 @@ module.exports = Generator.extend({
             generatedModule: this.generatedModule,
             bluemix: this.bluemix,
             appInitCode: this.appInitCode,
+            swaggerPath: this.swaggerPath,
             web: this.web,
             healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
