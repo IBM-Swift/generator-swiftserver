@@ -5,10 +5,10 @@ import LoggerAPI
 var swiftMetrics: SwiftMetrics?
 var swiftMetricsDash: SwiftMetricsDash?
 
-func initializeMetrics() {
+func initializeMetrics(app: App) {
     do {
         let metrics = try SwiftMetrics()
-        let dashboard = try SwiftMetricsDash(swiftMetricsInstance: metrics, endpoint: router)
+        let dashboard = try SwiftMetricsDash(swiftMetricsInstance: metrics, endpoint: app.router)
 
         swiftMetrics = metrics
         swiftMetricsDash = dashboard

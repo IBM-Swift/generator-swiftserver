@@ -279,14 +279,14 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
       [metricsFile, 'swiftMetrics: SwiftMetrics'],
-      [metricsFile, 'func initializeMetrics()'],
+      [metricsFile, 'func initializeMetrics(app: App)'],
       [metricsFile, 'SwiftMetrics()'],
       [metricsFile, 'try SwiftMetricsDash(']
     ])
   })
 
   it('application initializes metrics', function () {
-    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics()')
+    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(app: self)')
   })
 }
 
@@ -480,7 +480,7 @@ exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, in
   })
 
   it(`application initializes ${serviceDescription}`, function () {
-    assert.fileContent(exports.applicationSourceFile, `try ${initFuncName}()`)
+    assert.fileContent(exports.applicationSourceFile, `try ${initFuncName}(cloudEnv: cloudEnv)`)
   })
 }
 
@@ -501,8 +501,9 @@ exports.autoscaling = {
       var autoscalingFile = `${exports.servicesSourceDir}/ServiceAutoscaling.swift`
       assert.fileContent([
         [autoscalingFile, 'import SwiftMetricsBluemix'],
-        [autoscalingFile, 'func initializeServiceAutoscaling()'],
-        [autoscalingFile, 'SwiftMetricsBluemix(']
+        [autoscalingFile, 'guard let swiftMetrics'],
+        [autoscalingFile, 'func initializeServiceAutoscaling(cloudEnv: CloudEnv)'],
+        [autoscalingFile, 'return autoscaling']
       ])
     })
   }
@@ -527,9 +528,9 @@ exports.cloudant = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import CouchDB'],
-        [serviceFile, 'couchDBClient: CouchDBClient'],
-        [serviceFile, 'func initializeServiceCloudant() throws'],
-        [serviceFile, 'CouchDBClient(']
+        [serviceFile, 'guard let cloudantCredentials'],
+        [serviceFile, 'func initializeServiceCloudant(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return couchDBClient']
       ])
     })
   }
@@ -554,11 +555,10 @@ exports.appid = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixAppID'],
-        [serviceFile, 'webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin'],
-        [serviceFile, 'kituraCredentials: Credentials'],
-        [serviceFile, 'func initializeServiceAppid() throws'],
+        [serviceFile, 'import class Credentials.Credentials'],
+        [serviceFile, 'func initializeServiceAppid(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'WebAppKituraCredentialsPlugin('],
-        [serviceFile, 'Credentials(']
+        [serviceFile, 'return kituraCredentials']
       ])
     })
   }
@@ -583,9 +583,9 @@ exports.watsonconversation = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import ConversationV1'],
-        [serviceFile, 'conversation: Conversation'],
-        [serviceFile, 'func initializeServiceWatsonConversation() throws'],
-        [serviceFile, 'Conversation(']
+        [serviceFile, 'let conversation = Conversation('],
+        [serviceFile, 'func initializeServiceWatsonConversation(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return conversation']
       ])
     })
   }
@@ -610,9 +610,9 @@ exports.pushnotifications = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixPushNotifications'],
-        [serviceFile, 'pushNotifications: PushNotifications'],
-        [serviceFile, 'func initializeServicePush() throws'],
-        [serviceFile, 'PushNotifications(']
+        [serviceFile, 'let pushNotifications = PushNotifications('],
+        [serviceFile, 'func initializeServicePush(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return pushNotifications']
       ])
     })
   }
@@ -637,9 +637,9 @@ exports.alertnotification = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import AlertNotifications'],
-        [serviceFile, 'serviceCredentials: ServiceCredentials'],
-        [serviceFile, 'func initializeServiceAlertNotification() throws'],
-        [serviceFile, 'ServiceCredentials(']
+        [serviceFile, 'let serviceCredentials = ServiceCredentials('],
+        [serviceFile, 'func initializeServiceAlertNotification(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return serviceCredentials']
       ])
     })
   }
@@ -664,9 +664,10 @@ exports.objectstorage = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixObjectStorage'],
-        [serviceFile, 'objStorage: ObjectStorage'],
-        [serviceFile, 'func initializeServiceObjectStorage() throws'],
-        [serviceFile, 'ObjectStorage(']
+        [serviceFile, 'func initializeServiceObjectStorage(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'guard let storageCredentials ='],
+        [serviceFile, 'guard let connectedObjectStorage ='],
+        [serviceFile, 'return connectedObjectStorage']
       ])
     })
   }
@@ -691,9 +692,8 @@ exports.redis = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import SwiftRedis'],
-        [serviceFile, 'redis = Redis('],
-        [serviceFile, 'redisCredentials: RedisCredentials'],
-        [serviceFile, 'func initializeServiceRedis() throws'],
+        [serviceFile, 'let redis = Redis('],
+        [serviceFile, 'func initializeServiceRedis(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getRedisCredentials(']
       ])
     })
@@ -720,7 +720,7 @@ exports.mongodb = {
       assert.fileContent([
         [serviceFile, 'import MongoKitten'],
         [serviceFile, 'mongodb = try Database('],
-        [serviceFile, 'func initializeServiceMongodb() throws'],
+        [serviceFile, 'func initializeServiceMongodb(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getMongoDBCredentials(']
       ])
     })
@@ -747,7 +747,7 @@ exports.postgresql = {
       assert.fileContent([
         [serviceFile, 'import SwiftKueryPostgreSQL'],
         [serviceFile, 'postgreSQLConn = PostgreSQLConnection('],
-        [serviceFile, 'func initializeServicePostgre() throws'],
+        [serviceFile, 'func initializeServicePostgre(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getPostgreSQLCredentials(']
       ])
     })
