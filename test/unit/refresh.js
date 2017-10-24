@@ -462,7 +462,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
 
         it('contains no Health references', function () {
-          assert.noFileContent('Package.swift', 'Health')
           assert.noFileContent('Sources/Application/Application.swift', 'Health')
         })
       })
@@ -992,6 +991,26 @@ describe('Unit tests for swiftserver:refresh', function () {
         it('aborted the generator with an error', function () {
           assert(error, 'Should throw an error')
           assert(error.match(/Getting server SDK.*failed/), 'Thrown error should be about failing to download server SDK, it was: ' + error)
+        })
+      })
+
+      describe('SDKGen package format is incorrect', function () {
+        var runContext
+        var error
+        before(function () {
+          mockSDKGen.mockServerSDKPackageRequest(serverSDKName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .withOptions({ specObj: spec })
+          return runContext.toPromise().catch((e) => { error = e })
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        it(`should throw error`, function () {
+          assert(error, 'SDKGEN Package dependency format is incompatible')
         })
       })
     })

@@ -65,6 +65,9 @@ public class App {
 <% appInitCode.capabilities.forEach(function(capability) { -%>
         <%- capability %>
 <% }); -%>
+    }
+}
+<% } -%>
 
 <% } -%>
 <% if (appInitCode.middlewares.length > 0) { -%>
