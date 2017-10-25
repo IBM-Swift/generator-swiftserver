@@ -461,9 +461,9 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('contains no Health references', function () {
-          assert.noFileContent('Sources/Application/Application.swift', 'Health')
-        })
+        commonTest.itHasNoApplicationModuleImports('Health', 'SwiftMetrics')
+        commonTest.itHasNoPackageDependencies('Health', 'SwiftMetrics')
+        commonTest.itHasNoApplicationModuleDependencies('Health', 'SwiftMetrics')
       })
 
       describe('with docker', function () {
@@ -1001,7 +1001,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           mockSDKGen.mockServerSDKPackageRequest(serverSDKName)
           runContext = helpers.run(refreshGeneratorPath)
                               .withOptions({ specObj: spec })
-          return runContext.toPromise().catch((e) => { error = e })
+          return runContext.toPromise().catch((e) => { error = e.message })
         })
 
         after(function () {
@@ -1010,7 +1010,8 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
 
         it(`should throw error`, function () {
-          assert(error, 'SDKGEN Package dependency format is incompatible')
+          assert(error, 'Should throw an error')
+          assert(error.match(/SDKGEN.*incompatible/), 'Thrown error should be about failing to parse SDK package dependency, it was: ' + error)
         })
       })
     })

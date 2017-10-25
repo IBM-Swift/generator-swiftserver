@@ -62,21 +62,18 @@ public class App {
     func postInit() throws {
 <% if (appInitCode.capabilities.length > 0) { -%>
         // Capabilities
-<% appInitCode.capabilities.forEach(function(capability) { -%>
+<%   appInitCode.capabilities.forEach(function(capability) { -%>
         <%- capability %>
-<% }); -%>
-    }
-}
-<% } -%>
-
+<%   }); -%>
 <% } -%>
 <% if (appInitCode.middlewares.length > 0) { -%>
+
         // Middleware
 <% appInitCode.middlewares.forEach(function(middleware) { -%>
         <%- middleware %>
 <% }); -%>
-
 <% } -%>
+
         // Endpoints
 <% appInitCode.endpoints.forEach(function(endpoint) { -%>
         <%- endpoint %>

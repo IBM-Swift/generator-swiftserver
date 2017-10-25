@@ -319,6 +319,7 @@ module.exports = Generator.extend({
       if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
       if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
       if (this.metrics) {
+        this.modules.push('"SwiftMetrics"')
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "1.0.0"),')
       }
@@ -843,6 +844,7 @@ module.exports = Generator.extend({
       endpointNames = endpointNames.concat(resourceNames)
     }
     if (this.healthcheck) {
+      this.modules.push('"Health"')
       endpointNames.push('Health')
       this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
     }
@@ -1086,7 +1088,6 @@ module.exports = Generator.extend({
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
             {
-              services: Object.keys(this.appInitCode.services).length > 0,
               resource: resource,
               routes: this.parsedSwagger.resources[resource],
               basepath: this.parsedSwagger.basepath
