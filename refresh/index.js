@@ -37,7 +37,6 @@ var getServerSDKAsync = sdkHelper.getServerSDKAsync
 module.exports = Generator.extend({
   constructor: function () {
     Generator.apply(this, arguments)
-
     // Allow the user to specify where the specification file is
     this.option('specfile', {
       desc: 'The location of the specification file.',
@@ -300,8 +299,11 @@ module.exports = Generator.extend({
       this.itemsToIgnore = []
 
       // Package dependencies to add to Package.swift
-      // eg this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 7),')
+      // eg this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from : "1.7.0")),')
       this.dependencies = []
+
+      // Module Dependencies to add to Package.swift
+      this.modules = []
 
       // Initialization code to add to Application.swift by code block
       // eg this.appInitCode.services.push('try initializeServiceCloudant()')
@@ -317,8 +319,9 @@ module.exports = Generator.extend({
       if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
       if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
       if (this.metrics) {
+        this.modules.push('"SwiftMetrics"')
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')
-        this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
+        this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "1.0.0"),')
       }
     },
 
@@ -477,7 +480,10 @@ module.exports = Generator.extend({
           if (options.endpoint) this.appInitCode.endpoints.push(options.endpoint)
           if (options.middleware) this.appInitCode.middlewares.push(options.middleware)
         },
-        injectDependency: dependency => { this.dependencies.push(dependency) }
+        injectDependency: dependency => { this.dependencies.push(dependency) },
+        injectModules: modules => {
+          this.modules.push(modules)
+        }
       }
     })
   },
@@ -838,8 +844,9 @@ module.exports = Generator.extend({
       endpointNames = endpointNames.concat(resourceNames)
     }
     if (this.healthcheck) {
+      this.modules.push('"Health"')
       endpointNames.push('Health')
-      this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Health.git", majorVersion: 0),')
+      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
     }
 
     var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes(app: self)`)
@@ -856,7 +863,6 @@ module.exports = Generator.extend({
     var shouldGenerateClient = (!!this.openApiDocumentBytes)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
     if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
-
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'))
     var generationTasks = []
     if (shouldGenerateClientWithModel) generationTasks.push(generateClientAsync.call(this, this.swagger))
@@ -1310,7 +1316,8 @@ module.exports = Generator.extend({
             generatedModule: this.generatedModule,
             applicationModule: this.applicationModule,
             sdkTargets: this.sdkTargets,
-            dependencies: this.dependencies
+            dependencies: this.dependencies,
+            modules: this.modules
           }
         )
       })

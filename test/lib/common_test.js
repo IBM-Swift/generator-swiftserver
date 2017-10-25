@@ -143,11 +143,20 @@ exports.itCreatedCommonFiles = function (executableModule) {
   })
 }
 
-exports.applicationImportsModules = function (moduleNameOrModuleNames) {
+exports.itHasApplicationModuleImports = function (moduleNameOrModuleNames) {
   var moduleNames = Array.isArray(moduleNameOrModuleNames) ? moduleNameOrModuleNames : [moduleNameOrModuleNames]
   moduleNames.forEach(moduleName => {
     it(`application imports $(moduleName)`, function () {
       assert.fileContent(exports.applicationSourceFile, `import ${moduleName}`)
+    })
+  })
+}
+
+exports.itHasNoApplicationModuleImports = function (moduleNameOrModuleNames) {
+  var moduleNames = Array.isArray(moduleNameOrModuleNames) ? moduleNameOrModuleNames : [moduleNameOrModuleNames]
+  moduleNames.forEach(moduleName => {
+    it(`application doesn't import $(moduleName)`, function () {
+      assert.noFileContent(exports.applicationSourceFile, `import ${moduleName}`)
     })
   })
 }
@@ -236,6 +245,36 @@ exports.itHasPackageDependencies = function (depOrDeps) {
   })
 }
 
+exports.itHasNoPackageDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has no package dependency ${dep}`, function () {
+      assert.noFileContent(exports.packageFile, `/${dep}.git`)
+    })
+  })
+}
+
+//
+// Modules dependencies
+//
+
+exports.itHasApplicationModuleDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has pacakage module dependency ${dep}`, function () {
+      assert.fileContent(exports.packageFile, `"${dep}"`)
+    })
+  })
+}
+
+exports.itHasNoApplicationModuleDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has no package module dependency ${dep}`, function () {
+      assert.noFileContent(exports.packageFile, `"${dep}"`)
+    })
+  })
+}
 //
 // Build output
 //
