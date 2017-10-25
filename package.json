@@ -33,7 +33,6 @@
     "js-yaml": "^3.9.1",
     "request": "^2.81.0",
     "rimraf": "^2.5.2",
-    "ibm-openapi-support": "^0.0.9",
     "unzip2": "^0.2.5",
     "yeoman-generator": "^1.1.1"
   },
