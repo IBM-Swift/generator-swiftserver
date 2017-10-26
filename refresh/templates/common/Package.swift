@@ -30,7 +30,7 @@ let package = Package(
       ]),
 <%  } -%>
 <%  if (appType === 'crud') { -%>
-      .target(name: "<%- generatedModule %>", dependencies: ["Kitura","Configuration", "CloudEnvironment",<% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
+      .target(name: "<%- generatedModule %>", dependencies: ["Kitura","Configuration", "CloudEnvironment","SwiftyJSON", <% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
 <%  } _%>
 
       .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "<%- applicationModule %>"), "Kitura","HeliumLogger" ])

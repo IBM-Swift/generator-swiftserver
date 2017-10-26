@@ -357,7 +357,10 @@ module.exports = Generator.extend({
       }
 
       if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
-      if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+      if (this.appType === 'crud') {
+        this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+        this.dependencies.push('.package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),')
+      }
       if (this.metrics) {
         this.modules.push('"SwiftMetrics"')
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')

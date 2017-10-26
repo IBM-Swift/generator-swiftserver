@@ -4,7 +4,6 @@ import KituraNet
 import XCTest
 import HeliumLogger
 import LoggerAPI
-import SwiftyJSON
 
 @testable import <%- applicationModule %>
 
