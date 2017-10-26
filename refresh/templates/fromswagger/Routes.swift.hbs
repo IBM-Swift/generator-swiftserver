@@ -14,12 +14,12 @@
  * limitations under the License.
 --}}
 import Kitura
-import SwiftyJSON
+import KituraContracts
 
 func initialize{{resource}}Routes(app: App) {
 {{#each routes}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
-        response.send(json: [:])
+        response.send([:])
         next()
     }
 {{#if @last}}
