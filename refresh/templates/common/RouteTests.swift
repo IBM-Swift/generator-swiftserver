@@ -9,7 +9,7 @@ import SwiftyJSON
 @testable import <%- applicationModule %>
 
 class RouteTests: XCTestCase {
-
+    static var port: Int!
     static var allTests : [(String, (RouteTests) -> () throws -> Void)] {
         return [
             ("testGetStatic", testGetStatic)
@@ -26,8 +26,9 @@ class RouteTests: XCTestCase {
             print("------------------------------")
 
             let app = try App()
+            RouteTests.port = app.cloudEnv.port
             try app.postInit()
-            Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: app.router)
+            Kitura.addHTTPServer(onPort: RouteTests.port, with: app.router)
             Kitura.start()
         } catch {
             XCTFail("Couldn't start <%- applicationModule %> test server: \(error)")
@@ -65,7 +66,7 @@ class RouteTests: XCTestCase {
 private extension URLRequest {
 
     init?(forTestWithMethod method: String, route: String = "", body: Data? = nil) {
-        if let url = URL(string: "http://127.0.0.1:\(<%- applicationModule %>.port)/" + route){
+        if let url = URL(string: "http://127.0.0.1:\(RouteTests.port)/" + route){
             self.init(url: url)
             addValue("application/json", forHTTPHeaderField: "Content-Type")
             httpMethod = method
