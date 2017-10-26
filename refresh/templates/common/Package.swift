@@ -24,13 +24,15 @@ let package = Package(
 <%    }); -%>
       ]),
 <%    Object.keys(sdkTargets).forEach(function(target) { -%>
-      .target(name: "<%- sdkTargets[target] %>", dependencies: ["ObjectMapper","SimpleHttpClient"], path: "Sources/<%- sdkTargets[target] %>" )
+      .target(name: "<%- sdkTargets[target] %>", dependencies: ["ObjectMapper","SimpleHttpClient"], path: "Sources/<%- sdkTargets[target] %>" ),
 <%    }); -%>
 <%  }else { _%>
       ]),
 <%  } -%>
 <%  if (appType === 'crud') { -%>
-      .target(name: "<%- generatedModule %>", dependencies: ["Kitura","Configuration", "CloudEnvironment"], path: "Sources/<%- generatedModule %>"),
+      .target(name: "<%- generatedModule %>", dependencies: ["Kitura","Configuration", "CloudEnvironment",<% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
 <%  } _%>
+
+      .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "<%- applicationModule %>"), "Kitura","HeliumLogger" ])
     ]
 )
