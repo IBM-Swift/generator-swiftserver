@@ -222,6 +222,46 @@ module.exports = Generator.extend({
         }
       }
 
+      // NOTE(tunniclm): Set the domain based on the push notification
+      // region to expose it to the service enablement subgenerator
+      if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
+        var push = this.services.pushnotifications[0]
+        switch (push.region) {
+          case 'UK': this.bluemix.server.domain = 'eu-gb.bluemix.net'; break
+          case 'SYDNEY': this.bluemix.server.domain = 'au-syd.bluemix.net'; break
+          case 'US_SOUTH': this.bluemix.server.domain = 'ng.bluemix.net'; break
+          // default: don't alter domain
+        }
+      }
+      // NOTE(tunniclm): Convert our format for specifying services
+      // into the one used by generator-ibm-service-enablement
+      var serviceMapping = {
+        'appid': 'auth',
+        'objectstorage': 'objectStorage',
+        'cloudant': 'cloudant',
+        'watsonconversation': 'conversation',
+        'redis': 'redis',
+        'mongodb': 'mongodb',
+        'postgresql': 'postgresql',
+        'alertnotification': 'alertnotification',
+        'pushnotifications': 'push',
+        'autoscaling': 'autoscaling'
+      }
+      Object.keys(serviceMapping).forEach(serviceType => {
+        var bluemixServiceProperty = serviceMapping[serviceType]
+        var servicesOfType = this.services[serviceType]
+        if (servicesOfType && servicesOfType.length > 0) {
+          // NOTE: for now only handle 1 service
+          var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
+          this.bluemix[bluemixServiceProperty] = service.credentials || {}
+          this.bluemix[bluemixServiceProperty].serviceInfo = {
+            name: servicesOfType[0].name,
+            label: servicesOfType[0].label,
+            plan: servicesOfType[0].plan
+          }
+        }
+      })
+
       // Docker configuration
       this.docker = (this.spec.docker === true)
 
@@ -422,55 +462,9 @@ module.exports = Generator.extend({
   configuring: function () {
     if (this.existingProject) return
 
-    var bluemixOption = {
-      backendPlatform: 'SWIFT',
-      name: this.projectName, // TODO: check this is the right name
-      server: {
-        name: this.projectName // TODO: check this is the right name
-      }
-    }
-    // NOTE(tunniclm): Set the domain based on the push notification
-    // region to expose it to the service enablement subgenerator
-    if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
-      var push = this.services.pushnotifications[0]
-      switch (push.region) {
-        case 'UK': bluemixOption.server.domain = 'eu-gb.bluemix.net'; break
-        case 'SYDNEY': bluemixOption.server.domain = 'au-syd.bluemix.net'; break
-        case 'US_SOUTH': bluemixOption.server.domain = 'ng.bluemix.net'; break
-        // default: don't alter domain
-      }
-    }
-    // NOTE(tunniclm): Convert our format for specifying services
-    // into the one used by generator-ibm-service-enablement
-    var serviceMapping = {
-      'appid': 'auth',
-      'objectstorage': 'objectStorage',
-      'cloudant': 'cloudant',
-      'watsonconversation': 'conversation',
-      'redis': 'redis',
-      'mongodb': 'mongodb',
-      'postgresql': 'postgresql',
-      'alertnotification': 'alertnotification',
-      'pushnotifications': 'push',
-      'autoscaling': 'autoscaling'
-    }
-    Object.keys(serviceMapping).forEach(serviceType => {
-      var bluemixServiceProperty = serviceMapping[serviceType]
-      var servicesOfType = this.services[serviceType]
-      if (servicesOfType && servicesOfType.length > 0) {
-        // NOTE: for now only handle 1 service
-        var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
-        bluemixOption[bluemixServiceProperty] = service.credentials || {}
-        bluemixOption[bluemixServiceProperty].serviceInfo = {
-          name: servicesOfType[0].name,
-          label: servicesOfType[0].label,
-          plan: servicesOfType[0].plan
-        }
-      }
-    })
     this.composeWith(require.resolve('generator-ibm-service-enablement'), {
       quiet: true,
-      bluemix: JSON.stringify(bluemixOption),
+      bluemix: JSON.stringify(this.bluemix),
       parentContext: {
         injectIntoApplication: options => {
           if (options.capability) this.appInitCode.capabilities.push(options.capability)
