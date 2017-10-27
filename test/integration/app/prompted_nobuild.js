@@ -80,7 +80,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         'Health'
       ])
 
-      commonTest.applicationImportsModules([
+      commonTest.itHasApplicationModuleImports([
         'Kitura',
         'CloudEnvironment',
         'Health'
@@ -1234,6 +1234,29 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
       commonTest.itCreatedMetricsFilesWithExpectedContent()
       commonTest.autoscaling.itCreatedServiceFilesWithExpectedContent('myAutoscalingService')
+    })
+
+    describe('with --init flag set', function () {
+      var runContext
+      var appName = 'fishcakes'
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true, init: true })
+                            .inTmpDir(function (tmpDir) {
+                              this.inDir(path.join(tmpDir, appName))
+                            })
+
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedCommonFiles(appName)
+      commonTest.itCreatedMetricsFilesWithExpectedContent()
+      commonTest.itCreatedDockerFilesWithExpectedContent(appName)
     })
   })
 

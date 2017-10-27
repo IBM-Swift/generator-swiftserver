@@ -268,7 +268,7 @@ To build the two docker images, run the following commands from the root directo
 You may customize the names of these images by specifying a different value after the `-t` option.
 
 To compile the application using the tools docker image, run:
-* `docker run -v $PWD:/root/project -w /root/project myapp-build /root/utils/tools-utils.sh build release`
+* `docker run -v $PWD:/root/project -w /root/project myapp-build /swift-utils/tools-utils.sh build release`
 
 To run the application:
 * `docker run -it -p 8080:8080 -v $PWD:/root/project -w /root/project myapp-run sh -c .build-ubuntu/release/<%- executableName %>`

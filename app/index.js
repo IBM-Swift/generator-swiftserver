@@ -42,6 +42,12 @@ module.exports = Generator.extend({
       type: String
     })
 
+    this.option('init', {
+      type: Boolean,
+      desc: 'Generate basic default scaffold without prompting user for input.',
+      defaults: false
+    })
+
     this.option('skip-build', {
       type: Boolean,
       desc: 'Skip building the generated application',
@@ -59,7 +65,19 @@ module.exports = Generator.extend({
     ensureNotInProject: actions.ensureNotInProject,
 
     initSpec: function () {
-      if (this.options.spec) {
+      if (this.options.init) {
+        // User passed the --init flag, so no prompts, just generate basic default scaffold
+        this.destinationSet = true
+        this.skipPrompting = true
+        this.appPattern = 'Basic'
+        this.spec = {
+          appType: 'scaffold',
+          appName: this.appname,
+          docker: true,
+          metrics: true,
+          services: {}
+        }
+      } else if (this.options.spec) {
         try {
           this.spec = JSON.parse(this.options.spec)
           this.skipPrompting = true
@@ -71,6 +89,9 @@ module.exports = Generator.extend({
 
     initAppName: function () {
       if (this.skipPrompting) return
+
+      // save the initial directory for use by the fromSwagger processing.
+      this.initialWorkingDir = process.cwd()
 
       this.appname = null // Discard yeoman default appname
       this.skipPromptingAppName = false
@@ -89,9 +110,6 @@ module.exports = Generator.extend({
           this.log(validation)
         }
       }
-
-      // save the initial directory for use by the fromSwagger processing.
-      this.initialWorkingDir = process.cwd()
 
       if (this.appname === null) {
         // Fall back to name of current working directory
@@ -146,7 +164,6 @@ module.exports = Generator.extend({
       if (this.appname === path.basename(this.destinationRoot())) {
         // When the project name is the same as the current directory,
         // we are assuming the user has already created the project dir
-        this.log('working directory is %s', path.basename(this.destinationRoot()))
         this.destinationSet = true
         return
       }
@@ -402,7 +419,7 @@ module.exports = Generator.extend({
         'MongoDB',
         'PostgreSQL',
         'Object Storage',
-        'AppID',
+        // 'AppID',
         'Auto-scaling',
         'Watson Conversation',
         'Alert Notification',
