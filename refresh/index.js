@@ -364,7 +364,7 @@ module.exports = Generator.extend({
       if (this.metrics) {
         this.modules.push('"SwiftMetrics"')
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')
-        this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "1.0.0"),')
+        this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
       }
     },
 
