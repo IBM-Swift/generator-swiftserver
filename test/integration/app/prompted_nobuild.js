@@ -80,7 +80,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         'Health'
       ])
 
-      commonTest.applicationImportsModules([
+      commonTest.itHasApplicationModuleImports([
         'Kitura',
         'CloudEnvironment',
         'Health'

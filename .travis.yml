@@ -14,7 +14,7 @@ os:
 - linux
 - osx
 dist: trusty
-osx_image: xcode8
+osx_image: xcode9
 before_install:
 - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
@@ -24,7 +24,7 @@ script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
-- export SWIFT_SNAPSHOT=swift-3.1.1
+- export SWIFT_SNAPSHOT=swift-4.0
 - source ./Package-Builder/install-swift.sh
 - if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then npm run testsdkgen; fi
 - if [[ $TRAVIS_EVENT_TYPE != "cron" ]]; then npm run coverage && npm run report-coverage; fi
