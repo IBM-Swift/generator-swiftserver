@@ -3,6 +3,7 @@ import Kitura
 import LoggerAPI
 import Configuration
 import CloudEnvironment
+import KituraContracts
 <% if (appType === 'crud') { -%>
 import <%- generatedModule %>
 <% } -%>
