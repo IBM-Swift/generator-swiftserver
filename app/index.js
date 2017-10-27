@@ -419,7 +419,7 @@ module.exports = Generator.extend({
         'MongoDB',
         'PostgreSQL',
         'Object Storage',
-        'AppID',
+        // 'AppID',
         'Auto-scaling',
         'Watson Conversation',
         'Alert Notification',
