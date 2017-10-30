@@ -19,7 +19,7 @@ import KituraContracts
 func initialize{{resource}}Routes(app: App) {
 {{#each routes}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
-        response.send([:])
+        response.send(json: [:])
         next()
     }
 {{#if @last}}
