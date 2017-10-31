@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.0"></a>
+# [4.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.0.0...4.1.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* re-enable appid tests ([e14bfac](https://github.com/IBM-Swift/generator-swiftserver/commit/e14bfac))
+* update alert notification service name ([46ed086](https://github.com/IBM-Swift/generator-swiftserver/commit/46ed086))
+* use json: [:] return type ([#366](https://github.com/IBM-Swift/generator-swiftserver/issues/366)) ([220dc8e](https://github.com/IBM-Swift/generator-swiftserver/commit/220dc8e))
+
+
+### Features
+
+* **deps:** generator-ibm-service-enablement@0.0.104 ([333689c](https://github.com/IBM-Swift/generator-swiftserver/commit/333689c))
+* re-enable appid prompting ([7259a5a](https://github.com/IBM-Swift/generator-swiftserver/commit/7259a5a))
+
+
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/3.1.1...4.0.0) (2017-10-27)
 
