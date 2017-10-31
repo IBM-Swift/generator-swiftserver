@@ -235,6 +235,7 @@ module.exports = Generator.extend({
       }
       // NOTE(tunniclm): Convert our format for specifying services
       // into the one used by generator-ibm-service-enablement
+      // Mapping from our format (keys) to bluemix (values)
       var serviceMapping = {
         'appid': 'auth',
         'objectstorage': 'objectStorage',
@@ -243,7 +244,7 @@ module.exports = Generator.extend({
         'redis': 'redis',
         'mongodb': 'mongodb',
         'postgresql': 'postgresql',
-        'alertnotification': 'alertnotification',
+        'alertnotification': 'alertNotification',
         'pushnotifications': 'push',
         'autoscaling': 'autoscaling'
       }
