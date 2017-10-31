@@ -1,6 +1,6 @@
 {
   "name": "generator-swiftserver",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
