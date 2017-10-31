@@ -10,7 +10,7 @@ This module is a [Yeoman](http://yeoman.io) generator for creating REST webservi
 This generator and the Yeoman library runs on Node.js and generates a Swift 4 application.
 
 ## Installation
-To use this module, you will need Node.js and Swift 4 installed on your Linux or macOS system. You can get Node.js from https://nodejs.org and Swift 4 from https://swift.org/download.
+To use this module, you will need Node.js and Swift 4 installed on your Linux/macOS system. You can get Node.js from https://nodejs.org and Swift 4 from https://swift.org/download.
 
 You will also need the Yeoman command line utility [yo](https://github.com/yeoman/yo) installed in your global Node.js module directory.  
 To install yo, use: `npm install -g yo`  
