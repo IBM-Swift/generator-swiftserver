@@ -141,7 +141,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appName: 'myapp',
                                 bluemix: {
                                   backendPlatform: 'SWIFT',
-                                  objectStorage: [{ serviceInfo: {} }]
+                                  objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
                                 }
                               }
                             })
@@ -361,7 +361,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           models: [ todoModel ],
           docker: true,
           bluemix: {
-            // TODO change this to serviceInfo format!
             backendPlatform: 'SWIFT',
             auth: { serviceInfo: { name: 'myAppIDService' } },
             cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],

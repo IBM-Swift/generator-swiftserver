@@ -1270,7 +1270,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { objectStorage: {} }
+          services: { objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }] }
         }))
       })
 
@@ -1420,7 +1420,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { conversation: {} }
+          services: { conversation: { serviceInfo: {label: 'conversation'} } }
         }))
       })
 
@@ -1494,7 +1494,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { alertNotification: {} }
+          services: { alertNotification: { serviceInfo: {label: 'AlertNotification'} } }
         }))
       })
 

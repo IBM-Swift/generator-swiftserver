@@ -61,20 +61,20 @@ module.exports = Generator.extend({
     })
   },
 
-  _isTrue: function (value) {
-    return (value === true || value === 'true')
-  },
-
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
     initSpec: function () {
+      function isTrue (value) {
+        return (value === true || value === 'true')
+      }
+
       if (this.options.bluemix) {
         this.skipPrompting = true
 
         var appName = this.options.bluemix.name
-        var metrics = this._isTrue(this.options.metrics) || undefined
-        var docker = this._isTrue(this.options.docker) || undefined
+        var metrics = isTrue(this.options.metrics) || undefined
+        var docker = isTrue(this.options.docker) || undefined
 
         var web = (this.appType === 'web' || this.appType === 'bff' || undefined)
         var hostSwagger = (this.appType === 'bff' || undefined)
@@ -532,7 +532,7 @@ module.exports = Generator.extend({
         // NOTE(tunniclm): no need to do anything for memory it is the default
         // if no crudservice is passed to the refresh generator
         if (answer.store === 'Cloudant') {
-          this._addService('cloudant', 'crudDataStore', true)
+          this._addService('cloudant', 'crudDataStore')
           this.crudservice = 'crudDataStore'
         }
       })
@@ -651,8 +651,6 @@ module.exports = Generator.extend({
       })
     },
 
-    // TODO: and so on (be careful about whether each service is a
-    // 1-element array or just stored directly)
     promptConfigureRedis: function () {
       if (this.skipPrompting) return
       if (!this.servicesToConfigure) return
@@ -783,6 +781,8 @@ module.exports = Generator.extend({
       if (this.skipPrompting) return
       if (!this.servicesToConfigure) return
       if (!this.servicesToConfigure.conversation) return
+
+      this.log()
       this.log('Configure Watson Conversation')
       var prompts = [
         { name: 'watsonConversationName', message: 'Enter name (blank for default):' },
