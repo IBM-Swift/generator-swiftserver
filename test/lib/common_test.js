@@ -581,7 +581,7 @@ exports.appid = {
     var description = 'appid'
     var mapping = 'appid'
     var label = 'AppID'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('appid')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('auth')
     var sourceFile = 'ServiceAppid.swift'
     var initFunction = 'initializeServiceAppid'
 
@@ -609,7 +609,7 @@ exports.watsonconversation = {
     var description = 'watson conversation'
     var mapping = 'watson_conversation'
     var label = 'conversation'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('watsonconversation')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('conversation')
     var sourceFile = 'ServiceWatsonConversation.swift'
     var initFunction = 'initializeServiceWatsonConversation'
 
@@ -636,7 +636,7 @@ exports.pushnotifications = {
     var description = 'push notifications'
     var mapping = 'push'
     var label = 'imfpush'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('pushnotifications')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('push')
     var sourceFile = 'ServicePush.swift'
     var initFunction = 'initializeServicePush'
 
@@ -663,7 +663,7 @@ exports.alertnotification = {
     var description = 'alert notification'
     var mapping = 'alert_notification'
     var label = 'AlertNotification'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertnotification')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertNotification')
     var sourceFile = 'ServiceAlertNotification.swift'
     var initFunction = 'initializeServiceAlertNotification'
 
@@ -690,7 +690,7 @@ exports.objectstorage = {
     var description = 'object storage'
     var mapping = 'object_storage'
     var label = 'Object-Storage'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectstorage')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectStorage')
     var sourceFile = 'ServiceObjectStorage.swift'
     var initFunction = 'initializeServiceObjectStorage'
 
@@ -754,7 +754,7 @@ exports.mongodb = {
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
-    it('redis boilerplate contains expected content', function () {
+    it('mongodb boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import MongoKitten'],
