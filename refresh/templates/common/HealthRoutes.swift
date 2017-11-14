@@ -1,7 +1,7 @@
 import LoggerAPI
 
-func initializeHealthRoutes() {
-    router.get("/health") { request, response, _ in
+func initializeHealthRoutes(app: App) {
+    app.router.get("/health") { request, response, _ in
         let result = health.status.toSimpleDictionary()
         if health.status.state == .UP {
             try response.send(json: result).end()

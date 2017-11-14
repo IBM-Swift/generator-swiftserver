@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.1.0"></a>
+# [4.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.0.0...4.1.0) (2017-10-31)
+
+
+### Bug Fixes
+
+* re-enable appid tests ([e14bfac](https://github.com/IBM-Swift/generator-swiftserver/commit/e14bfac))
+* update alert notification service name ([46ed086](https://github.com/IBM-Swift/generator-swiftserver/commit/46ed086))
+* use json: [:] return type ([#366](https://github.com/IBM-Swift/generator-swiftserver/issues/366)) ([220dc8e](https://github.com/IBM-Swift/generator-swiftserver/commit/220dc8e))
+
+
+### Features
+
+* **deps:** generator-ibm-service-enablement@0.0.104 ([333689c](https://github.com/IBM-Swift/generator-swiftserver/commit/333689c))
+* re-enable appid prompting ([7259a5a](https://github.com/IBM-Swift/generator-swiftserver/commit/7259a5a))
+
+
+
+<a name="4.0.0"></a>
+# [4.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/3.1.1...4.0.0) (2017-10-27)
+
+
+### Features
+
+* --init option to generate a default application ([#352](https://github.com/IBM-Swift/generator-swiftserver/issues/352)) ([d8a5e0b](https://github.com/IBM-Swift/generator-swiftserver/commit/d8a5e0b))
+* import KituraContracts in Application.swift ([#363](https://github.com/IBM-Swift/generator-swiftserver/issues/363)) ([6bc757b](https://github.com/IBM-Swift/generator-swiftserver/commit/6bc757b))
+* update to kitura 2 with related changes ([#364](https://github.com/IBM-Swift/generator-swiftserver/issues/364)) ([f22b167](https://github.com/IBM-Swift/generator-swiftserver/commit/f22b167))
+* update to Swift 4, refactor application, prometheus, fix docker ([#358](https://github.com/IBM-Swift/generator-swiftserver/issues/358)) ([e386950](https://github.com/IBM-Swift/generator-swiftserver/commit/e386950))
+
+
+### BREAKING CHANGES
+
+* Support for AppID service disabled (temporarily), major version update in dependency Kitura
+* Not back-compatible with Swift 3
+
+
+
 <a name="3.1.1"></a>
 ## [3.1.1](https://github.com/IBM-Swift/generator-swiftserver/compare/3.1.0...3.1.1) (2017-10-17)
 
