@@ -129,36 +129,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
-    describe('invalid service', function () {
-      var runContext
-      var error = null
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: 'myapp',
-                                services: {
-                                  objectstorage: {}
-                                }
-                              }
-                            })
-        return runContext.toPromise().catch(function (err) {
-          error = err
-        })
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      it('aborted the generator with an error', function () {
-        assert(error, 'Should throw an error')
-        assert(error.message.match('services.objectstorage must be an array'), 'Thrown error should be about invalid service value, it was: ' + error)
-      })
-    })
-
     describe('service missing name', function () {
       var runContext
       var error = null
@@ -169,8 +139,9 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: 'myapp',
-                                services: {
-                                  objectstorage: [{}]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
                                 }
                               }
                             })
@@ -201,6 +172,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: 'myapp',
                                 bluemix: {
+                                  backendPlatform: 'SWIFT',
                                   openApiServers: [{ spec: '{ swagger doc }' }]
                                 },
                                 fromSwagger: '/path/to/swagger/file'
@@ -388,16 +360,17 @@ describe('Unit tests for swiftserver:refresh', function () {
           appName: applicationName,
           models: [ todoModel ],
           docker: true,
-          services: {
-            appid: [{ name: 'myAppIDService' }],
-            cloudant: [{ name: 'myCloudantService' }],
-            redis: [{ name: 'myRedisService' }],
-            mongodb: [{ name: 'myMongoDBService' }],
-            objectstorage: [{ name: 'myObjectStorageService' }],
-            watsonconversation: [{ name: 'myConversationService' }],
-            pushnotifications: [{ name: 'myPushService' }],
-            alertnotification: [{ name: 'myAlertService' }],
-            autoscaling: [{ name: 'myAutoscalingService' }]
+          bluemix: {
+            backendPlatform: 'SWIFT',
+            auth: { serviceInfo: { name: 'myAppIDService' } },
+            cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
+            redis: { serviceInfo: { name: 'myRedisService' } },
+            mongodb: { serviceInfo: { name: 'myMongoDBService' } },
+            objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }],
+            conversation: { serviceInfo: { name: 'myConversationService' } },
+            push: { serviceInfo: { name: 'myPushService' } },
+            alertNotification: { serviceInfo: { name: 'myAlertService' } },
+            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
           },
           crudservice: 'myCloudantService'
         }
@@ -479,6 +452,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   models: [ todoModel ],
                                   docker: true,
                                   bluemix: {
+                                    backendPlatform: 'SWIFT',
                                     server: {
                                       domain: 'mydomain.net',
                                       cloudDeploymentType: 'Kube',
@@ -597,8 +571,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   appType: 'crud',
                                   appName: applicationName,
                                   models: [ todoModel ],
-                                  services: {
-                                    autoscaling: [{ name: 'myAutoscalingService' }]
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: { services: ['myAutoscalingService'] },
+                                    autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
                                   }
                                 }
                               })
@@ -626,8 +602,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   appType: 'crud',
                                   appName: applicationName,
                                   models: [ todoModel ],
-                                  services: {
-                                    cloudant: [{ name: 'myCloudantService' }]
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: { services: ['myCloudantService'] },
+                                    cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
                                   },
                                   crudservice: 'myCloudantService'
                                 }
@@ -774,6 +752,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: applicationName,
                                 bluemix: {
+                                  backendPlatform: 'SWIFT',
                                   server: {
                                     name: applicationName,
                                     host: 'myhost',
@@ -803,43 +782,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
-    describe('with incorrect custom bluemix options', function () {
-      var runContext
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  server: {
-                                    name: {},
-                                    host: {},
-                                    domain: true
-                                  }
-                                }
-                              }
-                            })
-        return runContext.toPromise()
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      it('cloudfoundry manifest contains fallback content', function () {
-        assert.fileContent([
-          [ cloudFoundryManifestFile, `name: ${applicationName}` ],
-          [ cloudFoundryManifestFile, 'random-route: true' ]
-        ])
-        assert.noFileContent([
-          [ cloudFoundryManifestFile, 'host: myhost' ],
-          [ cloudFoundryManifestFile, 'domain: mydomain.net' ]
-        ])
-      })
-    })
-
     describe('with docker', function () {
       var runContext
 
@@ -852,6 +794,7 @@ describe('Unit tests for swiftserver:refresh', function () {
               appName: applicationName,
               docker: true,
               bluemix: {
+                backendPlatform: 'SWIFT',
                 server: {
                   domain: 'mydomain.net'
                 }
@@ -1347,6 +1290,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                     appType: 'scaffold',
                                     appName: applicationName,
                                     bluemix: {
+                                      backendPlatform: 'SWIFT',
                                       openApiServers: [{ spec: JSON.stringify(swagger) }]
                                     }
                                   }
@@ -1528,8 +1472,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  cloudant: [{ name: 'name with spaces' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['name with spaces'] },
+                                  cloudant: [{ serviceInfo: { name: 'name with spaces' } }]
                                 }
                               }
                             })
@@ -1552,8 +1498,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  cloudant: [{ name: 'myCloudantService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myCloudantService'] },
+                                  cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
                                 }
                               }
                             })
@@ -1577,8 +1525,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  autoscaling: [{ name: 'myAutoscalingService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAutoscalingService'] },
+                                  autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
                                 }
                               }
                             })
@@ -1602,8 +1552,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  appid: [{ name: 'myAppidService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAppidService'] },
+                                  auth: { serviceInfo: { name: 'myAppidService' } }
                                 }
                               }
                             })
@@ -1627,8 +1579,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  watsonconversation: [{ name: 'myConversationService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myConversationService'] },
+                                  conversation: { serviceInfo: { name: 'myConversationService' } }
                                 }
                               }
                             })
@@ -1652,8 +1606,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  pushnotifications: [{ name: 'myPushService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myPushService'] },
+                                  push: { serviceInfo: { name: 'myPushService' } }
                                 }
                               }
                             })
@@ -1677,8 +1633,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  alertnotification: [{ name: 'myAlertService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAlertService'] },
+                                  alertNotification: { serviceInfo: { name: 'myAlertService' } }
                                 }
                               }
                             })
@@ -1702,8 +1660,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  objectstorage: [{ name: 'myObjectStorageService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myObjectStorageService'] },
+                                  objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }]
                                 }
                               }
                             })
@@ -1727,8 +1687,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  redis: [{ name: 'myRedisService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myRedisService'] },
+                                  redis: { serviceInfo: { name: 'myRedisService' } }
                                 }
                               }
                             })
@@ -1752,8 +1714,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  mongodb: [{ name: 'myMongoDBService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: [ 'myMongoDBService' ] },
+                                  mongodb: { serviceInfo: { name: 'myMongoDBService' } }
                                 }
                               }
                             })
