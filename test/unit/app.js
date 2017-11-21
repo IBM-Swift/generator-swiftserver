@@ -36,6 +36,7 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
     var appType = opts.appType
     var appName = opts.appName
     var capabilities = opts.capabilities
+    var bluemix = opts.bluemix
     var services = opts.services
     var crudservice = opts.crudservice
     var fromSwagger = opts.fromSwagger
@@ -43,11 +44,10 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
     function hasCapability (name) {
       return (capabilities.indexOf(name) !== -1)
     }
-
     var spec = runContext.generator.spec
     var expectedSpec = {
-      appName: appName,
       appType: appType,
+      appName: appName,
       docker: hasCapability('docker') || undefined,
       metrics: hasCapability('metrics') || undefined,
       web: hasCapability('web') || undefined,
@@ -56,19 +56,12 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
       swaggerUI: hasCapability('swaggerUI') || undefined,
       fromSwagger: fromSwagger || undefined,
       serverSwaggerFiles: undefined,
-      services: {},
+      bluemix: bluemix || {},
       crudservice: crudservice || undefined
     }
     // deal with services
     Object.keys(services).forEach(serviceType => {
-      var expectedService = { credentials: {} }
-      if (services[serviceType].name) {
-        expectedService.name = services[serviceType].name
-      }
-      if (services[serviceType].credentials) {
-        expectedService.credentials = services[serviceType].credentials
-      }
-      expectedSpec.services[serviceType] = [expectedService]
+      expectedSpec.bluemix[serviceType] = services[serviceType]
     })
     assert.objectContent(spec, expectedSpec)
 
@@ -1040,14 +1033,14 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'myCloudantService',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'myCloudantService'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true
+              }]
             }
           }))
         })
@@ -1085,16 +1078,16 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              cloudant: {
-                name: 'myCloudantService',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true,
-                  username: 'admin',
-                  password: 'password123'
-                }
-              }
+              cloudant: [{
+                serviceInfo: {
+                  name: 'myCloudantService'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true,
+                username: 'admin',
+                password: 'password123'
+              }]
             }
           }))
         })
@@ -1163,12 +1156,12 @@ describe('Unit tests for swiftserver:app', function () {
           capabilities: [],
           services: {
             redis: {
-              name: 'myRedisService',
-              credentials: {
-                host: 'myhost',
-                port: 1234,
-                password: 'password1234'
-              }
+              serviceInfo: {
+                name: 'myRedisService'
+              },
+              host: 'myhost',
+              port: 1234,
+              password: 'password1234'
             }
           }
         }))
@@ -1238,13 +1231,13 @@ describe('Unit tests for swiftserver:app', function () {
           capabilities: [],
           services: {
             mongodb: {
-              name: 'myMongoService',
-              credentials: {
-                host: 'myhost',
-                port: 1234,
-                password: 'password1234',
-                database: 'mydb'
-              }
+              serviceInfo: {
+                name: 'myMongoService'
+              },
+              host: 'myhost',
+              port: 1234,
+              password: 'password1234',
+              database: 'mydb'
             }
           }
         }))
@@ -1277,7 +1270,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { objectstorage: {} }
+          services: { objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }] }
         }))
       })
 
@@ -1313,15 +1306,15 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            objectstorage: {
-              name: 'myObjectStorageService',
-              credentials: {
-                region: 'dallas',
-                projectId: 'myProjectId',
-                userId: 'admin',
-                password: 'password1234'
-              }
-            }
+            objectStorage: [{
+              serviceInfo: {
+                name: 'myObjectStorageService'
+              },
+              region: 'dallas',
+              projectId: 'myProjectId',
+              userId: 'admin',
+              password: 'password1234'
+            }]
           }
         }))
       })
@@ -1353,7 +1346,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { appid: {} }
+          services: { auth: {} }
         }))
       })
 
@@ -1388,13 +1381,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            appid: {
-              name: 'myAppIDService',
-              credentials: {
-                tenantId: 'myTenantId',
-                clientId: 'myClientId',
-                secret: 'mySecret'
-              }
+            auth: {
+              serviceInfo: {
+                name: 'myAppIDService'
+              },
+              tenantId: 'myTenantId',
+              clientId: 'myClientId',
+              secret: 'mySecret'
             }
           }
         }))
@@ -1427,7 +1420,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { watsonconversation: {} }
+          services: { conversation: { serviceInfo: {label: 'conversation'} } }
         }))
       })
 
@@ -1462,13 +1455,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            watsonconversation: {
-              name: 'myConversationService',
-              credentials: {
-                username: 'admin',
-                password: 'password1234',
-                url: 'https://myhost'
-              }
+            conversation: {
+              serviceInfo: {
+                name: 'myConversationService'
+              },
+              username: 'admin',
+              password: 'password1234',
+              url: 'https://myhost'
             }
           }
         }))
@@ -1501,7 +1494,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { alertnotification: {} }
+          services: { alertNotification: { serviceInfo: {label: 'AlertNotification'} } }
         }))
       })
 
@@ -1536,13 +1529,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            alertnotification: {
-              name: 'myAlertNotificationService',
-              credentials: {
-                name: 'admin',
-                password: 'password1234',
-                url: 'https://myhost'
-              }
+            alertNotification: {
+              serviceInfo: {
+                name: 'myAlertNotificationService'
+              },
+              name: 'admin',
+              password: 'password1234',
+              url: 'https://myhost'
             }
           }
         }))
@@ -1575,7 +1568,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { pushnotifications: {} }
+          services: { push: { serviceInfo: { label: 'imfpush' } } }
         }))
       })
 
@@ -1610,14 +1603,14 @@ describe('Unit tests for swiftserver:app', function () {
             appType: 'scaffold',
             appName: applicationName,
             capabilities: [],
+            bluemix: { server: { domain: 'ng.bluemix.net' } },
             services: {
-              pushnotifications: {
-                name: 'myPushNotificationsService',
-                region: 'US_SOUTH',
-                credentials: {
-                  appGuid: 'myAppGuid',
-                  appSecret: 'myAppSecret'
-                }
+              push: {
+                serviceInfo: {
+                  name: 'myPushNotificationsService'
+                },
+                appGuid: 'myAppGuid',
+                appSecret: 'myAppSecret'
               }
             }
           }))
@@ -1681,7 +1674,7 @@ describe('Unit tests for swiftserver:app', function () {
         appType: 'scaffold',
         appName: applicationName,
         capabilities: [],
-        services: { autoscaling: {} }
+        services: { autoscaling: { serviceInfo: { label: 'Auto-Scaling' } } }
       }))
     })
   })
@@ -1804,7 +1797,7 @@ describe('Unit tests for swiftserver:app', function () {
         appType: 'crud',
         appName: applicationName,
         capabilities: [],
-        services: { autoscaling: {} }
+        services: { autoscaling: { serviceInfo: { label: 'Auto-Scaling' } } }
       }))
     })
 
@@ -1834,7 +1827,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'crud',
           appName: applicationName,
           capabilities: [],
-          services: { cloudant: { name: 'crudDataStore' } },
+          services: { cloudant: [{ serviceInfo: { name: 'crudDataStore' } }] },
           crudservice: 'crudDataStore'
         }))
       })
@@ -1870,14 +1863,14 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'crudDataStore',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'crudDataStore'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true
+              }]
             },
             crudservice: 'crudDataStore'
           }))
@@ -1915,16 +1908,16 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'crudDataStore',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true,
-                  username: 'admin',
-                  password: 'password123'
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'crudDataStore'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true,
+                username: 'admin',
+                password: 'password123'
+              }]
             },
             crudservice: 'crudDataStore'
           }))

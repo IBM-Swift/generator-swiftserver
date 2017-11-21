@@ -148,121 +148,51 @@ module.exports = Generator.extend({
         this.env.error(chalk.red('Property appName is missing from the specification'))
       }
 
-      // Service configuration
-      this.services = this.spec.services || {}
-
       // Bluemix configuration
-      this.bluemix = {
-        backendPlatform: 'SWIFT',
-        name: helpers.sanitizeAppName(this.projectName),
-        server: {
-          name: helpers.sanitizeAppName(this.projectName),
-          env: {}
-        }
-      }
-      if (Object.keys(this.services).length > 0) {
-        this.bluemix.server.services = []
+      // Ensure minimal default bluemix properties are set
+      this.bluemix = this.spec.bluemix || {}
+      this.bluemix.backendPlatform = this.bluemix.backendPlatform || 'SWIFT'
+      this.bluemix.name = this.bluemix.name || helpers.sanitizeAppName(this.projectName)
+      this.bluemix.server = this.bluemix.server || {}
+      this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
+      this.bluemix.server.env = this.bluemix.server.env || {}
 
-        // Ensure every service has a credentials object, plan, & label
-        // and add the services to bluemix.server.services
-        Object.keys(this.services).forEach(function (serviceType) {
-          if (!Array.isArray(this.services[serviceType])) {
-            this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
-          }
-          this.services[serviceType].forEach(function (service, index) {
-            // TODO: Further checking that service name is valid?
-            if (!service.name) {
-              this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
-            }
-            if (!service.label) {
-              service.label = helpers.getBluemixServiceLabel(serviceType)
-            }
-            if (!service.plan) {
-              service.plan = helpers.getBluemixDefaultPlan(serviceType)
-            }
-            service.credentials = service.credentials || {}
-            this.bluemix.server.services.push(service.name)
-          }.bind(this))
-        }.bind(this))
+      function isServiceProperty (value) {
+        if (Array.isArray(value)) {
+          // All elements of the service array must have a serviceInfo property
+          return value.filter(element => element.serviceInfo).length === value.length
+        }
+        return !!value.serviceInfo
+      }
+      function getServiceProperties (bluemixObject) {
+        var servicePropNames = Object.keys(bluemixObject).filter(prop => isServiceProperty(bluemixObject[prop]))
+        var serviceProperties = servicePropNames.reduce((memo, servicePropName) => {
+          return Object.assign(memo, { [servicePropName]: bluemixObject[servicePropName] })
+        }, {})
+        return serviceProperties
       }
 
-      if (typeof (this.spec.bluemix) === 'object') {
-        if (typeof (this.spec.bluemix.name) === 'string') {
-          this.bluemix.server.name = this.spec.bluemix.name
-          this.bluemix.name = this.spec.bluemix.name
-        }
-        if (this.spec.bluemix.server) {
-          if (typeof (this.spec.bluemix.server.host) === 'string') {
-            this.bluemix.server.host = this.spec.bluemix.server.host
-          }
-          if (typeof (this.spec.bluemix.server.domain) === 'string') {
-            this.bluemix.server.domain = this.spec.bluemix.server.domain
-          }
-          if (typeof (this.spec.bluemix.server.memory) === 'string') {
-            this.bluemix.server.memory = this.spec.bluemix.server.memory
-          }
-          if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
-            this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
-          }
-          if (typeof (this.spec.bluemix.server.instances) === 'number') {
-            this.bluemix.server.instances = this.spec.bluemix.server.instances
-          }
-          if (typeof (this.spec.bluemix.server.namespace) === 'string') {
-            this.bluemix.server.namespace = this.spec.bluemix.server.namespace
-          }
-          if (typeof (this.spec.bluemix.server.cloudDeploymentType) === 'string') {
-            this.bluemix.server.cloudDeploymentType = this.spec.bluemix.server.cloudDeploymentType
-          }
-          if (typeof (this.spec.bluemix.server.cloudDeploymentOptions) === 'object') {
-            this.bluemix.server.cloudDeploymentOptions = this.spec.bluemix.server.cloudDeploymentOptions
-          }
-        }
-        if (typeof (this.spec.bluemix.openApiServers) === 'object') {
-          this.openApiServers = this.spec.bluemix.openApiServers
-        }
-      }
-
-      // NOTE(tunniclm): Set the domain based on the push notification
-      // region to expose it to the service enablement subgenerator
-      if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
-        var push = this.services.pushnotifications[0]
-        switch (push.region) {
-          case 'UK': this.bluemix.server.domain = 'eu-gb.bluemix.net'; break
-          case 'SYDNEY': this.bluemix.server.domain = 'au-syd.bluemix.net'; break
-          case 'US_SOUTH': this.bluemix.server.domain = 'ng.bluemix.net'; break
-          // default: don't alter domain
-        }
-      }
-      // NOTE(tunniclm): Convert our format for specifying services
-      // into the one used by generator-ibm-service-enablement
-      // Mapping from our format (keys) to bluemix (values)
-      var serviceMapping = {
-        'appid': 'auth',
-        'objectstorage': 'objectStorage',
-        'cloudant': 'cloudant',
-        'watsonconversation': 'conversation',
-        'redis': 'redis',
-        'mongodb': 'mongodb',
-        'postgresql': 'postgresql',
-        'alertnotification': 'alertNotification',
-        'pushnotifications': 'push',
-        'autoscaling': 'autoscaling'
-      }
-      Object.keys(serviceMapping).forEach(serviceType => {
-        var bluemixServiceProperty = serviceMapping[serviceType]
-        var servicesOfType = this.services[serviceType]
-        if (servicesOfType && servicesOfType.length > 0) {
-          // NOTE: for now only handle 1 service
-          var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
-          this.bluemix[bluemixServiceProperty] = service.credentials || {}
-          this.bluemix[bluemixServiceProperty].serviceInfo = {
-            name: servicesOfType[0].name,
-            label: servicesOfType[0].label,
-            plan: servicesOfType[0].plan
-          }
+      this.services = getServiceProperties(this.bluemix)
+      Object.keys(this.services).forEach(serviceType => {
+        var serviceOrServices = this.services[serviceType]
+        if (Array.isArray(serviceOrServices)) {
+          serviceOrServices.forEach((service, index) => {
+            var updatedService = helpers.sanitizeServiceAndFillInDefaults(serviceType, service)
+            helpers.validateServiceFields(serviceType, updatedService)
+            this.bluemix[serviceType][index] = updatedService
+            this.services[serviceType][index] = updatedService
+          })
+        } else {
+          var updatedService = helpers.sanitizeServiceAndFillInDefaults(serviceType, serviceOrServices)
+          helpers.validateServiceFields(serviceType, updatedService)
+          this.bluemix[serviceType] = updatedService
+          this.services[serviceType] = updatedService
         }
       })
 
+      if (typeof (this.bluemix.openApiServers) === 'object') {
+        this.openApiServers = this.bluemix.openApiServers
+      }
       // Docker configuration
       this.docker = (this.spec.docker === true)
 
@@ -300,7 +230,7 @@ module.exports = Generator.extend({
       this.metrics = (this.spec.metrics === true || undefined)
 
       // Autoscaling implies monitoring
-      if (this.services.autoscaling && this.services.autoscaling.length > 0) {
+      if (this.bluemix.autoscaling) {
         this.metrics = true
       }
 
@@ -465,7 +395,6 @@ module.exports = Generator.extend({
 
   configuring: function () {
     if (this.existingProject) return
-
     this.composeWith(require.resolve('generator-ibm-service-enablement'), {
       quiet: true,
       bluemix: JSON.stringify(this.bluemix),
@@ -966,7 +895,6 @@ module.exports = Generator.extend({
           {
             appType: this.appType,
             generatedModule: this.generatedModule,
-            bluemix: this.bluemix,
             appInitCode: this.appInitCode,
             swaggerPath: this.swaggerPath,
             web: this.web,
@@ -1058,20 +986,19 @@ module.exports = Generator.extend({
             appName: this.projectName,
             executableName: this.executableModule,
             generatorVersion: this.generatorVersion,
-            bluemix: this.bluemix,
             web: this.web,
             docker: this.docker,
             hostSwagger: this.hostSwagger,
             exampleEndpoints: this.exampleEndpoints,
             metrics: this.metrics,
-            autoscaling: this.services.autoscaling && this.services.autoscaling.length > 0,
-            cloudant: this.services.cloudant && this.services.cloudant.length > 0,
-            redis: this.services.redis && this.services.redis.length > 0,
-            objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
-            appid: this.services.appid && this.services.appid.length > 0,
-            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0,
-            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0,
-            pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
+            autoscaling: !!this.bluemix.autoscaling,
+            cloudant: this.bluemix.cloudant && this.bluemix.cloudant.length > 0,
+            redis: !!this.bluemix.redis,
+            objectStorage: this.bluemix.objectStorage && this.bluemix.objectStorage.length > 0,
+            auth: !!this.bluemix.auth,
+            conversation: !!this.bluemix.conversation,
+            alertNotification: !!this.bluemix.alertNotification,
+            push: !!this.bluemix.push
           }
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
@@ -1102,13 +1029,11 @@ module.exports = Generator.extend({
     createCRUD: function () {
       if (this.appType !== 'crud') return
 
-      if (this.bluemix) {
-        if (!this.fs.exists(this.destinationPath('README.md'))) {
-          this.fs.copy(
-            this.templatePath('bluemix', 'README.md'),
-            this.destinationPath('README.md')
-          )
-        }
+      if (!this.fs.exists(this.destinationPath('README.md'))) {
+        this.fs.copy(
+          this.templatePath('bluemix', 'README.md'),
+          this.destinationPath('README.md')
+        )
       }
 
       // Add the models to the spec
@@ -1129,8 +1054,10 @@ module.exports = Generator.extend({
         var serviceDef = null
         Object.keys(services).forEach(function (serviceType) {
           if (serviceDef) return
-          services[serviceType].forEach(function (service) {
-            if (service.name && (service.name === serviceName)) {
+          var serviceOrServices = services[serviceType]
+          if (!Array.isArray(serviceOrServices)) serviceOrServices = [serviceOrServices]
+          serviceOrServices.forEach(function (service) {
+            if (service.serviceInfo.name && (service.serviceInfo.name === serviceName)) {
               serviceDef = {
                 service: service,
                 type: serviceType
@@ -1156,7 +1083,7 @@ module.exports = Generator.extend({
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
-        { models: this.models, crudService: crudService, bluemix: this.bluemix }
+        { models: this.models, crudService: crudService }
       )
       this.fs.copy(
         this.templatePath('crud', 'AdapterError.swift'),
@@ -1287,13 +1214,19 @@ module.exports = Generator.extend({
     },
 
     writeDockerFiles: function () {
-      if (!this.docker || this.existingProject || !this.bluemix) return
+      if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
       if (this.existingProject) return
-      this.bluemix.services = this.services
+      // Go through the bluemix object and pull out the serviceInfo for each of
+      // the services to pass down to cloud enablement
+      this.bluemix.services = {}
+      Object.keys(this.services).forEach(prop => {
+        var services = Array.isArray(this.services[prop]) ? this.services[prop] : [this.services[prop]]
+        this.bluemix.services[prop] = services.map(service => service.serviceInfo)
+      })
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
