@@ -188,7 +188,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     describe('with all capabilities and services', function () {
       // On macOS this test sometimes times out because of the number
       // of dependencies to fetch and compile. Use a longer timeout.
-      this.timeout(500000)
+      this.timeout(600000)
 
       // var petstoreSDKName = 'Swagger_Petstore'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
