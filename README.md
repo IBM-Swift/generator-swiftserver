@@ -20,3 +20,8 @@ To install this generator, use: `npm install -g git+https://github.com/IBM-Swift
 To create a Swift Server Generator project with no models defined, use: `yo swiftserver`  
 To add a data model to your project, `cd` to the new project directory and use: `yo swiftserver:model`  
 To run the generated server, use: `<project-dir>/.build/debug/<app-name>`
+
+## Build Code
+To start a build, click on the build button. Note that this will only work for authorized users.
+[![Build](BuildButton.png)](https://github.com/login/oauth/authorize?client_id=bedeb6b1ffdb641cf027)
+
