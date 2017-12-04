@@ -47,4 +47,4 @@ git push -u origin $BRANCH
 curl -u ${USER} -X PUT -H "Content-Type: application/json" -H "Accept: application/vnd.github.loki-preview+json" -d "{\"required_status_checks\": {\"strict\": true,\"contexts\": []},\"required_pull_request_reviews\":{},\"restrictions\": null,\"enforce_admins\": true}" "https://api.github.com/repos/IBM-Swift/generator-swiftserver/branches/$BRANCH/protection"
 
 # create a pull request to master
-hub pull-request -b master -m "Do NOT attempt to push further changes to this branch."
+hub pull-request -b master -m "Release ${VERSION}"$'\n\nDo NOT attempt to push further changes to this branch.'
