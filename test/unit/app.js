@@ -1603,14 +1603,14 @@ describe('Unit tests for swiftserver:app', function () {
             appType: 'scaffold',
             appName: applicationName,
             capabilities: [],
-            bluemix: { server: { domain: 'ng.bluemix.net' } },
             services: {
               push: {
                 serviceInfo: {
                   name: 'myPushNotificationsService'
                 },
                 appGuid: 'myAppGuid',
-                appSecret: 'myAppSecret'
+                appSecret: 'myAppSecret',
+                url: 'http://imfpush.ng.bluemix.net'
               }
             }
           }))

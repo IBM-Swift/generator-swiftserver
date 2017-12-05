@@ -1201,12 +1201,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
           app_guid: 'myAppGuid',
           app_secret: 'myAppSecret',
-          client_secret: ''
-        })
-
-        it(`push notifications boilerplate contains correct region`, function () {
-          var serviceFile = `${commonTest.servicesSourceDir}/ServicePush.swift`
-          assert.fileContent(serviceFile, 'bluemixRegion: PushNotifications.Region.UK')
+          client_secret: '',
+          url: 'http://imfpush.eu-gb.bluemix.net'
         })
       })
     })
