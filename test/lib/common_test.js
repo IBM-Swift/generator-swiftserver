@@ -676,9 +676,9 @@ exports.alertnotification = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import AlertNotifications'],
-        [serviceFile, 'let serviceCredentials = ServiceCredentials('],
+        [serviceFile, 'let alertNotificationCredentials = cloudEnv.getAlertNotificationCredentials('],
         [serviceFile, 'func initializeServiceAlertNotification(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'return serviceCredentials']
+        [serviceFile, 'return alertNotificationCredentials']
       ])
     })
   }
