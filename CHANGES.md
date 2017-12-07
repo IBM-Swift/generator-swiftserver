@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.1.0...4.2.0) (2017-12-06)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 0.1.0 ([2948e7d](https://github.com/IBM-Swift/generator-swiftserver/commit/2948e7d)), closes [#371](https://github.com/IBM-Swift/generator-swiftserver/issues/371)
+* add url to Push Notifications service ([#379](https://github.com/IBM-Swift/generator-swiftserver/issues/379)) ([9660ec7](https://github.com/IBM-Swift/generator-swiftserver/commit/9660ec7))
+* PR title and message are properly generated ([#382](https://github.com/IBM-Swift/generator-swiftserver/issues/382)) ([f2ba505](https://github.com/IBM-Swift/generator-swiftserver/commit/f2ba505))
+* **package:** update generator-ibm-service-enablement to version 0.6.1 ([#391](https://github.com/IBM-Swift/generator-swiftserver/issues/391)) ([a0bd2e5](https://github.com/IBM-Swift/generator-swiftserver/commit/a0bd2e5))
+
+
+### Features
+
+* refactor to use bluemix object to specify services ([#372](https://github.com/IBM-Swift/generator-swiftserver/issues/372)) ([ebe6149](https://github.com/IBM-Swift/generator-swiftserver/commit/ebe6149))
+
+
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.0.0...4.1.0) (2017-10-31)
 

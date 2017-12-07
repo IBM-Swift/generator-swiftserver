@@ -100,9 +100,9 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
                                 docker: true,
                                 metrics: true,
                                 // serverSwaggerFiles: [ serverSDKFile ],
-                                services: {
-                                  cloudant: [{ name: 'myCloudantService' }],
-                                  autoscaling: [{ name: 'myAutoscalingService' }]
+                                bluemix: {
+                                  cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
+                                  autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
                                 },
                                 crudservice: 'myCloudantService'
                               })
