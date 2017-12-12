@@ -34,7 +34,6 @@ module.exports = Generator.extend({
 
   constructor: function () {
     Generator.apply(this, arguments)
-
     // Allow the user to pass the application name into the generator directly
     this.argument('name', {
       desc: 'Name of the application to scaffold.',
@@ -72,6 +71,10 @@ module.exports = Generator.extend({
       if (this.options.bluemix) {
         this.skipPrompting = true
 
+        if (typeof (this.options.bluemix) === 'string') {
+          this.options.bluemix = JSON.parse(this.options.bluemix)
+        }
+
         var appName = this.options.bluemix.name
         var metrics = isTrue(this.options.metrics) || undefined
         var docker = isTrue(this.options.docker) || undefined
@@ -91,7 +94,7 @@ module.exports = Generator.extend({
           hostSwagger: hostSwagger,
           exampleEndpoints: exampleEndpoints,
           swaggerUI: swaggerUI,
-          bluemix: JSON.parse(this.options.bluemix),
+          bluemix: this.options.bluemix,
           metrics: metrics,
           repoType: 'clone',
           healthcheck: healthcheck
