@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.2"></a>
+## [4.2.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.1...4.2.2) (2017-12-14)
+
+
+### Bug Fixes
+
+* allow blank default for credentials ([c3fe83b](https://github.com/IBM-Swift/generator-swiftserver/commit/c3fe83b))
+
+
+
 <a name="4.2.1"></a>
 ## [4.2.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.0...4.2.1) (2017-12-12)
 
