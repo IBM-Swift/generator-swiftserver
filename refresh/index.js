@@ -157,6 +157,19 @@ module.exports = Generator.extend({
       this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
       this.bluemix.server.env = this.bluemix.server.env || {}
 
+      // NOTE: Sanitize incoming project name temporarily to ensure that the name we pass
+      //       down to cloud-enablement matches the executable we generate (this used to
+      //       be done at an earlier point in the chain but the sanitization was changed
+      //       recently to allow hyphens). We want to honour this in future, so this solution
+      //       is temporary.
+      // TODO: Remove blanket sanitization of project name here and instead only sanitize exactly
+      //       where necessary to allow the project to compile (eg: hyphens are not valid in a Swift
+      //       module name, so ideally we would sanitize the module name and ensure the other
+      //       artifact names, including the executable name, are left alone where possible).
+      if (this.bluemix.name) { this.bluemix.name = helpers.sanitizeAppName(this.bluemix.name) }
+      if (this.bluemix.server.name) { this.bluemix.server.name = helpers.sanitizeAppName(this.bluemix.server.name) }
+      //
+
       function isServiceProperty (value) {
         if (Array.isArray(value)) {
           // All elements of the service array must have a serviceInfo property
