@@ -58,6 +58,12 @@ module.exports = Generator.extend({
       desc: 'Creates application without including generator metadata files',
       defaults: false
     })
+
+    this.option('enable-usecase', {
+      type: Boolean,
+      desc: 'Enables usecase generator for starterkit creation',
+      defaults: false
+    })
   },
 
   initializing: {
@@ -84,6 +90,7 @@ module.exports = Generator.extend({
         var exampleEndpoints = (this.appType === 'bff' || undefined)
         var swaggerUI = (this.appType === 'bff' || undefined)
         var healthcheck = (this.appType !== 'blank')
+        var usecase = this.options['enable-usecase']
 
         this.spec = {
           appName: appName,
@@ -97,7 +104,8 @@ module.exports = Generator.extend({
           bluemix: this.options.bluemix,
           metrics: metrics,
           repoType: 'clone',
-          healthcheck: healthcheck
+          healthcheck: healthcheck,
+          usecase: usecase
         }
       } else if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
