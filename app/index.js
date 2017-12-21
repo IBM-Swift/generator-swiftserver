@@ -71,6 +71,10 @@ module.exports = Generator.extend({
       if (this.options.bluemix) {
         this.skipPrompting = true
 
+        if (this.options.type) {
+          this.appType = this.options.type
+        }
+
         if (typeof (this.options.bluemix) === 'string') {
           this.options.bluemix = JSON.parse(this.options.bluemix)
         }
