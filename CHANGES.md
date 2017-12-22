@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.4"></a>
+## [4.2.4](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.3...4.2.4) (2017-12-22)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 0.6.4 ([6a140b9](https://github.com/IBM-Swift/generator-swiftserver/commit/6a140b9)), closes [#400](https://github.com/IBM-Swift/generator-swiftserver/issues/400)
+
+
+
 <a name="4.2.3"></a>
 ## [4.2.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.2...4.2.3) (2017-12-19)
 
