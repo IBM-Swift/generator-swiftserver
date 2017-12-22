@@ -502,6 +502,61 @@ describe('Unit tests for swiftserver:app', function () {
     }))
   })
 
+  describe('--enableUsecase specified', function () {
+    describe('Valid --bluemix flag specified', function () {
+      var runContext
+
+      var bluemixJSON = {
+        name: 'AcmeProject',
+        backendPlatform: 'SWIFT',
+        sdks: [],
+        server: {}
+      }
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              'enable-usecase': true,
+                              bluemix: JSON.stringify(bluemixJSON),
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('passes usecase: true to refresh generator', function () {
+        assert(runContext.generator.spec.usecase === true)
+      })
+    })
+
+    describe('Invalid --init flag specified', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              'enable-usecase': true,
+                              init: true,
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('passes usecase: false to refresh generator', function () {
+        assert(runContext.generator.spec.usecase !== true)
+      })
+    })
+  })
+
   describe('spec option', function () {
     describe('valid', function () {
       var runContext
