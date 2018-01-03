@@ -533,7 +533,7 @@ describe('Unit tests for swiftserver:app', function () {
       })
     })
 
-    describe('Invalid --init flag specified', function () {
+    describe('Without --bluemix flag specified', function () {
       var runContext
 
       before(function () {

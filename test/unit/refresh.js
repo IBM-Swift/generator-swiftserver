@@ -791,15 +791,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                               // Create dummy starterkit project
                               const pathToCreate = 'src/swift-kitura/Sources/Application/Routes'
 
-                              pathToCreate
-                                .split(path.sep)
-                                .reduce((currentPath, folder) => {
-                                  currentPath += folder + path.sep
-                                  if (!fs.existsSync(currentPath)) {
-                                    fs.mkdirSync(currentPath)
-                                  }
-                                  return currentPath
-                                }, '')
+                              mkdirp.sync(pathToCreate)
 
                               var starterSwiftAppRoutesFile = path.join(tmpDir, 'src', 'swift-kitura', 'Sources', 'Application', 'Routes', 'AppRoutes.swift')
                               var starterPackageSwiftFile = path.join(tmpDir, 'src', 'swift-kitura', 'Package.swift.partial')
@@ -832,8 +824,12 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
-      it('does initializes AppRoutes', function () {
+      it('does initialize AppRoutes', function () {
         assert.fileContent(applicationSourceFile, 'initializeAppRoutes(app: self)')
+      })
+
+      it('does create AppRoutes.swift route file', function () {
+        commonTest.itCreatedRoutes('AppRoutes')
       })
     })
 
