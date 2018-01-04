@@ -196,6 +196,9 @@ module.exports = Generator.extend({
       // Docker configuration
       this.docker = (this.spec.docker === true)
 
+      // Usecase configuration
+      this.usecase = (this.spec.usecase === true)
+
       // Web configuration
       this.web = (this.spec.web === true)
 
@@ -297,6 +300,7 @@ module.exports = Generator.extend({
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
       }
+      if (this.usecase) this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
     },
 
     ensureGeneratorIsCompatibleWithProject: function () {
@@ -1233,6 +1237,17 @@ module.exports = Generator.extend({
     writeKubernetesFiles: function () {
       if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
+    },
+
+    writeUsecaseFiles: function () {
+      if (!this.usecase) return
+      this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {
+        force: this.force,
+        bluemix: JSON.stringify(this.bluemix),
+        parentContext: {
+          injectDependency: dependency => { this.dependencies.push(dependency) }
+        }
+      })
     },
 
     writePackageSwift: function () {
