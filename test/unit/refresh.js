@@ -782,6 +782,57 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
+    describe('with usecase enablement', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .inTmpDir(function (tmpDir) {
+                              // Create dummy starterkit project
+                              const pathToCreate = 'src/swift-kitura/Sources/Application/Routes'
+
+                              mkdirp.sync(pathToCreate)
+
+                              var starterSwiftAppRoutesFile = path.join(tmpDir, 'src', 'swift-kitura', 'Sources', 'Application', 'Routes', 'AppRoutes.swift')
+                              var starterPackageSwiftFile = path.join(tmpDir, 'src', 'swift-kitura', 'Package.swift.partial')
+
+                              fs.writeFileSync(starterSwiftAppRoutesFile, '')
+                              fs.writeFileSync(starterPackageSwiftFile, '')
+
+                              this.inDir(path.join(tmpDir, 'build'))
+                            })
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: {
+                                    name: applicationName,
+                                    host: 'myhost',
+                                    domain: 'mydomain.net',
+                                    disk_quota: '1024M'
+                                  }
+                                },
+                                usecase: true
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('does initialize AppRoutes', function () {
+        assert.fileContent(applicationSourceFile, 'initializeAppRoutes(app: self)')
+      })
+
+      it('does create AppRoutes.swift route file', function () {
+        commonTest.itCreatedRoutes('AppRoutes')
+      })
+    })
+
     describe('with docker', function () {
       var runContext
 

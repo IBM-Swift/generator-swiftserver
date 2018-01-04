@@ -101,7 +101,8 @@ module.exports = Generator.extend({
           bluemix: this.options.bluemix,
           metrics: metrics,
           repoType: 'clone',
-          healthcheck: healthcheck
+          healthcheck: healthcheck,
+          usecase: this.options.enableUsecase
         }
       } else if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
