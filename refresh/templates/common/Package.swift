@@ -7,14 +7,13 @@ let package = Package(
       .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.0.0")),
       .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", .upToNextMinor(from: "1.7.1")),
       .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "6.0.0"),
-      .package(url: "https://github.com/IBM-Swift/Configuration.git", from: "3.0.0"),
 <%  dependencies.forEach(function(dependency) { -%>
       <%- dependency %>
 <%  }) -%>
     ],
     targets: [
       .target(name: "<%- executableModule %>", dependencies: [ .target(name: "<%- applicationModule %>"), "Kitura" , "HeliumLogger"]),
-      .target(name: "<%- applicationModule %>", dependencies: [ "Kitura", "Configuration", "CloudEnvironment",<% modules.forEach(function(module) { -%><%-module + "," %><%  })-%>
+      .target(name: "<%- applicationModule %>", dependencies: [ "Kitura", "CloudEnvironment",<% modules.forEach(function(module) { -%><%-module + "," %><%  })-%>
 <%  if (appType === 'crud') { -%>
 .target(name: "<%- generatedModule %>"),
 <%  } _%>
@@ -30,7 +29,7 @@ let package = Package(
       ]),
 <%  } -%>
 <%  if (appType === 'crud') { -%>
-      .target(name: "<%- generatedModule %>", dependencies: ["Kitura","Configuration", "CloudEnvironment","SwiftyJSON", <% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
+      .target(name: "<%- generatedModule %>", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", <% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
 <%  } _%>
 
       .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "<%- applicationModule %>"), "Kitura","HeliumLogger" ])
