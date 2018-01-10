@@ -24,7 +24,7 @@ let package = Package(
 <%    }); -%>
       ]),
 <%    Object.keys(sdkTargets).forEach(function(target) { -%>
-      .target(name: "<%- sdkTargets[target] %>", dependencies: ["ObjectMapper","SimpleHttpClient"], path: "Sources/<%- sdkTargets[target] %>" ),
+      .target(name: "<%- sdkTargets[target] %>", dependencies: ["SimpleHttpClient"], path: "Sources/<%- sdkTargets[target] %>" ),
 <%    }); -%>
 <%  }else { _%>
       ]),
