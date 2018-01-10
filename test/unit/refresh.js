@@ -1005,7 +1005,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
         it(`should throw error`, function () {
           assert(error, 'Should throw an error')
-          assert(error.match(/SDKGEN.*incompatible/), 'Thrown error should be about failing to parse SDK package dependency, it was: ' + error)
+          assert(error.match(/SDKGEN.*incompatible.*.package\(url: ".*", from: "1\.0"\)/), 'Thrown error should be about failing to parse SDK package dependency, it was: ' + error)
         })
       })
     })
