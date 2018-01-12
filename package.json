@@ -30,7 +30,7 @@
     "generator-ibm-service-enablement": "0.6.4",
     "generator-ibm-usecase-enablement": "3.2.0",
     "handlebars": "^4.0.5",
-    "ibm-openapi-support": "^0.0.9",
+    "ibm-openapi-support": "0.0.10",
     "js-yaml": "^3.9.1",
     "request": "^2.81.0",
     "rimraf": "^2.5.2",
