@@ -30,6 +30,7 @@ var mockSDKGen = require('../lib/mock_sdkgen.js')
 var generatedSourceDir = commonTest.generatedSourceDir
 var applicationSourceFile = commonTest.applicationSourceFile
 var routesSourceDir = commonTest.routesSourceDir
+var modelsSourceDir = commonTest.modelsSourceDir
 
 var bxdevConfigFile = commonTest.bxdevConfigFile
 var cloudFoundryManifestFile = commonTest.cloudFoundryManifestFile
@@ -1051,10 +1052,37 @@ describe('Unit tests for swiftserver:refresh', function () {
             commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
-              'Dinosaurs',
-              'Persons',
+              'Dinosaurs_',
+              'Persons_',
               'Swagger'
             ])
+
+            commonTest.itCreatedModels([
+              'Dino',
+              'Age',
+              'Newage'
+            ])
+
+            it('created the correct types from the swagger model definition', function () {
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'public struct dino: Codable {')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, '/// comments go here')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let age: String')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt: Int')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt8: Int8?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt8: UInt8?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt16: Int16?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt16: UInt16?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt32: Int32?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt32: UInt32?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt64: Int64?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt64: UInt64?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weight: Double?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightDouble: Double?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightFloat: Float?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let toesBool: Bool?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let dietDictionaryInt32: Dictionary<String, Int32>')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let agesArray: [newage]?')
+            })
 
             it('created a swagger definition file', function () {
               assert.file(outputSwaggerFile)
@@ -1065,8 +1093,8 @@ describe('Unit tests for swiftserver:refresh', function () {
             })
 
             it('swagger routes prepend base path', function () {
-              assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-              assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+              assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+              assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
             })
           })
 
@@ -1208,7 +1236,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
-              'Products',
+              'Products_',
               'Swagger'
             ])
 
@@ -1225,7 +1253,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             })
 
             it('swagger routes match definition', function () {
-              var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+              var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
               assert.fileContent([
                 [ productsRoutesFile, 'router.get("/products"' ],
                 [ productsRoutesFile, 'router.post("/products"' ],
@@ -1299,8 +1327,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('requested swagger over http', function () {
@@ -1320,8 +1348,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -1355,8 +1383,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('created a swagger definition file', function () {
@@ -1368,8 +1396,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
