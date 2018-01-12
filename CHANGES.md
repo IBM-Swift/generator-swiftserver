@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.4.0"></a>
+# [4.4.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.3.0...4.4.0) (2018-01-12)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.6.13 ([#416](https://github.com/IBM-Swift/generator-swiftserver/issues/416)) ([13a14f5](https://github.com/IBM-Swift/generator-swiftserver/commit/13a14f5))
+
+
+### Features
+
+* model support for swagger ([#422](https://github.com/IBM-Swift/generator-swiftserver/issues/422)) ([9cb8438](https://github.com/IBM-Swift/generator-swiftserver/commit/9cb8438))
+
+
+
 <a name="4.3.0"></a>
 # [4.3.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.3...4.3.0) (2018-01-10)
 
