@@ -42,7 +42,7 @@
     "istanbul": "^0.4.5",
     "makeshift": "^1.1.0",
     "mem-fs": "^1.1.3",
-    "mem-fs-editor": "^3.0.2",
+    "mem-fs-editor": "^4.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^4.0.0",
     "nock": "^9.0.13",
