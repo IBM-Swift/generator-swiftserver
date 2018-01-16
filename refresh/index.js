@@ -738,7 +738,7 @@ module.exports = Generator.extend({
     }
 
     if (this.openApiFileOrUrl) {
-      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
+      return swaggerize.loadAsync(this.openApiFileOrUrl, this.fs)
         .then(loaded => {
           this.openApiDocumentBytes = loaded
         })
@@ -756,6 +756,15 @@ module.exports = Generator.extend({
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
+          // mangle the route name to allow the renaming of the default route.
+          Object.keys(this.parsedSwagger.resources).forEach(resource => {
+            debug('RESOURCENAME:', resource)
+            if (resource.endsWith('*')) {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource.replace(/\*$/, 'Default')
+            } else {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource + '_'
+            }
+          })
         })
         .catch(err => {
           if (this.openApiFileOrUrl) {
@@ -770,14 +779,17 @@ module.exports = Generator.extend({
 
   addEndpointInitCode: function () {
     var endpointNames = []
-    if (this.parsedSwagger && this.parsedSwagger.resources) {
-      var resourceNames = Object.keys(this.parsedSwagger.resources)
-      endpointNames = endpointNames.concat(resourceNames)
-    }
     if (this.healthcheck) {
       this.modules.push('"Health"')
       endpointNames.push('Health')
       this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
+    }
+    if (this.parsedSwagger && this.parsedSwagger.resources) {
+      var resourceNames = []
+      Object.keys(this.parsedSwagger.resources).forEach(resource => {
+        resourceNames.push(this.parsedSwagger.resources[resource].generatedName)
+      })
+      endpointNames = endpointNames.concat(resourceNames)
     }
 
     var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes(app: self)`)
@@ -813,7 +825,7 @@ module.exports = Generator.extend({
     function generateServerAsync () {
       var sdkPackages = []
       return Promise.map(this.serverSwaggerFiles, file => {
-        return helpers.loadAsync(file, this.fs)
+        return swaggerize.loadAsync(file, this.fs)
           .then(loaded => {
             return swaggerize.parse(loaded, helpers.reformatPathToSwift)
               .then(response => {
@@ -1011,20 +1023,72 @@ module.exports = Generator.extend({
 
     createFromSwagger: function () {
       if (this.parsedSwagger) {
+        handlebars.registerHelper('swifttype', helpers.swiftTypeFromSwaggerProperty)
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
-          debug(resource)
+          // Generate routes
+          var generatedName = this.parsedSwagger.resources[resource].generatedName
+          debug('route:', this.parsedSwagger.resources[resource])
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
-            this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
-              resource: resource,
+              resource: generatedName,
               routes: this.parsedSwagger.resources[resource],
               basepath: this.parsedSwagger.basepath
             }
           )
         })
 
-        // make the swagger available for the swaggerUI
+        // Generate model structures
+        Object.keys(this.parsedSwagger.models).forEach(name => {
+          var model = this.parsedSwagger.models[name]
+          var fileName = helpers.capitalizeFirstLetter(name + '.swift')
+          debug('model:', model)
+          debug('fileName:', fileName)
+
+          if (!model.id) {
+            model.id = name
+          }
+          // For Array of items/models referenced as part of definitions, no need
+          // generate a model file.
+          if (model.type === 'array' && model.items) {
+            return
+          }
+          if (model.properties) {
+            debug('model.properties', model.properties)
+            Object.keys(model.properties).forEach(prop => {
+              if (model.properties[prop].$ref) {
+                model.properties[prop]['type'] = 'ref'
+              }
+              if (model.required && !helpers.arrayContains(prop, model.required)) {
+                model.properties[prop]['optional'] = '?'
+              }
+              if (model.properties[prop].description && model.properties[prop].description.length > 0) {
+                if (model.properties[prop].description.match(/\n/)) {
+                  console.log('found:', model.properties[prop].description)
+                }
+                // model.properties[prop].description = '// ' + model.properties[prop].description
+                var comments = model.properties[prop].description.split('\n')
+                if (comments[comments.length - 1].length === 0) {
+                  comments = comments.slice(0, comments.length - 1)
+                }
+                model.properties[prop].description = comments
+              }
+            })
+            this.fs.copyHbs(
+              this.templatePath('fromswagger', 'Model.swift.hbs'),
+              this.destinationPath('Sources', this.applicationModule, 'Models', fileName),
+              {
+                properties: model.properties,
+                model: name,
+                required: model.required || [],
+                id: name,
+                license: this.license
+              })
+          }
+        })
+
+        // Make the swagger available for the swaggerUI
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
         this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi))
       }

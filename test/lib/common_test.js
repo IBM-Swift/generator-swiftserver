@@ -44,6 +44,7 @@ exports.applicationModule = 'Application'
 exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
 exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
+exports.modelsSourceDir = `${exports.applicationSourceDir}/Models`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
 exports.webDir = 'public'
 exports.swaggerUIDir = `${exports.webDir}/explorer`
@@ -229,6 +230,18 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
     it(`application does not initialize ${routeName} routes`, function () {
       assert.noFileContent('Sources/Application/Application.swift',
                          `initialize${routeName}Routes(`)
+    })
+  })
+}
+
+//
+// Models
+//
+exports.itCreatedModels = function (modelNameOrModelNames) {
+  var modelNames = Array.isArray(modelNameOrModelNames) ? modelNameOrModelNames : [modelNameOrModelNames]
+  modelNames.forEach(modelName => {
+    it(`created a model source file for ${modelName}`, function () {
+      assert.file(`Sources/Application/Models/${modelName}.swift`)
     })
   })
 }

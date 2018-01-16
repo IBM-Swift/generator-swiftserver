@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.3.0"></a>
+# [4.3.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.3...4.3.0) (2018-01-10)
+
+
+### Bug Fixes
+
+* **deps:** generator-ibm-usecase-enablement@3.1.0 ([be23161](https://github.com/IBM-Swift/generator-swiftserver/commit/be23161))
+* **deps:** generator-ibm-usecase-enablement@3.1.2 ([0baf28d](https://github.com/IBM-Swift/generator-swiftserver/commit/0baf28d))
+* **package:** update generator-ibm-cloud-enablement to version 0.6.10 ([#409](https://github.com/IBM-Swift/generator-swiftserver/issues/409)) ([54b7f1e](https://github.com/IBM-Swift/generator-swiftserver/commit/54b7f1e)), closes [#387](https://github.com/IBM-Swift/generator-swiftserver/issues/387)
+* **package:** update generator-ibm-cloud-enablement to version 0.6.11 ([f204dbe](https://github.com/IBM-Swift/generator-swiftserver/commit/f204dbe))
+* **package:** update generator-ibm-cloud-enablement to version 0.6.12 ([#414](https://github.com/IBM-Swift/generator-swiftserver/issues/414)) ([8a169e2](https://github.com/IBM-Swift/generator-swiftserver/commit/8a169e2))
+* **package:** update generator-ibm-service-enablement to version 0.6.4 ([6a140b9](https://github.com/IBM-Swift/generator-swiftserver/commit/6a140b9)), closes [#400](https://github.com/IBM-Swift/generator-swiftserver/issues/400)
+* **package:** update generator-ibm-usecase-enablement to version 3.2.0 ([#415](https://github.com/IBM-Swift/generator-swiftserver/issues/415)) ([f3b8cdb](https://github.com/IBM-Swift/generator-swiftserver/commit/f3b8cdb))
+* Failing generator-swiftserver integration tests for SDKGen service ([#412](https://github.com/IBM-Swift/generator-swiftserver/issues/412)) ([12269ca](https://github.com/IBM-Swift/generator-swiftserver/commit/12269ca))
+* small style changes ([1c248a9](https://github.com/IBM-Swift/generator-swiftserver/commit/1c248a9))
+
+
+### Features
+
+* **deps:** generator-ibm-usecase-enablement@3.0.0 ([df3282c](https://github.com/IBM-Swift/generator-swiftserver/commit/df3282c))
+* initial generator-ibm-usecase-enablement support and --enableUsecase option ([040bcc7](https://github.com/IBM-Swift/generator-swiftserver/commit/040bcc7))
+
+
+
 <a name="4.2.3"></a>
 ## [4.2.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.2...4.2.3) (2017-12-19)
 
