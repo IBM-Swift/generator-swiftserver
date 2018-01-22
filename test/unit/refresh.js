@@ -783,6 +783,39 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
+    describe('with unsupported service payloads in custom bluemix option', function () {
+      var runContext
+
+      // bluemix.json file from scaffolder w/ all services
+      var bluemixJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/unsupported_bluemix.json'), 'utf8'))
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                bluemix: bluemixJSON
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      // created service config files
+      commonTest.itCreatedServiceConfigFiles()
+
+      // all unsupported services
+      var unsupportedServices = ['accernApi', 'analytics', 'apacheSpark', 'appLaunch', 'blockchain', 'dashDb', 'discovery', 'documentConversion', 'historicalInstrumentAnalysis', 'instrumentAnalysis', 'investmentPortfolio', 'languageTranslator', 'messageHub', 'naturalLanguageClassifier', 'naturalLanguageUnderstanding', 'payeezy', 'personalityInsights', 'plaid', 'predictiveMarketScenarios', 'quovo', 'retrieveAndRank', 'simulatedHistoricalInstrumentAnalysis', 'simulatedInstrumentAnalysis', 'speechToText', 'textToSpeech', 'toneAnalyzer', 'visualRecognition', 'weatherInsights', 'xigniteMarketData']
+
+      unsupportedServices.forEach(service => {
+        commonTest.itDidNotCreateService(service)
+      })
+    })
+
     describe('with usecase enablement', function () {
       var runContext
 
