@@ -44,6 +44,7 @@ exports.applicationModule = 'Application'
 exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
 exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
+exports.modelsSourceDir = `${exports.applicationSourceDir}/Models`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
 exports.webDir = 'public'
 exports.swaggerUIDir = `${exports.webDir}/explorer`
@@ -229,6 +230,18 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
     it(`application does not initialize ${routeName} routes`, function () {
       assert.noFileContent('Sources/Application/Application.swift',
                          `initialize${routeName}Routes(`)
+    })
+  })
+}
+
+//
+// Models
+//
+exports.itCreatedModels = function (modelNameOrModelNames) {
+  var modelNames = Array.isArray(modelNameOrModelNames) ? modelNameOrModelNames : [modelNameOrModelNames]
+  modelNames.forEach(modelName => {
+    it(`created a model source file for ${modelName}`, function () {
+      assert.file(`Sources/Application/Models/${modelName}.swift`)
     })
   })
 }
@@ -469,6 +482,30 @@ exports.itDidNotCreateServiceFiles = function () {
 
   it('bluemix pipeline does not contain services', function () {
     assert.noFileContent(exports.bluemixPipelineFile, 'cf create-services')
+  })
+}
+
+exports.itDidNotCreateService = function (service) {
+  it(`service configuration file does not contain ${service}`, function () {
+    assert.noFileContent(exports.configMappingsFile, service)
+  })
+
+  it(`cloudfoundry manifest does not contain ${service}`, function () {
+    assert.noFileContent([
+      [exports.cloudFoundryManifestFile, `- ${service}`]
+    ])
+  })
+
+  it(`bluemix pipeline does not contain ${service} create-service command`, function () {
+    assert.noFileContent(exports.bluemixPipelineFile, `cf create-service "${service}"`)
+  })
+
+  it(`does not create ${service} boilerplate`, function () {
+    assert.noFile(`${exports.servicesSourceDir}/Service${service}.swift`)
+  })
+
+  it(`application does not initialize ${service}`, function () {
+    assert.noFileContent(exports.applicationSourceFile, `try initializeService${service}(cloudEnv: cloudEnv)`)
   })
 }
 
