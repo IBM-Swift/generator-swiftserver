@@ -90,7 +90,7 @@ describe('Unit tests for helpers', function () {
             label: 'compose-for-redis',
             plan: 'Standard'
           },
-          uri: 'redis://:@localhost:6397'
+          uri: 'redis://:@localhost:6379'
         },
         objectStorage: {
           serviceInfo: {
@@ -326,14 +326,14 @@ describe('Unit tests for helpers', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
             'redis', { serviceInfo: {name: 'my-service'}, password: 'my-password' }
           )
-          assert.equal(service.uri, 'redis://:my-password@localhost:6397')
+          assert.equal(service.uri, 'redis://:my-password@localhost:6379')
         })
 
         it('uri from host (merge with default)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
             'redis', { serviceInfo: {name: 'my-service'}, host: 'my-host' }
           )
-          assert.equal(service.uri, 'redis://:@my-host:6397')
+          assert.equal(service.uri, 'redis://:@my-host:6379')
         })
 
         it('uri from port (merge with default)', function () {
