@@ -485,6 +485,30 @@ exports.itDidNotCreateServiceFiles = function () {
   })
 }
 
+exports.itDidNotCreateService = function (service) {
+  it(`service configuration file does not contain ${service}`, function () {
+    assert.noFileContent(exports.configMappingsFile, service)
+  })
+
+  it(`cloudfoundry manifest does not contain ${service}`, function () {
+    assert.noFileContent([
+      [exports.cloudFoundryManifestFile, `- ${service}`]
+    ])
+  })
+
+  it(`bluemix pipeline does not contain ${service} create-service command`, function () {
+    assert.noFileContent(exports.bluemixPipelineFile, `cf create-service "${service}"`)
+  })
+
+  it(`does not create ${service} boilerplate`, function () {
+    assert.noFile(`${exports.servicesSourceDir}/Service${service}.swift`)
+  })
+
+  it(`application does not initialize ${service}`, function () {
+    assert.noFileContent(exports.applicationSourceFile, `try initializeService${service}(cloudEnv: cloudEnv)`)
+  })
+}
+
 exports.itCreatedServiceConfigFiles = function () {
   it('created service configuration files', function () {
     assert.file(exports.configMappingsFile)

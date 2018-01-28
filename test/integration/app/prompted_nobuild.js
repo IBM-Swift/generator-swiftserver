@@ -722,7 +722,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService', {
-          uri: 'redis://:@localhost:6397'
+          uri: 'redis://:@localhost:6379'
         })
       })
 

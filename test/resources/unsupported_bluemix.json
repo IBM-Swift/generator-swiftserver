@@ -1,0 +1,482 @@
+{
+    "name": "myapp",
+    "backendPlatform": "SWIFT",
+    "sdks": [
+        {
+            "name": "PetStore",
+            "spec": "http://petstore.swagger.io/v2/swagger.json"
+        }
+    ],
+    "server": {
+        "diskQuota": "manifest-disk-quota",
+        "domain": "manifest-domain",
+        "env": {},
+        "host": "manifest-host",
+        "instances": 3,
+        "memory": "manifest-memory",
+        "name": "manifest-name",
+        "organization": "manifest-org",
+        "services": [
+            "my-service1-instance",
+            "my-service2-instance"
+        ],
+        "space": "manifest-space"
+    },
+    "accernApi": {
+        "url": "http://feed.accern.com/v3/alphas",
+        "api_token": "accern-api-token",
+        "serviceInfo": {
+            "label": "Accern-API",
+            "name": "accern-name",
+            "plan": "accern-plan"
+        }
+    },
+    "alertNotification": {
+        "name": "da6c3dad-cd53-4539-aea1-626ab2259af6/fa5ff325-679d-4632-bd81-e63bcee874c3",
+        "password": "XNVdsxetg1zL/6pE2CcODANfGjvFFqmj",
+        "serviceInfo": {
+            "label": "MyAnalyticsLabel",
+            "name": "MyAnalyticsService",
+            "plan": "Basic"
+        },
+        "swaggerui": "https://ibmnotifybm.mybluemix.net/docs/alerts/v1",
+        "url": "https://ibmnotifybm.mybluemix.net/api/alerts/v1"
+    },
+    "analytics": {
+        "apiKey": "analytics-api-key",
+        "serviceInfo": {
+            "label": "analytics-label",
+            "name": "analytics-name",
+            "plan": "analytics-plan"
+        }
+    },
+    "apacheSpark": {
+        "cluster_master_url": "https://spark.bluemix.net",
+        "instance_id": "apache-spark-instance-id",
+        "plan": "apache-spark-plan",
+        "tenant_id": "apache-spark-tenant-id",
+        "tenant_id_full": "apache-spark-tenant-id-full",
+        "tenant_secret": "apache-spark-tenant-secret",
+        "serviceInfo": {
+            "label": "spark",
+            "name": "apache-spark-name",
+            "plan": "ibm.SparkService.PayGoPersonal"
+        }
+    },
+    "appLaunch": {
+        "admin_url": "https://mobileservices-staging.us-south.containers.mybluemix.net/applaunch-dashboard/#?instanceid=e135a6c7-4d17-469f-8784-6a75117819d2",
+        "appGuid": "e135a6c7-4d17-469f-8784-6a75117819d2",
+        "appSecret": "22e11dcf-294c-4489-9b95-61ff3d4a090c",
+        "clientSecret": "76f25e31-7fe9-453b-a29c-59ea6c11ede8",
+        "serviceInfo": {
+            "label": "MyAnalyticsLabel",
+            "name": "MyAnalyticsService",
+            "plan": "Basic"
+        },
+        "url": "http://mobileservices-staging.us-south.containers.mybluemix.net/applaunch/v1/apps/e135a6c7-4d17-469f-8784-6a75117819d2"
+    },
+    "auth": {
+        "clientId": "auth-client-id",
+        "oauthServerUrl": "https://appid-oauth.ng.bluemix.net/oauth/v3/auth-client-id",
+        "profilesUrl": "https://appid-profiles.ng.bluemix.net",
+        "secret": "auth-secret",
+        "tenantId": "auth-tenantId",
+        "version": "3",
+        "serviceInfo": {
+            "label": "auth-label",
+            "name": "auth-name",
+            "plan": "auth-plan"
+        }
+    },
+    "blockchain": {
+        "ca": {},
+        "cert": "https://blockchain-certs.mybluemix.net/stage.blockchain.ibm.com.cert",
+        "cert_path": "/certs/peer/cert.pem",
+        "peers": [
+            {
+                "api_host": "blockchain-api-host.blockchain.ibm.com",
+                "api_port": 5001,
+                "api_port_tls": 5001,
+                "api_url": "http://blockchain-api-url.blockchain.ibm.com:5001",
+                "container_id": "blockchain-container-id",
+                "discovery_host": "blockchain-discovery-host.blockchain.ibm.com",
+                "discovery_port": 30001,
+                "event_host": "blockchain-event-host.blockchain.ibm.com",
+                "event_port": 31001,
+                "id": "blockchain-id",
+                "network_id": "blockchain-network-id",
+                "type": "peer"
+            }
+        ],
+        "users": [
+            {
+                "affiliation": "blockchain-user1-affiliation",
+                "enrollId": "admin",
+                "enrollSecret": "blockchain-user1-enroll-secret",
+                "secret": "blockchain-user1-secret",
+                "username": "admin"
+            }
+        ],
+        "serviceInfo": {
+            "label": "ibm-blockchain-5-prod",
+            "name": "blockchain-name",
+            "plan": "ibm-blockchain-plan-5-prod"
+        }
+    },
+    "cloudant": [
+        {
+            "url": "https://account.cloudant.com",
+            "username": "cloudant-username",
+            "password": "cloudant-password",
+            "serviceInfo": {
+                "label": "cloudant-label",
+                "name": "cloudant-name",
+                "plan": "cloudant-plan"
+            }
+        }
+    ],
+    "conversation": {
+        "url": "https://gateway.watsonplatform.net/conversation/api",
+        "username": "conversation-username",
+        "password": "conversation-password",
+        "serviceInfo": {
+            "label": "conversation-label",
+            "name": "conversation-name",
+            "plan": "conversation-plan"
+        }
+    },
+    "dashDb": {
+        "db": "BLUDB",
+        "dsn": "DATABASE=BLUDB;HOSTNAME=hostname.services.dal.bluemix.net;PORT=50000;PROTOCOL=TCPIP;UID=dash105642;PWD=_qFv_9yCH8Al;",
+        "host": "hostname.services.dal.bluemix.net",
+        "hostname": "hostname.services.dal.bluemix.net",
+        "https_url": "https://hostname.services.dal.bluemix.net:8443",
+        "jdbcurl": "jdbc:db2://hostname.services.dal.bluemix.net:50000/BLUDB",
+        "password": "dashdb-password",
+        "port": 50000,
+        "ssldsn": "DATABASE=BLUDB;HOSTNAME=hostname.services.dal.bluemix.net;PORT=50001;PROTOCOL=TCPIP;UID=dash105642;PWD=_qFv_9yCH8Al;Security=SSL;",
+        "ssljdbcurl": "jdbc:db2://hostname.services.dal.bluemix.net:50001/BLUDB:sslConnection=true;",
+        "uri": "db2://dash105642:password@hostname.services.dal.bluemix.net:50000/BLUDB",
+        "username": "dash105642",
+        "serviceInfo": {
+            "label": "dashDB",
+            "name": "dashdb-name",
+            "plan": "Entry"
+        }
+    },
+    "discovery": {
+        "url": "https://gateway.watsonplatform.net/discovery/api",
+        "username": "discovery-username",
+        "password": "discovery-password",
+        "serviceInfo": {
+            "label": "discovery-label",
+            "name": "discovery-name",
+            "plan": "discovery-plan"
+        }
+    },
+    "documentConversion": {
+        "url": "https://gateway.watsonplatform.net/document-conversion/api",
+        "username": "document-conversion-username",
+        "password": "document-conversion-password",
+        "serviceInfo": {
+            "label": "document-conversion-label",
+            "name": "document-conversion-name",
+            "plan": "document-conversion-plan"
+        }
+    },
+    "historicalInstrumentAnalytics": {
+        "uri": "https://fss-analytics.mybluemix.net/",
+        "accessToken": "historical-instrument-analytics-accesstoken",
+        "serviceInfo": {
+            "label": "fss-historical-instrument-analytics-service",
+            "name": "historical-instrument-analytics-name",
+            "plan": "fss-historical-instrument-analytics-service-free-plan"
+        }
+    },
+    "instrumentAnalytics": {
+        "uri": "https://fss-analytics.mybluemix.net/",
+        "accessToken": "instrument-analytics-accesstoken",
+        "serviceInfo": {
+            "label": "fss-instrument-analytics-service",
+            "name": "instrument-analytics-label",
+            "plan": "fss-instrument-analytics-service-free-plan"
+        }
+    },
+    "investmentPortfolio": {
+        "url": "https://fss-portfolio-service.mybluemix.net/",
+        "reader": {
+            "password": "investment-portfolio-reader-password",
+            "userid": "investment-portfolio-reader-userid"
+        },
+        "writer": {
+            "password": "investment-portfolio-writer-password",
+            "userid": "investment-portfolio-writer-userid"
+        },
+        "serviceInfo": {
+            "label": "fss-portfolio-service",
+            "name": "investment-portfolio-name",
+            "plan": "fss-portfolio-service-free-plan"
+        }
+    },
+    "languageTranslator": {
+        "url": "https://gateway.watsonplatform.net/language-translator/api",
+        "username": "language-translator-username",
+        "password": "language-translator-password",
+        "serviceInfo": {
+            "label": "language-translator-label",
+            "name": "language-translator-name",
+            "plan": "language-translator-plan"
+        }
+    },
+    "messageHub": {
+        "api_key": "5Nijfs1RqlnvDq46FJ0W3ngr6f8hHdVGUC3uWd9JwAvi5kno",
+        "instance_id": "551ddc41-0c8e-45c7-b074-8648c00f07b5",
+        "kafka_admin_url": "https://kafka-admin.messagehub.services.us-south.bluemix.net:443",
+        "kafka_brokers_sasl": [
+            "string"
+        ],
+        "kafka_rest_url": "https://kafka-rest.messagehub.services.us-south.bluemix.net:443",
+        "mqlight_lookup_url": "https://mqlight-lookup.messagehub.services.us-south.bluemix.net/Lookup?serviceId=551ddc41-0c8e-45c7-b074-8648c00f07b5",
+        "password": "FJ0W3ngr6f8hHdVGUC3uWd9JwAvi5kno",
+        "serviceInfo": {
+            "label": "MyAnalyticsLabel",
+            "name": "MyAnalyticsService",
+            "plan": "Basic"
+        },
+        "user": "5Nijfs1RqlnvDq46"
+    },
+    "mongodb": {
+        "ca_certificate_base64": "BASE64-CERT",
+        "db_type": "mongodb",
+        "maps": [],
+        "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
+        "uri": "mongodb://admin:PASSCODE@hostname1.dblayer.com:11111,hostname2.dblayer.com:22222/compose?ssl=true&authSource=admin",
+        "uri_cli": "mongo --ssl --sslAllowInvalidCertificates hostname1.7.dblayer.com:11111/compose --authenticationDatabase admin -u admin -p PASSCODE",
+        "deployment_id": "1234123412346f001800558a",
+        "serviceInfo": {
+            "label": "compose-for-mongodb",
+            "name": "my-mongodb",
+            "plan": "Standard"
+        }
+    },
+    "naturalLanguageClassifier": {
+        "url": "https://gateway.watsonplatform.net/natural-language-classifier/api",
+        "username": "natural-language-classifier-username",
+        "password": "natural-language-classifier-password",
+        "serviceInfo": {
+            "label": "natural-language-classifier-label",
+            "name": "natural-language-classifier-name",
+            "plan": "natural-language-classifier-plan"
+        }
+    },
+    "naturalLanguageUnderstanding": {
+        "url": "https://gateway.watsonplatform.net/natural-language-understanding/api",
+        "username": "natural-language-understanding-username",
+        "password": "natural-language-understanding-password",
+        "serviceInfo": {
+            "label": "natural-language-understanding-label",
+            "name": "natural-language-understanding-name",
+            "plan": "natural-language-understanding-plan"
+        }
+    },
+    "objectStorage": [
+        {
+            "auth_url": "https://identity.open.softlayer.com",
+            "domainId": "object-storage-domainid",
+            "domainName": "object-storage-domain-name",
+            "password": "object-storage-password",
+            "project": "object-storage-project",
+            "projectId": "object-storage-projectid",
+            "region": "dallas",
+            "role": "admin",
+            "userId": "object-storage-userid",
+            "username": "object-storage-username",
+            "serviceInfo": {
+                "label": "object-storage-label",
+                "name": "object-storage-name",
+                "plan": "object-storage-plan"
+            }
+        }
+    ],
+    "payeezy": {
+        "apikey": "payeezy-api-key",
+        "production_uri": "https://api.payeezy.com",
+        "sandbox_uri": "https://api-cert.payeezy.com",
+        "secret": "payeezy-secret",
+        "token": "payeezy-token",
+        "serviceInfo": {
+            "label": "Payeezy",
+            "name": "payeezy-name",
+            "plan": "payeezy-plan"
+        }
+    },
+    "personalityInsights": {
+        "url": "https://gateway.watsonplatform.net/personality-insights/api",
+        "username": "personality-insights-username",
+        "password": "personality-insights-password",
+        "serviceInfo": {
+            "label": "personality-insights-label",
+            "name": "personality-insights-name",
+            "plan": "personality-insights-plan"
+        }
+    },
+    "plaid": {
+        "client_id": "plaid-client-id",
+        "client_secret": "plaid-secret",
+        "development_url": "https://development.plaid.com",
+        "production_url": "https://production.plaid.com",
+        "sandbox_url": "https://sandbox.plaid.com",
+        "serviceInfo": {
+            "label": "Plaid",
+            "name": "plaid-name",
+            "plan": "plaid-plan"
+        }
+    },
+    "postgresql": {
+        "db_type": "postgresql",
+        "uri_cli": "psql \"sslmode=require hostname1.dblayer.com port=11111 dbname=compose user=admin\"",
+        "uri_cli_1": "psql \"sslmode=require host=hostname2.dblayer.com port=22222 dbname=compose user=admin\"",
+        "uri_direct_1": "postgres://admin:PASSCODE@hostname.dblayer.com:11111/compose",
+        "maps": [],
+        "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
+        "ca_certificate_base64": "BASE64-CERT",
+        "uri": "postgres://admin:PASSCODE@sl-us-south-1-portal.7.dblayer.com:22107/compose",
+        "deployment_id": "1234123412346f001800558a",
+        "serviceInfo": {
+            "label": "compose-for-postgresql",
+            "name": "my-postgresql",
+            "plan": "Standard"
+        }
+    },
+    "predictiveMarketScenarios": {
+        "uri": "https://fss-analytics.mybluemix.net/",
+        "accessToken": "predictive-market-scenarios-accesstoken",
+        "serviceInfo": {
+            "label": "fss-predictive-scenario-analytics-service",
+            "name": "predictive-market-scenarios-name",
+            "plan": "fss-predictive-scenario-analytics-service-free-plan"
+        }
+    },
+    "push": {
+        "appGuid": "push-app-guid",
+        "appSecret": "push-app-secret",
+        "clientSecret": "push-client-secret",
+        "serviceInfo": {
+            "label": "push-label",
+            "name": "push-name",
+            "plan": "push-plan"
+        }
+    },
+    "quovo": {
+        "url": "https://api.quovo.com/v2",
+        "username": "quovo-username",
+        "password": "quovo-password",
+        "serviceInfo": {
+            "label": "Quovo",
+            "name": "quovo-name",
+            "plan": "quovo-plan"
+        }
+    },
+    "redis": {
+        "db_type": "redis",
+        "maps": [],
+        "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
+        "uri": "redis://admin:PASSCODE@hostname.dblayer.com:11111",
+        "uri_cli": "redis-cli -h hostname.dblayer.com -p 11111 -a PASSCODE",
+        "deployment_id": "1234123412346f001800558a",
+        "serviceInfo": {
+            "label": "compose-for-redis",
+            "name": "my-redis",
+            "plan": "Standard"
+        }
+    },
+    "retrieveAndRank": {
+        "url": "https://gateway.watsonplatform.net/retrieve-and-rank/api",
+        "username": "retrieve-and-rank-username",
+        "password": "retrieve-and-rank-password",
+        "serviceInfo": {
+            "label": "retrieve-and-rank-label",
+            "name": "retrieve-and-rank-name",
+            "plan": "retrieve-and-rank-plan"
+        }
+    },
+    "simulatedHistoricalInstrumentAnalytics": {
+        "uri": "https://fss-analytics.mybluemix.net/",
+        "accessToken": "simulated-historical-instrument-analytics-accesstoken",
+        "serviceInfo": {
+            "label": "fss-historical-scenario-analytics-service",
+            "name": "simulated-historical-instrument-analytics-name",
+            "plan": "fss-historical-scenario-analytics-service-free-plan"
+        }
+    },
+    "simulatedInstrumentAnalytics": {
+        "uri": "https://fss-analytics.mybluemix.net/",
+        "accessToken": "simulated-instrument-analytics-accesstoken",
+        "serviceInfo": {
+            "label": "fss-scenario-analytics-service",
+            "name": "simulated-instrument-analytics-name",
+            "plan": "fss-scenario-analytics-service-free-plan"
+        }
+    },
+    "speechToText": {
+        "url": "https://gateway.watsonplatform.net/speech-to-text/api",
+        "username": "speech-to-text-username",
+        "password": "speech-to-text-password",
+        "serviceInfo": {
+            "label": "speech-to-text-label",
+            "name": "speech-to-text-name",
+            "plan": "speech-to-text-plan"
+        }
+    },
+    "textToSpeech": {
+        "url": "https://gateway.watsonplatform.net/text-to-speech/api",
+        "username": "text-to-speech-username",
+        "password": "text-to-speech-password",
+        "serviceInfo": {
+            "label": "text-to-speech-label",
+            "name": "text-to-speech-name",
+            "plan": "text-to-speech-plan"
+        }
+    },
+    "toneAnalyzer": {
+        "url": "https://gateway.watsonplatform.net/tone-analyzer/api",
+        "username": "tone-analyzer-username",
+        "password": "tone-analyzer-password",
+        "serviceInfo": {
+            "label": "tone-analyzer-label",
+            "name": "tone-analyzer-name",
+            "plan": "tone-analyzer-plan"
+        }
+    },
+    "visualRecognition": {
+        "url": "https://gateway.watsonplatform.net/visual-recognition/api",
+        "api_key": "visual-recognition-api-key",
+        "note": "It may take up to 5 minutes for this key to become active",
+        "serviceInfo": {
+            "label": "visual-recognition-label",
+            "name": "visual-recognition-name",
+            "plan": "visual-recognition-plan"
+        }
+    },
+    "weatherInsights": {
+        "host": "twcservice.mybluemix.net",
+        "password": "weather-insights-password",
+        "port": 443,
+        "url": "https://username:password@twcservice.mybluemix.net",
+        "username": "weather-insights-username",
+        "serviceInfo": {
+            "label": "weather-insights-label",
+            "name": "weather-insights-name",
+            "plan": "weather-insights-plan"
+        }
+    },
+    "xigniteMarketData": {
+        "token": "xignite-market-data-token",
+        "url": "https://xignite.com",
+        "serviceInfo": {
+            "label": "Xignite Market Data APIs",
+            "name": "xignite-market-data-name",
+            "plan": "xignite-market-data-plan"
+        }
+    }
+}
