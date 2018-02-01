@@ -858,12 +858,28 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
+      it('does initialize file serving middleware', function () {
+        assert.fileContent(applicationSourceFile, 'router.all(middleware: StaticFileServer())')
+      })
+
+      it('does copy public folder', function () {
+        assert.file(commonTest.webDir)
+      })
+
       it('does initialize AppRoutes', function () {
         assert.fileContent(applicationSourceFile, 'initializeAppRoutes(app: self)')
       })
 
       it('does create AppRoutes.swift route file', function () {
         commonTest.itCreatedRoutes('AppRoutes')
+      })
+
+      it('does initialize ErrorRoutes', function () {
+        assert.fileContent(applicationSourceFile, 'initializeErrorRoutes(app: self)')
+      })
+
+      it('does create ErrorRoutes.swift route file', function () {
+        commonTest.itCreatedRoutes('ErrorRoutes')
       })
     })
 
