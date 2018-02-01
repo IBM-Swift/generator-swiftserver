@@ -290,7 +290,7 @@ module.exports = Generator.extend({
         endpoints: []
       }
 
-      if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
+      if (this.web || this.usecase) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
       if (this.appType === 'crud') {
         this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
         this.dependencies.push('.package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),')
@@ -300,7 +300,10 @@ module.exports = Generator.extend({
         this.appInitCode.capabilities.push('initializeMetrics(app: self)')
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
       }
-      if (this.usecase) this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
+      if (this.usecase) {
+        this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
+        this.appInitCode.endpoints.push('initializeErrorRoutes(app: self)')
+      }
     },
 
     ensureGeneratorIsCompatibleWithProject: function () {
@@ -992,6 +995,20 @@ module.exports = Generator.extend({
 
       if (this.web) {
         this.fs.write(this.destinationPath('public', '.keep'), '')
+      }
+
+      if (this.usecase) {
+        this.fs.copy(
+          this.templatePath('public'),
+          this.destinationPath('public')
+        )
+
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'ErrorRoutes.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'ErrorRoutes.swift'),
+            filepath
+          )
+        })
       }
 
       if (this.appType !== 'crud') {
