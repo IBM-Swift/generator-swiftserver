@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.5.0"></a>
+# [4.5.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.4.0...4.5.0) (2018-02-01)
+
+
+### Features
+
+* **status_pages:** create default success and error pages for starters ([#443](https://github.com/IBM-Swift/generator-swiftserver/issues/443)) ([df4a00b](https://github.com/IBM-Swift/generator-swiftserver/commit/df4a00b))
+
+
+
 <a name="4.4.0"></a>
 # [4.4.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.3.0...4.4.0) (2018-01-26)
 

@@ -1,6 +1,6 @@
 {
   "name": "generator-swiftserver",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
@@ -42,9 +42,9 @@
     "istanbul": "^0.4.5",
     "makeshift": "^1.1.0",
     "mem-fs": "^1.1.3",
-    "mem-fs-editor": "^3.0.2",
+    "mem-fs-editor": "^4.0.0",
     "mkdirp": "^0.5.1",
-    "mocha": "^4.0.0",
+    "mocha": "^5.0.0",
     "nock": "^9.0.13",
     "nyc": "^11.1.0",
     "standard": "^10.0.3",
