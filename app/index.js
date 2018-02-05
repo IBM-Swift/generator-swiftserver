@@ -63,6 +63,46 @@ module.exports = Generator.extend({
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
+    initAppName: function () {
+      // save the initial directory for use by the fromSwagger processing.
+      this.initialWorkingDir = process.cwd()
+
+      this.appname = null // Discard yeoman default appname
+      this.skipPromptingAppName = false
+      if (this.options.name) {
+        // User passed a desired application name as an argument
+        var validation = validateAppName(this.options.name)
+        if (validation === true) {
+          // Desired application name is valid, skip prompting for it
+          // later
+          this.appname = this.options.name
+          this.skipPromptingAppName = true
+        } else {
+          // Log reason for validation failure, if provided
+          validation = validation || 'Application name not valid'
+          debug(this.options.name, ' is not valid because ', validation)
+          this.log(validation)
+        }
+      }
+
+      if (this.appname === null) {
+        // Fall back to name of current working directory
+        // Normalize if it contains special characters
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.;,?&=+$]+?/g, '-')
+        // SanitizedCWD replaces /@\s+%:.;,?&=+$ with dashes.
+        // if the name still contains characters which
+        // are not encodable by encodeURIComponent, default to 'app'
+        if (validateAppName(sanitizedCWD) === true) {
+          this.appname = sanitizedCWD
+        } else {
+          // Fall back again to a known valid name
+          this.log('Failed to produce a valid application name from the current working directory')
+          debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'')
+          this.appname = 'app'
+        }
+      }
+    },
+
     initSpec: function () {
       function isTrue (value) {
         return (value === true || value === 'true')
@@ -107,6 +147,9 @@ module.exports = Generator.extend({
       } else if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
         this.destinationSet = true
+        if (this.appname !== path.basename(this.destinationRoot())) {
+          this.destinationRoot(path.resolve(this.appname))
+        }
         this.skipPrompting = true
         this.appPattern = 'Basic'
         this.spec = {
@@ -122,47 +165,6 @@ module.exports = Generator.extend({
           this.skipPrompting = true
         } catch (err) {
           this.env.error(chalk.red(err))
-        }
-      }
-    },
-
-    initAppName: function () {
-      if (this.skipPrompting) return
-
-      // save the initial directory for use by the fromSwagger processing.
-      this.initialWorkingDir = process.cwd()
-
-      this.appname = null // Discard yeoman default appname
-      this.skipPromptingAppName = false
-      if (this.options.name) {
-        // User passed a desired application name as an argument
-        var validation = validateAppName(this.options.name)
-        if (validation === true) {
-          // Desired application name is valid, skip prompting for it
-          // later
-          this.appname = this.options.name
-          this.skipPromptingAppName = true
-        } else {
-          // Log reason for validation failure, if provided
-          validation = validation || 'Application name not valid'
-          debug(this.options.name, ' is not valid because ', validation)
-          this.log(validation)
-        }
-      }
-
-      if (this.appname === null) {
-        // Fall back to name of current working directory
-        // Normalize if it contains special characters
-        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.]+?/g, '-')
-        // We hope that sanitizedCWD is always valid, but check just
-        // in case it isn't
-        if (validateAppName(sanitizedCWD) === true) {
-          this.appname = sanitizedCWD
-        } else {
-          // Fall back again to a known valid name
-          this.log('Failed to produce a valid application name from the current working directory')
-          debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'')
-          this.appname = 'app'
         }
       }
     },
