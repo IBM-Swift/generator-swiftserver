@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.5.1"></a>
+## [4.5.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.5.0...4.5.1) (2018-02-07)
+
+
+### Bug Fixes
+
+* Init special chars bug ([#445](https://github.com/IBM-Swift/generator-swiftserver/issues/445)) ([ca255f1](https://github.com/IBM-Swift/generator-swiftserver/commit/ca255f1))
+
+
+
 <a name="4.5.0"></a>
 # [4.5.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.4.0...4.5.0) (2018-02-01)
 

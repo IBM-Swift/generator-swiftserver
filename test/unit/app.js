@@ -425,10 +425,10 @@ describe('Unit tests for swiftserver:app', function () {
         runContext = helpers.run(appGeneratorPath)
                             .withGenerators(dependentGenerators)
                             .inTmpDir(function (tmpDir) {
-                              this.inDir(path.join(tmpDir, 'inva&%*lid'))
+                              this.inDir(path.join(tmpDir, 'inva[%*lid'))
                             })
                             .withOptions({ testmode: true })
-                            .withArguments(['inva&%*lid'])
+                            .withArguments(['inva[%*lid'])
         return runContext.toPromise()
       })
 
@@ -500,6 +500,35 @@ describe('Unit tests for swiftserver:app', function () {
       capabilities: [ 'docker', 'metrics' ],
       services: {}
     }))
+  })
+
+  describe('in dir with invalid and sanitizable name using --init', function () {
+    var runContext
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+      .withGenerators(dependentGenerators)
+      .inTmpDir(function (tmpDir) {
+        this.inDir(path.join(tmpDir, 'i-n v&a%l@i$d s.y;m,b?o=l+s'))
+      })
+      .withOptions({ testmode: true, init: true })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    commonTest.itUsedDestinationDirectory('i-n-v-a-l-i-d-s-y-m-b-o-l-s')
+
+    it('created a spec object with appName defaulting to dir and no appDir', function () {
+      var spec = runContext.generator.spec
+      var expectedSpec = {
+        appName: 'i-n-v-a-l-i-d-s-y-m-b-o-l-s',
+        appDir: undefined
+      }
+      assert.objectContent(spec, expectedSpec)
+    })
   })
 
   describe('--enableUsecase specified', function () {
