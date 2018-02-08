@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.6.0"></a>
+# [4.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.5.1...4.6.0) (2018-02-08)
+
+
+### Features
+
+* update to Kitura 2.1.x ([#447](https://github.com/IBM-Swift/generator-swiftserver/issues/447)) ([d66561c](https://github.com/IBM-Swift/generator-swiftserver/commit/d66561c))
+
+
+
 <a name="4.5.1"></a>
 ## [4.5.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.5.0...4.5.1) (2018-02-07)
 
