@@ -685,7 +685,7 @@ exports.pushnotifications = {
     it('push notifications boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
-        [serviceFile, 'import BluemixPushNotifications'],
+        [serviceFile, 'import IBMPushNotifications'],
         [serviceFile, 'let pushNotifications = PushNotifications('],
         [serviceFile, 'func initializeServicePush(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'return pushNotifications']
