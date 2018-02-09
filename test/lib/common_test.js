@@ -328,17 +328,20 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
   it('metrics boilerplate contains expected content', function () {
     var metricsFile = `${exports.applicationSourceDir}/Metrics.swift`
     assert.fileContent([
+      [metricsFile, 'import Kitura'],
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
+      [metricsFile, 'import SwiftMetricsPrometheus'],
       [metricsFile, 'swiftMetrics: SwiftMetrics'],
-      [metricsFile, 'func initializeMetrics(app: App)'],
+      [metricsFile, 'func initializeMetrics(router: Router)'],
       [metricsFile, 'SwiftMetrics()'],
-      [metricsFile, 'try SwiftMetricsDash(']
+      [metricsFile, 'try SwiftMetricsDash('],
+      [metricsFile, 'try SwiftMetricsPrometheus(']
     ])
   })
 
   it('application initializes metrics', function () {
-    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(app: self)')
+    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(router: router)')
   })
 }
 
