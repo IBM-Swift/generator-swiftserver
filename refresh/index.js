@@ -282,6 +282,7 @@ module.exports = Generator.extend({
       // Initialization code to add to Application.swift by code block
       // eg this.appInitCode.services.push('try initializeServiceCloudant()')
       this.appInitCode = {
+        metrics: undefined,
         capabilities: [],
         services: [],
         service_imports: [],
@@ -297,7 +298,7 @@ module.exports = Generator.extend({
       }
       if (this.metrics) {
         this.modules.push('"SwiftMetrics"')
-        this.appInitCode.capabilities.push('initializeMetrics(app: self)')
+        this.appInitCode.metrics = 'initializeMetrics(router: router)'
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
       }
       if (this.usecase) {
