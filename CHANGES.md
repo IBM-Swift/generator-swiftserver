@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.6.2"></a>
+## [4.6.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.1...4.6.2) (2018-02-10)
+
+
+### Bug Fixes
+
+* change service initialization order ([#442](https://github.com/IBM-Swift/generator-swiftserver/issues/442)) ([4e909b9](https://github.com/IBM-Swift/generator-swiftserver/commit/4e909b9))
+
+
+
 <a name="4.6.1"></a>
 ## [4.6.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.0...4.6.1) (2018-02-09)
 
