@@ -45,3 +45,7 @@ jobs:
 env:
   global:
   - CXX=g++-4.8
+notifications:
+  email:
+    recipients:
+    - nhardman@uk.ibm.com
