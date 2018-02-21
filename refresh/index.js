@@ -152,7 +152,7 @@ module.exports = Generator.extend({
       // Ensure minimal default bluemix properties are set
       this.bluemix = this.spec.bluemix || {}
       this.bluemix.backendPlatform = this.bluemix.backendPlatform || 'SWIFT'
-      this.bluemix.name = this.bluemix.name || helpers.sanitizeAppName(this.projectName)
+      this.bluemix.name = this.bluemix.name || this.projectName
       this.bluemix.server = this.bluemix.server || {}
       this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
       this.bluemix.server.env = this.bluemix.server.env || {}

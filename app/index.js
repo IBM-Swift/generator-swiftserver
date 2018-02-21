@@ -63,6 +63,14 @@ module.exports = Generator.extend({
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
+    checkWorkingDirectory: function () {
+        // check for %:;=<>”|\ since they break xcode if they are
+        //  anywhere in the directory path.
+      if (validateDirName(process.cwd()) !== true) {
+        this.env.error(chalk.red(process.cwd(), 'directory path contains one or more of the following: %:;=<>”|\\ and will not compile in Xcode'))
+      }
+    },
+
     initAppName: function () {
       // save the initial directory for use by the fromSwagger processing.
       this.initialWorkingDir = process.cwd()
@@ -87,11 +95,9 @@ module.exports = Generator.extend({
 
       if (this.appname === null) {
         // Fall back to name of current working directory
-        // Normalize if it contains special characters
-        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.;,?&=+$]+?/g, '-')
-        // SanitizedCWD replaces /@\s+%:.;,?&=+$ with dashes.
-        // if the name still contains characters which
-        // are not encodable by encodeURIComponent, default to 'app'
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[åç/]+?/g, '-')
+        // if the name still contains characters %:;=<>”|\\ which
+        // will cause Xcode to crash, default to 'app'
         if (validateAppName(sanitizedCWD) === true) {
           this.appname = sanitizedCWD
         } else {

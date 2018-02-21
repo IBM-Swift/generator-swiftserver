@@ -388,17 +388,17 @@ describe('Unit tests for swiftserver:app', function () {
       })
     })
 
-    describe('in dir with invalid and sanitizable name', function () {
+    describe('in dir with acceptable special characters', function () {
       var runContext
 
       before(function () {
         runContext = helpers.run(appGeneratorPath)
                             .withGenerators(dependentGenerators)
                             .inTmpDir(function (tmpDir) {
-                              this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'))
+                              this.inDir(path.join(tmpDir, 'inv@l+l^l!l)lid'))
                             })
                             .withOptions({ testmode: true })
-                            .withArguments(['inva&%*lid'])
+                            .withArguments(['inva:%>lid'])
         return runContext.toPromise()
       })
 
@@ -406,12 +406,12 @@ describe('Unit tests for swiftserver:app', function () {
         runContext.cleanTestDirectory()
       })
 
-      commonTest.itUsedDestinationDirectory('inv-l-l-l-l-lid')
+      commonTest.itUsedDestinationDirectory('inv@l+l^l!l)lid')
 
       it('created a spec object with appName defaulting to dir and no appDir', function () {
         var spec = runContext.generator.spec
         var expectedSpec = {
-          appName: 'inv-l-l-l-l-lid',
+          appName: 'inv@l+l^l!l)lid',
           appDir: undefined
         }
         assert.objectContent(spec, expectedSpec)
@@ -420,31 +420,28 @@ describe('Unit tests for swiftserver:app', function () {
 
     describe('in dir with invalid and unsanitizable name', function () {
       var runContext
+      var error = null
 
       before(function () {
         runContext = helpers.run(appGeneratorPath)
                             .withGenerators(dependentGenerators)
                             .inTmpDir(function (tmpDir) {
-                              this.inDir(path.join(tmpDir, 'inva[%*lid'))
+                              this.inDir(path.join(tmpDir, 'inva:;<lid'))
                             })
                             .withOptions({ testmode: true })
-                            .withArguments(['inva[%*lid'])
-        return runContext.toPromise()
+                            .withArguments(['inva:>;<lid'])
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
       })
 
       after(function () {
         runContext.cleanTestDirectory()
       })
 
-      commonTest.itUsedDestinationDirectory('app')
-
-      it('created a spec object with appName defaulting to dir and no appDir', function () {
-        var spec = runContext.generator.spec
-        var expectedSpec = {
-          appName: 'app',
-          appDir: undefined
-        }
-        assert.objectContent(spec, expectedSpec)
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('inva:;<lid directory path contains one or more of the following: %:;=<>”|\\ and will not compile in Xcode'), 'Thrown error should be about directory path containing invalid characters: ' + error)
       })
     })
   })
@@ -502,14 +499,14 @@ describe('Unit tests for swiftserver:app', function () {
     }))
   })
 
-  describe('in dir with invalid and sanitizable name using --init', function () {
+  describe('in dir with valid special characters using --init', function () {
     var runContext
 
     before(function () {
       runContext = helpers.run(appGeneratorPath)
       .withGenerators(dependentGenerators)
       .inTmpDir(function (tmpDir) {
-        this.inDir(path.join(tmpDir, 'i-n v&a%l@i$d s.y;m,b?o=l+s'))
+        this.inDir(path.join(tmpDir, 'v&a(l@i$d s.y)mb?o!l+s'))
       })
       .withOptions({ testmode: true, init: true })
       return runContext.toPromise()
@@ -519,12 +516,12 @@ describe('Unit tests for swiftserver:app', function () {
       runContext.cleanTestDirectory()
     })
 
-    commonTest.itUsedDestinationDirectory('i-n-v-a-l-i-d-s-y-m-b-o-l-s')
+    commonTest.itUsedDestinationDirectory('v&a(l@i$d s.y)mb?o!l+s')
 
     it('created a spec object with appName defaulting to dir and no appDir', function () {
       var spec = runContext.generator.spec
       var expectedSpec = {
-        appName: 'i-n-v-a-l-i-d-s-y-m-b-o-l-s',
+        appName: 'v&a(l@i$d s.y)mb?o!l+s',
         appDir: undefined
       }
       assert.objectContent(spec, expectedSpec)
