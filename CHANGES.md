@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.7.0"></a>
+# [4.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.2...4.7.0) (2018-02-21)
+
+
+### Bug Fixes
+
+* allow mock to use url from config.js ([#455](https://github.com/IBM-Swift/generator-swiftserver/issues/455)) ([fd89ff8](https://github.com/IBM-Swift/generator-swiftserver/commit/fd89ff8))
+
+
+### Features
+
+* allow special characters ([#453](https://github.com/IBM-Swift/generator-swiftserver/issues/453)) ([aa028b2](https://github.com/IBM-Swift/generator-swiftserver/commit/aa028b2))
+
+
+
 <a name="4.6.2"></a>
 ## [4.6.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.1...4.6.2) (2018-02-10)
 
