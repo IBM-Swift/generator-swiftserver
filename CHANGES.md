@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.1"></a>
+## [4.8.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.0...4.8.1) (2018-02-28)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.8.9 ([aeef2c9](https://github.com/IBM-Swift/generator-swiftserver/commit/aeef2c9)), closes [#463](https://github.com/IBM-Swift/generator-swiftserver/issues/463)
+* usecase flag modification ([187af4d](https://github.com/IBM-Swift/generator-swiftserver/commit/187af4d))
+
+
+
 <a name="4.8.0"></a>
 # [4.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.7.0...4.8.0) (2018-02-23)
 
