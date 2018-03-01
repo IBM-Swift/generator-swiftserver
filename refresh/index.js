@@ -157,6 +157,9 @@ module.exports = Generator.extend({
       this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
       this.bluemix.server.env = this.bluemix.server.env || {}
 
+      // StarterOptions configuration for Usecase enablement
+      this.starterOptions = this.spec.starterOptions || undefined
+
       function isServiceProperty (value) {
         if (Array.isArray(value)) {
           // All elements of the service array must have a serviceInfo property
@@ -1325,6 +1328,7 @@ module.exports = Generator.extend({
       if (!this.usecase) return
       this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {
         force: this.force,
+        starterOptions: JSON.stringify(this.starterOptions),
         bluemix: JSON.stringify(this.bluemix),
         parentContext: {
           injectDependency: dependency => { this.dependencies.push(dependency) }
