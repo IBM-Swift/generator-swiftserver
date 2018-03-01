@@ -1328,7 +1328,7 @@ module.exports = Generator.extend({
       if (!this.usecase) return
       this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {
         force: this.force,
-        starterOptions : JSON.stringify(this.starterOptions),
+        starterOptions: JSON.stringify(this.starterOptions),
         bluemix: JSON.stringify(this.bluemix),
         parentContext: {
           injectDependency: dependency => { this.dependencies.push(dependency) }
