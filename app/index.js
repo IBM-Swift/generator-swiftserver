@@ -125,10 +125,15 @@ module.exports = Generator.extend({
           this.options.bluemix = JSON.parse(this.options.bluemix)
         }
 
+        if (typeof (this.options.starterOptions) === 'string') {
+          this.options.starterOptions = JSON.parse(this.options.starterOptions)
+        }
+
         var appName = this.options.bluemix.name
         var metrics = isTrue(this.options.metrics) || undefined
         var docker = isTrue(this.options.docker) || undefined
         var usecase = isTrue(this.options.enableUsecase) || undefined
+        var starterOptions = this.options.starterOptions || undefined
 
         var web = (this.appType === 'web' || this.appType === 'bff' || undefined)
         var hostSwagger = (this.appType === 'bff' || undefined)
@@ -149,7 +154,8 @@ module.exports = Generator.extend({
           metrics: metrics,
           repoType: 'clone',
           healthcheck: healthcheck,
-          usecase: usecase
+          usecase: usecase,
+          starterOptions: starterOptions
         }
       } else if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
