@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.3"></a>
+## [4.8.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.2...4.8.3) (2018-03-01)
+
+
+### Bug Fixes
+
+* starteroptions available for usecase enablement ([cf60a20](https://github.com/IBM-Swift/generator-swiftserver/commit/cf60a20))
+* starterOptions for usecase ([8734d89](https://github.com/IBM-Swift/generator-swiftserver/commit/8734d89))
+
+
+
 <a name="4.8.2"></a>
 ## [4.8.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.1...4.8.2) (2018-02-28)
 
