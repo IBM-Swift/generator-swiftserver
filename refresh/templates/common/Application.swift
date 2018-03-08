@@ -28,7 +28,7 @@ public let health = Health()
 <% if (appInitCode.services.length > 0) { -%>
 
 class ApplicationServices {
-    // Service references
+    // Initialize services
 <% appInitCode.service_variables.forEach(function(variable) { -%>
     <%- variable %>
 <% }); -%>
@@ -53,8 +53,11 @@ public class App {
 <% } -%>
 
     public init() throws {
+<% if (appInitCode.metrics) { -%>
+        // Run the metrics initializer
+        <%- appInitCode.metrics %>
+<% } -%>
 <% if (appInitCode.services.length > 0) { -%>
-
         // Services
         services = try ApplicationServices(cloudEnv: cloudEnv)
 <% } -%>
@@ -68,13 +71,11 @@ public class App {
 <%   }); -%>
 <% } -%>
 <% if (appInitCode.middlewares.length > 0) { -%>
-
         // Middleware
 <% appInitCode.middlewares.forEach(function(middleware) { -%>
         <%- middleware %>
 <% }); -%>
 <% } -%>
-
         // Endpoints
 <% appInitCode.endpoints.forEach(function(endpoint) { -%>
         <%- endpoint %>

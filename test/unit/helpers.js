@@ -17,10 +17,6 @@
 'use strict'
 var assert = require('yeoman-assert')
 var helpers = require('../../lib/helpers')
-var nock = require('nock')
-var path = require('path')
-var memFs = require('mem-fs')
-var editor = require('mem-fs-editor')
 
 describe('Unit tests for helpers', function () {
   describe('generateServiceName', function () {
@@ -94,7 +90,7 @@ describe('Unit tests for helpers', function () {
             label: 'compose-for-redis',
             plan: 'Standard'
           },
-          uri: 'redis://:@localhost:6397'
+          uri: 'redis://:@localhost:6379'
         },
         objectStorage: {
           serviceInfo: {
@@ -330,14 +326,14 @@ describe('Unit tests for helpers', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
             'redis', { serviceInfo: {name: 'my-service'}, password: 'my-password' }
           )
-          assert.equal(service.uri, 'redis://:my-password@localhost:6397')
+          assert.equal(service.uri, 'redis://:my-password@localhost:6379')
         })
 
         it('uri from host (merge with default)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
             'redis', { serviceInfo: {name: 'my-service'}, host: 'my-host' }
           )
-          assert.equal(service.uri, 'redis://:@my-host:6397')
+          assert.equal(service.uri, 'redis://:@my-host:6379')
         })
 
         it('uri from port (merge with default)', function () {
@@ -525,117 +521,129 @@ describe('Unit tests for helpers', function () {
     })
   })
 
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://petstore.org')
-        .get('/yaml')
-        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yaml'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load yaml from http', function () {
-      helpers.loadAsync('http://petstore.org/yaml')
-        .catch(err => {
-          assert.fail('failed to load .yaml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://petstore.org')
-        .get('/yml')
-        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yml'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load yml from http', function () {
-      helpers.loadAsync('http://petstore.org/yml')
-        .catch(err => {
-          assert.fail('failed to load .yml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://dino.io')
-        .get('/json')
-        .replyWithFile(200, path.join(__dirname, '../resources/person_dino.json'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load json from http', function () {
-      helpers.loadAsync('http://dino.io/json')
-        .catch(err => {
-          assert.fail('failed to load .json file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load json from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/person_dino.json'), fs)
-        .catch(err => {
-          assert.fail('failed to load .json file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load yaml from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yaml'), fs)
-        .catch(err => {
-          assert.fail('failed to load .yaml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load yml from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yml'), fs)
-        .catch(err => {
-          assert.fail('failed to load .yml file:', err)
-        })
-    })
-  })
-
   describe('swagger path formatter', function () {
     it('convert swagger path parameters to swift format', function () {
       assert(helpers.reformatPathToSwiftKitura('/helper/ff/test/{p1}/{p2}') === '/helper/ff/test/:p1/:p2')
+    })
+  })
+
+  describe('arrayContains', function () {
+    it('returns true when the array contains value', function () {
+      var search = 'data'
+      var array = ['data']
+      assert(helpers.arrayContains(search, array) === true)
+    })
+
+    it('returns false when the array does not contain value', function () {
+      var search = 'data'
+      var array = ['blahh']
+      assert(helpers.arrayContains(search, array) === false)
+    })
+  })
+
+  describe('getRefName', function () {
+    it('returns the last element from a reference path', function () {
+      assert(helpers.getRefName('#/definitions/errorModelBody') === 'errorModelBody')
+    })
+  })
+
+  describe('capitalizeFirstLetter', function () {
+    it('returns a string with first letter in upper  case', function () {
+      assert(helpers.capitalizeFirstLetter('should_be_capitalized') === 'Should_be_capitalized')
+    })
+  })
+
+  describe('swiftTypeFromSwaggerProperty', function () {
+    it('returns a Swift Bool type', function () {
+      var property = {'type': 'boolean', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Bool')
+    })
+
+    it('returns a Swift Int type', function () {
+      var property = {'type': 'integer', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int')
+    })
+
+    it('returns a Swift Int8 type', function () {
+      var property = {'type': 'integer', 'format': 'int8'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int8')
+    })
+
+    it('returns a Swift UInt8 type', function () {
+      var property = {'type': 'integer', 'format': 'uint8'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt8')
+    })
+
+    it('returns a Swift Int16 type', function () {
+      var property = {'type': 'integer', 'format': 'int16'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int16')
+    })
+
+    it('returns a Swift UInt16 type', function () {
+      var property = {'type': 'integer', 'format': 'uint16'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt16')
+    })
+
+    it('returns a Swift Int32 type', function () {
+      var property = {'type': 'integer', 'format': 'int32'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int32')
+    })
+
+    it('returns a Swift UInt32 type', function () {
+      var property = {'type': 'integer', 'format': 'uint32'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt32')
+    })
+
+    it('returns a Swift Int64 type', function () {
+      var property = {'type': 'integer', 'format': 'int64'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int64')
+    })
+
+    it('returns a Swift UInt64 type', function () {
+      var property = {'type': 'integer', 'format': 'uint64'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt64')
+    })
+
+    it('returns a Swift Double type', function () {
+      var property = {'type': 'number', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Double')
+    })
+
+    it('returns a Swift Float type', function () {
+      var property = {'type': 'number', 'format': 'float'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Float')
+    })
+
+    it('returns a Swift mapping type for an integer without a format', function () {
+      var property = {
+        'type': 'object',
+        'additionalProperties': {
+          'type': 'integer'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int>')
+    })
+
+    it('returns a Swift mapping type for an integer with a format', function () {
+      var property = {
+        'type': 'object',
+        'additionalProperties': {
+          'type': 'integer',
+          'format': 'int8'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int8>')
+    })
+
+    it('returns a Swift array of Int32 types', function () {
+      var property = {
+        'type': 'array',
+        'items': {
+          'type': 'integer',
+          'format': 'int32'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === '[Int32]')
     })
   })
 })

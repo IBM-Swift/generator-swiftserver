@@ -152,10 +152,13 @@ module.exports = Generator.extend({
       // Ensure minimal default bluemix properties are set
       this.bluemix = this.spec.bluemix || {}
       this.bluemix.backendPlatform = this.bluemix.backendPlatform || 'SWIFT'
-      this.bluemix.name = this.bluemix.name || helpers.sanitizeAppName(this.projectName)
+      this.bluemix.name = this.bluemix.name || this.projectName
       this.bluemix.server = this.bluemix.server || {}
       this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
       this.bluemix.server.env = this.bluemix.server.env || {}
+
+      // StarterOptions configuration for Usecase enablement
+      this.starterOptions = this.spec.starterOptions || undefined
 
       function isServiceProperty (value) {
         if (Array.isArray(value)) {
@@ -195,6 +198,9 @@ module.exports = Generator.extend({
       }
       // Docker configuration
       this.docker = (this.spec.docker === true)
+
+      // Usecase configuration
+      this.usecase = (this.spec.usecase === true)
 
       // Web configuration
       this.web = (this.spec.web === true)
@@ -270,7 +276,7 @@ module.exports = Generator.extend({
       this.itemsToIgnore = []
 
       // Package dependencies to add to Package.swift
-      // eg this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from : "1.7.0")),')
+      // eg this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from : "2.0.0")),')
       this.dependencies = []
 
       // Module Dependencies to add to Package.swift
@@ -279,6 +285,7 @@ module.exports = Generator.extend({
       // Initialization code to add to Application.swift by code block
       // eg this.appInitCode.services.push('try initializeServiceCloudant()')
       this.appInitCode = {
+        metrics: undefined,
         capabilities: [],
         services: [],
         service_imports: [],
@@ -287,15 +294,19 @@ module.exports = Generator.extend({
         endpoints: []
       }
 
-      if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
+      if (this.web || this.usecase) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
       if (this.appType === 'crud') {
         this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
         this.dependencies.push('.package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),')
       }
       if (this.metrics) {
         this.modules.push('"SwiftMetrics"')
-        this.appInitCode.capabilities.push('initializeMetrics(app: self)')
+        this.appInitCode.metrics = 'initializeMetrics(router: router)'
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
+      }
+      if (this.usecase) {
+        this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
+        this.appInitCode.endpoints.push('initializeErrorRoutes(app: self)')
       }
     },
 
@@ -734,7 +745,7 @@ module.exports = Generator.extend({
     }
 
     if (this.openApiFileOrUrl) {
-      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
+      return swaggerize.loadAsync(this.openApiFileOrUrl, this.fs)
         .then(loaded => {
           this.openApiDocumentBytes = loaded
         })
@@ -752,6 +763,15 @@ module.exports = Generator.extend({
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
+          // mangle the route name to allow the renaming of the default route.
+          Object.keys(this.parsedSwagger.resources).forEach(resource => {
+            debug('RESOURCENAME:', resource)
+            if (resource.endsWith('*')) {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource.replace(/\*$/, 'Default')
+            } else {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource + '_'
+            }
+          })
         })
         .catch(err => {
           if (this.openApiFileOrUrl) {
@@ -766,14 +786,17 @@ module.exports = Generator.extend({
 
   addEndpointInitCode: function () {
     var endpointNames = []
-    if (this.parsedSwagger && this.parsedSwagger.resources) {
-      var resourceNames = Object.keys(this.parsedSwagger.resources)
-      endpointNames = endpointNames.concat(resourceNames)
-    }
     if (this.healthcheck) {
       this.modules.push('"Health"')
       endpointNames.push('Health')
-      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
+      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),')
+    }
+    if (this.parsedSwagger && this.parsedSwagger.resources) {
+      var resourceNames = []
+      Object.keys(this.parsedSwagger.resources).forEach(resource => {
+        resourceNames.push(this.parsedSwagger.resources[resource].generatedName)
+      })
+      endpointNames = endpointNames.concat(resourceNames)
     }
 
     var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes(app: self)`)
@@ -809,7 +832,7 @@ module.exports = Generator.extend({
     function generateServerAsync () {
       var sdkPackages = []
       return Promise.map(this.serverSwaggerFiles, file => {
-        return helpers.loadAsync(file, this.fs)
+        return swaggerize.loadAsync(file, this.fs)
           .then(loaded => {
             return swaggerize.parse(loaded, helpers.reformatPathToSwift)
               .then(response => {
@@ -978,6 +1001,20 @@ module.exports = Generator.extend({
         this.fs.write(this.destinationPath('public', '.keep'), '')
       }
 
+      if (this.usecase) {
+        this.fs.copy(
+          this.templatePath('public'),
+          this.destinationPath('public')
+        )
+
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'ErrorRoutes.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'ErrorRoutes.swift'),
+            filepath
+          )
+        })
+      }
+
       if (this.appType !== 'crud') {
         this.fs.copyTpl(
           this.templatePath('common', 'README.scaffold.md'),
@@ -1007,20 +1044,72 @@ module.exports = Generator.extend({
 
     createFromSwagger: function () {
       if (this.parsedSwagger) {
+        handlebars.registerHelper('swifttype', helpers.swiftTypeFromSwaggerProperty)
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
-          debug(resource)
+          // Generate routes
+          var generatedName = this.parsedSwagger.resources[resource].generatedName
+          debug('route:', this.parsedSwagger.resources[resource])
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
-            this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
-              resource: resource,
+              resource: generatedName,
               routes: this.parsedSwagger.resources[resource],
               basepath: this.parsedSwagger.basepath
             }
           )
         })
 
-        // make the swagger available for the swaggerUI
+        // Generate model structures
+        Object.keys(this.parsedSwagger.models).forEach(name => {
+          var model = this.parsedSwagger.models[name]
+          var fileName = helpers.capitalizeFirstLetter(name + '.swift')
+          debug('model:', model)
+          debug('fileName:', fileName)
+
+          if (!model.id) {
+            model.id = name
+          }
+          // For Array of items/models referenced as part of definitions, no need
+          // generate a model file.
+          if (model.type === 'array' && model.items) {
+            return
+          }
+          if (model.properties) {
+            debug('model.properties', model.properties)
+            Object.keys(model.properties).forEach(prop => {
+              if (model.properties[prop].$ref) {
+                model.properties[prop]['type'] = 'ref'
+              }
+              if (model.required && !helpers.arrayContains(prop, model.required)) {
+                model.properties[prop]['optional'] = '?'
+              }
+              if (model.properties[prop].description && model.properties[prop].description.length > 0) {
+                if (model.properties[prop].description.match(/\n/)) {
+                  console.log('found:', model.properties[prop].description)
+                }
+                // model.properties[prop].description = '// ' + model.properties[prop].description
+                var comments = model.properties[prop].description.split('\n')
+                if (comments[comments.length - 1].length === 0) {
+                  comments = comments.slice(0, comments.length - 1)
+                }
+                model.properties[prop].description = comments
+              }
+            })
+            this.fs.copyHbs(
+              this.templatePath('fromswagger', 'Model.swift.hbs'),
+              this.destinationPath('Sources', this.applicationModule, 'Models', fileName),
+              {
+                properties: model.properties,
+                model: name,
+                required: model.required || [],
+                id: name,
+                license: this.license
+              })
+          }
+        })
+
+        // Make the swagger available for the swaggerUI
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
         this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi))
       }
@@ -1233,6 +1322,18 @@ module.exports = Generator.extend({
     writeKubernetesFiles: function () {
       if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
+    },
+
+    writeUsecaseFiles: function () {
+      if (!this.usecase) return
+      this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {
+        force: this.force,
+        starterOptions: JSON.stringify(this.starterOptions),
+        bluemix: JSON.stringify(this.bluemix),
+        parentContext: {
+          injectDependency: dependency => { this.dependencies.push(dependency) }
+        }
+      })
     },
 
     writePackageSwift: function () {

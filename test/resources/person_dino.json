@@ -60,13 +60,76 @@
     "dino": {
       "type": "object",
       "required": [
-        "age"
+        "age",
+        "heightInt",
+        "dietDictionaryInt32"
       ],
       "properties": {
         "age": {
-          "$ref": "#/definitions/age"
+          "type": "string",
+          "description": "comments go here"
         },
-        "ages": {
+        "heightInt": {
+          "type": "integer"
+        },
+        "heightInt8": {
+          "type": "integer",
+          "format": "int8"
+        },
+        "heightUInt8": {
+          "type": "integer",
+          "format": "uint8"
+        },
+        "heightInt16": {
+          "type": "integer",
+          "format": "int16"
+        },
+        "heightUInt16": {
+          "type": "integer",
+          "format": "uint16"
+        },
+        "heightInt32": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "heightUInt32": {
+          "type": "integer",
+          "format": "uint32"
+        },
+        "heightInt64": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "heightUInt64": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "weightDouble": {
+          "type": "number",
+          "format": "double"
+        },
+        "weightFloat": {
+          "type": "number",
+          "format": "float"
+        },
+        "toesBool": {
+          "type": "boolean"
+        },
+        "newAgeRef": {
+          "$ref": "#/definitions/newage"
+        },
+        "dietDictionaryInt32": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "agesArray": {
+          "type": "array",
           "items": {
             "$ref": "#/definitions/newage"
           }

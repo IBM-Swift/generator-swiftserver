@@ -2,6 +2,203 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.3"></a>
+## [4.8.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.2...4.8.3) (2018-03-01)
+
+
+### Bug Fixes
+
+* starteroptions available for usecase enablement ([cf60a20](https://github.com/IBM-Swift/generator-swiftserver/commit/cf60a20))
+* starterOptions for usecase ([8734d89](https://github.com/IBM-Swift/generator-swiftserver/commit/8734d89))
+
+
+
+<a name="4.8.2"></a>
+## [4.8.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.1...4.8.2) (2018-02-28)
+
+
+### Bug Fixes
+
+* usecase flag modification ([187af4d](https://github.com/IBM-Swift/generator-swiftserver/commit/187af4d))
+
+
+
+<a name="4.8.1"></a>
+## [4.8.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.0...4.8.1) (2018-02-26)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.8.9 ([aeef2c9](https://github.com/IBM-Swift/generator-swiftserver/commit/aeef2c9)), closes [#463](https://github.com/IBM-Swift/generator-swiftserver/issues/463)
+
+
+
+<a name="4.8.0"></a>
+# [4.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.7.0...4.8.0) (2018-02-23)
+
+
+### Features
+
+* update to Kitura 2.2.x ([#461](https://github.com/IBM-Swift/generator-swiftserver/issues/461)) ([1e2a26b](https://github.com/IBM-Swift/generator-swiftserver/commit/1e2a26b))
+
+
+
+<a name="4.7.0"></a>
+# [4.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.2...4.7.0) (2018-02-21)
+
+
+### Bug Fixes
+
+* allow mock to use url from config.js ([#455](https://github.com/IBM-Swift/generator-swiftserver/issues/455)) ([fd89ff8](https://github.com/IBM-Swift/generator-swiftserver/commit/fd89ff8))
+
+
+### Features
+
+* allow special characters ([#453](https://github.com/IBM-Swift/generator-swiftserver/issues/453)) ([aa028b2](https://github.com/IBM-Swift/generator-swiftserver/commit/aa028b2))
+
+
+
+<a name="4.6.2"></a>
+## [4.6.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.1...4.6.2) (2018-02-10)
+
+
+### Bug Fixes
+
+* change service initialization order ([#442](https://github.com/IBM-Swift/generator-swiftserver/issues/442)) ([4e909b9](https://github.com/IBM-Swift/generator-swiftserver/commit/4e909b9))
+
+
+
+<a name="4.6.1"></a>
+## [4.6.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.6.0...4.6.1) (2018-02-09)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 0.8.1 ([#450](https://github.com/IBM-Swift/generator-swiftserver/issues/450)) ([6418fd4](https://github.com/IBM-Swift/generator-swiftserver/commit/6418fd4))
+
+
+
+<a name="4.6.0"></a>
+# [4.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.5.1...4.6.0) (2018-02-08)
+
+
+### Features
+
+* update to Kitura 2.1.x ([#447](https://github.com/IBM-Swift/generator-swiftserver/issues/447)) ([d66561c](https://github.com/IBM-Swift/generator-swiftserver/commit/d66561c))
+
+
+
+<a name="4.5.1"></a>
+## [4.5.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.5.0...4.5.1) (2018-02-07)
+
+
+### Bug Fixes
+
+* Init special chars bug ([#445](https://github.com/IBM-Swift/generator-swiftserver/issues/445)) ([ca255f1](https://github.com/IBM-Swift/generator-swiftserver/commit/ca255f1))
+
+
+
+<a name="4.5.0"></a>
+# [4.5.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.4.0...4.5.0) (2018-02-01)
+
+
+### Features
+
+* **status_pages:** create default success and error pages for starters ([#443](https://github.com/IBM-Swift/generator-swiftserver/issues/443)) ([df4a00b](https://github.com/IBM-Swift/generator-swiftserver/commit/df4a00b))
+
+
+
+<a name="4.4.0"></a>
+# [4.4.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.3.0...4.4.0) (2018-01-26)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.6.13 ([#416](https://github.com/IBM-Swift/generator-swiftserver/issues/416)) ([13a14f5](https://github.com/IBM-Swift/generator-swiftserver/commit/13a14f5))
+* **package:** update generator-ibm-service-enablement to version 0.6.5 ([#423](https://github.com/IBM-Swift/generator-swiftserver/issues/423)) ([6769e0b](https://github.com/IBM-Swift/generator-swiftserver/commit/6769e0b))
+* make RouteTests more lenient on index content ([#427](https://github.com/IBM-Swift/generator-swiftserver/issues/427)) ([1ae501e](https://github.com/IBM-Swift/generator-swiftserver/commit/1ae501e))
+* **unsupported services:** added tests to check for unwanted behavior when given unsupported service payloads from custom bluemix string ([#431](https://github.com/IBM-Swift/generator-swiftserver/issues/431)) ([b3e1870](https://github.com/IBM-Swift/generator-swiftserver/commit/b3e1870))
+* use correct redis default port ([#433](https://github.com/IBM-Swift/generator-swiftserver/issues/433)) ([623f206](https://github.com/IBM-Swift/generator-swiftserver/commit/623f206))
+
+
+### Features
+
+* model support for swagger ([#422](https://github.com/IBM-Swift/generator-swiftserver/issues/422)) ([9cb8438](https://github.com/IBM-Swift/generator-swiftserver/commit/9cb8438))
+
+
+
+<a name="4.3.0"></a>
+# [4.3.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.3...4.3.0) (2018-01-10)
+
+
+### Bug Fixes
+
+* **deps:** generator-ibm-usecase-enablement@3.1.0 ([be23161](https://github.com/IBM-Swift/generator-swiftserver/commit/be23161))
+* **deps:** generator-ibm-usecase-enablement@3.1.2 ([0baf28d](https://github.com/IBM-Swift/generator-swiftserver/commit/0baf28d))
+* **package:** update generator-ibm-cloud-enablement to version 0.6.10 ([#409](https://github.com/IBM-Swift/generator-swiftserver/issues/409)) ([54b7f1e](https://github.com/IBM-Swift/generator-swiftserver/commit/54b7f1e)), closes [#387](https://github.com/IBM-Swift/generator-swiftserver/issues/387)
+* **package:** update generator-ibm-cloud-enablement to version 0.6.11 ([f204dbe](https://github.com/IBM-Swift/generator-swiftserver/commit/f204dbe))
+* **package:** update generator-ibm-cloud-enablement to version 0.6.12 ([#414](https://github.com/IBM-Swift/generator-swiftserver/issues/414)) ([8a169e2](https://github.com/IBM-Swift/generator-swiftserver/commit/8a169e2))
+* **package:** update generator-ibm-service-enablement to version 0.6.4 ([6a140b9](https://github.com/IBM-Swift/generator-swiftserver/commit/6a140b9)), closes [#400](https://github.com/IBM-Swift/generator-swiftserver/issues/400)
+* **package:** update generator-ibm-usecase-enablement to version 3.2.0 ([#415](https://github.com/IBM-Swift/generator-swiftserver/issues/415)) ([f3b8cdb](https://github.com/IBM-Swift/generator-swiftserver/commit/f3b8cdb))
+* Failing generator-swiftserver integration tests for SDKGen service ([#412](https://github.com/IBM-Swift/generator-swiftserver/issues/412)) ([12269ca](https://github.com/IBM-Swift/generator-swiftserver/commit/12269ca))
+* small style changes ([1c248a9](https://github.com/IBM-Swift/generator-swiftserver/commit/1c248a9))
+
+
+### Features
+
+* **deps:** generator-ibm-usecase-enablement@3.0.0 ([df3282c](https://github.com/IBM-Swift/generator-swiftserver/commit/df3282c))
+* initial generator-ibm-usecase-enablement support and --enableUsecase option ([040bcc7](https://github.com/IBM-Swift/generator-swiftserver/commit/040bcc7))
+
+
+
+<a name="4.2.3"></a>
+## [4.2.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.2...4.2.3) (2017-12-19)
+
+
+### Bug Fixes
+
+* adding type interpretation ([0e615b7](https://github.com/IBM-Swift/generator-swiftserver/commit/0e615b7))
+
+
+
+<a name="4.2.2"></a>
+## [4.2.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.1...4.2.2) (2017-12-14)
+
+
+### Bug Fixes
+
+* allow blank default for credentials ([c3fe83b](https://github.com/IBM-Swift/generator-swiftserver/commit/c3fe83b))
+
+
+
+<a name="4.2.1"></a>
+## [4.2.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.2.0...4.2.1) (2017-12-12)
+
+
+### Bug Fixes
+
+* accept string bluemix input ([e8a205d](https://github.com/IBM-Swift/generator-swiftserver/commit/e8a205d))
+
+
+
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.1.0...4.2.0) (2017-12-06)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 0.1.0 ([2948e7d](https://github.com/IBM-Swift/generator-swiftserver/commit/2948e7d)), closes [#371](https://github.com/IBM-Swift/generator-swiftserver/issues/371)
+* add url to Push Notifications service ([#379](https://github.com/IBM-Swift/generator-swiftserver/issues/379)) ([9660ec7](https://github.com/IBM-Swift/generator-swiftserver/commit/9660ec7))
+* PR title and message are properly generated ([#382](https://github.com/IBM-Swift/generator-swiftserver/issues/382)) ([f2ba505](https://github.com/IBM-Swift/generator-swiftserver/commit/f2ba505))
+* **package:** update generator-ibm-service-enablement to version 0.6.1 ([#391](https://github.com/IBM-Swift/generator-swiftserver/issues/391)) ([a0bd2e5](https://github.com/IBM-Swift/generator-swiftserver/commit/a0bd2e5))
+
+
+### Features
+
+* refactor to use bluemix object to specify services ([#372](https://github.com/IBM-Swift/generator-swiftserver/issues/372)) ([ebe6149](https://github.com/IBM-Swift/generator-swiftserver/commit/ebe6149))
+
+
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.0.0...4.1.0) (2017-10-31)
 

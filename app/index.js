@@ -34,7 +34,6 @@ module.exports = Generator.extend({
 
   constructor: function () {
     Generator.apply(this, arguments)
-
     // Allow the user to pass the application name into the generator directly
     this.argument('name', {
       desc: 'Name of the application to scaffold.',
@@ -64,63 +63,15 @@ module.exports = Generator.extend({
   initializing: {
     ensureNotInProject: actions.ensureNotInProject,
 
-    initSpec: function () {
-      function isTrue (value) {
-        return (value === true || value === 'true')
-      }
-
-      if (this.options.bluemix) {
-        this.skipPrompting = true
-
-        var appName = this.options.bluemix.name
-        var metrics = isTrue(this.options.metrics) || undefined
-        var docker = isTrue(this.options.docker) || undefined
-
-        var web = (this.appType === 'web' || this.appType === 'bff' || undefined)
-        var hostSwagger = (this.appType === 'bff' || undefined)
-        var exampleEndpoints = (this.appType === 'bff' || undefined)
-        var swaggerUI = (this.appType === 'bff' || undefined)
-        var healthcheck = (this.appType !== 'blank')
-
-        this.spec = {
-          appName: appName,
-          appType: 'scaffold',
-          appDir: '.',
-          docker: docker,
-          web: web,
-          hostSwagger: hostSwagger,
-          exampleEndpoints: exampleEndpoints,
-          swaggerUI: swaggerUI,
-          bluemix: JSON.parse(this.options.bluemix),
-          metrics: metrics,
-          repoType: 'clone',
-          healthcheck: healthcheck
-        }
-      } else if (this.options.init) {
-        // User passed the --init flag, so no prompts, just generate basic default scaffold
-        this.destinationSet = true
-        this.skipPrompting = true
-        this.appPattern = 'Basic'
-        this.spec = {
-          appType: 'scaffold',
-          appName: this.appname,
-          docker: true,
-          metrics: true,
-          bluemix: {}
-        }
-      } else if (this.options.spec) {
-        try {
-          this.spec = JSON.parse(this.options.spec)
-          this.skipPrompting = true
-        } catch (err) {
-          this.env.error(chalk.red(err))
-        }
+    checkWorkingDirectory: function () {
+        // check for %:;=<>”|\ since they break xcode if they are
+        //  anywhere in the directory path.
+      if (validateDirName(process.cwd()) !== true) {
+        this.env.error(chalk.red(process.cwd(), 'directory path contains one or more of the following: %:;=<>”|\\ and will not compile in Xcode'))
       }
     },
 
     initAppName: function () {
-      if (this.skipPrompting) return
-
       // save the initial directory for use by the fromSwagger processing.
       this.initialWorkingDir = process.cwd()
 
@@ -144,10 +95,9 @@ module.exports = Generator.extend({
 
       if (this.appname === null) {
         // Fall back to name of current working directory
-        // Normalize if it contains special characters
-        var sanitizedCWD = path.basename(process.cwd()).replace(/[/@\s+%:.]+?/g, '-')
-        // We hope that sanitizedCWD is always valid, but check just
-        // in case it isn't
+        var sanitizedCWD = path.basename(process.cwd()).replace(/[åç/]+?/g, '-')
+        // if the name still contains characters %:;=<>”|\\ which
+        // will cause Xcode to crash, default to 'app'
         if (validateAppName(sanitizedCWD) === true) {
           this.appname = sanitizedCWD
         } else {
@@ -155,6 +105,79 @@ module.exports = Generator.extend({
           this.log('Failed to produce a valid application name from the current working directory')
           debug(sanitizedCWD, ' is not a valid application name and defaulting to \'app\'')
           this.appname = 'app'
+        }
+      }
+    },
+
+    initSpec: function () {
+      function isTrue (value) {
+        return (value === true || value === 'true')
+      }
+
+      if (this.options.bluemix) {
+        this.skipPrompting = true
+
+        if (this.options.type) {
+          this.appType = this.options.type
+        }
+
+        if (typeof (this.options.bluemix) === 'string') {
+          this.options.bluemix = JSON.parse(this.options.bluemix)
+        }
+
+        if (typeof (this.options.starterOptions) === 'string') {
+          this.options.starterOptions = JSON.parse(this.options.starterOptions)
+        }
+
+        var appName = this.options.bluemix.name
+        var metrics = isTrue(this.options.metrics) || undefined
+        var docker = isTrue(this.options.docker) || undefined
+        var usecase = isTrue(this.options.enableUsecase) || undefined
+        var starterOptions = this.options.starterOptions || undefined
+
+        var web = (this.appType === 'web' || this.appType === 'bff' || undefined)
+        var hostSwagger = (this.appType === 'bff' || undefined)
+        var exampleEndpoints = (this.appType === 'bff' || undefined)
+        var swaggerUI = (this.appType === 'bff' || undefined)
+        var healthcheck = (this.appType !== 'blank')
+
+        this.spec = {
+          appName: appName,
+          appType: 'scaffold',
+          appDir: '.',
+          docker: docker,
+          web: web,
+          hostSwagger: hostSwagger,
+          exampleEndpoints: exampleEndpoints,
+          swaggerUI: swaggerUI,
+          bluemix: this.options.bluemix,
+          metrics: metrics,
+          repoType: 'clone',
+          healthcheck: healthcheck,
+          usecase: usecase,
+          starterOptions: starterOptions
+        }
+      } else if (this.options.init) {
+        // User passed the --init flag, so no prompts, just generate basic default scaffold
+        this.destinationSet = true
+        if (this.appname !== path.basename(this.destinationRoot())) {
+          this.destinationRoot(path.resolve(this.appname))
+        }
+        this.skipPrompting = true
+        this.appPattern = 'Basic'
+        this.spec = {
+          appType: 'scaffold',
+          appName: this.appname,
+          docker: true,
+          metrics: true,
+          bluemix: {}
+        }
+      } else if (this.options.spec) {
+        try {
+          this.spec = JSON.parse(this.options.spec)
+          this.skipPrompting = true
+        } catch (err) {
+          this.env.error(chalk.red(err))
         }
       }
     },

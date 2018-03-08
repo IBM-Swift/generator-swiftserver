@@ -99,6 +99,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       it('cloudfoundry manifest contains the expected content', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, `name: ${applicationName}` ],
+          [ cloudFoundryManifestFile, `command: "'${executableModule}'"` ],
           [ cloudFoundryManifestFile, 'random-route: true' ],
           [ cloudFoundryManifestFile, 'instances: 1' ],
           [ cloudFoundryManifestFile, 'memory: 128M' ],
@@ -238,7 +239,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedClientSDKFile(applicationName)
         commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
-        commonTest.itCreatedRoutes([ 'Products', 'Swagger' ])
+        commonTest.itCreatedRoutes([ 'Products_', 'Swagger' ])
 
         commonTest.itCreatedMetricsFilesWithExpectedContent()
         commonTest.itCreatedWebFiles()
@@ -257,7 +258,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         it('swagger routes match definition', function () {
-          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
           assert.fileContent([
             [ productsRoutesFile, 'router.get("/products"' ],
             [ productsRoutesFile, 'router.post("/products"' ],
@@ -469,7 +470,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         commonTest.itCreatedClientSDKFile(applicationName)
-        commonTest.itCreatedRoutes([ 'Products' ])
+        commonTest.itCreatedRoutes([ 'Products_' ])
 
         it('created a swagger definition file', function () {
           assert.file(outputSwaggerFile)
@@ -480,7 +481,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         it('swagger routes match definition', function () {
-          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
           assert.fileContent([
             [ productsRoutesFile, 'router.get("/products"' ],
             [ productsRoutesFile, 'router.post("/products"' ],
@@ -525,8 +526,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           commonTest.itCreatedClientSDKFile(applicationName)
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('created a swagger definition file', function () {
@@ -538,8 +539,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
 
@@ -573,8 +574,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('requested swagger over http', function () {
@@ -594,8 +595,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -722,7 +723,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService', {
-          uri: 'redis://:@localhost:6397'
+          uri: 'redis://:@localhost:6379'
         })
       })
 

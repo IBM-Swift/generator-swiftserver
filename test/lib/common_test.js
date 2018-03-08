@@ -44,6 +44,7 @@ exports.applicationModule = 'Application'
 exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
 exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
+exports.modelsSourceDir = `${exports.applicationSourceDir}/Models`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
 exports.webDir = 'public'
 exports.swaggerUIDir = `${exports.webDir}/explorer`
@@ -234,6 +235,18 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
 }
 
 //
+// Models
+//
+exports.itCreatedModels = function (modelNameOrModelNames) {
+  var modelNames = Array.isArray(modelNameOrModelNames) ? modelNameOrModelNames : [modelNameOrModelNames]
+  modelNames.forEach(modelName => {
+    it(`created a model source file for ${modelName}`, function () {
+      assert.file(`Sources/Application/Models/${modelName}.swift`)
+    })
+  })
+}
+
+//
 // Package dependencies
 //
 exports.itHasPackageDependencies = function (depOrDeps) {
@@ -315,17 +328,20 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
   it('metrics boilerplate contains expected content', function () {
     var metricsFile = `${exports.applicationSourceDir}/Metrics.swift`
     assert.fileContent([
+      [metricsFile, 'import Kitura'],
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
+      [metricsFile, 'import SwiftMetricsPrometheus'],
       [metricsFile, 'swiftMetrics: SwiftMetrics'],
-      [metricsFile, 'func initializeMetrics(app: App)'],
+      [metricsFile, 'func initializeMetrics(router: Router)'],
       [metricsFile, 'SwiftMetrics()'],
-      [metricsFile, 'try SwiftMetricsDash(']
+      [metricsFile, 'try SwiftMetricsDash('],
+      [metricsFile, 'try SwiftMetricsPrometheus(']
     ])
   })
 
   it('application initializes metrics', function () {
-    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(app: self)')
+    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(router: router)')
   })
 }
 
@@ -469,6 +485,30 @@ exports.itDidNotCreateServiceFiles = function () {
 
   it('bluemix pipeline does not contain services', function () {
     assert.noFileContent(exports.bluemixPipelineFile, 'cf create-services')
+  })
+}
+
+exports.itDidNotCreateService = function (service) {
+  it(`service configuration file does not contain ${service}`, function () {
+    assert.noFileContent(exports.configMappingsFile, service)
+  })
+
+  it(`cloudfoundry manifest does not contain ${service}`, function () {
+    assert.noFileContent([
+      [exports.cloudFoundryManifestFile, `- ${service}`]
+    ])
+  })
+
+  it(`bluemix pipeline does not contain ${service} create-service command`, function () {
+    assert.noFileContent(exports.bluemixPipelineFile, `cf create-service "${service}"`)
+  })
+
+  it(`does not create ${service} boilerplate`, function () {
+    assert.noFile(`${exports.servicesSourceDir}/Service${service}.swift`)
+  })
+
+  it(`application does not initialize ${service}`, function () {
+    assert.noFileContent(exports.applicationSourceFile, `try initializeService${service}(cloudEnv: cloudEnv)`)
   })
 }
 
@@ -648,7 +688,7 @@ exports.pushnotifications = {
     it('push notifications boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
-        [serviceFile, 'import BluemixPushNotifications'],
+        [serviceFile, 'import IBMPushNotifications'],
         [serviceFile, 'let pushNotifications = PushNotifications('],
         [serviceFile, 'func initializeServicePush(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'return pushNotifications']
