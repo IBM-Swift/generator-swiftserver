@@ -58,6 +58,32 @@ class RouteTests: XCTestCase {
 
         waitForExpectations(timeout: 10.0, handler: nil)
     }
+    
+    func testHealthRoute() {
+        
+        let printExpectation = expectation(description: "The /health route will print UP, followed by a timestamp.")
+        
+        URLRequest(forTestWithMethod: "GET", route: "health")?
+            .sendForTestingWithKitura { data, statusCode in
+                if let getResult = String(data: data, encoding: String.Encoding.utf8) {
+                    XCTAssertEqual(statusCode, 200)
+                    XCTAssertTrue(getResult.contains("UP"))
+                    XCTAssertTrue(getResult.contains("2017") || getResult.contains("2018") || getResult.contains("2019"))
+                } else {
+                    XCTFail("Return value from /health was nil, or was not UP, or had no timestamp.")
+                }
+                
+                printExpectation.fulfill()
+                
+        }
+        
+        waitForExpectations(timeout: 10.0, handler: nil)
+        
+    }
+    
+}
+    
+    
 
 }
 
