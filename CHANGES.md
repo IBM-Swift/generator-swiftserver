@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.4"></a>
+## [4.8.4](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.3...4.8.4) (2018-03-09)
+
+
+### Bug Fixes
+
+* security issue with moment dependency ([7b459f7](https://github.com/IBM-Swift/generator-swiftserver/commit/7b459f7))
+
+
+
 <a name="4.8.3"></a>
 ## [4.8.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.2...4.8.3) (2018-03-01)
 
