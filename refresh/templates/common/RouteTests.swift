@@ -68,7 +68,10 @@ class RouteTests: XCTestCase {
                 if let getResult = String(data: data, encoding: String.Encoding.utf8) {
                     XCTAssertEqual(statusCode, 200)
                     XCTAssertTrue(getResult.contains("UP"))
-                    XCTAssertTrue(getResult.contains("2017") || getResult.contains("2018") || getResult.contains("2019"))
+                    let date = Date()
+                    let calendar = Calendar.current
+                    let yearString = String(describing: calendar.component(.year, from: date))
+                    XCTAssertTrue(getResult.contains(yearString)
                 } else {
                     XCTFail("Return value from /health was nil, or was not UP, or had no timestamp.")
                 }
@@ -85,7 +88,7 @@ class RouteTests: XCTestCase {
     
     
 
-}
+
 
 
 private extension URLRequest {
