@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.5"></a>
+## [4.8.5](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.4...4.8.5) (2018-03-13)
+
+
+### Bug Fixes
+
+* **tests:** updates test cases for service enablement 9.3 ([75e8e86](https://github.com/IBM-Swift/generator-swiftserver/commit/75e8e86))
+* error routes take least precedence ([de7e04b](https://github.com/IBM-Swift/generator-swiftserver/commit/de7e04b))
+* localhost and port for client SDK ([86d96cd](https://github.com/IBM-Swift/generator-swiftserver/commit/86d96cd))
+* remove ca ssl cert from credentials ([b7650e4](https://github.com/IBM-Swift/generator-swiftserver/commit/b7650e4))
+* remove ca ssl cert from credentials ([c65aed3](https://github.com/IBM-Swift/generator-swiftserver/commit/c65aed3))
+
+
+
 <a name="4.8.4"></a>
 ## [4.8.4](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.3...4.8.4) (2018-03-12)
 
