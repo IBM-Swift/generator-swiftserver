@@ -306,7 +306,6 @@ module.exports = Generator.extend({
       }
       if (this.usecase) {
         this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
-        this.appInitCode.endpoints.push('initializeErrorRoutes(app: self)')
       }
     },
 
@@ -805,6 +804,11 @@ module.exports = Generator.extend({
     if (this.hostSwagger) {
       this.appInitCode.endpoints.push(`initializeSwaggerRoutes(app: self)`)
       this.swaggerPath = `let swaggerPath = projectPath + "/definitions/${this.projectName}.yaml"`
+    }
+
+    // This  endpoint needs to come last because it should have least precedence.
+    if (this.usecase) {
+      this.appInitCode.endpoints.push('initializeErrorRoutes(app: self)')
     }
   },
 
