@@ -521,12 +521,13 @@ exports.itCreatedServiceConfigFiles = function () {
 
 exports.itHasServiceInConfig = function (serviceDescription, mappingName, serviceName, serviceCredentials) {
   it(`service configuration mapping file contains ${serviceDescription} mapping`, function () {
+    var envVarName = 'service_' + mappingName
     assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
       [mappingName]: {
         searchPatterns: [
           `cloudfoundry:${serviceName}`,
-          `env:${serviceName}`,
+          `env:${envVarName}`,
           `file:/config/localdev-config.json:${serviceName}`
         ]
       }
