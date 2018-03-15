@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.6"></a>
+## [4.8.6](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.5...4.8.6) (2018-03-15)
+
+
+### Bug Fixes
+
+* cloudenvironment support for hypersecure mongodbaas ([e6e65cd](https://github.com/IBM-Swift/generator-swiftserver/commit/e6e65cd))
+
+
+
 <a name="4.8.5"></a>
 ## [4.8.5](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.4...4.8.5) (2018-03-13)
 
