@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.7"></a>
+## [4.8.7](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.6...4.8.7) (2018-03-15)
+
+
+### Bug Fixes
+
+* downgrade dependencies to fix credential ingestion short term ([215539d](https://github.com/IBM-Swift/generator-swiftserver/commit/215539d))
+* downgrade dependencies to fix credential ingestion short term ([d71f239](https://github.com/IBM-Swift/generator-swiftserver/commit/d71f239))
+* **package:** update generator-ibm-service-enablement to version 0.9.7 ([d64ba06](https://github.com/IBM-Swift/generator-swiftserver/commit/d64ba06)), closes [#489](https://github.com/IBM-Swift/generator-swiftserver/issues/489)
+
+
+
 <a name="4.8.6"></a>
 ## [4.8.6](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.5...4.8.6) (2018-03-15)
 
