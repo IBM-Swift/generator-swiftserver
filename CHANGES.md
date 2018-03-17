@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.8"></a>
+## [4.8.8](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.7...4.8.8) (2018-03-17)
+
+
+### Bug Fixes
+
+* **dependency:** kubernetes service binding for hyper secure mongo resolution ([1952227](https://github.com/IBM-Swift/generator-swiftserver/commit/1952227))
+
+
+
 <a name="4.8.7"></a>
 ## [4.8.7](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.6...4.8.7) (2018-03-15)
 
