@@ -209,7 +209,7 @@ module.exports = Generator.extend({
       this.exampleEndpoints = (this.spec.exampleEndpoints === true)
 
       // Health endpoint
-      this.healthcheck = (this.spec.healthcheck === true)
+      this.healthcheck = (typeof this.spec.healthcheck === 'undefined') ? true : this.spec.healthcheck
 
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
