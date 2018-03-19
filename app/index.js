@@ -134,12 +134,12 @@ module.exports = Generator.extend({
         var docker = isTrue(this.options.docker) || undefined
         var usecase = isTrue(this.options.enableUsecase) || undefined
         var starterOptions = this.options.starterOptions || undefined
+        var healthcheck = (typeof this.options.healthcheck === 'undefined') ? true : isTrue(this.options.healthcheck)
 
         var web = (this.appType === 'web' || this.appType === 'bff' || undefined)
         var hostSwagger = (this.appType === 'bff' || undefined)
         var exampleEndpoints = (this.appType === 'bff' || undefined)
         var swaggerUI = (this.appType === 'bff' || undefined)
-        var healthcheck = (this.appType !== 'blank')
 
         this.spec = {
           appName: appName,
