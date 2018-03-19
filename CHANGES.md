@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.8.9"></a>
+## [4.8.9](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.8...4.8.9) (2018-03-19)
+
+
+### Bug Fixes
+
+* provide healthcheck routes by default ([9e86862](https://github.com/IBM-Swift/generator-swiftserver/commit/9e86862))
+* provide healthcheck routes by default ([5cf9df5](https://github.com/IBM-Swift/generator-swiftserver/commit/5cf9df5))
+* provide healthcheck routes by default ([41c2916](https://github.com/IBM-Swift/generator-swiftserver/commit/41c2916))
+
+
+
 <a name="4.8.8"></a>
 ## [4.8.8](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.7...4.8.8) (2018-03-17)
 
