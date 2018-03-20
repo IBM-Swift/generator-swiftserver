@@ -826,9 +826,10 @@ exports.postgresql = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import SwiftKueryPostgreSQL'],
-        [serviceFile, 'postgreSQLConn = PostgreSQLConnection('],
+        [serviceFile, 'import SwiftKueryORM'],
         [serviceFile, 'func initializeServicePostgre(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'cloudEnv.getPostgreSQLCredentials(']
+        [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
+        [serviceFile, 'PostgreSQLConnection']
       ])
     })
   }
