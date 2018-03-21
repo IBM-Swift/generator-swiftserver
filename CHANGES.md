@@ -2,6 +2,85 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.9.0"></a>
+# [4.9.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.9...4.9.0) (2018-03-20)
+
+
+### Features
+
+* Update to 0.11.0 of service-enablement ([9bdc73c](https://github.com/IBM-Swift/generator-swiftserver/commit/9bdc73c))
+
+
+
+<a name="4.8.9"></a>
+## [4.8.9](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.8...4.8.9) (2018-03-19)
+
+
+### Bug Fixes
+
+* provide healthcheck routes by default ([9e86862](https://github.com/IBM-Swift/generator-swiftserver/commit/9e86862))
+* provide healthcheck routes by default ([5cf9df5](https://github.com/IBM-Swift/generator-swiftserver/commit/5cf9df5))
+* provide healthcheck routes by default ([41c2916](https://github.com/IBM-Swift/generator-swiftserver/commit/41c2916))
+
+
+
+<a name="4.8.8"></a>
+## [4.8.8](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.7...4.8.8) (2018-03-17)
+
+
+### Bug Fixes
+
+* **dependency:** kubernetes service binding for hyper secure mongo resolution ([1952227](https://github.com/IBM-Swift/generator-swiftserver/commit/1952227))
+
+
+
+<a name="4.8.7"></a>
+## [4.8.7](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.6...4.8.7) (2018-03-15)
+
+
+### Bug Fixes
+
+* downgrade dependencies to fix credential ingestion short term ([215539d](https://github.com/IBM-Swift/generator-swiftserver/commit/215539d))
+* downgrade dependencies to fix credential ingestion short term ([d71f239](https://github.com/IBM-Swift/generator-swiftserver/commit/d71f239))
+* **package:** update generator-ibm-service-enablement to version 0.9.7 ([d64ba06](https://github.com/IBM-Swift/generator-swiftserver/commit/d64ba06)), closes [#489](https://github.com/IBM-Swift/generator-swiftserver/issues/489)
+
+
+
+<a name="4.8.6"></a>
+## [4.8.6](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.5...4.8.6) (2018-03-15)
+
+
+### Bug Fixes
+
+* cloudenvironment support for hypersecure mongodbaas ([e6e65cd](https://github.com/IBM-Swift/generator-swiftserver/commit/e6e65cd))
+
+
+
+<a name="4.8.5"></a>
+## [4.8.5](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.4...4.8.5) (2018-03-13)
+
+
+### Bug Fixes
+
+* **tests:** updates test cases for service enablement 9.3 ([75e8e86](https://github.com/IBM-Swift/generator-swiftserver/commit/75e8e86))
+* error routes take least precedence ([de7e04b](https://github.com/IBM-Swift/generator-swiftserver/commit/de7e04b))
+* localhost and port for client SDK ([86d96cd](https://github.com/IBM-Swift/generator-swiftserver/commit/86d96cd))
+* remove ca ssl cert from credentials ([b7650e4](https://github.com/IBM-Swift/generator-swiftserver/commit/b7650e4))
+* remove ca ssl cert from credentials ([c65aed3](https://github.com/IBM-Swift/generator-swiftserver/commit/c65aed3))
+
+
+
+<a name="4.8.4"></a>
+## [4.8.4](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.3...4.8.4) (2018-03-12)
+
+
+### Bug Fixes
+
+* hypersecure mongodb credential support ([1490d0c](https://github.com/IBM-Swift/generator-swiftserver/commit/1490d0c))
+* security issue with moment dependency ([7b459f7](https://github.com/IBM-Swift/generator-swiftserver/commit/7b459f7))
+
+
+
 <a name="4.8.3"></a>
 ## [4.8.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.8.2...4.8.3) (2018-03-01)
 
