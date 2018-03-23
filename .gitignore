@@ -5,3 +5,4 @@ coverage.lcov
 .vscode/
 *.swp
 .DS_Store
+xunit.xml

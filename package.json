@@ -8,6 +8,7 @@
     "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
     "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
     "testsdkgen": "standard --env mocha && mocha 'test/sdkgen/**/*.js'",
+    "mocha": "nyc --reporter=lcov mocha --recursive -R xunit-file",
     "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/**/*.js' 'test/integration/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
@@ -49,6 +50,7 @@
     "nyc": "^11.1.0",
     "standard": "^10.0.3",
     "standard-version": "^4.2.0",
+    "xunit-file": "^1.0.0",
     "yeoman-assert": "^3.0.0",
     "yeoman-test": "^1.6.0"
   },
