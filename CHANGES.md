@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.9.3"></a>
+## [4.9.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.2...4.9.3) (2018-04-03)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.12.0 ([dc93f5f](https://github.com/IBM-Swift/generator-swiftserver/commit/dc93f5f)), closes [#484](https://github.com/IBM-Swift/generator-swiftserver/issues/484)
+* health route dependency upgrade for codeable ([7f8b08c](https://github.com/IBM-Swift/generator-swiftserver/commit/7f8b08c))
+* update health routes to be codable ([#472](https://github.com/IBM-Swift/generator-swiftserver/issues/472)) ([21cfea5](https://github.com/IBM-Swift/generator-swiftserver/commit/21cfea5))
+
+
+
 <a name="4.9.2"></a>
 ## [4.9.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.1...4.9.2) (2018-03-29)
 
