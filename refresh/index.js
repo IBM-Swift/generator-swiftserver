@@ -788,7 +788,7 @@ module.exports = Generator.extend({
     if (this.healthcheck) {
       this.modules.push('"Health"')
       endpointNames.push('Health')
-      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
+      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),')
     }
     if (this.parsedSwagger && this.parsedSwagger.resources) {
       var resourceNames = []
