@@ -525,11 +525,13 @@ exports.itHasServiceInConfig = function (serviceDescription, mappingName, servic
     assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
       [mappingName]: {
-        searchPatterns: [
-          `cloudfoundry:${serviceName}`,
-          `env:${envVarName}`,
-          `file:/config/localdev-config.json:${serviceName}`
-        ]
+        credentials: {
+          searchPatterns: [
+            `cloudfoundry:${serviceName}`,
+            `env:${envVarName}`,
+            `file:/config/localdev-config.json:${serviceName}`
+          ]
+        }
       }
     })
   })
