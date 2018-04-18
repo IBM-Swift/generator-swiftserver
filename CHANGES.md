@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.10.1"></a>
+## [4.10.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.0...4.10.1) (2018-04-18)
+
+
+### Bug Fixes
+
+* options generation for swagger ([#515](https://github.com/IBM-Swift/generator-swiftserver/issues/515)) ([0f9e76a](https://github.com/IBM-Swift/generator-swiftserver/commit/0f9e76a))
+
+
+
 <a name="4.10.0"></a>
 # [4.10.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.3...4.10.0) (2018-04-12)
 
