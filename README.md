@@ -40,7 +40,7 @@ npm install -g yo
 To install generator-swiftserver, run:
 
 ```bash
-npm install -g git+https://github.com/IBM-Swift/generator-swiftserver
+npm install -g generator-swiftserver
 ```
 
 ## Usage
@@ -56,25 +56,27 @@ To add a data model to your generated project, `cd` to the new project directory
 yo swiftserver:<model>
 ```
 
+For more information on data models, check out [this guide on Kitura.io](http://www.kitura.io/en/starter/generator/model_definition_json_file.html).
+
 ### Options
-You can also change how generator-swiftserver is invoked by choosing options (in below table):
+You can also change how generator-swiftserver is invoked by choosing options:
 
 ```bash
 yo swiftserver [options]
 ```
 
-Option | Description
---- | ---
-`--init` | Generate basic default scaffold without prompting user for input.
-`--skip-build` | Skip building the generated application
-`--single-shot` | Creates application without including generator metadata files
-`--bluemix` | Invoke generator-swiftserver using a bluemix json object
-`--name` | Project name
-`--type` | Give a specific type of application to generate. (`web`, `bff`, `scaffold`, `crud`)
-`--metrics` | Generate embedded metrics dashboard for project
-`--docker` | Generate Dockerfile for project
-`--healthcheck` | Add health checking to project
-`--spec` | Invoke generator-swiftserver using a spec json object
+Option | Type |Description
+--- | --- | ---
+`--init` | n/a | Generate basic default scaffold without prompting user for input.
+`--skip-build` | n/a | Skip building the generated application
+`--single-shot` | n/a | Creates application without including generator metadata files
+`--bluemix` | Json | Invoke generator-swiftserver using a bluemix json object
+`--name` | String | Project name
+`--type` | String | Give a specific type of application to generate. (`web`, `bff`, `scaffold`, `crud`)
+`--metrics` | Boolean | Generate embedded metrics dashboard for project
+`--docker` | Boolean | Generate Dockerfile for project
+`--healthcheck` | Boolean | Add health checking to project
+`--spec` | Json | Invoke generator-swiftserver using a spec json object
 
 ### Run
 To run the generated server, use: `<project-dir>/.build/debug/<app-name>`
@@ -98,7 +100,7 @@ spec.json | JSON file containing information about the project, used to generate
 myProjectName.xcodeproj | Generated xcodeproj for project
 
 ## Development
-To get started with development, simply clone this repository and link it via npm
+To get started with development, simply clone this repository and link it via npm:
 
 ```
 git clone https://github.com/IBM-Swift/generator-swiftserver
