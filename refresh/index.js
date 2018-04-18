@@ -1085,7 +1085,7 @@ module.exports = Generator.extend({
               if (model.properties[prop].$ref) {
                 model.properties[prop]['type'] = 'ref'
               }
-              if (model.required && !helpers.arrayContains(prop, model.required)) {
+              if (!model.required || (model.required && !helpers.arrayContains(prop, model.required))) {
                 model.properties[prop]['optional'] = '?'
               }
               if (model.properties[prop].description && model.properties[prop].description.length > 0) {
