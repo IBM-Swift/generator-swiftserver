@@ -350,7 +350,9 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
-          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift' ]
+          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift',
+          commonTest.servicesSourceDir + '/ServiceHypersecureDbaasMongodb'
+        ]
           .concat(commonTest.cloudFoundryFiles)
           .concat(commonTest.bluemixFiles)
           .concat(commonTest.dockerFiles)
@@ -372,7 +374,8 @@ describe('Unit tests for swiftserver:refresh', function () {
             conversation: { serviceInfo: { name: 'myConversationService' } },
             push: { serviceInfo: { name: 'myPushService' } },
             alertNotification: { serviceInfo: { name: 'myAlertService' } },
-            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
+            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } },
+            hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
           },
           crudservice: 'myCloudantService'
         }
@@ -1859,6 +1862,33 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedServiceConfigFiles()
       commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoDBService')
+    })
+
+    describe('with hypersecuredb', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: [ 'myHypersecuredbService' ] },
+                                  hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
+                                }
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedServiceConfigFiles()
+      commonTest.hypersecuredb.itCreatedServiceFilesWithExpectedContent('myHypersecuredbService')
     })
   })
 })
