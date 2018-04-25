@@ -8,7 +8,7 @@ func initializeHealthRoutes(app: App) {
         if health.status.state == .UP {
             respondWith(health.status, nil)
         } else {
-            respondWith(health.status, .serviceUnavailable)
+            respondWith(nil, RequestError(.serviceUnavailable, body: health.status))
         }
     }
     
