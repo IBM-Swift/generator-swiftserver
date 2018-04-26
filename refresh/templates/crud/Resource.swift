@@ -82,7 +82,7 @@ public class <%- model.classname %>Resource {
                 Log.error("InternalServerError during handleDeleteAll: \(error)")
                 response.status(.internalServerError)
             } else {
-                response.send([])
+                response.send("[]")
             }
             next()
         }
