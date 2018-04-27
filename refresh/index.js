@@ -1044,6 +1044,16 @@ module.exports = Generator.extend({
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
+
+      this._ifNotExistsInProject('iterative-dev.sh', (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('common', 'iterative-dev.sh'),
+          filepath,
+          {
+            executableModule: this.executableModule
+          }
+        )
+      })
     },
 
     createFromSwagger: function () {
