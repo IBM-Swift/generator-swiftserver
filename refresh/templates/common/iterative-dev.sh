@@ -88,5 +88,5 @@ while true; do
         fi
         
     fi
-    sleep 1.0
+    sleep 2.0
 done
