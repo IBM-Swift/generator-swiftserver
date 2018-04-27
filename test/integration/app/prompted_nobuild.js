@@ -905,9 +905,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
           auth_url: 'https://identity.open.softlayer.com',
           project: '',
-          project_id: '',
+          projectId: '',
           region: '',
-          user_id: '',
+          userId: '',
           password: '',
           domainName: ''
         })
@@ -942,9 +942,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
           auth_url: 'https://identity.open.softlayer.com',
           project: '',
-          project_id: 'myProjectId',
+          projectId: 'myProjectId',
           region: 'dallas',
-          user_id: 'admin',
+          userId: 'admin',
           password: 'password1234',
           domainName: ''
         })
@@ -975,11 +975,11 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
-          tenant_id: '',
-          client_id: '',
+          tenantId: '',
+          clientId: '',
           secret: '',
-          oauth_server_url: '',
-          profiles_url: ''
+          oauthServerUrl: '',
+          profilesUrl: ''
         })
       })
 
@@ -1009,11 +1009,11 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
-          tenant_id: 'myTenantId',
-          client_id: 'myClientId',
+          tenantId: 'myTenantId',
+          clientId: 'myClientId',
           secret: 'mySecret',
-          oauth_server_url: '',
-          profiles_url: ''
+          oauthServerUrl: '',
+          profilesUrl: ''
         })
       })
     })
@@ -1168,9 +1168,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
-          app_guid: '',
-          app_secret: '',
-          client_secret: ''
+          appGuid: '',
+          appSecret: '',
+          clientSecret: ''
         })
       })
 
@@ -1200,9 +1200,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
-          app_guid: 'myAppGuid',
-          app_secret: 'myAppSecret',
-          client_secret: '',
+          appGuid: 'myAppGuid',
+          appSecret: 'myAppSecret',
+          clientSecret: '',
           url: 'http://imfpush.eu-gb.bluemix.net'
         })
       })
