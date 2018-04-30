@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.0...5.0.1) (2018-04-30)
+
+
+### Bug Fixes
+
+* adding documentation and docker modifications for iterative development ([fbb3415](https://github.com/IBM-Swift/generator-swiftserver/commit/fbb3415))
+* adding documentation and docker modifications for iterative development ([feb9a55](https://github.com/IBM-Swift/generator-swiftserver/commit/feb9a55))
+
+
+
 <a name="5.0.0"></a>
 # [5.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.1...5.0.0) (2018-04-27)
 
