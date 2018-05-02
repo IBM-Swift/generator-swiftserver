@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.0...5.0.1) (2018-04-30)
+
+
+### Bug Fixes
+
+* adding documentation and docker modifications for iterative development ([fbb3415](https://github.com/IBM-Swift/generator-swiftserver/commit/fbb3415))
+* adding documentation and docker modifications for iterative development ([feb9a55](https://github.com/IBM-Swift/generator-swiftserver/commit/feb9a55))
+
+
+
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.1...5.0.0) (2018-04-27)
+
+
+### Bug Fixes
+
+* adding back node 4 support ([467047b](https://github.com/IBM-Swift/generator-swiftserver/commit/467047b))
+* credential naming convention change ([29090f5](https://github.com/IBM-Swift/generator-swiftserver/commit/29090f5))
+* swift 4.1 modifications ([7c5cd1e](https://github.com/IBM-Swift/generator-swiftserver/commit/7c5cd1e))
+
+
+### Features
+
+* iterative dev ([7cd7c0c](https://github.com/IBM-Swift/generator-swiftserver/commit/7cd7c0c))
+* swift 4.1 migration ([2505e4b](https://github.com/IBM-Swift/generator-swiftserver/commit/2505e4b))
+* update to Kitura 2.3.x ([5914d59](https://github.com/IBM-Swift/generator-swiftserver/commit/5914d59))
+* updated mappings.json format and service generation ([3727fb5](https://github.com/IBM-Swift/generator-swiftserver/commit/3727fb5))
+
+
+### BREAKING CHANGES
+
+* The mappings.json now contains the credential values in a 'credentials' object for each service, a major change from generator-ibm-service-enablement, which required updates to the CloudEnvironment library and other dependencies.
+
+
+
 <a name="4.10.1"></a>
 ## [4.10.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.0...4.10.1) (2018-04-18)
 
