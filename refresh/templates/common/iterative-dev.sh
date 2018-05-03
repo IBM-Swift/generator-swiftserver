@@ -84,7 +84,10 @@ while true; do
         else
             # assumes you are running from "normal"/host operating system
             swift build
-            ./.build/debug/<%- executableModule %> &
+            if [[ $? == 0 ]]; then 
+                # only start server is build was successful (result code 0)
+                ./.build/debug/<%- executableModule %> &
+            fi
         fi
         
     fi
