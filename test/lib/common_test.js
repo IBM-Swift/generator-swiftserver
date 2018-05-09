@@ -525,11 +525,13 @@ exports.itHasServiceInConfig = function (serviceDescription, mappingName, servic
     assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
       [mappingName]: {
-        searchPatterns: [
-          `cloudfoundry:${serviceName}`,
-          `env:${envVarName}`,
-          `file:/config/localdev-config.json:${serviceName}`
-        ]
+        credentials: {
+          searchPatterns: [
+            `cloudfoundry:${serviceName}`,
+            `env:${envVarName}`,
+            `file:/config/localdev-config.json:${serviceName}`
+          ]
+        }
       }
     })
   })
@@ -830,6 +832,33 @@ exports.postgresql = {
         [serviceFile, 'func initializeServicePostgre(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
         [serviceFile, 'PostgreSQLConnection']
+      ])
+    })
+  }
+}
+
+// MongoDB
+exports.hypersecuredb = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
+    var description = 'hypersecuredb'
+    var mapping = 'hypersecure_dbaas_mongodb'
+    var label = 'hypersecuredb'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('hypersecuredbaas')
+    var sourceFile = 'ServiceHypersecureDbaasMongodb.swift'
+    var initFunction = 'initializeServiceHypersecureDbaasMongodb'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('mongodb boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import MongoKitten'],
+        [serviceFile, 'mongodb = try Database('],
+        [serviceFile, 'func initializeServiceHypersecureDbaasMongodb(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getHyperSecureDBaaSCredentials(']
       ])
     })
   }

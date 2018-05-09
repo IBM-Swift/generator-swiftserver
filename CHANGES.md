@@ -2,6 +2,100 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.3"></a>
+## [5.0.3](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.2...5.0.3) (2018-05-04)
+
+
+### Bug Fixes
+
+* sdk generation migration ([f7a2291](https://github.com/IBM-Swift/generator-swiftserver/commit/f7a2291))
+
+
+
+<a name="5.0.2"></a>
+## [5.0.2](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.1...5.0.2) (2018-05-02)
+
+
+
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.0...5.0.1) (2018-04-30)
+
+
+### Bug Fixes
+
+* adding documentation and docker modifications for iterative development ([fbb3415](https://github.com/IBM-Swift/generator-swiftserver/commit/fbb3415))
+* adding documentation and docker modifications for iterative development ([feb9a55](https://github.com/IBM-Swift/generator-swiftserver/commit/feb9a55))
+
+
+
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.1...5.0.0) (2018-04-27)
+
+
+### Bug Fixes
+
+* adding back node 4 support ([467047b](https://github.com/IBM-Swift/generator-swiftserver/commit/467047b))
+* credential naming convention change ([29090f5](https://github.com/IBM-Swift/generator-swiftserver/commit/29090f5))
+* swift 4.1 modifications ([7c5cd1e](https://github.com/IBM-Swift/generator-swiftserver/commit/7c5cd1e))
+
+
+### Features
+
+* iterative dev ([7cd7c0c](https://github.com/IBM-Swift/generator-swiftserver/commit/7cd7c0c))
+* swift 4.1 migration ([2505e4b](https://github.com/IBM-Swift/generator-swiftserver/commit/2505e4b))
+* update to Kitura 2.3.x ([5914d59](https://github.com/IBM-Swift/generator-swiftserver/commit/5914d59))
+* updated mappings.json format and service generation ([3727fb5](https://github.com/IBM-Swift/generator-swiftserver/commit/3727fb5))
+
+
+### BREAKING CHANGES
+
+* The mappings.json now contains the credential values in a 'credentials' object for each service, a major change from generator-ibm-service-enablement, which required updates to the CloudEnvironment library and other dependencies.
+
+
+
+<a name="4.10.1"></a>
+## [4.10.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.10.0...4.10.1) (2018-04-18)
+
+
+### Bug Fixes
+
+* options generation for swagger ([#515](https://github.com/IBM-Swift/generator-swiftserver/issues/515)) ([0f9e76a](https://github.com/IBM-Swift/generator-swiftserver/commit/0f9e76a))
+
+
+
+<a name="4.10.0"></a>
+# [4.10.0](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.3...4.10.0) (2018-04-12)
+
+
+### Features
+
+* Update to 4.0.3 ([c1ae131](https://github.com/IBM-Swift/generator-swiftserver/commit/c1ae131))
+
+
+
+<a name="4.9.3"></a>
+## [4.9.3](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.2...4.9.3) (2018-04-03)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.12.0 ([dc93f5f](https://github.com/IBM-Swift/generator-swiftserver/commit/dc93f5f)), closes [#484](https://github.com/IBM-Swift/generator-swiftserver/issues/484)
+* health route dependency upgrade for codeable ([7f8b08c](https://github.com/IBM-Swift/generator-swiftserver/commit/7f8b08c))
+* update health routes to be codable ([#472](https://github.com/IBM-Swift/generator-swiftserver/issues/472)) ([21cfea5](https://github.com/IBM-Swift/generator-swiftserver/commit/21cfea5))
+
+
+
+<a name="4.9.2"></a>
+## [4.9.2](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.1...4.9.2) (2018-03-29)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 0.12.0 ([dc93f5f](https://github.com/IBM-Swift/generator-swiftserver/commit/dc93f5f)), closes [#484](https://github.com/IBM-Swift/generator-swiftserver/issues/484)
+* update health routes to be codable ([#472](https://github.com/IBM-Swift/generator-swiftserver/issues/472)) ([21cfea5](https://github.com/IBM-Swift/generator-swiftserver/commit/21cfea5))
+
+
+
 <a name="4.9.1"></a>
 ## [4.9.1](https://github.com/IBM-Swift/generator-swiftserver/compare/4.9.0...4.9.1) (2018-03-27)
 

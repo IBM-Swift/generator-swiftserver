@@ -193,6 +193,17 @@
             "plan": "fss-historical-instrument-analytics-service-free-plan"
         }
     },
+    "hypersecuredb": {
+        "cert": "-----BEGIN CERTIFICATE-----11111-----END CERTIFICATE-----2222222-----BEGIN CERTIFICATE-----33333333-----END CERTIFICATE-----\n",
+        "password": "pwd",
+        "url": "mongodb://111111111111:222222222@dbaas10.hypersecuredbaas.ibm.com:33333,dbaas11.hypersecuredbaas.ibm.com:44444,dbaas12.hypersecuredbaas.ibm.com:55555/6666666666666666666?replicaSet=myreplica",
+        "userid": "123456",
+        "serviceInfo": {
+            "label": "hypersecuredbaas",
+            "name": "my-hypersecuredb",
+            "plan": "Lite"
+        }
+    },
     "instrumentAnalytics": {
         "uri": "https://fss-analytics.mybluemix.net/",
         "accessToken": "instrument-analytics-accesstoken",

@@ -788,7 +788,7 @@ module.exports = Generator.extend({
     if (this.healthcheck) {
       this.modules.push('"Health"')
       endpointNames.push('Health')
-      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "0.0.0"),')
+      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),')
     }
     if (this.parsedSwagger && this.parsedSwagger.resources) {
       var resourceNames = []
@@ -1044,6 +1044,16 @@ module.exports = Generator.extend({
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
+
+      this._ifNotExistsInProject('iterative-dev.sh', (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('common', 'iterative-dev.sh'),
+          filepath,
+          {
+            executableModule: this.executableModule
+          }
+        )
+      })
     },
 
     createFromSwagger: function () {
@@ -1085,7 +1095,7 @@ module.exports = Generator.extend({
               if (model.properties[prop].$ref) {
                 model.properties[prop]['type'] = 'ref'
               }
-              if (model.required && !helpers.arrayContains(prop, model.required)) {
+              if (!model.required || (model.required && !helpers.arrayContains(prop, model.required))) {
                 model.properties[prop]['optional'] = '?'
               }
               if (model.properties[prop].description && model.properties[prop].description.length > 0) {
