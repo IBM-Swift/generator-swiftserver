@@ -8,7 +8,7 @@
     "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
     "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
     "testsdkgen": "standard --env mocha && mocha 'test/sdkgen/**/*.js'",
-    "mocha": "nyc --reporter=lcov mocha 'test/unit/**/*.js' --reporter mocha-multi-reporters --reporter-options configFile=config.json",
+    "mocha": "nyc --reporter=lcov mocha --recursive -R xunit-file",
     "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/**/*.js' 'test/integration/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
@@ -46,7 +46,6 @@
     "mem-fs-editor": "^4.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^5.0.0",
-    "mocha-multi-reporters": "^1.1.7",
     "nock": "^9.0.13",
     "nyc": "^11.1.0",
     "standard": "^10.0.3",
