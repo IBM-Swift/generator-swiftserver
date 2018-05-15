@@ -1,6 +1,6 @@
 {
   "name": "generator-swiftserver",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
     "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
     "testsdkgen": "standard --env mocha && mocha 'test/sdkgen/**/*.js'",
-    "mocha": "nyc --reporter=lcov mocha --recursive -R xunit-file",
+    "mocha": "nyc --reporter=lcov mocha 'test/unit/**/*.js' --reporter mocha-multi-reporters --reporter-options configFile=config.json",
     "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/**/*.js' 'test/integration/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
   },
@@ -27,7 +27,7 @@
     "bluebird": "^3.5.0",
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
-    "generator-ibm-cloud-enablement": "0.14.0",
+    "generator-ibm-cloud-enablement": "0.14.2",
     "generator-ibm-service-enablement": "1.1.7",
     "generator-ibm-usecase-enablement": "3.2.0",
     "handlebars": "^4.0.5",
@@ -46,13 +46,14 @@
     "mem-fs-editor": "^4.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^5.0.0",
+    "mocha-multi-reporters": "^1.1.7",
     "nock": "^9.0.13",
-    "nyc": "^11.1.0",
+    "nyc": "^11.7.3",
     "standard": "^10.0.3",
     "standard-version": "^4.2.0",
     "xunit-file": "^1.0.0",
     "yeoman-assert": "^3.0.0",
-    "yeoman-test": "^1.6.0"
+    "yeoman-test": "1.6.0"
   },
   "standard": {
     "ignore": [

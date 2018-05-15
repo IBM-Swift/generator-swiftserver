@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.0.4"></a>
+## [5.0.4](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.3...5.0.4) (2018-05-14)
+
+
+### Bug Fixes
+
+* Swift 4.1.1 upgrades, fix semver dependency ([1f00c0b](https://github.com/IBM-Swift/generator-swiftserver/commit/1f00c0b))
+* **dependency:** semantic version fix ([62aab7c](https://github.com/IBM-Swift/generator-swiftserver/commit/62aab7c))
+* **dependency:** semantic version fix ([6ca3e77](https://github.com/IBM-Swift/generator-swiftserver/commit/6ca3e77))
+
+
+
 <a name="5.0.3"></a>
 ## [5.0.3](https://github.com/IBM-Swift/generator-swiftserver/compare/5.0.2...5.0.3) (2018-05-04)
 
