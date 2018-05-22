@@ -58,6 +58,36 @@ module.exports = Generator.extend({
       desc: 'Creates application without including generator metadata files',
       defaults: false
     })
+
+    this.option('name', {
+      type: Boolean,
+      desc: 'Project name',
+      defaults: false
+    })
+
+    this.option('type', {
+      type: Boolean,
+      desc: 'Give a specific type of application to generate',
+      defaults: false
+    })
+
+    this.option('metrics', {
+      type: Boolean,
+      desc: 'Add health checking to project',
+      defaults: false
+    })
+
+    this.option('docker', {
+      type: Boolean,
+      desc: 'Generate a Dockerfile for the project',
+      defaults: false
+    })
+
+    this.option('healthcheck', {
+      type: Boolean,
+      desc: 'Add health checking to project',
+      defaults: false
+    })
   },
 
   initializing: {
