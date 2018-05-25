@@ -845,7 +845,7 @@ exports.elephantsql = {
     var mapping = 'elephant_sql'
     var label = 'elephantsql'
     var plan = servicePlan || helpers.getBluemixDefaultPlan('elephantsql')
-    var sourceFile = 'ServiceElephantSQL.swift'
+    var sourceFile = 'ServiceElephantSql.swift'
     var initFunction = 'initializeServiceElephantSql'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
