@@ -98,7 +98,8 @@ exports.serviceDisplayNames = {
   cloudant: 'Cloudant / CouchDB',
   redis: 'Redis',
   mongodb: 'MongoDB',
-  postgresql: 'PostreSQL',
+  postgresql: 'PostgreSQL',
+  elephantsql: 'ElephantSQL',
   objectstorage: 'Object Storage',
   appid: 'AppID',
   watsonconversation: 'Watson Conversation',
@@ -837,6 +838,33 @@ exports.postgresql = {
   }
 }
 
+// ElephantSQL
+exports.elephantsql = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
+    var description = 'elephantsql'
+    var mapping = 'elephant_sql'
+    var label = 'elephantsql'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('elephantsql')
+    var sourceFile = 'ServiceElephantSql.swift'
+    var initFunction = 'initializeServiceElephantSql'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('elephantsql boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import SwiftKueryPostgreSQL'],
+        [serviceFile, 'import SwiftKueryORM'],
+        [serviceFile, 'func initializeServiceElephantSql(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
+        [serviceFile, 'PostgreSQLConnection']
+      ])
+    })
+  }
+}
 // MongoDB
 exports.hypersecuredb = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
