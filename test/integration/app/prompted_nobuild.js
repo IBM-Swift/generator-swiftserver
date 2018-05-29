@@ -842,7 +842,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
-          uri: 'postgres://localhost:5432'
+          uri: 'postgres://localhost:5432/database'
         })
       })
 
@@ -874,6 +874,67 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
+          uri: 'postgres://admin:password1234@myhost:1234/mydb'
+        })
+      })
+    })
+
+    describe('with elephantsql', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'ElephantSQL' ],
+                                configure: [ 'ElephantSQL' ],
+                                elephantsqlName: 'myElephantSQLService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.elephantsql.itCreatedServiceFilesWithExpectedContent('myElephantSQLService', {
+          uri: 'postgres://localhost:5432/database'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'ElephantSQL' ],
+                                configure: [ 'ElephantSQL' ],
+                                elephantsqlName: 'myElephantSQLService',
+                                elephantsqlHost: 'myhost',
+                                elephantsqlPort: '1234',
+                                elephantsqlUsername: 'admin',
+                                elephantsqlPassword: 'password1234',
+                                elephantsqlDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.elephantsql.itCreatedServiceFilesWithExpectedContent('myElephantSQLService', {
           uri: 'postgres://admin:password1234@myhost:1234/mydb'
         })
       })
