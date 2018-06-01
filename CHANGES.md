@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.2.0"></a>
+# 5.2.0 (2018-06-01)
+
+
+### Features
+
+* Update Kitura to 2.4 and service-enablement to 1.4 ([#554](https://github.com/IBM-Swift/generator-swiftserver/issues/554)) ([bf08e07](https://github.com/IBM-Swift/generator-swiftserver/commit/bf08e07))
+
+
+
 <a name="5.1.0"></a>
 # 5.1.0 (2018-05-29)
 
