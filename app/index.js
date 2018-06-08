@@ -515,6 +515,7 @@ module.exports = Generator.extend({
         'Redis',
         'MongoDB',
         'PostgreSQL',
+        'ElephantSQL',
         'Object Storage',
         'AppID',
         'Auto-scaling',
@@ -541,6 +542,9 @@ module.exports = Generator.extend({
         }
         if (answers.services.indexOf('PostgreSQL') !== -1) {
           this._addService('postgresql', generateServiceName(this.appname, 'PostgreSQL'))
+        }
+        if (answers.services.indexOf('ElephantSQL') !== -1) {
+          this._addService('elephantsql', generateServiceName(this.appname, 'ElephantSQL'))
         }
         if (answers.services.indexOf('Object Storage') !== -1) {
           this._addService('objectStorage', generateServiceName(this.appname, 'ObjectStorage'))
@@ -625,6 +629,7 @@ module.exports = Generator.extend({
           case 'redis': return 'Redis'
           case 'mongodb': return 'MongoDB'
           case 'postgresql': return 'PostgreSQL'
+          case 'elephantsql': return 'ElephantSQL'
           case 'objectStorage': return 'Object Storage'
           case 'auth': return 'AppID'
           case 'autoscaling': return 'Auto-scaling'
@@ -810,6 +815,45 @@ module.exports = Generator.extend({
             label: postgreService.serviceInfo.label,
             name: answers.postgresqlName || postgreService.serviceInfo.name,
             plan: postgreService.serviceInfo.plan
+          }
+        }
+      })
+    },
+
+    promptConfigureElephantSQL: function () {
+      if (this.skipPrompting) return
+      if (!this.servicesToConfigure) return
+      if (!this.servicesToConfigure.elephantsql) return
+
+      this.log()
+      this.log('Configure ElephantSQL')
+      var prompts = [
+        { name: 'elephantsqlName',
+          message: 'Enter name (blank for default):'
+        },
+        { name: 'elephantsqlHost', message: 'Enter host name:' },
+        {
+          name: 'elephantsqlPort',
+          message: 'Enter port:',
+          validate: (port) => validatePort(port),
+          filter: (port) => (port ? parseInt(port) : port)
+        },
+        { name: 'elephantsqlUsername', message: 'Enter username:' },
+        { name: 'elephantsqlPassword', message: 'Enter password:', type: 'password' },
+        { name: 'elephantsqlDatabase', message: 'Enter database name:' }
+      ]
+      return this.prompt(prompts).then((answers) => {
+        var elephantsqlService = this.services.elephantsql
+        this.services.elephantsql = {
+          host: answers.elephantsqlHost || undefined,
+          port: answers.elephantsqlPort || undefined,
+          username: answers.elephantsqlUsername || undefined,
+          password: answers.elephantsqlPassword || undefined,
+          database: answers.elephantsqlDatabase || undefined,
+          serviceInfo: {
+            label: elephantsqlService.serviceInfo.label,
+            name: answers.elephantsqlName || elephantsqlService.serviceInfo.name,
+            plan: elephantsqlService.serviceInfo.plan
           }
         }
       })
