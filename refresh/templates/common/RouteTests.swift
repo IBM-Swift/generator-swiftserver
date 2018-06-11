@@ -4,12 +4,11 @@ import KituraNet
 import XCTest
 import HeliumLogger
 import LoggerAPI
-import SwiftyJSON
 
 @testable import <%- applicationModule %>
 
 class RouteTests: XCTestCase {
-
+    static var port: Int!
     static var allTests : [(String, (RouteTests) -> () throws -> Void)] {
         return [
             ("testGetStatic", testGetStatic)
@@ -25,8 +24,10 @@ class RouteTests: XCTestCase {
             print("------------New Test----------")
             print("------------------------------")
 
-            try <%- applicationModule %>.initialize()
-            Kitura.addHTTPServer(onPort: <%- applicationModule %>.port, with: <%- applicationModule %>.router)
+            let app = try App()
+            RouteTests.port = app.cloudEnv.port
+            try app.postInit()
+            Kitura.addHTTPServer(onPort: RouteTests.port, with: app.router)
             Kitura.start()
         } catch {
             XCTFail("Couldn't start <%- applicationModule %> test server: \(error)")
@@ -46,7 +47,7 @@ class RouteTests: XCTestCase {
             .sendForTestingWithKitura { data, statusCode in
                 if let getResult = String(data: data, encoding: String.Encoding.utf8){
                     XCTAssertEqual(statusCode, 200)
-                    XCTAssertTrue(getResult.contains("<html>"))
+                    XCTAssertTrue(getResult.contains("<html"))
                     XCTAssertTrue(getResult.contains("</html>"))
                 } else {
                     XCTFail("Return value from / was nil!")
@@ -57,14 +58,37 @@ class RouteTests: XCTestCase {
 
         waitForExpectations(timeout: 10.0, handler: nil)
     }
-
+    
+    func testHealthRoute() {
+        let printExpectation = expectation(description: "The /health route will print UP, followed by a timestamp.")
+        
+        URLRequest(forTestWithMethod: "GET", route: "health")?
+            .sendForTestingWithKitura { data, statusCode in
+                if let getResult = String(data: data, encoding: String.Encoding.utf8) {
+                    XCTAssertEqual(statusCode, 200)
+                    XCTAssertTrue(getResult.contains("UP"), "UP not found in the result.")
+                    let date = Date()
+                    let calendar = Calendar.current
+                    let yearString = String(describing: calendar.component(.year, from: date))
+                    XCTAssertTrue(getResult.contains(yearString), "Failed to create String from date. Date is either missing or incorrect.")
+                } else {
+                    XCTFail("Unable to convert request Data to String.")
+                }
+                printExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 10.0, handler: nil)
+    }
 }
+    
+    
+
+
 
 
 private extension URLRequest {
 
     init?(forTestWithMethod method: String, route: String = "", body: Data? = nil) {
-        if let url = URL(string: "http://127.0.0.1:\(<%- applicationModule %>.port)/" + route){
+        if let url = URL(string: "http://127.0.0.1:\(RouteTests.port)/" + route){
             self.init(url: url)
             addValue("application/json", forHTTPHeaderField: "Content-Type")
             httpMethod = method

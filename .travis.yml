@@ -14,17 +14,21 @@ os:
 - linux
 - osx
 dist: trusty
-osx_image: xcode8
+osx_image: xcode9.3
 before_install:
 - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
 - git clone https://github.com/IBM-Swift/Package-Builder.git
+- npm i -g makeshift
+- wget https://github.com/github/hub/releases/download/v2.2.9/hub-linux-386-2.2.9.tgz
+- tar -xvzf hub-linux-386-2.2.9.tgz
+- export PATH=${PATH}:$PWD/hub-linux-386-2.2.9/bin/
 script:
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
-- export SWIFT_SNAPSHOT=swift-3.1.1
+- export SWIFT_SNAPSHOT=swift-4.1.1
 - source ./Package-Builder/install-swift.sh
 - if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then npm run testsdkgen; fi
 - if [[ $TRAVIS_EVENT_TYPE != "cron" ]]; then npm run coverage && npm run report-coverage; fi
@@ -33,10 +37,15 @@ jobs:
   - stage: Review
     node_js: '6'
     script: "./review.sh"
+    if: type = push AND branch = develop
   - stage: Releases
     language: ruby
     script: "./release.sh"
+    if: type = push AND branch = master
 env:
   global:
   - CXX=g++-4.8
-  - secure: q3cBn+YgyK2fXt3VxXSc/chYx2KNacQAYlb429opCKMVlP6KKb7aEDygQfduCsQmBj5bMOVfAMw8nXzn/OzCCjBJCwO3AQudbfVvgUdkHACDVwG+ZeicxfiKXbL3YOulb/vU5i4Up24mtHa3rJXYvhL9U27W+4r0TIb9P6jHUYETtkLLUfC2tw5aBnGxuLmIJGYHgSgUNolKIH5EBYb4y8PjWQpFXRLUltmunJswxoSXGIqj/OE1RL/9dJ7r2fNlr6NtSnSwoElekvHZRFATLzucuwZP8HpR9mNW3dt6b8Leq63kDJjwctwjlrTqkBPo5Kx76o/+HISUq9eueqtc+iUhoWVCSRk4dwSJMOp0/j4BqvOCOB1Sa5eL0WvY048v6OmViZzehB4h+Kd+ShcDN24yV0Ci9vEnMzS60vEiXWaUTTVsxdmh/e9Ldw08cCYukCE6Ai7hIU9rVVArc9l1aQwR16PxVtiryyhgVjA9niZvl2i25SvnKjp3K98NB5bSi33hIlgS7nmJ4HTPTWfujb9TeWeOir/q0+pSRt5u1I/KRHUgMSTUpOT0YRMHyOsRTHz5cj5Tr1SbH8FGSNe8Y3ryFOFq28wRx+4gQ/KJAhfjSDzN5dyta2ukH5dqOxBspZeMe6CRzSKIsz0a2ttsEVowcoQQx8R/rt2uOJFOZI8=
+notifications:
+  email:
+    recipients:
+    - nhardman@uk.ibm.com

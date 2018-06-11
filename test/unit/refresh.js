@@ -30,6 +30,7 @@ var mockSDKGen = require('../lib/mock_sdkgen.js')
 var generatedSourceDir = commonTest.generatedSourceDir
 var applicationSourceFile = commonTest.applicationSourceFile
 var routesSourceDir = commonTest.routesSourceDir
+var modelsSourceDir = commonTest.modelsSourceDir
 
 var bxdevConfigFile = commonTest.bxdevConfigFile
 var cloudFoundryManifestFile = commonTest.cloudFoundryManifestFile
@@ -129,36 +130,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
-    describe('invalid service', function () {
-      var runContext
-      var error = null
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: 'myapp',
-                                services: {
-                                  objectstorage: {}
-                                }
-                              }
-                            })
-        return runContext.toPromise().catch(function (err) {
-          error = err
-        })
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      it('aborted the generator with an error', function () {
-        assert(error, 'Should throw an error')
-        assert(error.message.match('services.objectstorage must be an array'), 'Thrown error should be about invalid service value, it was: ' + error)
-      })
-    })
-
     describe('service missing name', function () {
       var runContext
       var error = null
@@ -169,8 +140,9 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: 'myapp',
-                                services: {
-                                  objectstorage: [{}]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
                                 }
                               }
                             })
@@ -201,6 +173,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: 'myapp',
                                 bluemix: {
+                                  backendPlatform: 'SWIFT',
                                   openApiServers: [{ spec: '{ swagger doc }' }]
                                 },
                                 fromSwagger: '/path/to/swagger/file'
@@ -331,6 +304,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         it('cloudfoundry manifest contains the expected content', function () {
           assert.fileContent([
             [ cloudFoundryManifestFile, `name: ${applicationName}` ],
+            [ cloudFoundryManifestFile, `command: "'${executableModule}'"` ],
             [ cloudFoundryManifestFile, 'random-route: true' ],
             [ cloudFoundryManifestFile, 'instances: 1' ],
             [ cloudFoundryManifestFile, 'memory: 128M' ],
@@ -344,12 +318,12 @@ describe('Unit tests for swiftserver:refresh', function () {
           ])
         })
 
-        it('cloudfoundry manifest defines health check details', function () {
+        /* it('cloudfoundry manifest defines health check details', function () {
           assert.fileContent([
             [ cloudFoundryManifestFile, 'health-check-type: http' ],
             [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
           ])
-        })
+        }) */
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
           assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
@@ -376,7 +350,9 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
-          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift' ]
+          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift',
+          commonTest.servicesSourceDir + '/ServiceHypersecureDbaasMongodb'
+        ]
           .concat(commonTest.cloudFoundryFiles)
           .concat(commonTest.bluemixFiles)
           .concat(commonTest.dockerFiles)
@@ -388,16 +364,18 @@ describe('Unit tests for swiftserver:refresh', function () {
           appName: applicationName,
           models: [ todoModel ],
           docker: true,
-          services: {
-            appid: [{ name: 'myAppIDService' }],
-            cloudant: [{ name: 'myCloudantService' }],
-            redis: [{ name: 'myRedisService' }],
-            mongodb: [{ name: 'myMongoDBService' }],
-            objectstorage: [{ name: 'myObjectStorageService' }],
-            watsonconversation: [{ name: 'myConversationService' }],
-            pushnotifications: [{ name: 'myPushService' }],
-            alertnotification: [{ name: 'myAlertService' }],
-            autoscaling: [{ name: 'myAutoscalingService' }]
+          bluemix: {
+            backendPlatform: 'SWIFT',
+            auth: { serviceInfo: { name: 'myAppIDService' } },
+            cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
+            redis: { serviceInfo: { name: 'myRedisService' } },
+            mongodb: { serviceInfo: { name: 'myMongoDBService' } },
+            objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }],
+            conversation: { serviceInfo: { name: 'myConversationService' } },
+            push: { serviceInfo: { name: 'myPushService' } },
+            alertNotification: { serviceInfo: { name: 'myAlertService' } },
+            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } },
+            hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
           },
           crudservice: 'myCloudantService'
         }
@@ -461,10 +439,9 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('contains no Health references', function () {
-          assert.noFileContent('Package.swift', 'Health')
-          assert.noFileContent('Sources/Application/Application.swift', 'Health')
-        })
+        commonTest.itHasNoApplicationModuleImports('Health', 'SwiftMetrics')
+        commonTest.itHasNoPackageDependencies('Health', 'SwiftMetrics')
+        commonTest.itHasNoApplicationModuleDependencies('Health', 'SwiftMetrics')
       })
 
       describe('with docker', function () {
@@ -480,9 +457,15 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   models: [ todoModel ],
                                   docker: true,
                                   bluemix: {
+                                    backendPlatform: 'SWIFT',
                                     server: {
                                       domain: 'mydomain.net',
-                                      namespace: 'mynamespace'
+                                      cloudDeploymentType: 'Kube',
+                                      cloudDeploymentOptions: {
+                                        kubeClusterName: 'devex-default',
+                                        kubeClusterNamespace: 'myClusterNamespace',
+                                        imageRegistryNamespace: 'mynamespace'
+                                      }
                                     }
                                   }
                                 }
@@ -506,7 +489,12 @@ describe('Unit tests for swiftserver:refresh', function () {
         commonTest.itCreatedKubernetesFilesWithExpectedContent({
           applicationName: applicationName,
           domain: 'mydomain.net',
-          namespace: 'mynamespace'
+          imageRegistryNamespace: 'mynamespace'
+        })
+
+        commonTest.itCreatedKubernetesPipelineFilesWithExpectedContent({
+          clusterName: 'devex-default',
+          clusterNamespace: 'myClusterNamespace'
         })
       })
 
@@ -588,8 +576,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   appType: 'crud',
                                   appName: applicationName,
                                   models: [ todoModel ],
-                                  services: {
-                                    autoscaling: [{ name: 'myAutoscalingService' }]
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: { services: ['myAutoscalingService'] },
+                                    autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
                                   }
                                 }
                               })
@@ -617,8 +607,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                                   appType: 'crud',
                                   appName: applicationName,
                                   models: [ todoModel ],
-                                  services: {
-                                    cloudant: [{ name: 'myCloudantService' }]
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: { services: ['myCloudantService'] },
+                                    cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
                                   },
                                   crudservice: 'myCloudantService'
                                 }
@@ -718,12 +710,12 @@ describe('Unit tests for swiftserver:refresh', function () {
         ])
       })
 
-      it('cloudfoundry manifest defines health check details', function () {
+      /* it('cloudfoundry manifest defines health check details', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, 'health-check-type: http' ],
           [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
         ])
-      })
+      }) */
 
       it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
         assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
@@ -765,6 +757,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appType: 'scaffold',
                                 appName: applicationName,
                                 bluemix: {
+                                  backendPlatform: 'SWIFT',
                                   server: {
                                     name: applicationName,
                                     host: 'myhost',
@@ -794,8 +787,11 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
     })
 
-    describe('with incorrect custom bluemix options', function () {
+    describe('with unsupported service payloads in custom bluemix option', function () {
       var runContext
+
+      // bluemix.json file from scaffolder w/ all services
+      var bluemixJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/unsupported_bluemix.json'), 'utf8'))
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
@@ -803,13 +799,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                bluemix: {
-                                  server: {
-                                    name: {},
-                                    host: {},
-                                    domain: true
-                                  }
-                                }
+                                bluemix: bluemixJSON
                               }
                             })
         return runContext.toPromise()
@@ -819,15 +809,81 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
-      it('cloudfoundry manifest contains fallback content', function () {
-        assert.fileContent([
-          [ cloudFoundryManifestFile, `name: ${applicationName}` ],
-          [ cloudFoundryManifestFile, 'random-route: true' ]
-        ])
-        assert.noFileContent([
-          [ cloudFoundryManifestFile, 'host: myhost' ],
-          [ cloudFoundryManifestFile, 'domain: mydomain.net' ]
-        ])
+      // created service config files
+      commonTest.itCreatedServiceConfigFiles()
+
+      // all unsupported services
+      var unsupportedServices = ['accernApi', 'analytics', 'apacheSpark', 'appLaunch', 'blockchain', 'dashDb', 'discovery', 'documentConversion', 'historicalInstrumentAnalysis', 'instrumentAnalysis', 'investmentPortfolio', 'languageTranslator', 'messageHub', 'naturalLanguageClassifier', 'naturalLanguageUnderstanding', 'payeezy', 'personalityInsights', 'plaid', 'predictiveMarketScenarios', 'quovo', 'retrieveAndRank', 'simulatedHistoricalInstrumentAnalysis', 'simulatedInstrumentAnalysis', 'speechToText', 'textToSpeech', 'toneAnalyzer', 'visualRecognition', 'weatherInsights', 'xigniteMarketData']
+
+      unsupportedServices.forEach(service => {
+        commonTest.itDidNotCreateService(service)
+      })
+    })
+
+    describe('with usecase enablement', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .inTmpDir(function (tmpDir) {
+                              // Create dummy starterkit project
+                              const pathToCreate = 'src/swift-kitura/Sources/Application/Routes'
+
+                              mkdirp.sync(pathToCreate)
+
+                              var starterSwiftAppRoutesFile = path.join(tmpDir, 'src', 'swift-kitura', 'Sources', 'Application', 'Routes', 'AppRoutes.swift')
+                              var starterPackageSwiftFile = path.join(tmpDir, 'src', 'swift-kitura', 'Package.swift.partial')
+
+                              fs.writeFileSync(starterSwiftAppRoutesFile, '')
+                              fs.writeFileSync(starterPackageSwiftFile, '')
+
+                              this.inDir(path.join(tmpDir, 'build'))
+                            })
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: {
+                                    name: applicationName,
+                                    host: 'myhost',
+                                    domain: 'mydomain.net',
+                                    disk_quota: '1024M'
+                                  }
+                                },
+                                usecase: true
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('does initialize file serving middleware', function () {
+        assert.fileContent(applicationSourceFile, 'router.all(middleware: StaticFileServer())')
+      })
+
+      it('does copy public folder', function () {
+        assert.file(commonTest.webDir)
+      })
+
+      it('does initialize AppRoutes', function () {
+        assert.fileContent(applicationSourceFile, 'initializeAppRoutes(app: self)')
+      })
+
+      it('does create AppRoutes.swift route file', function () {
+        commonTest.itCreatedRoutes('AppRoutes')
+      })
+
+      it('does initialize ErrorRoutes', function () {
+        assert.fileContent(applicationSourceFile, 'initializeErrorRoutes(app: self)')
+      })
+
+      it('does create ErrorRoutes.swift route file', function () {
+        commonTest.itCreatedRoutes('ErrorRoutes')
       })
     })
 
@@ -843,9 +899,9 @@ describe('Unit tests for swiftserver:refresh', function () {
               appName: applicationName,
               docker: true,
               bluemix: {
+                backendPlatform: 'SWIFT',
                 server: {
-                  domain: 'mydomain.net',
-                  namespace: 'mynamespace'
+                  domain: 'mydomain.net'
                 }
               }
             }
@@ -868,8 +924,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       // option to produce kubernetes files as well
       commonTest.itCreatedKubernetesFilesWithExpectedContent({
         applicationName: applicationName,
-        domain: 'mydomain.net',
-        namespace: 'mynamespace'
+        domain: 'mydomain.net'
       })
     })
 
@@ -986,6 +1041,27 @@ describe('Unit tests for swiftserver:refresh', function () {
           assert(error.match(/Getting server SDK.*failed/), 'Thrown error should be about failing to download server SDK, it was: ' + error)
         })
       })
+
+      describe('SDKGen package format is incorrect', function () {
+        var runContext
+        var error
+        before(function () {
+          mockSDKGen.mockServerSDKPackageRequest(serverSDKName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .withOptions({ specObj: spec })
+          return runContext.toPromise().catch((e) => { error = e.message })
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        it(`should throw error`, function () {
+          assert(error, 'Should throw an error')
+          assert(error.match(/SDKGEN.*incompatible.*.package\(url: ".*", from: "1\.0"\)/), 'Thrown error should be about failing to parse SDK package dependency, it was: ' + error)
+        })
+      })
     })
 
     describe('from swagger', function () {
@@ -1029,10 +1105,37 @@ describe('Unit tests for swiftserver:refresh', function () {
             commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
-              'Dinosaurs',
-              'Persons',
+              'Dinosaurs_',
+              'Persons_',
               'Swagger'
             ])
+
+            commonTest.itCreatedModels([
+              'Dino',
+              'Age',
+              'Newage'
+            ])
+
+            it('created the correct types from the swagger model definition', function () {
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'public struct dino: Codable {')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, '/// comments go here')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let age: String')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt: Int')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt8: Int8?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt8: UInt8?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt16: Int16?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt16: UInt16?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt32: Int32?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt32: UInt32?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt64: Int64?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt64: UInt64?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weight: Double?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightDouble: Double?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightFloat: Float?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let toesBool: Bool?')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let dietDictionaryInt32: Dictionary<String, Int32>')
+              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let agesArray: [newage]?')
+            })
 
             it('created a swagger definition file', function () {
               assert.file(outputSwaggerFile)
@@ -1043,8 +1146,8 @@ describe('Unit tests for swiftserver:refresh', function () {
             })
 
             it('swagger routes prepend base path', function () {
-              assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-              assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+              assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+              assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
             })
           })
 
@@ -1186,7 +1289,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             commonTest.itCreatedClientSDKFile(applicationName)
 
             commonTest.itCreatedRoutes([
-              'Products',
+              'Products_',
               'Swagger'
             ])
 
@@ -1203,7 +1306,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             })
 
             it('swagger routes match definition', function () {
-              var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+              var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
               assert.fileContent([
                 [ productsRoutesFile, 'router.get("/products"' ],
                 [ productsRoutesFile, 'router.post("/products"' ],
@@ -1277,8 +1380,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('requested swagger over http', function () {
@@ -1298,8 +1401,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -1319,6 +1422,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                     appType: 'scaffold',
                                     appName: applicationName,
                                     bluemix: {
+                                      backendPlatform: 'SWIFT',
                                       openApiServers: [{ spec: JSON.stringify(swagger) }]
                                     }
                                   }
@@ -1332,8 +1436,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('created a swagger definition file', function () {
@@ -1345,8 +1449,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -1500,8 +1604,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  cloudant: [{ name: 'name with spaces' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['name with spaces'] },
+                                  cloudant: [{ serviceInfo: { name: 'name with spaces' } }]
                                 }
                               }
                             })
@@ -1524,8 +1630,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  cloudant: [{ name: 'myCloudantService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myCloudantService'] },
+                                  cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
                                 }
                               }
                             })
@@ -1549,8 +1657,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  autoscaling: [{ name: 'myAutoscalingService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAutoscalingService'] },
+                                  autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
                                 }
                               }
                             })
@@ -1574,8 +1684,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  appid: [{ name: 'myAppidService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAppidService'] },
+                                  auth: { serviceInfo: { name: 'myAppidService' } }
                                 }
                               }
                             })
@@ -1599,8 +1711,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  watsonconversation: [{ name: 'myConversationService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myConversationService'] },
+                                  conversation: { serviceInfo: { name: 'myConversationService' } }
                                 }
                               }
                             })
@@ -1624,8 +1738,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  pushnotifications: [{ name: 'myPushService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myPushService'] },
+                                  push: { serviceInfo: { name: 'myPushService' } }
                                 }
                               }
                             })
@@ -1649,8 +1765,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  alertnotification: [{ name: 'myAlertService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myAlertService'] },
+                                  alertNotification: { serviceInfo: { name: 'myAlertService' } }
                                 }
                               }
                             })
@@ -1674,8 +1792,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  objectstorage: [{ name: 'myObjectStorageService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myObjectStorageService'] },
+                                  objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }]
                                 }
                               }
                             })
@@ -1699,8 +1819,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  redis: [{ name: 'myRedisService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: ['myRedisService'] },
+                                  redis: { serviceInfo: { name: 'myRedisService' } }
                                 }
                               }
                             })
@@ -1724,8 +1846,10 @@ describe('Unit tests for swiftserver:refresh', function () {
                               specObj: {
                                 appType: 'scaffold',
                                 appName: applicationName,
-                                services: {
-                                  mongodb: [{ name: 'myMongoDBService' }]
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: [ 'myMongoDBService' ] },
+                                  mongodb: { serviceInfo: { name: 'myMongoDBService' } }
                                 }
                               }
                             })
@@ -1738,6 +1862,33 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedServiceConfigFiles()
       commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoDBService')
+    })
+
+    describe('with hypersecuredb', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(refreshGeneratorPath)
+                            .withOptions({
+                              specObj: {
+                                appType: 'scaffold',
+                                appName: applicationName,
+                                bluemix: {
+                                  backendPlatform: 'SWIFT',
+                                  server: { services: [ 'myHypersecuredbService' ] },
+                                  hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
+                                }
+                              }
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedServiceConfigFiles()
+      commonTest.hypersecuredb.itCreatedServiceFilesWithExpectedContent('myHypersecuredbService')
     })
   })
 })

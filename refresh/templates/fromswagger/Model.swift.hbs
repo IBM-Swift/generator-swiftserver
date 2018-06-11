@@ -1,4 +1,4 @@
-/*
+{{!--
  * Copyright IBM Corporation 2017
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict'
-var path = require('path')
+--}}
+{{license}}
 
-function baseName (thepath) {
-  // get the base file name without extension from a full path.
-  return path.basename(thepath).split('.')[0]
+public struct {{model}}: Codable {
+{{#each properties}}
+  {{#if this.description}}
+
+  {{#each this.description}}
+    /// {{{this}}}
+  {{/each}}
+  {{/if}}
+    let {{@key}}: {{{swifttype this}}}{{this.optional}}
+{{/each}}
 }
-
-function resourceNameFromPath (thepath) {
-  // grab the first valid element of a path (or partial path) and return it capitalized.
-  var resource = thepath.match(/^\/*([^/]+)/)[1]
-  return resource.charAt(0).toUpperCase() + resource.slice(1)
-}
-
-function getRefName (ref) {
-  return ref.split('/').pop()
-}
-
-module.exports = {baseName,
-  resourceNameFromPath,
-  getRefName}

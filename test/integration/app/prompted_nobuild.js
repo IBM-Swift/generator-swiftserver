@@ -80,7 +80,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         'Health'
       ])
 
-      commonTest.applicationImportsModules([
+      commonTest.itHasApplicationModuleImports([
         'Kitura',
         'CloudEnvironment',
         'Health'
@@ -99,6 +99,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       it('cloudfoundry manifest contains the expected content', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, `name: ${applicationName}` ],
+          [ cloudFoundryManifestFile, `command: "'${executableModule}'"` ],
           [ cloudFoundryManifestFile, 'random-route: true' ],
           [ cloudFoundryManifestFile, 'instances: 1' ],
           [ cloudFoundryManifestFile, 'memory: 128M' ],
@@ -112,12 +113,12 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         ])
       })
 
-      it('cloudfoundry manifest defines health check details', function () {
+      /* it('cloudfoundry manifest defines health check details', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, 'health-check-type: http' ],
           [ cloudFoundryManifestFile, 'health-check-http-endpoint: /health' ]
         ])
-      })
+      }) */
 
       it('cloudfoundry manifest does not define OPENAPI_SPEC', function () {
         assert.noFileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC')
@@ -238,7 +239,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedClientSDKFile(applicationName)
         commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
-        commonTest.itCreatedRoutes([ 'Products', 'Swagger' ])
+        commonTest.itCreatedRoutes([ 'Products_', 'Swagger' ])
 
         commonTest.itCreatedMetricsFilesWithExpectedContent()
         commonTest.itCreatedWebFiles()
@@ -257,7 +258,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         it('swagger routes match definition', function () {
-          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
           assert.fileContent([
             [ productsRoutesFile, 'router.get("/products"' ],
             [ productsRoutesFile, 'router.post("/products"' ],
@@ -469,7 +470,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         commonTest.itCreatedClientSDKFile(applicationName)
-        commonTest.itCreatedRoutes([ 'Products' ])
+        commonTest.itCreatedRoutes([ 'Products_' ])
 
         it('created a swagger definition file', function () {
           assert.file(outputSwaggerFile)
@@ -480,7 +481,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         it('swagger routes match definition', function () {
-          var productsRoutesFile = `${routesSourceDir}/ProductsRoutes.swift`
+          var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
           assert.fileContent([
             [ productsRoutesFile, 'router.get("/products"' ],
             [ productsRoutesFile, 'router.post("/products"' ],
@@ -525,8 +526,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           commonTest.itCreatedClientSDKFile(applicationName)
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('created a swagger definition file', function () {
@@ -538,8 +539,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
 
@@ -573,8 +574,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           commonTest.itCreatedRoutes([
-            'Dinosaurs',
-            'Persons'
+            'Dinosaurs_',
+            'Persons_'
           ])
 
           it('requested swagger over http', function () {
@@ -594,8 +595,8 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/DinosaursRoutes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/PersonsRoutes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -722,7 +723,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService', {
-          uri: 'redis://:@localhost:6397'
+          uri: 'redis://:@localhost:6379'
         })
       })
 
@@ -841,7 +842,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.postgresql.itCreatedServiceFilesWithExpectedContent('myPostgreSQLService', {
-          uri: 'postgres://localhost:5432'
+          uri: 'postgres://localhost:5432/database'
         })
       })
 
@@ -878,6 +879,67 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       })
     })
 
+    describe('with elephantsql', function () {
+      describe('default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'ElephantSQL' ],
+                                configure: [ 'ElephantSQL' ],
+                                elephantsqlName: 'myElephantSQLService'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.elephantsql.itCreatedServiceFilesWithExpectedContent('myElephantSQLService', {
+          uri: 'postgres://localhost:5432/database'
+        })
+      })
+
+      describe('non-default credentials', function () {
+        var runContext
+
+        before(function () {
+          runContext = helpers.run(appGeneratorPath)
+                              .withOptions({ skipBuild: true })
+                              .withPrompts({
+                                name: applicationName,
+                                appType: 'Scaffold a starter',
+                                capabilities: [],
+                                services: [ 'ElephantSQL' ],
+                                configure: [ 'ElephantSQL' ],
+                                elephantsqlName: 'myElephantSQLService',
+                                elephantsqlHost: 'myhost',
+                                elephantsqlPort: '1234',
+                                elephantsqlUsername: 'admin',
+                                elephantsqlPassword: 'password1234',
+                                elephantsqlDatabase: 'mydb'
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedServiceConfigFiles()
+        commonTest.elephantsql.itCreatedServiceFilesWithExpectedContent('myElephantSQLService', {
+          uri: 'postgres://admin:password1234@myhost:1234/mydb'
+        })
+      })
+    })
+
     describe('with object storage', function () {
       describe('default credentials', function () {
         var runContext
@@ -904,9 +966,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
           auth_url: 'https://identity.open.softlayer.com',
           project: '',
-          project_id: '',
+          projectId: '',
           region: '',
-          user_id: '',
+          userId: '',
           password: '',
           domainName: ''
         })
@@ -941,9 +1003,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService', {
           auth_url: 'https://identity.open.softlayer.com',
           project: '',
-          project_id: 'myProjectId',
+          projectId: 'myProjectId',
           region: 'dallas',
-          user_id: 'admin',
+          userId: 'admin',
           password: 'password1234',
           domainName: ''
         })
@@ -974,11 +1036,11 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
-          tenant_id: '',
-          client_id: '',
+          tenantId: '',
+          clientId: '',
           secret: '',
-          oauth_server_url: '',
-          profiles_url: ''
+          oauthServerUrl: '',
+          profilesUrl: ''
         })
       })
 
@@ -1008,11 +1070,11 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppIDService', {
-          tenant_id: 'myTenantId',
-          client_id: 'myClientId',
+          tenantId: 'myTenantId',
+          clientId: 'myClientId',
           secret: 'mySecret',
-          oauth_server_url: '',
-          profiles_url: ''
+          oauthServerUrl: '',
+          profilesUrl: ''
         })
       })
     })
@@ -1167,9 +1229,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
-          app_guid: '',
-          app_secret: '',
-          client_secret: ''
+          appGuid: '',
+          appSecret: '',
+          clientSecret: ''
         })
       })
 
@@ -1199,14 +1261,10 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
-          app_guid: 'myAppGuid',
-          app_secret: 'myAppSecret',
-          client_secret: ''
-        })
-
-        it(`push notifications boilerplate contains correct region`, function () {
-          var serviceFile = `${commonTest.servicesSourceDir}/ServicePush.swift`
-          assert.fileContent(serviceFile, 'bluemixRegion: PushNotifications.Region.UK')
+          appGuid: 'myAppGuid',
+          appSecret: 'myAppSecret',
+          clientSecret: '',
+          url: 'http://imfpush.eu-gb.bluemix.net'
         })
       })
     })
@@ -1234,6 +1292,29 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
       commonTest.itCreatedMetricsFilesWithExpectedContent()
       commonTest.autoscaling.itCreatedServiceFilesWithExpectedContent('myAutoscalingService')
+    })
+
+    describe('with --init flag set', function () {
+      var runContext
+      var appName = 'fishcakes'
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true, init: true })
+                            .inTmpDir(function (tmpDir) {
+                              this.inDir(path.join(tmpDir, appName))
+                            })
+
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      commonTest.itCreatedCommonFiles(appName)
+      commonTest.itCreatedMetricsFilesWithExpectedContent()
+      commonTest.itCreatedDockerFilesWithExpectedContent(appName)
     })
   })
 

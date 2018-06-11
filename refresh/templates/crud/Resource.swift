@@ -33,7 +33,7 @@ public class <%- model.classname %>Resource {
                 Log.error("InternalServerError during handleIndex: \(error)")
                 response.status(.internalServerError)
             } else {
-                response.send(json: JSON(models.map { $0.toJSON() }))
+                response.send(models.map { $0.toJSON().description })
             }
             next()
         }
@@ -44,29 +44,29 @@ public class <%- model.classname %>Resource {
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
-            response.send(json: JSON([ "error": "Request Content-Type must be application/json" ]))
+            response.send([ "error": "Request Content-Type must be application/json" ])
             return next()
         }
         guard case .json(let json)? = request.body else {
             response.status(.badRequest)
-            response.send(json: JSON([ "error": "Request body could not be parsed as JSON" ]))
+            response.send([ "error": "Request body could not be parsed as JSON" ])
             return next()
         }
         do {
-            let model = try <%- model.classname %>(json: json)
+            let model = try <%- model.classname %>(json: JSON(json))
             adapter.create(model) { storedModel, error in
                 if let error = error {
                     // TODO: Handle model errors (eg id conflict)
                     Log.error("InternalServerError during handleCreate: \(error)")
                     response.status(.internalServerError)
                 } else {
-                    response.send(json: storedModel!.toJSON())
+                    response.send(storedModel!.toJSON().description)
                 }
                 next()
             }
         } catch let error as ModelError {
             response.status(.unprocessableEntity)
-            response.send(json: JSON([ "error": error.defaultMessage() ]))
+            response.send([ "error": error.defaultMessage() ])
             next()
         } catch {
             Log.error("InternalServerError during handleCreate: \(error)")
@@ -82,8 +82,7 @@ public class <%- model.classname %>Resource {
                 Log.error("InternalServerError during handleDeleteAll: \(error)")
                 response.status(.internalServerError)
             } else {
-                let result = JSON([])
-                response.send(json: result)
+                response.send("[]")
             }
             next()
         }
@@ -100,7 +99,7 @@ public class <%- model.classname %>Resource {
                     response.status(.internalServerError)
                 }
             } else {
-                response.send(json: model!.toJSON())
+                response.send(model!.toJSON().description)
             }
             next()
         }
@@ -111,16 +110,16 @@ public class <%- model.classname %>Resource {
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
-            response.send(json: JSON([ "error": "Request Content-Type must be application/json" ]))
+            response.send([ "error": "Request Content-Type must be application/json" ])
             return next()
         }
         guard case .json(let json)? = request.body else {
             response.status(.badRequest)
-            response.send(json: JSON([ "error": "Request body could not be parsed as JSON" ]))
+            response.send([ "error": "Request body could not be parsed as JSON" ])
             return next()
         }
         do {
-            let model = try <%- model.classname %>(json: json)
+            let model = try <%- model.classname %>(json: JSON(json))
             adapter.update(request.parameters["id"], with: model) { storedModel, error in
                 if let error = error {
                     switch error {
@@ -128,19 +127,19 @@ public class <%- model.classname %>Resource {
                         response.status(.notFound)
                     case AdapterError.idConflict(let id):
                         response.status(.conflict)
-                        response.send(json: JSON([ "error": "Cannot update id to a value that already exists (\(id))" ]))
+                        response.send([ "error": "Cannot update id to a value that already exists (\(id))" ])
                     default:
                         Log.error("InternalServerError during handleCreate: \(error)")
                         response.status(.internalServerError)
                     }
                 } else {
-                    response.send(json: storedModel!.toJSON())
+                    response.send(storedModel!.toJSON().description)
                 }
                 next()
             }
         } catch let error as ModelError {
             response.status(.unprocessableEntity)
-            response.send(json: JSON([ "error": error.defaultMessage() ]))
+            response.send([ "error": error.defaultMessage() ])
             next()
         } catch {
             Log.error("InternalServerError during handleReplace: \(error)")
@@ -154,12 +153,12 @@ public class <%- model.classname %>Resource {
         guard let contentType = request.headers["Content-Type"],
               contentType.hasPrefix("application/json") else {
             response.status(.unsupportedMediaType)
-            response.send(json: JSON([ "error": "Request Content-Type must be application/json" ]))
+            response.send([ "error": "Request Content-Type must be application/json" ])
             return next()
         }
         guard case .json(let json)? = request.body else {
             response.status(.badRequest)
-            response.send(json: JSON([ "error": "Request body could not be parsed as JSON" ]))
+            response.send([ "error": "Request body could not be parsed as JSON" ])
             return next()
         }
         adapter.findOne(request.parameters["id"]) { model, error in
@@ -173,7 +172,7 @@ public class <%- model.classname %>Resource {
                 return next()
             }
             do {
-                let updatedModel = try model!.updatingWith(json: json)
+                let updatedModel = try model!.updatingWith(json: JSON(json))
                 self.adapter.update(request.parameters["id"], with: updatedModel) { storedModel, error in
                     if let error = error {
                         switch error {
@@ -181,19 +180,19 @@ public class <%- model.classname %>Resource {
                             response.status(.notFound)
                         case AdapterError.idConflict(let id):
                             response.status(.conflict)
-                            response.send(json: JSON([ "error": "Cannot update id to a value that already exists (\(id))" ]))
+                            response.send([ "error": "Cannot update id to a value that already exists (\(id))" ])
                         default:
                             Log.error("InternalServerError during handleUpdate: \(error)")
                             response.status(.internalServerError)
                         }
                     } else {
-                        response.send(json: storedModel!.toJSON())
+                        response.send(storedModel!.toJSON().description)
                     }
                     next()
                 }
             } catch let error as ModelError {
                 response.status(.unprocessableEntity)
-                response.send(json: JSON([ "error": error.defaultMessage() ]))
+                response.send([ "error": error.defaultMessage() ])
                 next()
             } catch {
                 Log.error("InternalServerError during handleUpdate: \(error)")
@@ -209,12 +208,12 @@ public class <%- model.classname %>Resource {
             if let error = error {
                 switch error {
                 case AdapterError.notFound:
-                    response.send(json: JSON([ "count": 0 ]))
+                    response.send([ "count": 0 ])
                 default:
                     response.status(.internalServerError)
                 }
             } else {
-                response.send(json: JSON([ "count": 1] ))
+                response.send([ "count": 1] )
             }
             next()
         }

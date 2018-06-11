@@ -116,7 +116,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     // TODO with swagger file serving endpoint @full
     // TODO with endpoints from swagger file @full
 
-    var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql',
+    var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql', 'elephantsql',
       'objectstorage', 'appid', 'watsonconversation', 'alertnotification',
       'pushnotifications', 'autoscaling' ]
     servicesToTest.forEach(service => {
@@ -188,7 +188,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     describe('with all capabilities and services', function () {
       // On macOS this test sometimes times out because of the number
       // of dependencies to fetch and compile. Use a longer timeout.
-      this.timeout(400000)
+      this.timeout(600000)
 
       // var petstoreSDKName = 'Swagger_Petstore'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')

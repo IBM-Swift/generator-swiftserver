@@ -17,10 +17,6 @@
 'use strict'
 var assert = require('yeoman-assert')
 var helpers = require('../../lib/helpers')
-var nock = require('nock')
-var path = require('path')
-var memFs = require('mem-fs')
-var editor = require('mem-fs-editor')
 
 describe('Unit tests for helpers', function () {
   describe('generateServiceName', function () {
@@ -78,92 +74,92 @@ describe('Unit tests for helpers', function () {
     describe('default values', function () {
       var expectedDefaultValues = {
         cloudant: {
-          label: 'cloudantNoSQLDB',
-          plan: 'Lite',
-          credentials: {
-            url: 'http://localhost:5984',
-            host: 'localhost',
-            username: '',
-            password: '',
-            secured: false,
-            port: 5984
-          }
+          serviceInfo: {
+            label: 'cloudantNoSQLDB',
+            plan: 'Lite'
+          },
+          url: 'http://localhost:5984',
+          host: 'localhost',
+          username: '',
+          password: '',
+          secured: false,
+          port: 5984
         },
         redis: {
-          label: 'compose-for-redis',
-          plan: 'Standard',
-          credentials: {
-            uri: 'redis://:@localhost:6397'
-          }
+          serviceInfo: {
+            label: 'compose-for-redis',
+            plan: 'Standard'
+          },
+          uri: 'redis://:@localhost:6379'
         },
-        objectstorage: {
-          label: 'Object-Storage',
-          plan: 'Free',
-          credentials: {
-            auth_url: 'https://identity.open.softlayer.com',
-            project: '',
-            projectId: '',
-            region: '',
-            userId: '',
-            username: '',
-            password: '',
-            domainId: '',
-            domainName: '',
-            role: ''
-          }
+        objectStorage: {
+          serviceInfo: {
+            label: 'Object-Storage',
+            plan: 'Free'
+          },
+          auth_url: 'https://identity.open.softlayer.com',
+          project: '',
+          projectId: '',
+          region: '',
+          userId: '',
+          username: '',
+          password: '',
+          domainId: '',
+          domainName: '',
+          role: ''
         },
-        appid: {
-          label: 'AppID',
-          plan: 'Graduated tier',
-          credentials: {
-            clientId: '',
-            oauthServerUrl: '',
-            profilesUrl: '',
-            secret: '',
-            tenantId: ''
-          }
+        auth: {
+          serviceInfo: {
+            label: 'AppID',
+            plan: 'Graduated tier'
+          },
+          clientId: '',
+          oauthServerUrl: '',
+          profilesUrl: '',
+          secret: ''
         },
-        watsonconversation: {
-          label: 'conversation',
-          plan: 'free',
-          credentials: {
-            url: 'https://gateway.watsonplatform.net/conversation/api',
-            username: '',
-            password: ''
-          }
+        conversation: {
+          serviceInfo: {
+            label: 'conversation',
+            plan: 'free'
+          },
+          url: 'https://gateway.watsonplatform.net/conversation/api',
+          username: '',
+          password: ''
         },
-        alertnotification: {
-          label: 'AlertNotification',
-          plan: 'authorizedusers',
-          credentials: {
-            url: '',
-            name: '',
-            password: ''
-          }
+        alertNotification: {
+          serviceInfo: {
+            label: 'AlertNotification',
+            plan: 'authorizedusers'
+          },
+          url: '',
+          name: '',
+          password: ''
         },
-        pushnotifications: {
-          label: 'imfpush',
-          plan: 'lite',
-          credentials: {
-            appGuid: '',
-            url: '',
-            admin_url: '',
-            appSecret: '',
-            clientSecret: ''
-          }
+        push: {
+          serviceInfo: {
+            label: 'imfpush',
+            plan: 'lite'
+          },
+          appGuid: '',
+          url: '',
+          admin_url: '',
+          appSecret: '',
+          clientSecret: ''
         },
         autoscaling: {
-          label: 'Auto-Scaling',
-          plan: 'free',
-          credentials: {}
+          serviceInfo: {
+            label: 'Auto-Scaling',
+            plan: 'free'
+          }
         }
       }
       Object.keys(expectedDefaultValues).forEach(serviceType => {
         it(`for ${serviceType}`, function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            serviceType, { name: 'myService', credentials: {} }
+            serviceType, { serviceInfo: {name: 'myService'} }
           )
-          assert.equal(service.name, 'myService')
+          assert.equal(service.serviceInfo.name, 'myService')
           assert.objectContent(service, expectedDefaultValues[serviceType])
         })
       })
@@ -182,7 +178,7 @@ describe('Unit tests for helpers', function () {
         redis: {
           uri: 'redis://:my-password@my-host:5555'
         },
-        objectstorage: {
+        objectStorage: {
           auth_url: 'http://my-auth-host',
           project: 'my-project',
           projectId: 'my-project-id',
@@ -194,24 +190,24 @@ describe('Unit tests for helpers', function () {
           domainName: 'my-domain-name',
           role: 'my-role'
         },
-        appid: {
+        auth: {
           clientId: 'my-client-id',
           oauthServerUrl: 'http://my-oauth-server-host',
           profilesUrl: 'http://my-profiles-host',
           secret: 'my-secret',
           tenantId: 'my-tenant-id'
         },
-        watsonconversation: {
+        conversation: {
           url: 'http://my-host',
           username: 'my-username',
           password: 'my-password'
         },
-        alertnotification: {
+        alertNotification: {
           url: 'http://my-host',
           name: 'my-name',
           password: 'my-password'
         },
-        pushnotifications: {
+        push: {
           appGuid: 'my-app-guid',
           url: 'http://my-host',
           admin_url: 'http://my-admin-host',
@@ -223,13 +219,14 @@ describe('Unit tests for helpers', function () {
       }
       Object.keys(specifiedCredentials).forEach(serviceType => {
         it(`for ${serviceType}`, function () {
+          var serviceInfo = { serviceInfo: {name: 'my-service', label: 'my-label', plan: 'my-plan'} }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            serviceType, { name: 'my-service', label: 'my-label', plan: 'my-plan', credentials: specifiedCredentials[serviceType] }
+            serviceType, Object.assign(specifiedCredentials[serviceType], serviceInfo)
           )
-          assert.equal(service.name, 'my-service')
-          assert.equal(service.label, 'my-label')
-          assert.equal(service.plan, 'my-plan')
-          assert.objectContent(service.credentials, specifiedCredentials[serviceType])
+          assert.equal(service.serviceInfo.name, 'my-service')
+          assert.equal(service.serviceInfo.label, 'my-label')
+          assert.equal(service.serviceInfo.plan, 'my-plan')
+          assert.objectContent(service, specifiedCredentials[serviceType])
         })
       })
     })
@@ -239,9 +236,9 @@ describe('Unit tests for helpers', function () {
         it('host, username, password, secured, port from url (merge with default)', function () {
           var specifiedCredentials = { url: 'http://my-username:my-password@my-host:4444' }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+            'cloudant', Object.assign(specifiedCredentials, { serviceInfo: {name: 'my-service'} })
           )
-          assert.objectContent(service.credentials, {
+          assert.objectContent(service, {
             url: specifiedCredentials.url,
             host: 'my-host',
             username: 'my-username',
@@ -259,9 +256,9 @@ describe('Unit tests for helpers', function () {
             port: 3333
           }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+            'cloudant', Object.assign(specifiedCredentials, { serviceInfo: {name: 'my-service'} })
           )
-          assert.objectContent(service.credentials, {
+          assert.objectContent(service, {
             url: 'http://my-username:my-password@my-host:3333',
             host: specifiedCredentials.host,
             username: specifiedCredentials.username,
@@ -274,9 +271,9 @@ describe('Unit tests for helpers', function () {
         it('url from host (merge with default)', function () {
           var specifiedCredentials = { host: 'my-host' }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+            'cloudant', Object.assign(specifiedCredentials, { serviceInfo: {name: 'my-service'} })
           )
-          assert.objectContent(service.credentials, {
+          assert.objectContent(service, {
             url: 'http://my-host:5984',
             host: specifiedCredentials.host,
             username: '',
@@ -289,9 +286,9 @@ describe('Unit tests for helpers', function () {
         it('url from port (merge with default)', function () {
           var specifiedCredentials = { port: 1111 }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+            'cloudant', Object.assign(specifiedCredentials, { serviceInfo: {name: 'my-service'} })
           )
-          assert.objectContent(service.credentials, {
+          assert.objectContent(service, {
             url: 'http://localhost:1111',
             host: 'localhost',
             username: '',
@@ -304,9 +301,9 @@ describe('Unit tests for helpers', function () {
         it('url from username, password (merge with default)', function () {
           var specifiedCredentials = { username: 'my-username', password: 'my-password' }
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'cloudant', { name: 'my-service', credentials: specifiedCredentials }
+            'cloudant', Object.assign(specifiedCredentials, { serviceInfo: {name: 'my-service'} })
           )
-          assert.objectContent(service.credentials, {
+          assert.objectContent(service, {
             url: 'http://my-username:my-password@localhost:5984',
             host: 'localhost',
             username: specifiedCredentials.username,
@@ -320,37 +317,37 @@ describe('Unit tests for helpers', function () {
       describe('for redis', function () {
         it('uri from host, port and password (no merge)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'redis', { name: 'my-service', credentials: { password: 'my-password', host: 'my-host', port: 5555 } }
+            'redis', { serviceInfo: {name: 'my-service'}, password: 'my-password', host: 'my-host', port: 5555 }
           )
-          assert.equal(service.credentials.uri, 'redis://:my-password@my-host:5555')
+          assert.equal(service.uri, 'redis://:my-password@my-host:5555')
         })
 
         it('uri from password (merge with default)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'redis', { name: 'my-service', credentials: { password: 'my-password' } }
+            'redis', { serviceInfo: {name: 'my-service'}, password: 'my-password' }
           )
-          assert.equal(service.credentials.uri, 'redis://:my-password@localhost:6397')
+          assert.equal(service.uri, 'redis://:my-password@localhost:6379')
         })
 
         it('uri from host (merge with default)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'redis', { name: 'my-service', credentials: { host: 'my-host' } }
+            'redis', { serviceInfo: {name: 'my-service'}, host: 'my-host' }
           )
-          assert.equal(service.credentials.uri, 'redis://:@my-host:6397')
+          assert.equal(service.uri, 'redis://:@my-host:6379')
         })
 
         it('uri from port (merge with default)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'redis', { name: 'my-service', credentials: { port: 5555 } }
+            'redis', { serviceInfo: {name: 'my-service'}, port: 5555 }
           )
-          assert.equal(service.credentials.uri, 'redis://:@localhost:5555')
+          assert.equal(service.uri, 'redis://:@localhost:5555')
         })
 
         it('uri and host, port and password (no merge)', function () {
           var service = helpers.sanitizeServiceAndFillInDefaults(
-            'redis', { name: 'my-service', credentials: { uri: 'redis://my-specific-host:1111', password: 'my-password', host: 'my-host', port: 5555 } }
+            'redis', { serviceInfo: {name: 'my-service'}, uri: 'redis://my-specific-host:1111', password: 'my-password', host: 'my-host', port: 5555 }
           )
-          assert.equal(service.credentials.uri, 'redis://my-specific-host:1111')
+          assert.equal(service.uri, 'redis://my-specific-host:1111')
         })
       })
     })
@@ -366,23 +363,23 @@ describe('Unit tests for helpers', function () {
     })
 
     it('get label for objectstorage', function () {
-      assert.equal(helpers.getBluemixServiceLabel('objectstorage'), 'Object-Storage')
+      assert.equal(helpers.getBluemixServiceLabel('objectStorage'), 'Object-Storage')
     })
 
     it('get label for appid', function () {
-      assert.equal(helpers.getBluemixServiceLabel('appid'), 'AppID')
+      assert.equal(helpers.getBluemixServiceLabel('auth'), 'AppID')
     })
 
     it('get label for watsonconversation', function () {
-      assert.equal(helpers.getBluemixServiceLabel('watsonconversation'), 'conversation')
+      assert.equal(helpers.getBluemixServiceLabel('conversation'), 'conversation')
     })
 
     it('get label for alertnotification', function () {
-      assert.equal(helpers.getBluemixServiceLabel('alertnotification'), 'AlertNotification')
+      assert.equal(helpers.getBluemixServiceLabel('alertNotification'), 'AlertNotification')
     })
 
     it('get label for pushnotifications', function () {
-      assert.equal(helpers.getBluemixServiceLabel('pushnotifications'), 'imfpush')
+      assert.equal(helpers.getBluemixServiceLabel('push'), 'imfpush')
     })
 
     it('get label for unrecognised value', function () {
@@ -400,23 +397,23 @@ describe('Unit tests for helpers', function () {
     })
 
     it('get default plan for objectstorage', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('objectstorage'), 'Free')
+      assert.equal(helpers.getBluemixDefaultPlan('objectStorage'), 'Free')
     })
 
     it('get default plan for appid', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('appid'), 'Graduated tier')
+      assert.equal(helpers.getBluemixDefaultPlan('auth'), 'Graduated tier')
     })
 
     it('get default plan for watsonconversation', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('watsonconversation'), 'free')
+      assert.equal(helpers.getBluemixDefaultPlan('conversation'), 'free')
     })
 
     it('get default plan for alertnotification', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('alertnotification'), 'authorizedusers')
+      assert.equal(helpers.getBluemixDefaultPlan('alertNotification'), 'authorizedusers')
     })
 
     it('get default plan for pushnotifications', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('pushnotifications'), 'lite')
+      assert.equal(helpers.getBluemixDefaultPlan('push'), 'lite')
     })
 
     it('get default plan for unrecognised value', function () {
@@ -524,117 +521,129 @@ describe('Unit tests for helpers', function () {
     })
   })
 
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://petstore.org')
-        .get('/yaml')
-        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yaml'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load yaml from http', function () {
-      helpers.loadAsync('http://petstore.org/yaml')
-        .catch(err => {
-          assert.fail('failed to load .yaml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://petstore.org')
-        .get('/yml')
-        .replyWithFile(200, path.join(__dirname, '../resources/petstore2.yml'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load yml from http', function () {
-      helpers.loadAsync('http://petstore.org/yml')
-        .catch(err => {
-          assert.fail('failed to load .yml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    before(function () {
-      nock('http://dino.io')
-        .get('/json')
-        .replyWithFile(200, path.join(__dirname, '../resources/person_dino.json'))
-    })
-
-    after(function () {
-      nock.cleanAll()
-    })
-
-    it('load json from http', function () {
-      helpers.loadAsync('http://dino.io/json')
-        .catch(err => {
-          assert.fail('failed to load .json file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load json from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/person_dino.json'), fs)
-        .catch(err => {
-          assert.fail('failed to load .json file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load yaml from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yaml'), fs)
-        .catch(err => {
-          assert.fail('failed to load .yaml file:', err)
-        })
-    })
-  })
-
-  describe('loadAsync', function () {
-    var store
-    var fs
-
-    before(function () {
-      store = memFs.create()
-      fs = editor.create(store)
-    })
-
-    it('load yml from file', function () {
-      helpers.loadAsync(path.join(__dirname, '../resources/petstore2.yml'), fs)
-        .catch(err => {
-          assert.fail('failed to load .yml file:', err)
-        })
-    })
-  })
-
   describe('swagger path formatter', function () {
     it('convert swagger path parameters to swift format', function () {
-      assert(helpers.reformatPathToSwift('/helper/ff/test/{p1}/{p2}') === '/helper/ff/test/:p1/:p2')
+      assert(helpers.reformatPathToSwiftKitura('/helper/ff/test/{p1}/{p2}') === '/helper/ff/test/:p1/:p2')
+    })
+  })
+
+  describe('arrayContains', function () {
+    it('returns true when the array contains value', function () {
+      var search = 'data'
+      var array = ['data']
+      assert(helpers.arrayContains(search, array) === true)
+    })
+
+    it('returns false when the array does not contain value', function () {
+      var search = 'data'
+      var array = ['blahh']
+      assert(helpers.arrayContains(search, array) === false)
+    })
+  })
+
+  describe('getRefName', function () {
+    it('returns the last element from a reference path', function () {
+      assert(helpers.getRefName('#/definitions/errorModelBody') === 'errorModelBody')
+    })
+  })
+
+  describe('capitalizeFirstLetter', function () {
+    it('returns a string with first letter in upper  case', function () {
+      assert(helpers.capitalizeFirstLetter('should_be_capitalized') === 'Should_be_capitalized')
+    })
+  })
+
+  describe('swiftTypeFromSwaggerProperty', function () {
+    it('returns a Swift Bool type', function () {
+      var property = {'type': 'boolean', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Bool')
+    })
+
+    it('returns a Swift Int type', function () {
+      var property = {'type': 'integer', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int')
+    })
+
+    it('returns a Swift Int8 type', function () {
+      var property = {'type': 'integer', 'format': 'int8'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int8')
+    })
+
+    it('returns a Swift UInt8 type', function () {
+      var property = {'type': 'integer', 'format': 'uint8'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt8')
+    })
+
+    it('returns a Swift Int16 type', function () {
+      var property = {'type': 'integer', 'format': 'int16'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int16')
+    })
+
+    it('returns a Swift UInt16 type', function () {
+      var property = {'type': 'integer', 'format': 'uint16'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt16')
+    })
+
+    it('returns a Swift Int32 type', function () {
+      var property = {'type': 'integer', 'format': 'int32'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int32')
+    })
+
+    it('returns a Swift UInt32 type', function () {
+      var property = {'type': 'integer', 'format': 'uint32'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt32')
+    })
+
+    it('returns a Swift Int64 type', function () {
+      var property = {'type': 'integer', 'format': 'int64'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int64')
+    })
+
+    it('returns a Swift UInt64 type', function () {
+      var property = {'type': 'integer', 'format': 'uint64'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt64')
+    })
+
+    it('returns a Swift Double type', function () {
+      var property = {'type': 'number', 'format': undefined}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Double')
+    })
+
+    it('returns a Swift Float type', function () {
+      var property = {'type': 'number', 'format': 'float'}
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Float')
+    })
+
+    it('returns a Swift mapping type for an integer without a format', function () {
+      var property = {
+        'type': 'object',
+        'additionalProperties': {
+          'type': 'integer'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int>')
+    })
+
+    it('returns a Swift mapping type for an integer with a format', function () {
+      var property = {
+        'type': 'object',
+        'additionalProperties': {
+          'type': 'integer',
+          'format': 'int8'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int8>')
+    })
+
+    it('returns a Swift array of Int32 types', function () {
+      var property = {
+        'type': 'array',
+        'items': {
+          'type': 'integer',
+          'format': 'int32'
+        }
+      }
+      assert(helpers.swiftTypeFromSwaggerProperty(property) === '[Int32]')
     })
   })
 })

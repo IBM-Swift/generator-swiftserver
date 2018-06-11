@@ -36,6 +36,7 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
     var appType = opts.appType
     var appName = opts.appName
     var capabilities = opts.capabilities
+    var bluemix = opts.bluemix
     var services = opts.services
     var crudservice = opts.crudservice
     var fromSwagger = opts.fromSwagger
@@ -43,11 +44,10 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
     function hasCapability (name) {
       return (capabilities.indexOf(name) !== -1)
     }
-
     var spec = runContext.generator.spec
     var expectedSpec = {
-      appName: appName,
       appType: appType,
+      appName: appName,
       docker: hasCapability('docker') || undefined,
       metrics: hasCapability('metrics') || undefined,
       web: hasCapability('web') || undefined,
@@ -56,19 +56,12 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
       swaggerUI: hasCapability('swaggerUI') || undefined,
       fromSwagger: fromSwagger || undefined,
       serverSwaggerFiles: undefined,
-      services: {},
+      bluemix: bluemix || {},
       crudservice: crudservice || undefined
     }
     // deal with services
     Object.keys(services).forEach(serviceType => {
-      var expectedService = { credentials: {} }
-      if (services[serviceType].name) {
-        expectedService.name = services[serviceType].name
-      }
-      if (services[serviceType].credentials) {
-        expectedService.credentials = services[serviceType].credentials
-      }
-      expectedSpec.services[serviceType] = [expectedService]
+      expectedSpec.bluemix[serviceType] = services[serviceType]
     })
     assert.objectContent(spec, expectedSpec)
 
@@ -395,17 +388,17 @@ describe('Unit tests for swiftserver:app', function () {
       })
     })
 
-    describe('in dir with invalid and sanitizable name', function () {
+    describe('in dir with acceptable special characters', function () {
       var runContext
 
       before(function () {
         runContext = helpers.run(appGeneratorPath)
                             .withGenerators(dependentGenerators)
                             .inTmpDir(function (tmpDir) {
-                              this.inDir(path.join(tmpDir, 'inv@l+l%l:l.lid'))
+                              this.inDir(path.join(tmpDir, 'inv@l+l^l!l)lid'))
                             })
                             .withOptions({ testmode: true })
-                            .withArguments(['inva&%*lid'])
+                            .withArguments(['inva:%>lid'])
         return runContext.toPromise()
       })
 
@@ -413,12 +406,12 @@ describe('Unit tests for swiftserver:app', function () {
         runContext.cleanTestDirectory()
       })
 
-      commonTest.itUsedDestinationDirectory('inv-l-l-l-l-lid')
+      commonTest.itUsedDestinationDirectory('inv@l+l^l!l)lid')
 
       it('created a spec object with appName defaulting to dir and no appDir', function () {
         var spec = runContext.generator.spec
         var expectedSpec = {
-          appName: 'inv-l-l-l-l-lid',
+          appName: 'inv@l+l^l!l)lid',
           appDir: undefined
         }
         assert.objectContent(spec, expectedSpec)
@@ -427,31 +420,28 @@ describe('Unit tests for swiftserver:app', function () {
 
     describe('in dir with invalid and unsanitizable name', function () {
       var runContext
+      var error = null
 
       before(function () {
         runContext = helpers.run(appGeneratorPath)
                             .withGenerators(dependentGenerators)
                             .inTmpDir(function (tmpDir) {
-                              this.inDir(path.join(tmpDir, 'inva&%*lid'))
+                              this.inDir(path.join(tmpDir, 'inva:;<lid'))
                             })
                             .withOptions({ testmode: true })
-                            .withArguments(['inva&%*lid'])
-        return runContext.toPromise()
+                            .withArguments(['inva:>;<lid'])
+        return runContext.toPromise().catch(function (err) {
+          error = err
+        })
       })
 
       after(function () {
         runContext.cleanTestDirectory()
       })
 
-      commonTest.itUsedDestinationDirectory('app')
-
-      it('created a spec object with appName defaulting to dir and no appDir', function () {
-        var spec = runContext.generator.spec
-        var expectedSpec = {
-          appName: 'app',
-          appDir: undefined
-        }
-        assert.objectContent(spec, expectedSpec)
+      it('aborted the generator with an error', function () {
+        assert(error, 'Should throw an error')
+        assert(error.message.match('inva:;<lid directory path contains one or more of the following: %:;=<>”|\\ and will not compile in Xcode'), 'Thrown error should be about directory path containing invalid characters: ' + error)
       })
     })
   })
@@ -480,6 +470,117 @@ describe('Unit tests for swiftserver:app', function () {
       capabilities: [ 'docker', 'metrics' ],
       services: {}
     }))
+  })
+
+  describe('--init flag specified', function () {
+    var runContext
+    var appName
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+                          .withGenerators(dependentGenerators) // Stub subgenerators
+                          .withOptions({ testmode: true, init: true })     // Workaround to stub subgenerators
+                          .inTmpDir(function (tmpDir) {
+                            appName = path.basename(tmpDir)
+                          })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    itCreatedSpecWithServicesAndCapabilities(() => ({
+      runContext: runContext,
+      appType: 'scaffold',
+      appName: appName,
+      capabilities: [ 'docker', 'metrics' ],
+      services: {}
+    }))
+  })
+
+  describe('in dir with valid special characters using --init', function () {
+    var runContext
+
+    before(function () {
+      runContext = helpers.run(appGeneratorPath)
+      .withGenerators(dependentGenerators)
+      .inTmpDir(function (tmpDir) {
+        this.inDir(path.join(tmpDir, 'v&a(l@i$d s.y)mb?o!l+s'))
+      })
+      .withOptions({ testmode: true, init: true })
+      return runContext.toPromise()
+    })
+
+    after(function () {
+      runContext.cleanTestDirectory()
+    })
+
+    commonTest.itUsedDestinationDirectory('v&a(l@i$d s.y)mb?o!l+s')
+
+    it('created a spec object with appName defaulting to dir and no appDir', function () {
+      var spec = runContext.generator.spec
+      var expectedSpec = {
+        appName: 'v&a(l@i$d s.y)mb?o!l+s',
+        appDir: undefined
+      }
+      assert.objectContent(spec, expectedSpec)
+    })
+  })
+
+  describe('--enableUsecase specified', function () {
+    describe('Valid --bluemix flag specified', function () {
+      var runContext
+
+      var bluemixJSON = {
+        name: 'AcmeProject',
+        backendPlatform: 'SWIFT',
+        sdks: [],
+        server: {}
+      }
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              'enable-usecase': true,
+                              bluemix: JSON.stringify(bluemixJSON),
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('passes usecase: true to refresh generator', function () {
+        assert(runContext.generator.spec.usecase === true)
+      })
+    })
+
+    describe('Without --bluemix flag specified', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withGenerators(dependentGenerators) // Stub subgenerators
+                            .withOptions({
+                              'enable-usecase': true,
+                              init: true,
+                              testmode: true
+                            })
+        return runContext.toPromise()
+      })
+
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+
+      it('passes usecase: false to refresh generator', function () {
+        assert(runContext.generator.spec.usecase !== true)
+      })
+    })
   })
 
   describe('spec option', function () {
@@ -1013,14 +1114,14 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'myCloudantService',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'myCloudantService'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true
+              }]
             }
           }))
         })
@@ -1058,16 +1159,16 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              cloudant: {
-                name: 'myCloudantService',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true,
-                  username: 'admin',
-                  password: 'password123'
-                }
-              }
+              cloudant: [{
+                serviceInfo: {
+                  name: 'myCloudantService'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true,
+                username: 'admin',
+                password: 'password123'
+              }]
             }
           }))
         })
@@ -1136,12 +1237,12 @@ describe('Unit tests for swiftserver:app', function () {
           capabilities: [],
           services: {
             redis: {
-              name: 'myRedisService',
-              credentials: {
-                host: 'myhost',
-                port: 1234,
-                password: 'password1234'
-              }
+              serviceInfo: {
+                name: 'myRedisService'
+              },
+              host: 'myhost',
+              port: 1234,
+              password: 'password1234'
             }
           }
         }))
@@ -1211,13 +1312,13 @@ describe('Unit tests for swiftserver:app', function () {
           capabilities: [],
           services: {
             mongodb: {
-              name: 'myMongoService',
-              credentials: {
-                host: 'myhost',
-                port: 1234,
-                password: 'password1234',
-                database: 'mydb'
-              }
+              serviceInfo: {
+                name: 'myMongoService'
+              },
+              host: 'myhost',
+              port: 1234,
+              password: 'password1234',
+              database: 'mydb'
             }
           }
         }))
@@ -1250,7 +1351,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { objectstorage: {} }
+          services: { objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }] }
         }))
       })
 
@@ -1286,15 +1387,15 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            objectstorage: {
-              name: 'myObjectStorageService',
-              credentials: {
-                region: 'dallas',
-                projectId: 'myProjectId',
-                userId: 'admin',
-                password: 'password1234'
-              }
-            }
+            objectStorage: [{
+              serviceInfo: {
+                name: 'myObjectStorageService'
+              },
+              region: 'dallas',
+              projectId: 'myProjectId',
+              userId: 'admin',
+              password: 'password1234'
+            }]
           }
         }))
       })
@@ -1326,7 +1427,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { appid: {} }
+          services: { auth: {} }
         }))
       })
 
@@ -1361,13 +1462,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            appid: {
-              name: 'myAppIDService',
-              credentials: {
-                tenantId: 'myTenantId',
-                clientId: 'myClientId',
-                secret: 'mySecret'
-              }
+            auth: {
+              serviceInfo: {
+                name: 'myAppIDService'
+              },
+              tenantId: 'myTenantId',
+              clientId: 'myClientId',
+              secret: 'mySecret'
             }
           }
         }))
@@ -1400,7 +1501,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { watsonconversation: {} }
+          services: { conversation: { serviceInfo: {label: 'conversation'} } }
         }))
       })
 
@@ -1435,13 +1536,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            watsonconversation: {
-              name: 'myConversationService',
-              credentials: {
-                username: 'admin',
-                password: 'password1234',
-                url: 'https://myhost'
-              }
+            conversation: {
+              serviceInfo: {
+                name: 'myConversationService'
+              },
+              username: 'admin',
+              password: 'password1234',
+              url: 'https://myhost'
             }
           }
         }))
@@ -1474,7 +1575,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { alertnotification: {} }
+          services: { alertNotification: { serviceInfo: {label: 'AlertNotification'} } }
         }))
       })
 
@@ -1509,13 +1610,13 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            alertnotification: {
-              name: 'myAlertNotificationService',
-              credentials: {
-                name: 'admin',
-                password: 'password1234',
-                url: 'https://myhost'
-              }
+            alertNotification: {
+              serviceInfo: {
+                name: 'myAlertNotificationService'
+              },
+              name: 'admin',
+              password: 'password1234',
+              url: 'https://myhost'
             }
           }
         }))
@@ -1548,7 +1649,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { pushnotifications: {} }
+          services: { push: { serviceInfo: { label: 'imfpush' } } }
         }))
       })
 
@@ -1584,13 +1685,13 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              pushnotifications: {
-                name: 'myPushNotificationsService',
-                region: 'US_SOUTH',
-                credentials: {
-                  appGuid: 'myAppGuid',
-                  appSecret: 'myAppSecret'
-                }
+              push: {
+                serviceInfo: {
+                  name: 'myPushNotificationsService'
+                },
+                appGuid: 'myAppGuid',
+                appSecret: 'myAppSecret',
+                url: 'http://imfpush.ng.bluemix.net'
               }
             }
           }))
@@ -1654,7 +1755,7 @@ describe('Unit tests for swiftserver:app', function () {
         appType: 'scaffold',
         appName: applicationName,
         capabilities: [],
-        services: { autoscaling: {} }
+        services: { autoscaling: { serviceInfo: { label: 'Auto-Scaling' } } }
       }))
     })
   })
@@ -1777,7 +1878,7 @@ describe('Unit tests for swiftserver:app', function () {
         appType: 'crud',
         appName: applicationName,
         capabilities: [],
-        services: { autoscaling: {} }
+        services: { autoscaling: { serviceInfo: { label: 'Auto-Scaling' } } }
       }))
     })
 
@@ -1807,7 +1908,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'crud',
           appName: applicationName,
           capabilities: [],
-          services: { cloudant: { name: 'crudDataStore' } },
+          services: { cloudant: [{ serviceInfo: { name: 'crudDataStore' } }] },
           crudservice: 'crudDataStore'
         }))
       })
@@ -1843,14 +1944,14 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'crudDataStore',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'crudDataStore'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true
+              }]
             },
             crudservice: 'crudDataStore'
           }))
@@ -1888,16 +1989,16 @@ describe('Unit tests for swiftserver:app', function () {
             appName: applicationName,
             capabilities: [],
             services: {
-              'cloudant': {
-                name: 'crudDataStore',
-                credentials: {
-                  host: 'cloudanthost',
-                  port: 4568,
-                  secured: true,
-                  username: 'admin',
-                  password: 'password123'
-                }
-              }
+              'cloudant': [{
+                serviceInfo: {
+                  name: 'crudDataStore'
+                },
+                host: 'cloudanthost',
+                port: 4568,
+                secured: true,
+                username: 'admin',
+                password: 'password123'
+              }]
             },
             crudservice: 'crudDataStore'
           }))

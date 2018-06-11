@@ -28,7 +28,7 @@ var fs = require('fs')
 
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
-var swaggerize = require('./fromswagger/swaggerize')
+var swaggerize = require('ibm-openapi-support')
 var sdkHelper = require('../lib/sdkGenHelper')
 var performSDKGenerationAsync = sdkHelper.performSDKGenerationAsync
 var getClientSDKAsync = sdkHelper.getClientSDKAsync
@@ -37,7 +37,6 @@ var getServerSDKAsync = sdkHelper.getServerSDKAsync
 module.exports = Generator.extend({
   constructor: function () {
     Generator.apply(this, arguments)
-
     // Allow the user to specify where the specification file is
     this.option('specfile', {
       desc: 'The location of the specification file.',
@@ -149,76 +148,59 @@ module.exports = Generator.extend({
         this.env.error(chalk.red('Property appName is missing from the specification'))
       }
 
-      // Service configuration
-      this.services = this.spec.services || {}
-
       // Bluemix configuration
-      this.bluemix = {
-        backendPlatform: 'SWIFT',
-        name: helpers.sanitizeAppName(this.projectName),
-        server: {
-          name: helpers.sanitizeAppName(this.projectName),
-          env: {}
-        }
-      }
-      if (Object.keys(this.services).length > 0) {
-        this.bluemix.server.services = []
+      // Ensure minimal default bluemix properties are set
+      this.bluemix = this.spec.bluemix || {}
+      this.bluemix.backendPlatform = this.bluemix.backendPlatform || 'SWIFT'
+      this.bluemix.name = this.bluemix.name || this.projectName
+      this.bluemix.server = this.bluemix.server || {}
+      this.bluemix.server.name = this.bluemix.server.name || this.bluemix.name
+      this.bluemix.server.env = this.bluemix.server.env || {}
 
-        // Ensure every service has a credentials object, plan, & label
-        // and add the services to bluemix.server.services
-        Object.keys(this.services).forEach(function (serviceType) {
-          if (!Array.isArray(this.services[serviceType])) {
-            this.env.error(chalk.red(`Property services.${serviceType} must be an array`))
-          }
-          this.services[serviceType].forEach(function (service, index) {
-            // TODO: Further checking that service name is valid?
-            if (!service.name) {
-              this.env.error(chalk.red(`Service name is missing in spec for services.${serviceType}[${index}]`))
-            }
-            if (!service.label) {
-              service.label = helpers.getBluemixServiceLabel(serviceType)
-            }
-            if (!service.plan) {
-              service.plan = helpers.getBluemixDefaultPlan(serviceType)
-            }
-            service.credentials = service.credentials || {}
-            this.bluemix.server.services.push(service.name)
-          }.bind(this))
-        }.bind(this))
+      // StarterOptions configuration for Usecase enablement
+      this.starterOptions = this.spec.starterOptions || undefined
+
+      function isServiceProperty (value) {
+        if (Array.isArray(value)) {
+          // All elements of the service array must have a serviceInfo property
+          return value.filter(element => element.serviceInfo).length === value.length
+        }
+        return !!value.serviceInfo
+      }
+      function getServiceProperties (bluemixObject) {
+        var servicePropNames = Object.keys(bluemixObject).filter(prop => isServiceProperty(bluemixObject[prop]))
+        var serviceProperties = servicePropNames.reduce((memo, servicePropName) => {
+          return Object.assign(memo, { [servicePropName]: bluemixObject[servicePropName] })
+        }, {})
+        return serviceProperties
       }
 
-      if (typeof (this.spec.bluemix) === 'object') {
-        if (typeof (this.spec.bluemix.name) === 'string') {
-          this.bluemix.server.name = this.spec.bluemix.name
-          this.bluemix.name = this.spec.bluemix.name
+      this.services = getServiceProperties(this.bluemix)
+      Object.keys(this.services).forEach(serviceType => {
+        var serviceOrServices = this.services[serviceType]
+        if (Array.isArray(serviceOrServices)) {
+          serviceOrServices.forEach((service, index) => {
+            var updatedService = helpers.sanitizeServiceAndFillInDefaults(serviceType, service)
+            helpers.validateServiceFields(serviceType, updatedService)
+            this.bluemix[serviceType][index] = updatedService
+            this.services[serviceType][index] = updatedService
+          })
+        } else {
+          var updatedService = helpers.sanitizeServiceAndFillInDefaults(serviceType, serviceOrServices)
+          helpers.validateServiceFields(serviceType, updatedService)
+          this.bluemix[serviceType] = updatedService
+          this.services[serviceType] = updatedService
         }
-        if (this.spec.bluemix.server) {
-          if (typeof (this.spec.bluemix.server.host) === 'string') {
-            this.bluemix.server.host = this.spec.bluemix.server.host
-          }
-          if (typeof (this.spec.bluemix.server.domain) === 'string') {
-            this.bluemix.server.domain = this.spec.bluemix.server.domain
-          }
-          if (typeof (this.spec.bluemix.server.memory) === 'string') {
-            this.bluemix.server.memory = this.spec.bluemix.server.memory
-          }
-          if (typeof (this.spec.bluemix.server.disk_quota) === 'string') {
-            this.bluemix.server.disk_quota = this.spec.bluemix.server.disk_quota
-          }
-          if (typeof (this.spec.bluemix.server.instances) === 'number') {
-            this.bluemix.server.instances = this.spec.bluemix.server.instances
-          }
-          if (typeof (this.spec.bluemix.server.namespace) === 'string') {
-            this.bluemix.server.namespace = this.spec.bluemix.server.namespace
-          }
-        }
-        if (typeof (this.spec.bluemix.openApiServers) === 'object') {
-          this.openApiServers = this.spec.bluemix.openApiServers
-        }
-      }
+      })
 
+      if (typeof (this.bluemix.openApiServers) === 'object') {
+        this.openApiServers = this.bluemix.openApiServers
+      }
       // Docker configuration
       this.docker = (this.spec.docker === true)
+
+      // Usecase configuration
+      this.usecase = (this.spec.usecase === true)
 
       // Web configuration
       this.web = (this.spec.web === true)
@@ -254,7 +236,7 @@ module.exports = Generator.extend({
       this.metrics = (this.spec.metrics === true || undefined)
 
       // Autoscaling implies monitoring
-      if (this.services.autoscaling && this.services.autoscaling.length > 0) {
+      if (this.bluemix.autoscaling) {
         this.metrics = true
       }
 
@@ -272,10 +254,10 @@ module.exports = Generator.extend({
       }
 
       // Define health-check-type and health-check-http-endpoint
-      if (this.healthcheck) {
+      /* if (this.healthcheck) {
         this.bluemix.server['health-check-type'] = 'http'
         this.bluemix.server['health-check-http-endpoint'] = '/health'
-      }
+      } */
 
       // Define OPENAPI_SPEC
       if (this.hostSwagger) {
@@ -294,23 +276,36 @@ module.exports = Generator.extend({
       this.itemsToIgnore = []
 
       // Package dependencies to add to Package.swift
-      // eg this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Kitura.git", majorVersion: 1, minor: 7),')
+      // eg this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from : "1.7.0")),')
       this.dependencies = []
+
+      // Module Dependencies to add to Package.swift
+      this.modules = []
 
       // Initialization code to add to Application.swift by code block
       // eg this.appInitCode.services.push('try initializeServiceCloudant()')
       this.appInitCode = {
+        metrics: undefined,
         capabilities: [],
         services: [],
+        service_imports: [],
+        service_variables: [],
         middlewares: [],
         endpoints: []
       }
 
-      if (this.web) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
-      if (this.appType === 'crud') this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+      if (this.web || this.usecase) this.appInitCode.middlewares.push('router.all(middleware: StaticFileServer())')
+      if (this.appType === 'crud') {
+        this.appInitCode.endpoints.push('try initializeCRUDResources(cloudEnv: cloudEnv, router: router)')
+        this.dependencies.push('.package(url: "https://github.com/IBM-Swift/SwiftyJSON.git", from: "17.0.0"),')
+      }
       if (this.metrics) {
-        this.appInitCode.capabilities.push('initializeMetrics()')
-        this.dependencies.push('.Package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", majorVersion: 1),')
+        this.modules.push('"SwiftMetrics"')
+        this.appInitCode.metrics = 'initializeMetrics(router: router)'
+        this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
+      }
+      if (this.usecase) {
+        this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
       }
     },
 
@@ -410,64 +405,22 @@ module.exports = Generator.extend({
 
   configuring: function () {
     if (this.existingProject) return
-
-    var bluemixOption = {
-      backendPlatform: 'SWIFT',
-      name: this.projectName, // TODO: check this is the right name
-      server: {
-        name: this.projectName // TODO: check this is the right name
-      }
-    }
-    // NOTE(tunniclm): Set the domain based on the push notification
-    // region to expose it to the service enablement subgenerator
-    if (this.services.pushnotifications && this.services.pushnotifications.length > 0) {
-      var push = this.services.pushnotifications[0]
-      switch (push.region) {
-        case 'UK': bluemixOption.server.domain = 'eu-gb.bluemix.net'; break
-        case 'SYDNEY': bluemixOption.server.domain = 'au-syd.bluemix.net'; break
-        case 'US_SOUTH': bluemixOption.server.domain = 'ng.bluemix.net'; break
-        // default: don't alter domain
-      }
-    }
-    // NOTE(tunniclm): Convert our format for specifying services
-    // into the one used by generator-ibm-service-enablement
-    var serviceMapping = {
-      'appid': 'auth',
-      'objectstorage': 'objectStorage',
-      'cloudant': 'cloudant',
-      'watsonconversation': 'conversation',
-      'redis': 'redis',
-      'mongodb': 'mongodb',
-      'postgresql': 'postgresql',
-      'alertnotification': 'alertnotification',
-      'pushnotifications': 'push',
-      'autoscaling': 'autoscaling'
-    }
-    Object.keys(serviceMapping).forEach(serviceType => {
-      var bluemixServiceProperty = serviceMapping[serviceType]
-      var servicesOfType = this.services[serviceType]
-      if (servicesOfType && servicesOfType.length > 0) {
-        // NOTE: for now only handle 1 service
-        var service = helpers.sanitizeServiceAndFillInDefaults(serviceType, servicesOfType[0])
-        bluemixOption[bluemixServiceProperty] = service.credentials || {}
-        bluemixOption[bluemixServiceProperty].serviceInfo = {
-          name: servicesOfType[0].name,
-          label: servicesOfType[0].label,
-          plan: servicesOfType[0].plan
-        }
-      }
-    })
     this.composeWith(require.resolve('generator-ibm-service-enablement'), {
       quiet: true,
-      bluemix: JSON.stringify(bluemixOption),
+      bluemix: JSON.stringify(this.bluemix),
       parentContext: {
         injectIntoApplication: options => {
           if (options.capability) this.appInitCode.capabilities.push(options.capability)
           if (options.service) this.appInitCode.services.push(options.service)
+          if (options.service_import) this.appInitCode.service_imports.push(options.service_import)
+          if (options.service_variable) this.appInitCode.service_variables.push(options.service_variable)
           if (options.endpoint) this.appInitCode.endpoints.push(options.endpoint)
           if (options.middleware) this.appInitCode.middlewares.push(options.middleware)
         },
-        injectDependency: dependency => { this.dependencies.push(dependency) }
+        injectDependency: dependency => { this.dependencies.push(dependency) },
+        injectModules: modules => {
+          this.modules.push(modules)
+        }
       }
     })
   },
@@ -791,7 +744,7 @@ module.exports = Generator.extend({
     }
 
     if (this.openApiFileOrUrl) {
-      return helpers.loadAsync(this.openApiFileOrUrl, this.fs)
+      return swaggerize.loadAsync(this.openApiFileOrUrl, this.fs)
         .then(loaded => {
           this.openApiDocumentBytes = loaded
         })
@@ -799,11 +752,25 @@ module.exports = Generator.extend({
   },
 
   parseOpenApiDocument: function () {
+    let formatters = {
+      'pathFormatter': helpers.reformatPathToSwiftKitura,
+      'resourceFormatter': helpers.resourceNameFromPath
+    }
+
     if (this.openApiDocumentBytes) {
-      return swaggerize.parse(this.openApiDocumentBytes, helpers.reformatPathToSwift)
+      return swaggerize.parse(this.openApiDocumentBytes, formatters)
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
+          // mangle the route name to allow the renaming of the default route.
+          Object.keys(this.parsedSwagger.resources).forEach(resource => {
+            debug('RESOURCENAME:', resource)
+            if (resource.endsWith('*')) {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource.replace(/\*$/, 'Default')
+            } else {
+              this.parsedSwagger.resources[resource]['generatedName'] = resource + '_'
+            }
+          })
         })
         .catch(err => {
           if (this.openApiFileOrUrl) {
@@ -818,19 +785,31 @@ module.exports = Generator.extend({
 
   addEndpointInitCode: function () {
     var endpointNames = []
+    if (this.healthcheck) {
+      this.modules.push('"Health"')
+      endpointNames.push('Health')
+      this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),')
+    }
     if (this.parsedSwagger && this.parsedSwagger.resources) {
-      var resourceNames = Object.keys(this.parsedSwagger.resources)
+      var resourceNames = []
+      Object.keys(this.parsedSwagger.resources).forEach(resource => {
+        resourceNames.push(this.parsedSwagger.resources[resource].generatedName)
+      })
       endpointNames = endpointNames.concat(resourceNames)
     }
-    if (this.healthcheck) {
-      endpointNames.push('Health')
-      this.dependencies.push('.Package(url: "https://github.com/IBM-Swift/Health.git", majorVersion: 0),')
-    }
 
-    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes()`)
+    var initCodeForEndpoints = endpointNames.map(name => `initialize${name}Routes(app: self)`)
     this.appInitCode.endpoints = this.appInitCode.endpoints.concat(initCodeForEndpoints)
 
-    if (this.hostSwagger) this.appInitCode.endpoints.push(`initializeSwaggerRoutes(path: projectPath + "/definitions/${this.projectName}.yaml")`)
+    if (this.hostSwagger) {
+      this.appInitCode.endpoints.push(`initializeSwaggerRoutes(app: self)`)
+      this.swaggerPath = `let swaggerPath = projectPath + "/definitions/${this.projectName}.yaml"`
+    }
+
+    // This  endpoint needs to come last because it should have least precedence.
+    if (this.usecase) {
+      this.appInitCode.endpoints.push('initializeErrorRoutes(app: self)')
+    }
   },
 
   generateSDKs: function () {
@@ -838,7 +817,6 @@ module.exports = Generator.extend({
     var shouldGenerateClient = (!!this.openApiDocumentBytes)
     var shouldGenerateServer = (this.serverSwaggerFiles.length > 0)
     if (!shouldGenerateClientWithModel && !shouldGenerateClient && !shouldGenerateServer) return
-
     this.log(chalk.green('Generating SDK(s) from swagger file(s)...'))
     var generationTasks = []
     if (shouldGenerateClientWithModel) generationTasks.push(generateClientAsync.call(this, this.swagger))
@@ -858,7 +836,7 @@ module.exports = Generator.extend({
     function generateServerAsync () {
       var sdkPackages = []
       return Promise.map(this.serverSwaggerFiles, file => {
-        return helpers.loadAsync(file, this.fs)
+        return swaggerize.loadAsync(file, this.fs)
           .then(loaded => {
             return swaggerize.parse(loaded, helpers.reformatPathToSwift)
               .then(response => {
@@ -944,8 +922,8 @@ module.exports = Generator.extend({
           {
             appType: this.appType,
             generatedModule: this.generatedModule,
-            bluemix: this.bluemix,
             appInitCode: this.appInitCode,
+            swaggerPath: this.swaggerPath,
             web: this.web,
             healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
@@ -1027,6 +1005,20 @@ module.exports = Generator.extend({
         this.fs.write(this.destinationPath('public', '.keep'), '')
       }
 
+      if (this.usecase) {
+        this.fs.copy(
+          this.templatePath('public'),
+          this.destinationPath('public')
+        )
+
+        this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'ErrorRoutes.swift'], (filepath) => {
+          this.fs.copyTpl(
+            this.templatePath('common', 'ErrorRoutes.swift'),
+            filepath
+          )
+        })
+      }
+
       if (this.appType !== 'crud') {
         this.fs.copyTpl(
           this.templatePath('common', 'README.scaffold.md'),
@@ -1035,41 +1027,103 @@ module.exports = Generator.extend({
             appName: this.projectName,
             executableName: this.executableModule,
             generatorVersion: this.generatorVersion,
-            bluemix: this.bluemix,
             web: this.web,
             docker: this.docker,
             hostSwagger: this.hostSwagger,
             exampleEndpoints: this.exampleEndpoints,
             metrics: this.metrics,
-            autoscaling: this.services.autoscaling && this.services.autoscaling.length > 0,
-            cloudant: this.services.cloudant && this.services.cloudant.length > 0,
-            redis: this.services.redis && this.services.redis.length > 0,
-            objectstorage: this.services.objectstorage && this.services.objectstorage.length > 0,
-            appid: this.services.appid && this.services.appid.length > 0,
-            watsonconversation: this.services.watsonconversation && this.services.watsonconversation.length > 0,
-            alertnotification: this.services.alertnotification && this.services.alertnotification.length > 0,
-            pushnotifications: this.services.pushnotifications && this.services.pushnotifications.length > 0
+            autoscaling: !!this.bluemix.autoscaling,
+            cloudant: this.bluemix.cloudant && this.bluemix.cloudant.length > 0,
+            redis: !!this.bluemix.redis,
+            objectStorage: this.bluemix.objectStorage && this.bluemix.objectStorage.length > 0,
+            auth: !!this.bluemix.auth,
+            conversation: !!this.bluemix.conversation,
+            alertNotification: !!this.bluemix.alertNotification,
+            push: !!this.bluemix.push
           }
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
+
+      this._ifNotExistsInProject('iterative-dev.sh', (filepath) => {
+        this.fs.copyTpl(
+          this.templatePath('common', 'iterative-dev.sh'),
+          filepath,
+          {
+            executableModule: this.executableModule
+          }
+        )
+      })
     },
 
     createFromSwagger: function () {
       if (this.parsedSwagger) {
+        handlebars.registerHelper('swifttype', helpers.swiftTypeFromSwaggerProperty)
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
+          // Generate routes
+          var generatedName = this.parsedSwagger.resources[resource].generatedName
+          debug('route:', this.parsedSwagger.resources[resource])
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
-            this.destinationPath('Sources', this.applicationModule, 'Routes', `${resource}Routes.swift`),
+            this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
-              resource: resource,
+              resource: generatedName,
               routes: this.parsedSwagger.resources[resource],
               basepath: this.parsedSwagger.basepath
             }
           )
         })
 
-        // make the swagger available for the swaggerUI
+        // Generate model structures
+        Object.keys(this.parsedSwagger.models).forEach(name => {
+          var model = this.parsedSwagger.models[name]
+          var fileName = helpers.capitalizeFirstLetter(name + '.swift')
+          debug('model:', model)
+          debug('fileName:', fileName)
+
+          if (!model.id) {
+            model.id = name
+          }
+          // For Array of items/models referenced as part of definitions, no need
+          // generate a model file.
+          if (model.type === 'array' && model.items) {
+            return
+          }
+          if (model.properties) {
+            debug('model.properties', model.properties)
+            Object.keys(model.properties).forEach(prop => {
+              if (model.properties[prop].$ref) {
+                model.properties[prop]['type'] = 'ref'
+              }
+              if (!model.required || (model.required && !helpers.arrayContains(prop, model.required))) {
+                model.properties[prop]['optional'] = '?'
+              }
+              if (model.properties[prop].description && model.properties[prop].description.length > 0) {
+                if (model.properties[prop].description.match(/\n/)) {
+                  console.log('found:', model.properties[prop].description)
+                }
+                // model.properties[prop].description = '// ' + model.properties[prop].description
+                var comments = model.properties[prop].description.split('\n')
+                if (comments[comments.length - 1].length === 0) {
+                  comments = comments.slice(0, comments.length - 1)
+                }
+                model.properties[prop].description = comments
+              }
+            })
+            this.fs.copyHbs(
+              this.templatePath('fromswagger', 'Model.swift.hbs'),
+              this.destinationPath('Sources', this.applicationModule, 'Models', fileName),
+              {
+                properties: model.properties,
+                model: name,
+                required: model.required || [],
+                id: name,
+                license: this.license
+              })
+          }
+        })
+
+        // Make the swagger available for the swaggerUI
         var swaggerFilename = this.destinationPath('definitions', `${this.projectName}.yaml`)
         this.fs.write(swaggerFilename, YAML.safeDump(this.loadedApi))
       }
@@ -1078,13 +1132,11 @@ module.exports = Generator.extend({
     createCRUD: function () {
       if (this.appType !== 'crud') return
 
-      if (this.bluemix) {
-        if (!this.fs.exists(this.destinationPath('README.md'))) {
-          this.fs.copy(
-            this.templatePath('bluemix', 'README.md'),
-            this.destinationPath('README.md')
-          )
-        }
+      if (!this.fs.exists(this.destinationPath('README.md'))) {
+        this.fs.copy(
+          this.templatePath('bluemix', 'README.md'),
+          this.destinationPath('README.md')
+        )
       }
 
       // Add the models to the spec
@@ -1105,8 +1157,10 @@ module.exports = Generator.extend({
         var serviceDef = null
         Object.keys(services).forEach(function (serviceType) {
           if (serviceDef) return
-          services[serviceType].forEach(function (service) {
-            if (service.name && (service.name === serviceName)) {
+          var serviceOrServices = services[serviceType]
+          if (!Array.isArray(serviceOrServices)) serviceOrServices = [serviceOrServices]
+          serviceOrServices.forEach(function (service) {
+            if (service.serviceInfo.name && (service.serviceInfo.name === serviceName)) {
               serviceDef = {
                 service: service,
                 type: serviceType
@@ -1132,7 +1186,7 @@ module.exports = Generator.extend({
       this.fs.copyTpl(
         this.templatePath('crud', 'AdapterFactory.swift'),
         this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
-        { models: this.models, crudService: crudService, bluemix: this.bluemix }
+        { models: this.models, crudService: crudService }
       )
       this.fs.copy(
         this.templatePath('crud', 'AdapterError.swift'),
@@ -1263,19 +1317,37 @@ module.exports = Generator.extend({
     },
 
     writeDockerFiles: function () {
-      if (!this.docker || this.existingProject || !this.bluemix) return
+      if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/dockertools'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeBluemixDeploymentFiles: function () {
       if (this.existingProject) return
-      this.bluemix.services = this.services
+      // Go through the bluemix object and pull out the serviceInfo for each of
+      // the services to pass down to cloud enablement
+      this.bluemix.services = {}
+      Object.keys(this.services).forEach(prop => {
+        var services = Array.isArray(this.services[prop]) ? this.services[prop] : [this.services[prop]]
+        this.bluemix.services[prop] = services.map(service => service.serviceInfo)
+      })
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
     },
 
     writeKubernetesFiles: function () {
       if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
+    },
+
+    writeUsecaseFiles: function () {
+      if (!this.usecase) return
+      this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {
+        force: this.force,
+        starterOptions: JSON.stringify(this.starterOptions),
+        bluemix: JSON.stringify(this.bluemix),
+        parentContext: {
+          injectDependency: dependency => { this.dependencies.push(dependency) }
+        }
+      })
     },
 
     writePackageSwift: function () {
@@ -1290,7 +1362,8 @@ module.exports = Generator.extend({
             generatedModule: this.generatedModule,
             applicationModule: this.applicationModule,
             sdkTargets: this.sdkTargets,
-            dependencies: this.dependencies
+            dependencies: this.dependencies,
+            modules: this.modules
           }
         )
       })

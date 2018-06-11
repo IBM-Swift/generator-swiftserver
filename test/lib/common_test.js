@@ -44,6 +44,7 @@ exports.applicationModule = 'Application'
 exports.applicationSourceDir = `Sources/${exports.applicationModule}`
 exports.applicationSourceFile = `${exports.applicationSourceDir}/Application.swift`
 exports.routesSourceDir = `${exports.applicationSourceDir}/Routes`
+exports.modelsSourceDir = `${exports.applicationSourceDir}/Models`
 exports.servicesSourceDir = `${exports.applicationSourceDir}/Services`
 exports.webDir = 'public'
 exports.swaggerUIDir = `${exports.webDir}/explorer`
@@ -65,9 +66,12 @@ exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
 exports.cloudFoundryFiles = [ exports.cloudFoundryManifestFile, '.cfignore' ]
 exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
+exports.bluemixToolchainFile = '.bluemix/toolchain.yml'
 exports.bluemixFiles = [ exports.bluemixPipelineFile,
-  '.bluemix/toolchain.yml',
+  exports.bluemixToolchainFile,
   '.bluemix/deploy.json' ]
+exports.kubernetesPipelineFiles = [ '.bluemix/scripts/container_build.sh',
+  '.bluemix/scripts/kube_deploy.sh' ]
 exports.dockerFiles = [ 'Dockerfile', 'Dockerfile-tools', '.dockerignore' ]
 exports.kubernetesChartFileGenerator = (applicationName) => `chart/${applicationName}/Chart.yaml`
 exports.kubernetesValuesFileGenerator = (applicationName) => `chart/${applicationName}/values.yaml`
@@ -94,7 +98,8 @@ exports.serviceDisplayNames = {
   cloudant: 'Cloudant / CouchDB',
   redis: 'Redis',
   mongodb: 'MongoDB',
-  postgresql: 'PostreSQL',
+  postgresql: 'PostgreSQL',
+  elephantsql: 'ElephantSQL',
   objectstorage: 'Object Storage',
   appid: 'AppID',
   watsonconversation: 'Watson Conversation',
@@ -140,11 +145,20 @@ exports.itCreatedCommonFiles = function (executableModule) {
   })
 }
 
-exports.applicationImportsModules = function (moduleNameOrModuleNames) {
+exports.itHasApplicationModuleImports = function (moduleNameOrModuleNames) {
   var moduleNames = Array.isArray(moduleNameOrModuleNames) ? moduleNameOrModuleNames : [moduleNameOrModuleNames]
   moduleNames.forEach(moduleName => {
     it(`application imports $(moduleName)`, function () {
       assert.fileContent(exports.applicationSourceFile, `import ${moduleName}`)
+    })
+  })
+}
+
+exports.itHasNoApplicationModuleImports = function (moduleNameOrModuleNames) {
+  var moduleNames = Array.isArray(moduleNameOrModuleNames) ? moduleNameOrModuleNames : [moduleNameOrModuleNames]
+  moduleNames.forEach(moduleName => {
+    it(`application doesn't import $(moduleName)`, function () {
+      assert.noFileContent(exports.applicationSourceFile, `import ${moduleName}`)
     })
   })
 }
@@ -222,6 +236,18 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
 }
 
 //
+// Models
+//
+exports.itCreatedModels = function (modelNameOrModelNames) {
+  var modelNames = Array.isArray(modelNameOrModelNames) ? modelNameOrModelNames : [modelNameOrModelNames]
+  modelNames.forEach(modelName => {
+    it(`created a model source file for ${modelName}`, function () {
+      assert.file(`Sources/Application/Models/${modelName}.swift`)
+    })
+  })
+}
+
+//
 // Package dependencies
 //
 exports.itHasPackageDependencies = function (depOrDeps) {
@@ -233,6 +259,36 @@ exports.itHasPackageDependencies = function (depOrDeps) {
   })
 }
 
+exports.itHasNoPackageDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has no package dependency ${dep}`, function () {
+      assert.noFileContent(exports.packageFile, `/${dep}.git`)
+    })
+  })
+}
+
+//
+// Modules dependencies
+//
+
+exports.itHasApplicationModuleDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has pacakage module dependency ${dep}`, function () {
+      assert.fileContent(exports.packageFile, `"${dep}"`)
+    })
+  })
+}
+
+exports.itHasNoApplicationModuleDependencies = function (depOrDeps) {
+  var deps = Array.isArray(depOrDeps) ? depOrDeps : [depOrDeps]
+  deps.forEach(dep => {
+    it(`has no package module dependency ${dep}`, function () {
+      assert.noFileContent(exports.packageFile, `"${dep}"`)
+    })
+  })
+}
 //
 // Build output
 //
@@ -273,17 +329,20 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
   it('metrics boilerplate contains expected content', function () {
     var metricsFile = `${exports.applicationSourceDir}/Metrics.swift`
     assert.fileContent([
+      [metricsFile, 'import Kitura'],
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
+      [metricsFile, 'import SwiftMetricsPrometheus'],
       [metricsFile, 'swiftMetrics: SwiftMetrics'],
-      [metricsFile, 'func initializeMetrics()'],
+      [metricsFile, 'func initializeMetrics(router: Router)'],
       [metricsFile, 'SwiftMetrics()'],
-      [metricsFile, 'try SwiftMetricsDash(']
+      [metricsFile, 'try SwiftMetricsDash('],
+      [metricsFile, 'try SwiftMetricsPrometheus(']
     ])
   })
 
   it('application initializes metrics', function () {
-    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics()')
+    assert.fileContent(exports.applicationSourceFile, 'initializeMetrics(router: router)')
   })
 }
 
@@ -366,7 +425,7 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
   var domain = opts.domain || 'ng.bluemix.net'
-  var namespace = opts.namespace || 'replace-me-namespace'
+  var namespace = opts.imageRegistryNamespace || 'replace-me-namespace'
 
   var chartFile = exports.kubernetesChartFileGenerator(applicationName)
   var valuesFile = exports.kubernetesValuesFileGenerator(applicationName)
@@ -386,6 +445,26 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
 
   it('bx dev config contains expected chart-path', function () {
     assert.fileContent(exports.bxdevConfigFile, `chart-path : "chart/${applicationName}"`)
+  })
+}
+
+//
+// Kuberneetes Pipeline
+//
+exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
+  opts = opts || {}
+  var clusterName = opts.clusterName
+  var clusterNamespace = opts.clusterNamespace || 'default'
+
+  it('created kubernetes bluemix pipeline files', function () {
+    assert.file(exports.bluemixFiles)
+    assert.file(exports.kubernetesPipelineFiles)
+  })
+
+  it('bluemix pipeline files contains proper kube values', function () {
+    assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
+    assert.fileContent(exports.bluemixToolchainFile, `cluster-namespace: ${clusterNamespace}`)
+    assert.fileContent(exports.bluemixPipelineFile, 'mv Dockerfile-tools Dockerfile')
   })
 }
 
@@ -410,6 +489,30 @@ exports.itDidNotCreateServiceFiles = function () {
   })
 }
 
+exports.itDidNotCreateService = function (service) {
+  it(`service configuration file does not contain ${service}`, function () {
+    assert.noFileContent(exports.configMappingsFile, service)
+  })
+
+  it(`cloudfoundry manifest does not contain ${service}`, function () {
+    assert.noFileContent([
+      [exports.cloudFoundryManifestFile, `- ${service}`]
+    ])
+  })
+
+  it(`bluemix pipeline does not contain ${service} create-service command`, function () {
+    assert.noFileContent(exports.bluemixPipelineFile, `cf create-service "${service}"`)
+  })
+
+  it(`does not create ${service} boilerplate`, function () {
+    assert.noFile(`${exports.servicesSourceDir}/Service${service}.swift`)
+  })
+
+  it(`application does not initialize ${service}`, function () {
+    assert.noFileContent(exports.applicationSourceFile, `try initializeService${service}(cloudEnv: cloudEnv)`)
+  })
+}
+
 exports.itCreatedServiceConfigFiles = function () {
   it('created service configuration files', function () {
     assert.file(exports.configMappingsFile)
@@ -419,14 +522,17 @@ exports.itCreatedServiceConfigFiles = function () {
 
 exports.itHasServiceInConfig = function (serviceDescription, mappingName, serviceName, serviceCredentials) {
   it(`service configuration mapping file contains ${serviceDescription} mapping`, function () {
+    var envVarName = 'service_' + mappingName
     assert.fileContent(exports.configMappingsFile, mappingName)
     assert.jsonFileContent(exports.configMappingsFile, {
       [mappingName]: {
-        searchPatterns: [
-          `cloudfoundry:${serviceName}`,
-          `env:${serviceName}`,
-          `file:/config/localdev-config.json:${serviceName}`
-        ]
+        credentials: {
+          searchPatterns: [
+            `cloudfoundry:${serviceName}`,
+            `env:${envVarName}`,
+            `file:/config/localdev-config.json:${serviceName}`
+          ]
+        }
       }
     })
   })
@@ -457,7 +563,7 @@ exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, in
   })
 
   it(`application initializes ${serviceDescription}`, function () {
-    assert.fileContent(exports.applicationSourceFile, `try ${initFuncName}()`)
+    assert.fileContent(exports.applicationSourceFile, `try ${initFuncName}(cloudEnv: cloudEnv)`)
   })
 }
 
@@ -478,8 +584,9 @@ exports.autoscaling = {
       var autoscalingFile = `${exports.servicesSourceDir}/ServiceAutoscaling.swift`
       assert.fileContent([
         [autoscalingFile, 'import SwiftMetricsBluemix'],
-        [autoscalingFile, 'func initializeServiceAutoscaling()'],
-        [autoscalingFile, 'SwiftMetricsBluemix(']
+        [autoscalingFile, 'guard let swiftMetrics'],
+        [autoscalingFile, 'func initializeServiceAutoscaling(cloudEnv: CloudEnv)'],
+        [autoscalingFile, 'return autoscaling']
       ])
     })
   }
@@ -504,9 +611,9 @@ exports.cloudant = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import CouchDB'],
-        [serviceFile, 'couchDBClient: CouchDBClient'],
-        [serviceFile, 'func initializeServiceCloudant() throws'],
-        [serviceFile, 'CouchDBClient(']
+        [serviceFile, 'guard let cloudantCredentials'],
+        [serviceFile, 'func initializeServiceCloudant(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return couchDBClient']
       ])
     })
   }
@@ -518,7 +625,7 @@ exports.appid = {
     var description = 'appid'
     var mapping = 'appid'
     var label = 'AppID'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('appid')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('auth')
     var sourceFile = 'ServiceAppid.swift'
     var initFunction = 'initializeServiceAppid'
 
@@ -531,11 +638,10 @@ exports.appid = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixAppID'],
-        [serviceFile, 'webappKituraCredentialsPlugin: WebAppKituraCredentialsPlugin'],
-        [serviceFile, 'kituraCredentials: Credentials'],
-        [serviceFile, 'func initializeServiceAppid() throws'],
+        [serviceFile, 'import class Credentials.Credentials'],
+        [serviceFile, 'func initializeServiceAppid(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'WebAppKituraCredentialsPlugin('],
-        [serviceFile, 'Credentials(']
+        [serviceFile, 'return kituraCredentials']
       ])
     })
   }
@@ -547,7 +653,7 @@ exports.watsonconversation = {
     var description = 'watson conversation'
     var mapping = 'watson_conversation'
     var label = 'conversation'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('watsonconversation')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('conversation')
     var sourceFile = 'ServiceWatsonConversation.swift'
     var initFunction = 'initializeServiceWatsonConversation'
 
@@ -560,9 +666,9 @@ exports.watsonconversation = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import ConversationV1'],
-        [serviceFile, 'conversation: Conversation'],
-        [serviceFile, 'func initializeServiceWatsonConversation() throws'],
-        [serviceFile, 'Conversation(']
+        [serviceFile, 'let conversation = Conversation('],
+        [serviceFile, 'func initializeServiceWatsonConversation(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return conversation']
       ])
     })
   }
@@ -574,7 +680,7 @@ exports.pushnotifications = {
     var description = 'push notifications'
     var mapping = 'push'
     var label = 'imfpush'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('pushnotifications')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('push')
     var sourceFile = 'ServicePush.swift'
     var initFunction = 'initializeServicePush'
 
@@ -586,10 +692,10 @@ exports.pushnotifications = {
     it('push notifications boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
-        [serviceFile, 'import BluemixPushNotifications'],
-        [serviceFile, 'pushNotifications: PushNotifications'],
-        [serviceFile, 'func initializeServicePush() throws'],
-        [serviceFile, 'PushNotifications(']
+        [serviceFile, 'import IBMPushNotifications'],
+        [serviceFile, 'let pushNotifications = PushNotifications('],
+        [serviceFile, 'func initializeServicePush(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return pushNotifications']
       ])
     })
   }
@@ -601,7 +707,7 @@ exports.alertnotification = {
     var description = 'alert notification'
     var mapping = 'alert_notification'
     var label = 'AlertNotification'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertnotification')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertNotification')
     var sourceFile = 'ServiceAlertNotification.swift'
     var initFunction = 'initializeServiceAlertNotification'
 
@@ -614,9 +720,9 @@ exports.alertnotification = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import AlertNotifications'],
-        [serviceFile, 'serviceCredentials: ServiceCredentials'],
-        [serviceFile, 'func initializeServiceAlertNotification() throws'],
-        [serviceFile, 'ServiceCredentials(']
+        [serviceFile, 'let alertNotificationCredentials = cloudEnv.getAlertNotificationCredentials('],
+        [serviceFile, 'func initializeServiceAlertNotification(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return alertNotificationCredentials']
       ])
     })
   }
@@ -628,7 +734,7 @@ exports.objectstorage = {
     var description = 'object storage'
     var mapping = 'object_storage'
     var label = 'Object-Storage'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectstorage')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectStorage')
     var sourceFile = 'ServiceObjectStorage.swift'
     var initFunction = 'initializeServiceObjectStorage'
 
@@ -641,9 +747,10 @@ exports.objectstorage = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import BluemixObjectStorage'],
-        [serviceFile, 'objStorage: ObjectStorage'],
-        [serviceFile, 'func initializeServiceObjectStorage() throws'],
-        [serviceFile, 'ObjectStorage(']
+        [serviceFile, 'func initializeServiceObjectStorage(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'guard let storageCredentials ='],
+        [serviceFile, 'guard let connectedObjectStorage ='],
+        [serviceFile, 'return connectedObjectStorage']
       ])
     })
   }
@@ -668,9 +775,8 @@ exports.redis = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import SwiftRedis'],
-        [serviceFile, 'redis = Redis('],
-        [serviceFile, 'redisCredentials: RedisCredentials'],
-        [serviceFile, 'func initializeServiceRedis() throws'],
+        [serviceFile, 'let redis = Redis('],
+        [serviceFile, 'func initializeServiceRedis(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getRedisCredentials(']
       ])
     })
@@ -692,13 +798,13 @@ exports.mongodb = {
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
-    it('redis boilerplate contains expected content', function () {
+    it('mongodb boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import MongoKitten'],
         [serviceFile, 'mongodb = try Database('],
-        [serviceFile, 'func initializeServiceMongodb() throws'],
-        [serviceFile, 'cloudEnv.getDictionary(']
+        [serviceFile, 'func initializeServiceMongodb(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getMongoDBCredentials(']
       ])
     })
   }
@@ -723,9 +829,64 @@ exports.postgresql = {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import SwiftKueryPostgreSQL'],
-        [serviceFile, 'postgreSQLConn = PostgreSQLConnection('],
-        [serviceFile, 'func initializeServicePostgre() throws'],
-        [serviceFile, 'cloudEnv.getPostgreSQLCredentials(']
+        [serviceFile, 'import SwiftKueryORM'],
+        [serviceFile, 'func initializeServicePostgre(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
+        [serviceFile, 'PostgreSQLConnection']
+      ])
+    })
+  }
+}
+
+// ElephantSQL
+exports.elephantsql = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
+    var description = 'elephantsql'
+    var mapping = 'elephant_sql'
+    var label = 'elephantsql'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('elephantsql')
+    var sourceFile = 'ServiceElephantSql.swift'
+    var initFunction = 'initializeServiceElephantSql'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('elephantsql boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import SwiftKueryPostgreSQL'],
+        [serviceFile, 'import SwiftKueryORM'],
+        [serviceFile, 'func initializeServiceElephantSql(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
+        [serviceFile, 'PostgreSQLConnection']
+      ])
+    })
+  }
+}
+// MongoDB
+exports.hypersecuredb = {
+  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
+    var description = 'hypersecuredb'
+    var mapping = 'hypersecure_dbaas_mongodb'
+    var label = 'hypersecuredb'
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('hypersecuredbaas')
+    var sourceFile = 'ServiceHypersecureDbaasMongodb.swift'
+    var initFunction = 'initializeServiceHypersecureDbaasMongodb'
+
+    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
+    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
+    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
+    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
+
+    it('mongodb boilerplate contains expected content', function () {
+      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
+      assert.fileContent([
+        [serviceFile, 'import MongoKitten'],
+        [serviceFile, 'mongodb = try Database('],
+        [serviceFile, 'func initializeServiceHypersecureDbaasMongodb(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'cloudEnv.getHyperSecureDBaaSCredentials(']
       ])
     })
   }

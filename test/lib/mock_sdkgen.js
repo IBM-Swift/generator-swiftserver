@@ -17,9 +17,11 @@
 'use strict'
 var nock = require('nock')
 var path = require('path')
+var config = require('../../config')
+var sdkGenUrl = config.sdkGenURL.match('^(https?://[^/]+)')[1]
 
 exports.mockClientSDKNetworkRequest = function (applicationName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${applicationName}_iOS_SDK/ios_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -34,7 +36,7 @@ exports.mockClientSDKNetworkRequest = function (applicationName) {
 }
 
 exports.mockClientSDKDownloadFailure = function (applicationName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${applicationName}_iOS_SDK/ios_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -45,7 +47,7 @@ exports.mockClientSDKDownloadFailure = function (applicationName) {
 }
 
 exports.mockClientSDKGenerationFailure = function (applicationName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${applicationName}_iOS_SDK/ios_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -54,7 +56,7 @@ exports.mockClientSDKGenerationFailure = function (applicationName) {
 }
 
 exports.mockClientSDKGenerationTimeout = function (applicationName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${applicationName}_iOS_SDK/ios_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -64,7 +66,7 @@ exports.mockClientSDKGenerationTimeout = function (applicationName) {
 }
 
 exports.mockServerSDKNetworkRequest = function (sdkName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${sdkName}_ServerSDK/server_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -79,7 +81,7 @@ exports.mockServerSDKNetworkRequest = function (sdkName) {
 }
 
 exports.mockServerSDKDownloadFailure = function (sdkName) {
-  return nock('https://mobilesdkgen.ng.bluemix.net')
+  return nock(sdkGenUrl)
            .filteringRequestBody(/.*/, '*')
            .post(`/sdkgen/api/generator/${sdkName}_ServerSDK/server_swift`, '*')
            .reply(200, { job: { id: 'myid' } })
@@ -87,4 +89,19 @@ exports.mockServerSDKDownloadFailure = function (sdkName) {
            .reply(200, { status: 'FINISHED' })
            .get('/sdkgen/api/generator/myid')
            .replyWithError({ message: 'getaddrinfo ENOTFOUND', code: 'ENOTFOUND' })
+}
+
+exports.mockServerSDKPackageRequest = function (sdkName) {
+  return nock(sdkGenUrl)
+           .filteringRequestBody(/.*/, '*')
+           .post(`/sdkgen/api/generator/${sdkName}_ServerSDK/server_swift`, '*')
+           .reply(200, { job: { id: 'myid' } })
+           .get('/sdkgen/api/generator/myid/status')
+           .reply(200, { status: 'FINISHED' })
+           .get('/sdkgen/api/generator/myid')
+           .replyWithFile(
+             200,
+             path.join(__dirname, '../resources/dummy_PackageSDK.zip'),
+             { 'Content-Type': 'application/zip' }
+           )
 }
