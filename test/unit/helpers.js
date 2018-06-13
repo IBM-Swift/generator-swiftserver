@@ -556,62 +556,62 @@ describe('Unit tests for helpers', function () {
   describe('swiftTypeFromSwaggerProperty', function () {
     it('returns a Swift Bool type', function () {
       var property = {'type': 'boolean', 'format': undefined}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Bool')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Bool')
     })
 
     it('returns a Swift Int type', function () {
       var property = {'type': 'integer', 'format': undefined}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Int')
     })
 
     it('returns a Swift Int8 type', function () {
       var property = {'type': 'integer', 'format': 'int8'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int8')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Int8')
     })
 
     it('returns a Swift UInt8 type', function () {
       var property = {'type': 'integer', 'format': 'uint8'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt8')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'UInt8')
     })
 
     it('returns a Swift Int16 type', function () {
       var property = {'type': 'integer', 'format': 'int16'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int16')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Int16')
     })
 
     it('returns a Swift UInt16 type', function () {
       var property = {'type': 'integer', 'format': 'uint16'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt16')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'UInt16')
     })
 
     it('returns a Swift Int32 type', function () {
       var property = {'type': 'integer', 'format': 'int32'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int32')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Int32')
     })
 
     it('returns a Swift UInt32 type', function () {
       var property = {'type': 'integer', 'format': 'uint32'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt32')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'UInt32')
     })
 
     it('returns a Swift Int64 type', function () {
       var property = {'type': 'integer', 'format': 'int64'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Int64')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Int64')
     })
 
     it('returns a Swift UInt64 type', function () {
       var property = {'type': 'integer', 'format': 'uint64'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'UInt64')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'UInt64')
     })
 
     it('returns a Swift Double type', function () {
       var property = {'type': 'number', 'format': undefined}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Double')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Double')
     })
 
     it('returns a Swift Float type', function () {
       var property = {'type': 'number', 'format': 'float'}
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Float')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Float')
     })
 
     it('returns a Swift mapping type for an integer without a format', function () {
@@ -621,7 +621,7 @@ describe('Unit tests for helpers', function () {
           'type': 'integer'
         }
       }
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int>')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Dictionary<String, Int>')
     })
 
     it('returns a Swift mapping type for an integer with a format', function () {
@@ -632,7 +632,7 @@ describe('Unit tests for helpers', function () {
           'format': 'int8'
         }
       }
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === 'Dictionary<String, Int8>')
+      assert(helpers.swiftFromSwaggerProperty(property) === 'Dictionary<String, Int8>')
     })
 
     it('returns a Swift array of Int32 types', function () {
@@ -643,7 +643,21 @@ describe('Unit tests for helpers', function () {
           'format': 'int32'
         }
       }
-      assert(helpers.swiftTypeFromSwaggerProperty(property) === '[Int32]')
+      assert(helpers.swiftFromSwaggerProperty(property) === '[Int32]')
+    })
+  })
+
+  describe('swiftFromSwaggerType', function () {
+    it('converts string to String', function () {
+      assert(helpers.swiftFromSwaggerType('string') === 'String')
+    })
+
+    it('converts integer to Int', function () {
+      assert(helpers.swiftFromSwaggerType('integer') === 'Int')
+    })
+
+    it('converts cheese to itself', function () {
+      assert(helpers.swiftFromSwaggerType('cheese') === 'cheese')
     })
   })
 })

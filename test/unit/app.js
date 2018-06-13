@@ -40,6 +40,7 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
     var services = opts.services
     var crudservice = opts.crudservice
     var fromSwagger = opts.fromSwagger
+    var generateCodableRoutes = opts.generateCodableRoutes
 
     function hasCapability (name) {
       return (capabilities.indexOf(name) !== -1)
@@ -55,6 +56,7 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
       hostSwagger: hasCapability('hostSwagger') || undefined,
       swaggerUI: hasCapability('swaggerUI') || undefined,
       fromSwagger: fromSwagger || undefined,
+      generateCodableRoutes: generateCodableRoutes || undefined,
       serverSwaggerFiles: undefined,
       bluemix: bluemix || {},
       crudservice: crudservice || undefined
@@ -762,6 +764,7 @@ describe('Unit tests for swiftserver:app', function () {
           runContext: runContext,
           appType: 'scaffold',
           appName: applicationName,
+          generateCodableRoutes: true,
           capabilities: [ 'docker', 'metrics', 'web', 'hostSwagger', 'swaggerUI', 'exampleEndpoints' ],
           services: {}
         }))
@@ -939,6 +942,7 @@ describe('Unit tests for swiftserver:app', function () {
           runContext: runContext,
           appType: 'scaffold',
           appName: applicationName,
+          generateCodableRoutes: true,
           capabilities: [ 'exampleEndpoints' ],
           services: {}
         }))
@@ -959,7 +963,8 @@ describe('Unit tests for swiftserver:app', function () {
                                     capabilities: [],
                                     endpoints: [ 'Endpoints from swagger file' ],
                                     swaggerChoice: 'Custom swagger file',
-                                    path: '/absolute/path/to/my/swagger/file.json'
+                                    path: '/absolute/path/to/my/swagger/file.json',
+                                    generateCodableRoutes: false
                                   })
               return runContext.toPromise()
             })
@@ -972,6 +977,7 @@ describe('Unit tests for swiftserver:app', function () {
               runContext: runContext,
               appType: 'scaffold',
               appName: applicationName,
+              generateCodableRoutes: false,
               capabilities: [],
               services: {},
               fromSwagger: '/absolute/path/to/my/swagger/file.json'
@@ -1009,6 +1015,7 @@ describe('Unit tests for swiftserver:app', function () {
               runContext: runContext,
               appType: 'scaffold',
               appName: applicationName,
+              generateCodableRoutes: true,
               capabilities: [],
               services: {},
               fromSwagger: `${destinationDir}/relative/path/to/my/swagger/file.json`
@@ -1042,6 +1049,7 @@ describe('Unit tests for swiftserver:app', function () {
             runContext: runContext,
             appType: 'scaffold',
             appName: applicationName,
+            generateCodableRoutes: true,
             capabilities: [],
             services: {},
             fromSwagger: 'http://dino.io/stuff'
