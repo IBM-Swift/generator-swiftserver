@@ -409,8 +409,14 @@ module.exports = Generator.extend({
         filter: (response) => response.trim(),
         validate: (response) => validateFilePathOrURL(response, this.initialWorkingDir),
         when: (question) => (question.swaggerChoice === choices.customSwagger)
+      }, {
+        name: 'generateCodableRoutes',
+        type: 'confirm',
+        message: 'Would you like to generate codable routes, (yes recommended)?',
+        default: true
       }]
       return this.prompt(prompts).then((answers) => {
+        this.generateCodableRoutes = answers.generateCodableRoutes
         if (answers.swaggerChoice === choices.exampleEndpoints) {
           this.exampleEndpoints = true
         } else if (answers.path) {
@@ -1034,6 +1040,7 @@ module.exports = Generator.extend({
       web: this.web || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
       fromSwagger: this.fromSwagger || undefined,
+      generateCodableRoutes: this.generateCodableRoutes || undefined,
       serverSwaggerFiles: this.serverSwaggerFiles || undefined,
       hostSwagger: this.hostSwagger || undefined,
       swaggerUI: this.swaggerUI || undefined,

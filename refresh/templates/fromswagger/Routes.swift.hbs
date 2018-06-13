@@ -17,14 +17,146 @@ import Kitura
 import KituraContracts
 
 func initialize{{resource}}Routes(app: App) {
-{{#each routes}}
+{{#if generatecodable}}
+  {{#if hascodable}}
+    // Handlers for codable routes are declared below:
+    //
+  {{/if}}
+  {{#each routedetail}}
+    {{#ifequal this.method "delete"}}
+      {{#if this.codable}}
+        {{#ifequal this.variant "all"}}
+    func deleteAll_{{this.handlerName}}(completion: (RequestError?) -> Void ) -> Void {
+        completion(.notImplemented)
+    }
+
+        {{/ifequal}}
+        {{#ifequal this.variant "id"}}
+    func deleteOne_{{this.handlerName}}(id: {{this.idtype}}, completion: (RequestError?) -> Void ) -> Void {
+        completion(.notImplemented)
+    }
+
+        {{/ifequal}}
+      {{/if}}
+    {{/ifequal}}
+    {{#ifequal this.method "get"}}
+      {{#if this.codable}}
+        {{#ifequal this.variant "all"}}
+    func getAll_{{this.handlerName}}(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+        {{/ifequal}}
+        {{#ifequal this.variant "id"}}
+    func getOne_{{this.handlerName}}(id: {{this.idtype}}, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+        {{/ifequal}}
+        {{#ifequal this.variant "noid"}}
+    func get_{{this.handlerName}}(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+        {{/ifequal}}
+      {{/if}}
+    {{/ifequal}}
+    {{#ifequal this.method "patch"}}
+      {{#if this.codable}}
+    func patchOne_{{this.handlerName}}(id: {{this.idtype}}, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+      {{/if}}
+    {{/ifequal}}
+    {{#ifequal this.method "post"}}
+      {{#if this.codable}}
+        {{#ifequal this.variant "noid"}}
+    func post_{{this.handlerName}}(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+        {{/ifequal}}
+        {{#ifequal this.variant "id"}}
+    func postOne_{{this.handlerName}}(post: {{this.param}}, completion: ({{this.idtype}}?, {{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil, .notImplemented)
+    }
+
+        {{/ifequal}}
+      {{/if}}
+    {{/ifequal}}
+    {{#ifequal this.method "put"}}
+      {{#if this.codable}}
+    func putOne_{{this.handlerName}}(id: {{this.idtype}}, put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, .notImplemented)
+    }
+
+      {{/if}}
+    {{/ifequal}}
+  {{/each}}
+  {{#if hascodable}}
+    // Codable routes are declared below:
+    //
+  {{/if}}
+  {{#each routedetail}}
+{{#if this.codable}}
+    {{#ifequal this.method "delete"}}
+      {{#ifequal this.variant "all"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}})
+      {{/ifequal}}
+      {{#ifequal this.variant "id"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteOne_{{this.handlerName}})
+      {{/ifequal}}
+    {{/ifequal}}
+    {{#ifequal this.method "get"}}
+      {{#ifequal this.variant "all"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getAll_{{this.handlerName}})
+      {{/ifequal}}
+      {{#ifequal this.variant "id"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getOne_{{this.handlerName}})
+      {{/ifequal}}
+      {{#ifequal this.variant "noid"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: get_{{this.handlerName}})
+      {{/ifequal}}
+    {{/ifequal}}
+    {{#ifequal this.method "patch"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: patchOne_{{this.handlerName}})
+    {{/ifequal}}
+    {{#ifequal this.method "post"}}
+      {{#ifequal this.variant "id"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postOne_{{this.handlerName}})
+      {{/ifequal}}
+      {{#ifequal this.variant "noid"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: post_{{this.handlerName}})
+      {{/ifequal}}
+    {{/ifequal}}
+    {{#ifequal this.method "put"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putOne_{{this.handlerName}})
+    {{/ifequal}}
+{{else}}
+    // This is an automatically generated raw route as a codable route could not be defined.
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
         response.send(json: [:])
         next()
     }
-{{#if @last}}
-{{else}}
-
 {{/if}}
-{{/each}}
+    {{#if @last}}
+    {{else}}
+
+    {{/if}}
+  {{/each}}
+{{else}}
+    // Raw routes with handler closures are declared below:
+    //
+  {{#each routedetail}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
+        response.send(json: [:])
+        next()
+    }
+    {{#if @last}}
+    {{else}}
+
+    {{/if}}
+  {{/each}}
+{{/if}}
 }
