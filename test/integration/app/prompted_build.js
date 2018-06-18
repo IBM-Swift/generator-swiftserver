@@ -207,6 +207,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                               appPattern: 'Backend for frontend',
                               swaggerChoice: 'Custom swagger file',
                               path: petstoreSwaggerFile,
+                              generateCodableRoutes: true,
                               // serverSwaggerInput0: true,
                               // serverSwaggerInputPath0: petstoreSwaggerFile,
                               // serverSwaggerInput1: false,
