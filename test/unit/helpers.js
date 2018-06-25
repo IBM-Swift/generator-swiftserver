@@ -123,9 +123,8 @@ describe('Unit tests for helpers', function () {
             label: 'conversation',
             plan: 'free'
           },
-          url: 'https://gateway.watsonplatform.net/conversation/api',
-          username: '',
-          password: ''
+          url: 'https://gateway.watsonplatform.net/assistant/api',
+          apikey: ''
         },
         alertNotification: {
           serviceInfo: {
@@ -199,8 +198,7 @@ describe('Unit tests for helpers', function () {
         },
         conversation: {
           url: 'http://my-host',
-          username: 'my-username',
-          password: 'my-password'
+          apikey: 'my-apikey'
         },
         alertNotification: {
           url: 'http://my-host',
@@ -370,7 +368,7 @@ describe('Unit tests for helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('auth'), 'AppID')
     })
 
-    it('get label for watsonconversation', function () {
+    it('get label for watsonassistant', function () {
       assert.equal(helpers.getBluemixServiceLabel('conversation'), 'conversation')
     })
 
@@ -382,8 +380,8 @@ describe('Unit tests for helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('push'), 'imfpush')
     })
 
-    it('get label for unrecognised value', function () {
-      assert.equal(helpers.getBluemixServiceLabel('unrecognised'), 'unrecognised')
+    it('get label for unrecognized value', function () {
+      assert.equal(helpers.getBluemixServiceLabel('unrecognized'), 'unrecognized')
     })
   })
 
@@ -404,7 +402,7 @@ describe('Unit tests for helpers', function () {
       assert.equal(helpers.getBluemixDefaultPlan('auth'), 'Graduated tier')
     })
 
-    it('get default plan for watsonconversation', function () {
+    it('get default plan for watsonassistant', function () {
       assert.equal(helpers.getBluemixDefaultPlan('conversation'), 'free')
     })
 
