@@ -2,6 +2,16 @@
 
 This scaffolded application provides a starting point for creating Swift applications running on [Kitura](http://www.kitura.io/).
 
+### Table of Contents
+* [Requirements](#requirements)
+* [Project contents](#project-contents)
+* [Run](#run)
+* [Configuration](#configuration)
+* [Deploy to IBM Cloud](#deploy-to-ibm-cloud)
+* [Service descriptions](#service-descriptions)
+* [License](#license)
+* [Generator](#generator)
+
 #### Project contents
 This application has been generated with the following capabilities and services, which are described in full in their respective sections below:
 
@@ -111,7 +121,7 @@ You can also set up a default IBM Cloud Toolchain to handle deploying your appli
 
 [![Create Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy/)
 
-### Project Contents
+### Service descriptions
 <% if (web) { -%>
 #### Static web file serving
 This application includes a `public` directory in the root of the project. The contents of this directory will be served as static content using the built-in Kitura [StaticFileServer module](https://github.com/IBM-Swift/Kitura/wiki/Serving-Static-Content).
