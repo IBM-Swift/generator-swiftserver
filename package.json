@@ -43,7 +43,7 @@
     "istanbul": "^0.4.5",
     "makeshift": "^1.1.0",
     "mem-fs": "^1.1.3",
-    "mem-fs-editor": "^4.0.0",
+    "mem-fs-editor": "^5.0.0",
     "mkdirp": "^0.5.1",
     "mocha": "^5.0.0",
     "mocha-multi-reporters": "^1.1.7",
