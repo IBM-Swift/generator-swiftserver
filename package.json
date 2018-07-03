@@ -1,6 +1,6 @@
 {
   "name": "generator-swiftserver",
-  "version": "5.3.4",
+  "version": "5.4.0",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
     "generator-ibm-cloud-enablement": "1.1.2",
-    "generator-ibm-service-enablement": "1.4.0",
+    "generator-ibm-service-enablement": "2.1.1",
     "generator-ibm-usecase-enablement": "3.2.0",
     "handlebars": "^4.0.5",
     "ibm-openapi-support": "^0.0.12",

@@ -102,7 +102,7 @@ exports.serviceDisplayNames = {
   elephantsql: 'ElephantSQL',
   objectstorage: 'Object Storage',
   appid: 'AppID',
-  watsonconversation: 'Watson Conversation',
+  watsonassistant: 'Watson Assistant',
   alertnotification: 'Alert Notification',
   pushnotifications: 'Push Notifications',
   autoscaling: 'Auto-scaling'
@@ -647,28 +647,28 @@ exports.appid = {
   }
 }
 
-// Watson conversation
-exports.watsonconversation = {
+// Watson Assistant
+exports.watsonassistant = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'watson conversation'
-    var mapping = 'watson_conversation'
+    var description = 'watson assistant'
+    var mapping = 'watson_assistant'
     var label = 'conversation'
     var plan = servicePlan || helpers.getBluemixDefaultPlan('conversation')
-    var sourceFile = 'ServiceWatsonConversation.swift'
-    var initFunction = 'initializeServiceWatsonConversation'
+    var sourceFile = 'ServiceWatsonAssistant.swift'
+    var initFunction = 'initializeServiceWatsonAssistant'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
     exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
-    it('watson conversation boilerplate contains expected content', function () {
+    it('watson assistant boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
-        [serviceFile, 'import ConversationV1'],
-        [serviceFile, 'let conversation = Conversation('],
-        [serviceFile, 'func initializeServiceWatsonConversation(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'return conversation']
+        [serviceFile, 'import AssistantV1'],
+        [serviceFile, 'let assistant = Assistant('],
+        [serviceFile, 'func initializeServiceWatsonAssistant(cloudEnv: CloudEnv) throws'],
+        [serviceFile, 'return assistant']
       ])
     })
   }

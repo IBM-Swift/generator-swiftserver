@@ -495,7 +495,7 @@ module.exports = Generator.extend({
         'Object Storage',
         'AppID',
         'Auto-scaling',
-        'Watson Conversation',
+        'Watson Assistant, formerly Conversation',
         'Alert Notification',
         'Push Notifications'
       ]
@@ -528,8 +528,8 @@ module.exports = Generator.extend({
         if (answers.services.indexOf('AppID') !== -1) {
           this._addService('auth', generateServiceName(this.appname, 'AppID'))
         }
-        if (answers.services.indexOf('Watson Conversation') !== -1) {
-          this._addService('conversation', generateServiceName(this.appname, 'WatsonConversation'))
+        if (answers.services.indexOf('Watson Assistant, formerly Conversation') !== -1) {
+          this._addService('conversation', generateServiceName(this.appname, 'WatsonAssistant'))
         }
         if (answers.services.indexOf('Alert Notification') !== -1) {
           this._addService('alertNotification', generateServiceName(this.appname, 'AlertNotification'))
@@ -609,7 +609,7 @@ module.exports = Generator.extend({
           case 'objectStorage': return 'Object Storage'
           case 'auth': return 'AppID'
           case 'autoscaling': return 'Auto-scaling'
-          case 'conversation': return 'Watson Conversation'
+          case 'conversation': return 'Watson Assistant'
           case 'alertNotification': return 'Alert Notification'
           case 'push': return 'Push Notifications'
           default:
@@ -850,28 +850,26 @@ module.exports = Generator.extend({
       })
     },
 
-    promptConfigureWatsonConversation: function () {
+    promptConfigureWatsonAssistant: function () {
       if (this.skipPrompting) return
       if (!this.servicesToConfigure) return
       if (!this.servicesToConfigure.conversation) return
 
       this.log()
-      this.log('Configure Watson Conversation')
+      this.log('Configure Watson Assistant')
       var prompts = [
-        { name: 'watsonConversationName', message: 'Enter name (blank for default):' },
-        { name: 'watsonConversationUsername', message: 'Enter username (blank for none):' },
-        { name: 'watsonConversationPassword', message: 'Enter password:', type: 'password' },
-        { name: 'watsonConversationUrl', message: 'Enter url (blank for none):' }
+        { name: 'watsonAssistantName', message: 'Enter name (blank for default):' },
+        { name: 'watsonAssistantAPIKey', message: 'Enter API key (blank for none):' },
+        { name: 'watsonAssistantUrl', message: 'Enter url (blank for default):' }
       ]
       return this.prompt(prompts).then((answers) => {
         var watsonService = this.services.conversation
         this.services.conversation = {
-          username: answers.watsonConversationUsername || undefined,
-          password: answers.watsonConversationPassword || undefined,
-          url: answers.watsonConversationUrl || undefined,
+          apikey: answers.watsonAssistantAPIKey || undefined,
+          url: answers.watsonAssistantUrl || undefined,
           serviceInfo: {
             label: watsonService.serviceInfo.label,
-            name: answers.watsonConversationName || watsonService.name,
+            name: answers.watsonAssistantName || watsonService.serviceInfo.name,
             plan: watsonService.serviceInfo.plan
           }
         }

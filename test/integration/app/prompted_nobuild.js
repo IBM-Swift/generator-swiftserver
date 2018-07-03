@@ -1079,7 +1079,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       })
     })
 
-    describe('with watson conversation', function () {
+    describe('with watson assistant', function () {
       describe('default credentials', function () {
         var runContext
 
@@ -1090,9 +1090,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                 name: applicationName,
                                 appType: 'Scaffold a starter',
                                 capabilities: [],
-                                services: [ 'Watson Conversation' ],
-                                configure: [ 'Watson Conversation' ],
-                                watsonConversationName: 'myConversationService'
+                                services: [ 'Watson Assistant, formerly Conversation' ],
+                                configure: [ 'Watson Assistant' ],
+                                watsonAssistantName: 'myAssistantService'
                               })
           return runContext.toPromise()
         })
@@ -1102,10 +1102,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         commonTest.itCreatedServiceConfigFiles()
-        commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService', {
-          url: 'https://gateway.watsonplatform.net/conversation/api',
-          username: '',
-          password: ''
+        commonTest.watsonassistant.itCreatedServiceFilesWithExpectedContent('myAssistantService', {
+          url: 'https://gateway.watsonplatform.net/assistant/api',
+          apikey: ''
         })
       })
 
@@ -1119,12 +1118,11 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                 name: applicationName,
                                 appType: 'Scaffold a starter',
                                 capabilities: [],
-                                services: [ 'Watson Conversation' ],
-                                configure: [ 'Watson Conversation' ],
-                                watsonConversationName: 'myConversationService',
-                                watsonConversationUsername: 'admin',
-                                watsonConversationPassword: 'password1234',
-                                watsonConversationUrl: 'https://myhost'
+                                services: [ 'Watson Assistant, formerly Conversation' ],
+                                configure: [ 'Watson Assistant' ],
+                                watsonAssistantName: 'myAssistantService',
+                                watsonAssistantAPIKey: 'apikey1234',
+                                watsonAssistantUrl: 'https://myhost'
                               })
           return runContext.toPromise()
         })
@@ -1134,10 +1132,9 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         commonTest.itCreatedServiceConfigFiles()
-        commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService', {
+        commonTest.watsonassistant.itCreatedServiceFilesWithExpectedContent('myAssistantService', {
           url: 'https://myhost',
-          username: 'admin',
-          password: 'password1234'
+          apikey: 'apikey1234'
         })
       })
     })
