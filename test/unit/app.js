@@ -1483,7 +1483,7 @@ describe('Unit tests for swiftserver:app', function () {
       })
     })
 
-    describe('with watson conversation', function () {
+    describe('with watson assistant', function () {
       describe('default credentials', function () {
         var runContext
 
@@ -1495,7 +1495,7 @@ describe('Unit tests for swiftserver:app', function () {
                                 name: applicationName,
                                 appType: 'Scaffold a starter',
                                 capabilities: [],
-                                services: [ 'Watson Conversation' ]
+                                services: [ 'Watson Assistant, formerly Conversation' ]
                               })
           return runContext.toPromise()
         })
@@ -1524,12 +1524,11 @@ describe('Unit tests for swiftserver:app', function () {
                                 name: applicationName,
                                 appType: 'Scaffold a starter',
                                 capabilities: [],
-                                services: [ 'Watson Conversation' ],
-                                configure: [ 'Watson Conversation' ],
-                                watsonConversationName: 'myConversationService',
-                                watsonConversationUsername: 'admin',
-                                watsonConversationPassword: 'password1234',
-                                watsonConversationUrl: 'https://myhost'
+                                services: [ 'Watson Assistant, formerly Conversation' ],
+                                configure: [ 'Watson Assistant' ],
+                                watsonAssistantName: 'myAssistantService',
+                                watsonAssistantAPIKey: 'apikey1234',
+                                watsonAssistantUrl: 'https://myhost'
                               })
           return runContext.toPromise()
         })
@@ -1546,10 +1545,9 @@ describe('Unit tests for swiftserver:app', function () {
           services: {
             conversation: {
               serviceInfo: {
-                name: 'myConversationService'
+                name: 'myAssistantService'
               },
-              username: 'admin',
-              password: 'password1234',
+              apikey: 'apikey1234',
               url: 'https://myhost'
             }
           }
