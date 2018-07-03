@@ -136,9 +136,8 @@
         }
     ],
     "conversation": {
-        "url": "https://gateway.watsonplatform.net/conversation/api",
-        "username": "conversation-username",
-        "password": "conversation-password",
+        "url": "https://gateway.watsonplatform.net/assistant/api",
+        "apikey": "assistant-apikey",
         "serviceInfo": {
             "label": "conversation-label",
             "name": "conversation-name",
