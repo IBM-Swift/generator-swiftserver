@@ -1400,6 +1400,11 @@ module.exports = Generator.extend({
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
     },
 
+    writeVSIFiles: function () {
+      if (!this.docker || this.existingProject) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/vsi'), { force: this.force, bluemix: this.bluemix })
+    },
+
     writeUsecaseFiles: function () {
       if (!this.usecase) return
       this.composeWith(require.resolve('generator-ibm-usecase-enablement'), {

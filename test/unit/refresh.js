@@ -347,7 +347,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceRedis.swift',
           commonTest.servicesSourceDir + '/ServiceMongodb.swift',
           commonTest.servicesSourceDir + '/ServiceObjectStorage.swift',
-          commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
+          commonTest.servicesSourceDir + '/ServiceWatsonAssistant.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
           commonTest.servicesSourceDir + '/ServiceAutoscaling.swift',
@@ -371,7 +371,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             redis: { serviceInfo: { name: 'myRedisService' } },
             mongodb: { serviceInfo: { name: 'myMongoDBService' } },
             objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }],
-            conversation: { serviceInfo: { name: 'myConversationService' } },
+            conversation: { serviceInfo: { name: 'myAssistantService' } },
             push: { serviceInfo: { name: 'myPushService' } },
             alertNotification: { serviceInfo: { name: 'myAlertService' } },
             autoscaling: { serviceInfo: { name: 'myAutoscalingService' } },
@@ -1825,7 +1825,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppidService')
     })
 
-    describe('with watson conversation', function () {
+    describe('with watson assistant', function () {
       var runContext
 
       before(function () {
@@ -1836,8 +1836,8 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appName: applicationName,
                                 bluemix: {
                                   backendPlatform: 'SWIFT',
-                                  server: { services: ['myConversationService'] },
-                                  conversation: { serviceInfo: { name: 'myConversationService' } }
+                                  server: { services: ['myAssistantService'] },
+                                  conversation: { serviceInfo: { name: 'myAssistantService' } }
                                 }
                               }
                             })
@@ -1849,7 +1849,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-      commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService')
+      commonTest.watsonassistant.itCreatedServiceFilesWithExpectedContent('myAssistantService')
     })
 
     describe('with push notificiations', function () {
