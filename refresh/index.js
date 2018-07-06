@@ -1087,6 +1087,7 @@ module.exports = Generator.extend({
           {
             appName: this.projectName,
             executableName: this.executableModule,
+            chartName: helpers.sanitizeAppName(this.bluemix.name),
             generatorVersion: this.generatorVersion,
             web: this.web,
             docker: this.docker,
