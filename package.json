@@ -27,7 +27,7 @@
     "bluebird": "^3.5.0",
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
-    "generator-ibm-cloud-enablement": "1.1.3",
+    "generator-ibm-cloud-enablement": "1.1.5",
     "generator-ibm-service-enablement": "2.1.1",
     "generator-ibm-usecase-enablement": "3.2.0",
     "handlebars": "^4.0.5",
