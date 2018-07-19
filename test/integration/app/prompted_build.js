@@ -117,7 +117,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     // TODO with endpoints from swagger file @full
 
     var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql', 'elephantsql',
-      'objectstorage', 'appid', 'watsonconversation', 'alertnotification',
+      'objectstorage', 'appid', 'watsonassistant', 'alertnotification',
       'pushnotifications', 'autoscaling' ]
     servicesToTest.forEach(service => {
       var serviceDisplayName = commonTest.serviceDisplayNames[service]
@@ -207,6 +207,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                               appPattern: 'Backend for frontend',
                               swaggerChoice: 'Custom swagger file',
                               path: petstoreSwaggerFile,
+                              generateCodableRoutes: true,
                               // serverSwaggerInput0: true,
                               // serverSwaggerInputPath0: petstoreSwaggerFile,
                               // serverSwaggerInput1: false,
@@ -217,7 +218,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                                 'Object Storage',
                                 'AppID',
                                 'Auto-scaling',
-                                'Watson Conversation',
+                                'Watson Assistant',
                                 'Alert Notification',
                                 'Push Notifications'
                               ]

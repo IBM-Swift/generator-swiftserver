@@ -347,7 +347,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceRedis.swift',
           commonTest.servicesSourceDir + '/ServiceMongodb.swift',
           commonTest.servicesSourceDir + '/ServiceObjectStorage.swift',
-          commonTest.servicesSourceDir + '/ServiceWatsonConversation.swift',
+          commonTest.servicesSourceDir + '/ServiceWatsonAssistant.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
           commonTest.servicesSourceDir + '/ServiceAutoscaling.swift',
@@ -371,7 +371,7 @@ describe('Unit tests for swiftserver:refresh', function () {
             redis: { serviceInfo: { name: 'myRedisService' } },
             mongodb: { serviceInfo: { name: 'myMongoDBService' } },
             objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }],
-            conversation: { serviceInfo: { name: 'myConversationService' } },
+            conversation: { serviceInfo: { name: 'myAssistantService' } },
             push: { serviceInfo: { name: 'myPushService' } },
             alertNotification: { serviceInfo: { name: 'myAlertService' } },
             autoscaling: { serviceInfo: { name: 'myAutoscalingService' } },
@@ -1146,8 +1146,8 @@ describe('Unit tests for swiftserver:refresh', function () {
             })
 
             it('swagger routes prepend base path', function () {
-              assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-              assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
+              assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs"')
+              assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons"')
             })
           })
 
@@ -1308,11 +1308,11 @@ describe('Unit tests for swiftserver:refresh', function () {
             it('swagger routes match definition', function () {
               var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
               assert.fileContent([
-                [ productsRoutesFile, 'router.get("/products"' ],
-                [ productsRoutesFile, 'router.post("/products"' ],
-                [ productsRoutesFile, 'router.get("/products/:id"' ],
-                [ productsRoutesFile, 'router.delete("/products/:id"' ],
-                [ productsRoutesFile, 'router.put("/products/:id"' ]
+                [ productsRoutesFile, 'app.router.get("/products"' ],
+                [ productsRoutesFile, 'app.router.post("/products"' ],
+                [ productsRoutesFile, 'app.router.get("/products/:id"' ],
+                [ productsRoutesFile, 'app.router.delete("/products/:id"' ],
+                [ productsRoutesFile, 'app.router.put("/products/:id"' ]
               ])
             })
           })
@@ -1401,8 +1401,8 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons"')
           })
         })
       })
@@ -1449,8 +1449,131 @@ describe('Unit tests for swiftserver:refresh', function () {
           })
 
           it('swagger routes prepend base path', function () {
-            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'router.get("\\(basePath)/dinosaurs"')
-            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'router.get("\\(basePath)/persons"')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs"')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons"')
+          })
+        })
+      })
+
+      describe('generation of codable', function () {
+        var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
+
+        describe('gen person_dino as codable routes', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(refreshGeneratorPath)
+                                .withOptions({
+                                  specObj: {
+                                    appType: 'scaffold',
+                                    appName: applicationName,
+                                    hostSwagger: true,
+                                    fromSwagger: inputSwaggerFile,
+                                    generateCodableRoutes: true
+                                  }
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            nock.cleanAll()
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itUsedDefaultDestinationDirectory()
+          commonTest.itCreatedCommonFiles(executableModule)
+
+          commonTest.itCreatedRoutes([
+            'Dinosaurs_',
+            'Persons_',
+            'Swagger'
+          ])
+
+          commonTest.itCreatedModels([
+            'Dino',
+            'Age',
+            'Newage'
+          ])
+
+          it('application defines base path', function () {
+            assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
+          })
+
+          it('swagger id has correct type', function () {
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'func getOne__persons__handler(id: String')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'func getOne__dinosaurs__handler(id: Int')
+          })
+
+          it('swagger routes build correct route and handle registration', function () {
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs", handler: getAll__dinosaurs_handler')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'func getAll__dinosaurs_handler(completion: ([dino]?, RequestError?) -> Void ) -> Void {')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'completion(nil, .notImplemented)')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons", handler: getAll__persons_handler')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'func getAll__persons_handler(completion: ([age]?, RequestError?) -> Void ) -> Void {')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'completion(nil, .notImplemented)')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.post("\\(basePath)/persons", handler: post__persons_handler')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'func post__persons_handler(post: age, completion: (age?, RequestError?) -> Void ) -> Void {')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons/", handler: getOne__persons__handler')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'func getOne__persons__handler(id: String, completion: (age?, RequestError?) -> Void ) -> Void {')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.put("\\(basePath)/persons") { request, response, next in')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.post("\\(basePath)/persons/:id") { request, response, next in')
+          })
+        })
+      })
+
+      describe('generation of raw', function () {
+        var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
+
+        describe('gen person_dino as raw routes', function () {
+          var runContext
+
+          before(function () {
+            runContext = helpers.run(refreshGeneratorPath)
+                                .withOptions({
+                                  specObj: {
+                                    appType: 'scaffold',
+                                    appName: applicationName,
+                                    hostSwagger: true,
+                                    fromSwagger: inputSwaggerFile,
+                                    generateCodableRoutes: false
+                                  }
+                                })
+            return runContext.toPromise()
+          })
+
+          after(function () {
+            nock.cleanAll()
+            runContext.cleanTestDirectory()
+          })
+
+          commonTest.itUsedDefaultDestinationDirectory()
+          commonTest.itCreatedCommonFiles(executableModule)
+
+          commonTest.itCreatedRoutes([
+            'Dinosaurs_',
+            'Persons_',
+            'Swagger'
+          ])
+
+          commonTest.itCreatedModels([
+            'Dino',
+            'Age',
+            'Newage'
+          ])
+
+          it('application defines base path', function () {
+            assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
+          })
+
+          it('swagger routes prepend base path', function () {
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs") { request, response, next in')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'response.send(json: [:])')
+            assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'next()')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons") { request, response, next in')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'response.send(json: [:])')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'next()')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.post("\\(basePath)/persons") { request, response, next in')
+            assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons/") { request, response, next in')
           })
         })
       })
@@ -1702,7 +1825,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       commonTest.appid.itCreatedServiceFilesWithExpectedContent('myAppidService')
     })
 
-    describe('with watson conversation', function () {
+    describe('with watson assistant', function () {
       var runContext
 
       before(function () {
@@ -1713,8 +1836,8 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 appName: applicationName,
                                 bluemix: {
                                   backendPlatform: 'SWIFT',
-                                  server: { services: ['myConversationService'] },
-                                  conversation: { serviceInfo: { name: 'myConversationService' } }
+                                  server: { services: ['myAssistantService'] },
+                                  conversation: { serviceInfo: { name: 'myAssistantService' } }
                                 }
                               }
                             })
@@ -1726,7 +1849,7 @@ describe('Unit tests for swiftserver:refresh', function () {
       })
 
       commonTest.itCreatedServiceConfigFiles()
-      commonTest.watsonconversation.itCreatedServiceFilesWithExpectedContent('myConversationService')
+      commonTest.watsonassistant.itCreatedServiceFilesWithExpectedContent('myAssistantService')
     })
 
     describe('with push notificiations', function () {

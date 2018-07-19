@@ -214,6 +214,7 @@ module.exports = Generator.extend({
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
         this.openApiFileOrUrl = this.spec.fromSwagger
+        this.generateCodableRoutes = this.spec.generateCodableRoutes
       }
 
       if (this.exampleEndpoints) {
@@ -754,7 +755,8 @@ module.exports = Generator.extend({
   parseOpenApiDocument: function () {
     let formatters = {
       'pathFormatter': helpers.reformatPathToSwiftKitura,
-      'resourceFormatter': helpers.resourceNameFromPath
+      'resourceFormatter': helpers.resourceNameFromPath,
+      'typeFormatter': helpers.swiftFromSwaggerType
     }
 
     if (this.openApiDocumentBytes) {
@@ -770,6 +772,65 @@ module.exports = Generator.extend({
             } else {
               this.parsedSwagger.resources[resource]['generatedName'] = resource + '_'
             }
+            // if params are present then this is a codable route
+            let routeDetails = this.parsedSwagger.resources[resource]
+
+            routeDetails.forEach(detail => {
+              // get the method variant (needed by the template).
+              detail.variant = helpers.routeMethodVariant(detail)
+
+              // set the handler name.
+              detail.handlerName = helpers.handlerName(detail)
+
+              if (!helpers.supportedMethod(detail.method)) {
+                // any unsupported method types are non-codable, so they will always generate a raw route.
+                detail.codable = false
+              } else if (detail.variant === 'id' && detail.idtype === undefined) {
+                // the method variant demands an id, but none was provided on the path.
+                detail.codable = false
+              } else if (detail.route.match(/:[^/]+\//)) {
+                // any route with a param embedded within it cannot be codable, so it will always generate a raw route.
+                detail.codable = false
+              } else if (detail.params && detail.params.length > 0) {
+                // to generate a codable handler name, use the
+                // model name found in the first parameter.
+                detail.param = detail.params[0]['model']
+                // modify the route by removing the end parameter.
+                detail.route = detail.route.replace(/:.+$/, '')
+                // and make codable.
+                detail.codable = true
+              } else if (detail.responses && detail.responses.length > 0) {
+                // to generate a codable handler name, use the
+                // model name found in the first response.
+                detail.response = detail.responses[0]['model']
+                if (detail.method === 'get' || detail.method === 'delete') {
+                  // for delete and get methods, remove any parts of the route
+                  // following the first parameter on the route (":...")
+                  let argsearch = detail.route.match(/:.+$/)
+                  if (argsearch) {
+                    detail.route = detail.route.substring(0, argsearch['index'])
+                  }
+                }
+                // and make codable.
+                detail.codable = true
+              } else {
+                // no params or responses.
+                // if this is a delete, it can be codable, otherwise it is not codable.
+                // although deletes do not pass codable objects, they can still be called in the same way.
+                detail.codable = detail.method === 'delete'
+              }
+            })
+          })
+          // Declares a comparison function and sort the resources to get the codable ones first.
+          let cmp = function (a, b) {
+            let ca = a['codable']
+            let cb = b['codable']
+            if (ca === cb) return 0
+            if (ca && !cb) return -1
+            if (!ca && cb) return 1
+          }
+          Object.keys(this.parsedSwagger.resources).forEach(resource => {
+            this.parsedSwagger.resources[resource] = this.parsedSwagger.resources[resource].sort(cmp.bind(this))
           })
         })
         .catch(err => {
@@ -1026,6 +1087,7 @@ module.exports = Generator.extend({
           {
             appName: this.projectName,
             executableName: this.executableModule,
+            chartName: helpers.sanitizeAppName(this.bluemix.name),
             generatorVersion: this.generatorVersion,
             web: this.web,
             docker: this.docker,
@@ -1058,7 +1120,8 @@ module.exports = Generator.extend({
 
     createFromSwagger: function () {
       if (this.parsedSwagger) {
-        handlebars.registerHelper('swifttype', helpers.swiftTypeFromSwaggerProperty)
+        handlebars.registerHelper('swifttype', helpers.swiftFromSwaggerProperty)
+        handlebars.registerHelper('ifequal', helpers.ifequal)
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
           // Generate routes
           var generatedName = this.parsedSwagger.resources[resource].generatedName
@@ -1068,8 +1131,10 @@ module.exports = Generator.extend({
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
               resource: generatedName,
-              routes: this.parsedSwagger.resources[resource],
-              basepath: this.parsedSwagger.basepath
+              routedetail: this.parsedSwagger.resources[resource],
+              hascodable: this.parsedSwagger.resources[resource].reduce((acc, val) => { return acc + (val.codable ? 1 : 0) }, 0) > 0,
+              basepath: this.parsedSwagger.basepath,
+              generatecodable: this.generateCodableRoutes
             }
           )
         })
@@ -1099,9 +1164,6 @@ module.exports = Generator.extend({
                 model.properties[prop]['optional'] = '?'
               }
               if (model.properties[prop].description && model.properties[prop].description.length > 0) {
-                if (model.properties[prop].description.match(/\n/)) {
-                  console.log('found:', model.properties[prop].description)
-                }
                 // model.properties[prop].description = '// ' + model.properties[prop].description
                 var comments = model.properties[prop].description.split('\n')
                 if (comments[comments.length - 1].length === 0) {
@@ -1336,6 +1398,11 @@ module.exports = Generator.extend({
     writeKubernetesFiles: function () {
       if (!this.docker || this.existingProject) return
       this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/kubernetes'), { force: this.force, bluemix: this.bluemix })
+    },
+
+    writeVSIFiles: function () {
+      if (!this.docker || this.existingProject) return
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/vsi'), { force: this.force, bluemix: this.bluemix })
     },
 
     writeUsecaseFiles: function () {
