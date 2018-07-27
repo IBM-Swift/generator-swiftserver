@@ -75,17 +75,17 @@
         },
         "url": "http://mobileservices-staging.us-south.containers.mybluemix.net/applaunch/v1/apps/e135a6c7-4d17-469f-8784-6a75117819d2"
     },
-    "auth": {
-        "clientId": "auth-client-id",
+    "appid": {
+        "clientId": "appid-client-id",
         "oauthServerUrl": "https://appid-oauth.ng.bluemix.net/oauth/v3/auth-client-id",
         "profilesUrl": "https://appid-profiles.ng.bluemix.net",
-        "secret": "auth-secret",
-        "tenantId": "auth-tenantId",
+        "secret": "appid-secret",
+        "tenantId": "appid-tenantId",
         "version": "3",
         "serviceInfo": {
-            "label": "auth-label",
-            "name": "auth-name",
-            "plan": "auth-plan"
+            "label": "appid-label",
+            "name": "appid-name",
+            "plan": "appid-plan"
         }
     },
     "blockchain": {
@@ -185,8 +185,8 @@
     },
     "elephantsql": {
         "db_type": "elephantsql",
-        "uri_cli": "psql \"sslmode=require hostname1.elephantsql.com port=11111 dbname=compose user=admin\"",
-        "uri_cli_1": "psql \"sslmode=require host=hostname2.elephantsql.com port=22222 dbname=compose user=admin\"",
+        "uri_cli": "psql /\"sslmode=require hostname1.elephantsql.com port=11111 dbname=compose user=admin/\"",
+        "uri_cli_1": "psql /\"sslmode=require host=hostname2.elephantsql.com port=22222 dbname=compose user=admin/\"",
         "uri_direct_1": "postgres://admin:PASSCODE@hostname.elephantsql.com:11111/database",
         "maps": [],
         "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
@@ -360,8 +360,8 @@
     },
     "postgresql": {
         "db_type": "postgresql",
-        "uri_cli": "psql \"sslmode=require hostname1.dblayer.com port=11111 dbname=compose user=admin\"",
-        "uri_cli_1": "psql \"sslmode=require host=hostname2.dblayer.com port=22222 dbname=compose user=admin\"",
+        "uri_cli": "psql /\"sslmode=require hostname1.dblayer.com port=11111 dbname=compose user=admin/\"",
+        "uri_cli_1": "psql /\"sslmode=require host=hostname2.dblayer.com port=22222 dbname=compose user=admin/\"",
         "uri_direct_1": "postgres://admin:PASSCODE@hostname.dblayer.com:11111/compose",
         "maps": [],
         "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",

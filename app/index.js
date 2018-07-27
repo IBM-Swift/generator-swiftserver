@@ -526,7 +526,7 @@ module.exports = Generator.extend({
           this._addService('objectStorage', generateServiceName(this.appname, 'ObjectStorage'))
         }
         if (answers.services.indexOf('AppID') !== -1) {
-          this._addService('auth', generateServiceName(this.appname, 'AppID'))
+          this._addService('appid', generateServiceName(this.appname, 'AppID'))
         }
         if (answers.services.indexOf('Watson Assistant, formerly Conversation') !== -1) {
           this._addService('conversation', generateServiceName(this.appname, 'WatsonAssistant'))
@@ -607,7 +607,7 @@ module.exports = Generator.extend({
           case 'postgresql': return 'PostgreSQL'
           case 'elephantsql': return 'ElephantSQL'
           case 'objectStorage': return 'Object Storage'
-          case 'auth': return 'AppID'
+          case 'appid': return 'AppID'
           case 'autoscaling': return 'Auto-scaling'
           case 'conversation': return 'Watson Assistant'
           case 'alertNotification': return 'Alert Notification'
@@ -993,7 +993,7 @@ module.exports = Generator.extend({
     promptConfigureAppID: function () {
       if (this.skipPrompting) return
       if (!this.servicesToConfigure) return
-      if (!this.servicesToConfigure.auth) return
+      if (!this.servicesToConfigure.appid) return
       this.log()
       this.log('Configure AppID')
       var prompts = [
@@ -1003,8 +1003,8 @@ module.exports = Generator.extend({
         { name: 'appidSecret', message: 'Enter secret:', type: 'password' }
       ]
       return this.prompt(prompts).then((answers) => {
-        var appIdService = this.services.auth
-        this.services.auth = {
+        var appIdService = this.services.appid
+        this.services.appid = {
           tenantId: answers.appidTenantId || undefined,
           clientId: answers.appidClientId || undefined,
           secret: answers.appidSecret || undefined,

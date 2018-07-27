@@ -625,7 +625,7 @@ exports.appid = {
     var description = 'appid'
     var mapping = 'appid'
     var label = 'AppID'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('auth')
+    var plan = servicePlan || helpers.getBluemixDefaultPlan('appid')
     var sourceFile = 'ServiceAppid.swift'
     var initFunction = 'initializeServiceAppid'
 
