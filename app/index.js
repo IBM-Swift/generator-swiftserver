@@ -68,7 +68,7 @@ module.exports = Generator.extend({
     this.option('type', {
       type: Boolean,
       desc: 'Give a specific type of application to generate',
-      defaults: false
+      defaults: 'basic'
     })
 
     this.option('metrics', {
@@ -86,7 +86,7 @@ module.exports = Generator.extend({
     this.option('healthcheck', {
       type: Boolean,
       desc: 'Add health checking to project',
-      defaults: false
+      defaults: true
     })
   },
 
