@@ -406,7 +406,6 @@ module.exports = Generator.extend({
 
   configuring: function () {
     if (this.existingProject) return
-    console.log(this.bluemix)
     this.composeWith(require.resolve('generator-ibm-service-enablement'), {
       quiet: true,
       bluemix: JSON.stringify(this.bluemix),

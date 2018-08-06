@@ -997,21 +997,21 @@ module.exports = Generator.extend({
       this.log()
       this.log('Configure AppID')
       var prompts = [
-        { name: 'appIDName', message: 'Enter name (blank for default):' },
+        { name: 'appidName', message: 'Enter name (blank for default):' },
         { name: 'appidTenantId', message: 'Enter tenant ID:' },
         { name: 'appidClientId', message: 'Enter client ID:' },
         { name: 'appidSecret', message: 'Enter secret:', type: 'password' }
       ]
       return this.prompt(prompts).then((answers) => {
-        var appIdService = this.services.appid
+        var appidService = this.services.appid
         this.services.appid = {
           tenantId: answers.appidTenantId || undefined,
           clientId: answers.appidClientId || undefined,
           secret: answers.appidSecret || undefined,
           serviceInfo: {
-            label: appIdService.serviceInfo.label,
-            name: answers.appIDName || appIdService.serviceInfo.name,
-            plan: appIdService.serviceInfo.plan
+            label: appidService.serviceInfo.label,
+            name: answers.appidName || appidService.serviceInfo.name,
+            plan: appidService.serviceInfo.plan
           }
         }
       })

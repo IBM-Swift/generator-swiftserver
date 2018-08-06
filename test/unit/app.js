@@ -1452,7 +1452,7 @@ describe('Unit tests for swiftserver:app', function () {
                                 capabilities: [],
                                 services: [ 'AppID' ],
                                 configure: [ 'AppID' ],
-                                appIDName: 'myAppIDService',
+                                appidName: 'myAppIDService',
                                 appidTenantId: 'myTenantId',
                                 appidClientId: 'myClientId',
                                 appidSecret: 'mySecret'
