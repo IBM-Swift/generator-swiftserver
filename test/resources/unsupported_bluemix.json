@@ -185,8 +185,8 @@
     },
     "elephantsql": {
         "db_type": "elephantsql",
-        "uri_cli": "psql /\"sslmode=require hostname1.elephantsql.com port=11111 dbname=compose user=admin/\"",
-        "uri_cli_1": "psql /\"sslmode=require host=hostname2.elephantsql.com port=22222 dbname=compose user=admin/\"",
+        "uri_cli": "psql \"sslmode=require hostname1.elephantsql.com port=11111 dbname=compose user=admin\"",
+        "uri_cli_1": "psql \"sslmode=require host=hostname2.elephantsql.com port=22222 dbname=compose user=admin\"",
         "uri_direct_1": "postgres://admin:PASSCODE@hostname.elephantsql.com:11111/database",
         "maps": [],
         "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
@@ -360,8 +360,8 @@
     },
     "postgresql": {
         "db_type": "postgresql",
-        "uri_cli": "psql /\"sslmode=require hostname1.dblayer.com port=11111 dbname=compose user=admin/\"",
-        "uri_cli_1": "psql /\"sslmode=require host=hostname2.dblayer.com port=22222 dbname=compose user=admin/\"",
+        "uri_cli": "psql \"sslmode=require hostname1.dblayer.com port=11111 dbname=compose user=admin\"",
+        "uri_cli_1": "psql \"sslmode=require host=hostname2.dblayer.com port=22222 dbname=compose user=admin\"",
         "uri_direct_1": "postgres://admin:PASSCODE@hostname.dblayer.com:11111/compose",
         "maps": [],
         "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
