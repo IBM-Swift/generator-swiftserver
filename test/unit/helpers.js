@@ -108,7 +108,7 @@ describe('Unit tests for helpers', function () {
           domainName: '',
           role: ''
         },
-        auth: {
+        appid: {
           serviceInfo: {
             label: 'AppID',
             plan: 'Graduated tier'
@@ -189,7 +189,7 @@ describe('Unit tests for helpers', function () {
           domainName: 'my-domain-name',
           role: 'my-role'
         },
-        auth: {
+        appid: {
           clientId: 'my-client-id',
           oauthServerUrl: 'http://my-oauth-server-host',
           profilesUrl: 'http://my-profiles-host',
@@ -365,7 +365,7 @@ describe('Unit tests for helpers', function () {
     })
 
     it('get label for appid', function () {
-      assert.equal(helpers.getBluemixServiceLabel('auth'), 'AppID')
+      assert.equal(helpers.getBluemixServiceLabel('appid'), 'AppID')
     })
 
     it('get label for watsonassistant', function () {
@@ -399,7 +399,7 @@ describe('Unit tests for helpers', function () {
     })
 
     it('get default plan for appid', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('auth'), 'Graduated tier')
+      assert.equal(helpers.getBluemixDefaultPlan('appid'), 'Graduated tier')
     })
 
     it('get default plan for watsonassistant', function () {

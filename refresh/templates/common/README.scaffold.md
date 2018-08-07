@@ -42,7 +42,7 @@ This application has been generated with the following capabilities and services
 <% if (objectStorage) { -%>
 * [Object Storage](#object-storage)
 <% } -%>
-<% if (auth) { -%>
+<% if (appid) { -%>
 * [AppID](#appid)
 <% } -%>
 <% if (conversation) { -%>
@@ -205,7 +205,7 @@ Boilerplate code for creating a client object for the Object Storage API is incl
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Object Storage client in the boilerplate code.
 <% } -%>
-<% if (auth) { -%>
+<% if (appid) { -%>
 #### AppID
 This application uses [App ID package](https://github.com/ibm-cloud-security/appid-serversdk-swift) to connect to the IBM Cloud App ID service.
 
