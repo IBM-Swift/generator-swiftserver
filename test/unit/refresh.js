@@ -366,7 +366,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           docker: true,
           bluemix: {
             backendPlatform: 'SWIFT',
-            auth: { serviceInfo: { name: 'myAppIDService' } },
+            appid: { serviceInfo: { name: 'myAppIDService' } },
             cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
             redis: { serviceInfo: { name: 'myRedisService' } },
             mongodb: { serviceInfo: { name: 'myMongoDBService' } },
@@ -1810,7 +1810,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                 bluemix: {
                                   backendPlatform: 'SWIFT',
                                   server: { services: ['myAppidService'] },
-                                  auth: { serviceInfo: { name: 'myAppidService' } }
+                                  appid: { serviceInfo: { name: 'myAppidService' } }
                                 }
                               }
                             })

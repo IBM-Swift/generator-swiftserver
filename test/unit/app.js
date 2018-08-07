@@ -1435,7 +1435,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           capabilities: [],
-          services: { auth: {} }
+          services: { appid: {} }
         }))
       })
 
@@ -1452,7 +1452,7 @@ describe('Unit tests for swiftserver:app', function () {
                                 capabilities: [],
                                 services: [ 'AppID' ],
                                 configure: [ 'AppID' ],
-                                appIDName: 'myAppIDService',
+                                appidName: 'myAppIDService',
                                 appidTenantId: 'myTenantId',
                                 appidClientId: 'myClientId',
                                 appidSecret: 'mySecret'
@@ -1470,7 +1470,7 @@ describe('Unit tests for swiftserver:app', function () {
           appName: applicationName,
           capabilities: [],
           services: {
-            auth: {
+            appid: {
               serviceInfo: {
                 name: 'myAppIDService'
               },
