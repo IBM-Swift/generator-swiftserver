@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.4.2"></a>
+## [5.4.2](https://github.com/IBM-Swift/generator-swiftserver/compare/5.4.1...5.4.2) (2018-08-08)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-cloud-enablement to version 1.1.5 ([#592](https://github.com/IBM-Swift/generator-swiftserver/issues/592)) ([d796fce](https://github.com/IBM-Swift/generator-swiftserver/commit/d796fce)), closes [#591](https://github.com/IBM-Swift/generator-swiftserver/issues/591)
+* **package:** updating the generator to support valid options ([62af915](https://github.com/IBM-Swift/generator-swiftserver/commit/62af915))
+* **package:** updating the generator to support valid options ([676ac25](https://github.com/IBM-Swift/generator-swiftserver/commit/676ac25))
+* adding support for appid ([a93ba99](https://github.com/IBM-Swift/generator-swiftserver/commit/a93ba99))
+* adding support for appid ([12e75b2](https://github.com/IBM-Swift/generator-swiftserver/commit/12e75b2))
+* app id service instrumentation generation ([c2e6199](https://github.com/IBM-Swift/generator-swiftserver/commit/c2e6199))
+
+
+
 <a name="5.4.1"></a>
 ## 5.4.1 (2018-07-06)
 
