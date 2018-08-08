@@ -1,9 +1,9 @@
-# Script to create a review branch 
+# Script to create a review branch
 
 # Exit if this is a merge from master
 COMMIT_REGEX="Merge pull request #[0-9]+ from .+\s*Release [0-9]+\.[0-9]+\.[0-9]+"
 if [[ $TRAVIS_COMMIT_MESSAGE =~ $COMMIT_REGEX ]]
-then 
+then
   echo This is a merge from master - exiting
   exit 0
 fi
@@ -19,7 +19,7 @@ git remote add origin https://${USER}@github.com/IBM-Swift/generator-swiftserver
 echo Creating branch with the new version to be reviewed
 git checkout -b temp
 echo Updating the version
-standard-version -i "CHANGES.md" --tag-version
+standard-version -i "CHANGES.md" --tag-prefix ""
 
 # Delete all the other branches that are release branches
 PULLS=$(curl -u ${USER} -X GET -H "Accept: application/vnd.github.loki-preview+json" "https://api.github.com/repos/IBM-Swift/generator-swiftserver/pulls")

@@ -1025,7 +1025,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                 capabilities: [],
                                 services: [ 'AppID' ],
                                 configure: [ 'AppID' ],
-                                appIDName: 'myAppIDService'
+                                appidName: 'myAppIDService'
                               })
           return runContext.toPromise()
         })
@@ -1056,7 +1056,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                 capabilities: [],
                                 services: [ 'AppID' ],
                                 configure: [ 'AppID' ],
-                                appIDName: 'myAppIDService',
+                                appidName: 'myAppIDService',
                                 appidTenantId: 'myTenantId',
                                 appidClientId: 'myClientId',
                                 appidSecret: 'mySecret'
