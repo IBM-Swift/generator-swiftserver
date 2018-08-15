@@ -59,14 +59,8 @@ module.exports = Generator.extend({
       defaults: false
     })
 
-    this.option('name', {
-      type: Boolean,
-      desc: 'Project name',
-      defaults: false
-    })
-
     this.option('type', {
-      type: Boolean,
+      type: String,
       desc: 'Give a specific type of application to generate',
       defaults: 'basic'
     })
