@@ -392,6 +392,23 @@ exports.itCreatedWebFiles = function () {
 }
 
 //
+// OpenAPI
+//
+exports.itDidNotAddOpenAPIContent = function () {
+  it('application does not initialize kitura-openapi', function () {
+    assert.noFileContent(exports.applicationSourceFile, 'import KituraOpenAPI')
+    assert.noFileContent(exports.applicationSourceFile, 'KituraOpenAPI.addEndpoints(to: router)')
+  })
+}
+
+exports.itAddedOpenAPIContent = function () {
+  it('application initializes kitura-openapi', function () {
+    assert.fileContent(exports.applicationSourceFile, 'import KituraOpenAPI')
+    assert.fileContent(exports.applicationSourceFile, 'KituraOpenAPI.addEndpoints(to: router)')
+  })
+}
+
+//
 // SwaggerUI
 //
 exports.itDidNotCreateSwaggerUIFiles = function () {

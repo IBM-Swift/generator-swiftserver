@@ -51,6 +51,7 @@ function itCreatedSpecWithServicesAndCapabilities (optsGenerator) {
       appName: appName,
       docker: hasCapability('docker') || undefined,
       metrics: hasCapability('metrics') || undefined,
+      openapi: hasCapability('openapi') || undefined,
       web: hasCapability('web') || undefined,
       exampleEndpoints: hasCapability('exampleEndpoints') || undefined,
       hostSwagger: hasCapability('hostSwagger') || undefined,
@@ -765,7 +766,7 @@ describe('Unit tests for swiftserver:app', function () {
           appType: 'scaffold',
           appName: applicationName,
           generateCodableRoutes: true,
-          capabilities: [ 'docker', 'metrics', 'web', 'hostSwagger', 'swaggerUI', 'exampleEndpoints' ],
+          capabilities: [ 'docker', 'metrics', 'web', 'openapi', 'hostSwagger', 'swaggerUI', 'exampleEndpoints' ],
           services: {}
         }))
       })
