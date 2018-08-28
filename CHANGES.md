@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.5.0"></a>
+# [5.5.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.4.2...5.5.0) (2018-08-28)
+
+
+### Features
+
+* Add OpenAPI to kitura create ([745b38c](https://github.com/IBM-Swift/generator-swiftserver/commit/745b38c))
+
+
+
 <a name="5.4.2"></a>
 ## [5.4.2](https://github.com/IBM-Swift/generator-swiftserver/compare/5.4.1...5.4.2) (2018-08-08)
 

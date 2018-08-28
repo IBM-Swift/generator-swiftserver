@@ -76,6 +76,7 @@ Option | Type |Description
 `--metrics` | Boolean | Generate embedded metrics dashboard for project
 `--docker` | Boolean | Generate Dockerfile for project
 `--healthcheck` | Boolean | Add health checking to project
+`--openapi` | Boolean | Add Kitura-OpenAPI to project
 `--spec` | Json | Invoke generator-swiftserver using a spec json object
 
 ### Run
