@@ -97,7 +97,6 @@ exports.vsiFiles = [ 'debian/changelog',
   'terraform/scripts/fetch-state.sh',
   'terraform/scripts/install.sh',
   'terraform/scripts/publish-state.sh',
-  exports.jenkinsfile,
   exports.debianControl,
   exports.debianInstall,
   exports.terraformStart,
@@ -517,10 +516,6 @@ exports.itCreatedVSIFilesWithExpectedContent = function (opts) {
 
   it('terraform variables file contains expected content', function () {
     assert.fileContent(exports.terraformVariables, `default = "${applicationName}-01"`)
-  })
-
-  it('terraform variables file contains expected content', function () {
-    assert.fileContent(exports.jenkinsfile, `image = '${applicationName}'`)
   })
 }
 
