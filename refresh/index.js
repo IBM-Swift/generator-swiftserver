@@ -199,6 +199,9 @@ module.exports = Generator.extend({
       // Docker configuration
       this.docker = (this.spec.docker === true)
 
+      // OpenAPI configuration
+      this.openapi = (this.spec.openapi === true)
+
       // Usecase configuration
       this.usecase = (this.spec.usecase === true)
 
@@ -287,6 +290,7 @@ module.exports = Generator.extend({
       // eg this.appInitCode.services.push('try initializeServiceCloudant()')
       this.appInitCode = {
         metrics: undefined,
+        openapi: undefined,
         capabilities: [],
         services: [],
         service_imports: [],
@@ -304,6 +308,11 @@ module.exports = Generator.extend({
         this.modules.push('"SwiftMetrics"')
         this.appInitCode.metrics = 'initializeMetrics(router: router)'
         this.dependencies.push('.package(url: "https://github.com/RuntimeTools/SwiftMetrics.git", from: "2.0.0"),')
+      }
+      if (this.openapi) {
+        this.appInitCode.openapi = 'KituraOpenAPI.addEndpoints(to: router)'
+        this.dependencies.push('.package(url: "https://github.com/IBM-Swift/Kitura-OpenAPI.git", from: "1.0.0"),')
+        this.modules.push('"KituraOpenAPI"')
       }
       if (this.usecase) {
         this.appInitCode.endpoints.push('initializeAppRoutes(app: self)')
@@ -986,6 +995,7 @@ module.exports = Generator.extend({
             appInitCode: this.appInitCode,
             swaggerPath: this.swaggerPath,
             web: this.web,
+            openapi: this.openapi,
             healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
