@@ -1251,7 +1251,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
           appGuid: '',
-          appSecret: '',
+          apikey: '',
           clientSecret: ''
         })
       })
@@ -1270,7 +1270,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                 configure: [ 'Push Notifications' ],
                                 pushNotificationsName: 'myPushNotificationsService',
                                 pushNotificationsAppGuid: 'myAppGuid',
-                                pushNotificationsAppSecret: 'myAppSecret',
+                                pushNotificationsAPIKey: 'myApiKey',
                                 pushNotificationsRegion: 'United Kingdom'
                               })
           return runContext.toPromise()
@@ -1283,7 +1283,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itCreatedServiceConfigFiles()
         commonTest.pushnotifications.itCreatedServiceFilesWithExpectedContent('myPushNotificationsService', {
           appGuid: 'myAppGuid',
-          appSecret: 'myAppSecret',
+          apikey: 'myApiKey',
           clientSecret: '',
           url: 'http://imfpush.eu-gb.bluemix.net'
         })

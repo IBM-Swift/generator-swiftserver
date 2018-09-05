@@ -1676,7 +1676,7 @@ describe('Unit tests for swiftserver:app', function () {
                                   configure: [ 'Push Notifications' ],
                                   pushNotificationsName: 'myPushNotificationsService',
                                   pushNotificationsAppGuid: 'myAppGuid',
-                                  pushNotificationsAppSecret: 'myAppSecret',
+                                  pushNotificationsAPIKey: 'myApiKey',
                                   pushNotificationsRegion: 'US South'
                                 })
             return runContext.toPromise()
@@ -1697,7 +1697,7 @@ describe('Unit tests for swiftserver:app', function () {
                   name: 'myPushNotificationsService'
                 },
                 appGuid: 'myAppGuid',
-                appSecret: 'myAppSecret',
+                apikey: 'myApiKey',
                 url: 'http://imfpush.ng.bluemix.net'
               }
             }
