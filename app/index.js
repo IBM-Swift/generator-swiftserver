@@ -20,7 +20,7 @@ var debug = require('debug')('generator-swiftserver:app')
 var Generator = require('yeoman-generator')
 var chalk = require('chalk')
 var path = require('path')
-
+var Handlebars = require('../lib/handlebars.js')
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
 var validateDirName = helpers.validateDirName
@@ -137,6 +137,13 @@ module.exports = Generator.extend({
           this.appname = 'app'
         }
       }
+    },
+
+    _writeHandlebarsFile: function (templateFile, destinationFile, data) {
+      var template = this.fs.read(this.templatePath(templateFile))
+      var compiledTemplate = Handlebars.compile(template)
+      var output = compiledTemplate(data)
+      this.fs.write(this.destinationPath(destinationFile), output)
     },
 
     initSpec: function () {

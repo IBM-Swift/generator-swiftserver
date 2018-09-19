@@ -25,6 +25,7 @@ var rimraf = require('rimraf')
 var handlebars = require('handlebars')
 var path = require('path')
 var fs = require('fs')
+var Handlebars = require('../lib/handlebars.js')
 
 var actions = require('../lib/actions')
 var helpers = require('../lib/helpers')
@@ -86,6 +87,12 @@ module.exports = Generator.extend({
     } else {
       cb.call(this, filepath)
     }
+  },
+  _writeHandlebarsFile: function (templateFile, destinationFile, data) {
+    let template = this.fs.read(this.templatePath(templateFile))
+    let compiledTemplate = Handlebars.compile(template)
+    let output = compiledTemplate(data)
+    this.fs.write(this.destinationPath(destinationFile), output)
   },
 
   initializing: {
@@ -963,9 +970,7 @@ module.exports = Generator.extend({
 
       // Check if there is a .gitignore, create one if there isn't
       this._ifNotExistsInProject('.gitignore', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('common', 'gitignore'),
-          filepath,
+        this._writeHandlebarsFile('common/gitignore', filepath,
           { itemsToIgnore: this.itemsToIgnore }
         )
       })
@@ -986,9 +991,7 @@ module.exports = Generator.extend({
                      filepath)
       })
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('common', 'Application.swift'),
-          filepath,
+        this._writeHandlebarsFile('crud/AdapterFactory.swift', `Sources/${this.applicationModule}/Application.swift`,
           {
             appType: this.appType,
             generatedModule: this.generatedModule,
@@ -999,7 +1002,7 @@ module.exports = Generator.extend({
             healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
-        )
+      )
       })
 
       // Check if there is a spec.json, if there isn't create one
@@ -1018,19 +1021,15 @@ module.exports = Generator.extend({
       }
 
       this._ifNotExistsInProject(['Tests', this.applicationModule + 'Tests', 'RouteTests.swift'], (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('common', 'RouteTests.swift'),
-          filepath,
+        this._writeHandlebarsFile('crud/Resource.swift', filepath,
           { applicationModule: this.applicationModule }
         )
       })
 
       this._ifNotExistsInProject(['Tests', 'LinuxMain.swift'], (filepath) => {
-        this.fs.copyTpl(
-            this.templatePath('common', 'LinuxMain.swift'),
-            filepath,
-            { applicationModule: this.applicationModule }
-          )
+        this._writeHandlebarsFile('common/LinuxMain.swift', filepath,
+          { executableModule: this.executableModule }
+        )
       })
 
       if (this.metrics) {
@@ -1091,11 +1090,8 @@ module.exports = Generator.extend({
       }
 
       if (this.appType !== 'crud') {
-        this.fs.copyTpl(
-          this.templatePath('common', 'README.scaffold.md'),
-          this.destinationPath('README.md'),
-          {
-            appName: this.projectName,
+        this._writeHandlebarsFile('common/README.scaffold.md', 'README.md',
+          { appName: this.projectName,
             executableName: this.executableModule,
             chartName: helpers.sanitizeAppName(this.bluemix.name),
             generatorVersion: this.generatorVersion,
@@ -1111,19 +1107,14 @@ module.exports = Generator.extend({
             appid: !!this.bluemix.appid,
             conversation: !!this.bluemix.conversation,
             alertNotification: !!this.bluemix.alertNotification,
-            push: !!this.bluemix.push
-          }
+            push: !!this.bluemix.push }
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
 
       this._ifNotExistsInProject('iterative-dev.sh', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('common', 'iterative-dev.sh'),
-          filepath,
-          {
-            executableModule: this.executableModule
-          }
+        this._writeHandlebarsFile('common/iterative-dev.sh', filepath,
+          { executableModule: this.executableModule }
         )
       })
     },
@@ -1249,15 +1240,10 @@ module.exports = Generator.extend({
       } else {
         crudService = { type: '__memory__' }
       }
-
-      this.fs.copyTpl(
-        this.templatePath('crud', 'CRUDResources.swift'),
-        this.destinationPath('Sources', this.generatedModule, 'CRUDResources.swift'),
-        { models: this.models }
+      this._writeHandlebarsFile('crud/CRUDResources.swift', `Sources/${this.generatedModule}/CRUDResources.swift`,
+        {models: this.models}
       )
-      this.fs.copyTpl(
-        this.templatePath('crud', 'AdapterFactory.swift'),
-        this.destinationPath('Sources', this.generatedModule, 'AdapterFactory.swift'),
+      this._writeHandlebarsFile('crud/AdapterFactory.swift', `Sources/${this.generatedModule}/AdapterFactory.swift`,
         { models: this.models, crudService: crudService }
       )
       this.fs.copy(
@@ -1269,30 +1255,22 @@ module.exports = Generator.extend({
         this.destinationPath('Sources', this.generatedModule, 'ModelError.swift')
       )
       this.models.forEach(function (model) {
-        this.fs.copyTpl(
-          this.templatePath('crud', 'Resource.swift'),
-          this.destinationPath('Sources', this.generatedModule, `${model.classname}Resource.swift`),
+        this._writeHandlebarsFile('crud/Resource.swift', `Sources/${this.generatedModule}/${model.classname}Resource.swift`,
           { model: model }
-        )
-        this.fs.copyTpl(
-          this.templatePath('crud', 'Adapter.swift'),
-          this.destinationPath('Sources', this.generatedModule, `${model.classname}Adapter.swift`),
+      )
+        this._writeHandlebarsFile('crud/Adapter.swift', `Sources/${this.generatedModule}/${model.classname}Adapter.swift`,
           { model: model }
         )
         switch (crudService.type) {
           case 'cloudant':
-            this.fs.copyTpl(
-            this.templatePath('crud', 'CloudantAdapter.swift'),
-            this.destinationPath('Sources', this.generatedModule, `${model.classname}CloudantAdapter.swift`),
-            { model: model }
-          )
+            this._writeHandlebarsFile('crud/CloudantAdapter.swift', `Sources/${this.generatedModule}/${model.classname}CloudantAdapter.swift`,
+              { model: model }
+            )
             break
           case '__memory__':
-            this.fs.copyTpl(
-            this.templatePath('crud', 'MemoryAdapter.swift'),
-            this.destinationPath('Sources', this.generatedModule, `${model.classname}MemoryAdapter.swift`),
-            { model: model }
-          )
+            this._writeHandlebarsFile('crud/MemoryAdapter.swift', `Sources/${this.generatedModule}/${model.classname}MemeoryAdapter.swift`,
+              { model: model }
+            )
             break
         }
         function optional (propertyName) {
@@ -1326,11 +1304,9 @@ module.exports = Generator.extend({
             optional: optional(propertyName)
           })
         )
-        this.fs.copyTpl(
-          this.templatePath('crud', 'Model.swift'),
-          this.destinationPath('Sources', this.generatedModule, `${model.classname}.swift`),
-          { model: model, propertyInfos: propertyInfos, helpers: helpers }
-        )
+        this._writeHandlebarsFile('crud/Model.swift', `Sources/${this.generatedModule}/${model.classname}.swift`,
+          { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: propertyInfos.filter(info => !info.optional) }
+          )
       }.bind(this))
       if (this.product) {
         var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`)
@@ -1380,9 +1356,7 @@ module.exports = Generator.extend({
       }
 
       if (!foundMainSwift) {
-        this.fs.copyTpl(
-          this.templatePath('common', 'main.swift'),
-          this.destinationPath('Sources', this.executableModule, 'main.swift'),
+        this._writeHandlebarsFile('common/main.swift', `Sources/${this.executableModule}/main.swift`,
           { applicationModule: this.applicationModule }
         )
       }
@@ -1438,9 +1412,7 @@ module.exports = Generator.extend({
     writePackageSwift: function () {
       // Check if there is a Package.swift, create one if there isn't
       this._ifNotExistsInProject('Package.swift', (filepath) => {
-        this.fs.copyTpl(
-          this.templatePath('common', 'Package.swift'),
-          filepath,
+        this._writeHandlebarsFile('common/Package.swift', filepath,
           {
             appType: this.appType,
             executableModule: this.executableModule,

@@ -1,13 +1,13 @@
 import Foundation
 
-public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter {
-    var items: [String:<%- model.classname %>] = [:]
+public class {{model.classname}}MemoryAdapter: {{model.classname}}Adapter {
+    var items: [String:{{model.classname}}] = [:]
 
-    public func findAll(onCompletion: @escaping ([<%- model.classname %>], Error?) -> Void) {
+    public func findAll(onCompletion: @escaping ([{{model.classname}}], Error?) -> Void) {
         onCompletion(items.map { $1 }, nil)
     }
 
-    public func create(_ model: <%- model.classname %>, onCompletion: @escaping (<%- model.classname %>?, Error?) -> Void) {
+    public func create(_ model: {{model.classname}}, onCompletion: @escaping ({{model.classname}}?, Error?) -> Void) {
         let id = model.id ?? UUID().uuidString
         // TODO: Don't overwrite if id already exists
         let storedModel = model.settingID(id)
@@ -20,7 +20,7 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         onCompletion(nil)
     }
 
-    public func findOne(_ maybeID: String?, onCompletion: @escaping (<%- model.classname %>?, Error?) -> Void) {
+    public func findOne(_ maybeID: String?, onCompletion: @escaping ({{model.classname}}?, Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
@@ -30,7 +30,7 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         onCompletion(retrievedModel, nil)
     }
 
-    public func update(_ maybeID: String?, with model: <%- model.classname %>, onCompletion: @escaping (<%- model.classname %>?, Error?) -> Void) {
+    public func update(_ maybeID: String?, with model: {{model.classname}}, onCompletion: @escaping ({{model.classname}}?, Error?) -> Void) {
         delete(maybeID) { _, error in
             if let error = error {
                 onCompletion(nil, error)
@@ -45,7 +45,7 @@ public class <%- model.classname %>MemoryAdapter: <%- model.classname %>Adapter 
         }
     }
 
-    public func delete(_ maybeID: String?, onCompletion: @escaping (<%- model.classname %>?, Error?) -> Void) {
+    public func delete(_ maybeID: String?, onCompletion: @escaping ({{model.classname}}?, Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }

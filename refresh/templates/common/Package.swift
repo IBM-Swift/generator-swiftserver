@@ -2,36 +2,36 @@
 import PackageDescription
 
 let package = Package(
-    name: "<%- executableModule %>",
+    name: "{{executableModule}}",
     dependencies: [
       .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.5.0")),
       .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", .upToNextMinor(from: "1.7.1")),
       .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "8.0.0"),
-<%  dependencies.forEach(function(dependency) { -%>
-      <%- dependency %>
-<%  }) -%>
+{{#each dependencies}}
+      {{this}}
+{{/each}}
     ],
     targets: [
-      .target(name: "<%- executableModule %>", dependencies: [ .target(name: "<%- applicationModule %>"), "Kitura" , "HeliumLogger"]),
-      .target(name: "<%- applicationModule %>", dependencies: [ "Kitura", "CloudEnvironment",<% modules.forEach(function(module) { -%><%-module + "," %><%  })-%>
-<%  if (appType === 'crud') { -%>
-.target(name: "<%- generatedModule %>"),
-<%  } _%>
-<%  if (sdkTargets.length > 0) { -%>
-<%    Object.keys(sdkTargets).forEach(function(target) { -%>
-.target(name: "<%- sdkTargets[target] %>"),
-<%    }); -%>
+      .target(name: "{{executableModule}}", dependencies: [ .target(name: "{{applicationModule}}"), "Kitura" , "HeliumLogger"]),
+      .target(name: "{{applicationModule}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{this}}, {{/each}}
+{{#ifCond appType '===' 'crud'}}
+.target(name: "{{generatedModule}}"),
+{{/ifCond}}
+{{#ifCond sdkTargets.length '>' 0}}
+{{#each sdkTargets as |value key|}}
+.target(name: "{{this[target]}}"),
+{{/each}}
+{{#each sdkTargets as |value key|}}
+      .target(name: "{{this[target]}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{this[target]}}" ),
+{{/each}}
       ]),
-<%    Object.keys(sdkTargets).forEach(function(target) { -%>
-      .target(name: "<%- sdkTargets[target] %>", dependencies: ["SimpleHttpClient"], path: "Sources/<%- sdkTargets[target] %>" ),
-<%    }); -%>
-<%  }else { _%>
+{{else}}
       ]),
-<%  } -%>
-<%  if (appType === 'crud') { -%>
-      .target(name: "<%- generatedModule %>", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", <% modules.forEach(function(module) { -%><%-module + "," %><%})-%>], path: "Sources/<%- generatedModule %>"),
-<%  } _%>
+{{/ifCond}}
+{{#ifCpmd appType '===' 'crud'}}
+      .target(name: "{{generatedModule}}", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", {{#each modules}}], path: "Sources/{{generatedModule}}"),
+{{/ifCond}}
 
-      .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "<%- applicationModule %>"), "Kitura","HeliumLogger" ])
+      .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "{{applicationModule}}"), "Kitura","HeliumLogger" ])
     ]
 )

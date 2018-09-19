@@ -4,6 +4,6 @@
 /Packages
 /config.json
 /spec.json
-<% Object.keys(itemsToIgnore).forEach(function(item) { -%>
-<%-  itemsToIgnore[item] %>
-<% }); _%>
+{{#each itemsToIgnore}}
+{{this}}
+{{/each}}

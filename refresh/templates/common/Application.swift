@@ -4,88 +4,88 @@ import LoggerAPI
 import Configuration
 import CloudEnvironment
 import KituraContracts
-<% if (appType === 'crud') { -%>
-import <%- generatedModule %>
-<% } -%>
-<% if (healthcheck) { -%>
+{{#ifCond appType '===' 'crud'}}
+import {{generatedModule}}
+{{/ifCond}}
+{{#if healthcheck}}
 import Health
-<% } -%>
-<% if (openapi) { -%>
+{{/if}}
+{{#if openapi}}
 import KituraOpenAPI
-<% } -%>
-<% if (appInitCode.service_imports.length > 0) { -%>
+{{/if}}
+{{#ifCond appInitCode.service_imports.length '>' 0}}
 
 // Service imports
-<%   appInitCode.service_imports.forEach(function(serviceimport) { -%>
-<%- serviceimport %>
-<%   }); -%>
-<% } -%>
+{{#each appInitCode.service_imports}}
+{{this}}
+{{/each}}
+{{/ifCond}}
 
 public let projectPath = ConfigurationManager.BasePath.project.path
-<% if (basepath) { -%>
-public var basePath = "<%- basepath %>"
-<% } -%>
-<% if (healthcheck) { -%>
+{{#if basepath}}
+public var basePath = "{{basepath}}"
+{{/if}}
+{{#if healthcheck}}
 public let health = Health()
-<% } -%>
-<% if (appInitCode.services.length > 0) { -%>
+{{/if}}
+{{#ifCond appInitCode.services.length '>' 0}}
 
 class ApplicationServices {
     // Initialize services
-<% appInitCode.service_variables.forEach(function(variable) { -%>
-    <%- variable %>
-<% }); -%>
+{{#each appInitCode.service_variables}}
+    {{this}}
+{{/each}}
 
     public init(cloudEnv: CloudEnv) throws {
         // Run service initializers
-<% appInitCode.services.forEach(function(service) { -%>
-        <%- service %>
-<% }); -%>
+{{#each appInitCode.services}}
+        {{this}}
+{{/each}}
     }
 }
-<% } -%>
+{{/ifCond}}
 
 public class App {
     let router = Router()
     let cloudEnv = CloudEnv()
-<% if (swaggerPath) { -%>
-    <%- swaggerPath %>
-<% } -%>
-<% if (appInitCode.services.length > 0) { -%>
+{{#if swaggerPath}}
+    {{swaggerPath}}
+{{/if}}
+{{#ifCond appInitCode.services.length '>' 0}}
     let services: ApplicationServices
-<% } -%>
+{{/ifCond}}
 
     public init() throws {
-<% if (appInitCode.metrics) { -%>
+{{#if appInitCode.metrics}}
         // Run the metrics initializer
-        <%- appInitCode.metrics %>
-<% } -%>
-<% if (appInitCode.services.length > 0) { -%>
+        {{appInitCode.metrics}}
+{{/if}}
+{{#ifCond appInitCode.services.length '>' 0}}
         // Services
         services = try ApplicationServices(cloudEnv: cloudEnv)
-<% } -%>
+{{/ifCond}}
     }
 
     func postInit() throws {
-<% if (appInitCode.capabilities.length > 0) { -%>
+{{#ifCond appInitCode.capabilities.length '>' 0}}
         // Capabilities
-<%   appInitCode.capabilities.forEach(function(capability) { -%>
-        <%- capability %>
-<%   }); -%>
-<% } -%>
-<% if (appInitCode.middlewares.length > 0) { -%>
+        {{#each appInitCode.capabilities}}
+        {{this}}
+        {{/each
+{{/ifCond}}
+{{#ifCond appInitCode.middlewares.length '>' 0}}
         // Middleware
-<% appInitCode.middlewares.forEach(function(middleware) { -%>
-        <%- middleware %>
-<% }); -%>
-<% } -%>
+{{#each appInitCode.middlewares}}
+        {{this}}
+{{/each}}
+{{/ifCond}}
         // Endpoints
-<% appInitCode.endpoints.forEach(function(endpoint) { -%>
-        <%- endpoint %>
-<% }); -%>
-<% if (appInitCode.openapi) { -%>
-        <%- appInitCode.openapi %>
-<% } -%>
+{{#each appInitCode.endpoints}}
+        {{this}}
+{{/each}}
+{{#if appInitCode.openapi}}
+        {{this}}
+{{/if}}
     }
 
     public func run() throws {
