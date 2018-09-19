@@ -82,6 +82,12 @@ module.exports = Generator.extend({
       desc: 'Add health checking to project',
       defaults: true
     })
+
+    this.option('openapi', {
+      type: Boolean,
+      desc: 'Add Kitura-OpenAPI to project',
+      defaults: false
+    })
   },
 
   initializing: {
@@ -156,6 +162,7 @@ module.exports = Generator.extend({
         var appName = this.options.bluemix.name
         var metrics = isTrue(this.options.metrics) || undefined
         var docker = isTrue(this.options.docker) || undefined
+        var openapi = isTrue(this.options.openapi) || undefined
         var usecase = isTrue(this.options.enableUsecase) || undefined
         var starterOptions = this.options.starterOptions || undefined
         var healthcheck = (typeof this.options.healthcheck === 'undefined') ? true : isTrue(this.options.healthcheck)
@@ -171,6 +178,7 @@ module.exports = Generator.extend({
           appDir: '.',
           docker: docker,
           web: web,
+          openapi: openapi,
           hostSwagger: hostSwagger,
           exampleEndpoints: exampleEndpoints,
           swaggerUI: swaggerUI,
@@ -336,6 +344,7 @@ module.exports = Generator.extend({
           case 'swaggerUI': return 'Swagger UI'
           case 'metrics': return 'Embedded metrics dashboard'
           case 'docker': return 'Docker files'
+          case 'openapi': return 'Kitura OpenAPI'
           default:
             self.env.error(chalk.red(`Internal error: unknown property ${property}`))
         }
@@ -356,14 +365,15 @@ module.exports = Generator.extend({
             'Swagger UI',
             'Embedded metrics dashboard',
             'Static web file serving',
-            'Docker files'
+            'Docker files',
+            'Kitura OpenAPI'
           ]
           default:
             self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`))
         }
       }
 
-      var choices = ['metrics', 'docker']
+      var choices = ['metrics', 'docker', 'openapi']
       var defaults = choices.map(displayName)
 
       if (this.appType === 'scaffold') {
@@ -1060,6 +1070,7 @@ module.exports = Generator.extend({
       appName: this.appname,
       docker: this.docker || undefined,
       web: this.web || undefined,
+      openapi: this.openapi || undefined,
       exampleEndpoints: this.exampleEndpoints || undefined,
       fromSwagger: this.fromSwagger || undefined,
       generateCodableRoutes: this.generateCodableRoutes || undefined,

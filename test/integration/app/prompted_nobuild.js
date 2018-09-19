@@ -149,6 +149,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itDidNotCreateServiceFiles()
         commonTest.itDidNotCreateWebFiles()
         commonTest.itDidNotCreateSwaggerUIFiles()
+        commonTest.itDidNotAddOpenAPIContent()
 
         commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
 
@@ -189,6 +190,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itDidNotCreateRoutes([ 'Swagger' ])
         commonTest.itDidNotCreateServiceFiles()
         commonTest.itDidNotCreateSwaggerUIFiles()
+        commonTest.itDidNotAddOpenAPIContent()
 
         commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
 
@@ -238,12 +240,13 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         })
 
         commonTest.itCreatedClientSDKFile(applicationName)
-        commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
+        commonTest.itHasPackageDependencies([ 'SwiftMetrics', 'Kitura-OpenAPI' ])
         commonTest.itCreatedRoutes([ 'Products_', 'Swagger' ])
 
         commonTest.itCreatedMetricsFilesWithExpectedContent()
         commonTest.itCreatedWebFiles()
         commonTest.itCreatedSwaggerUIFiles()
+        commonTest.itAddedOpenAPIContent()
 
         it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
           assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
@@ -350,6 +353,27 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
       commonTest.itHasPackageDependencies([ 'SwiftMetrics' ])
       commonTest.itCreatedMetricsFilesWithExpectedContent()
+    })
+
+    describe('with openapi', function () {
+      var runContext
+
+      before(function () {
+        runContext = helpers.run(appGeneratorPath)
+                            .withOptions({ skipBuild: true })
+                            .withPrompts({
+                              name: applicationName,
+                              appType: 'Scaffold a starter',
+                              capabilities: [ 'Kitura OpenAPI' ],
+                              endpoints: []
+                            })
+        return runContext.toPromise()
+      })
+      after(function () {
+        runContext.cleanTestDirectory()
+      })
+      commonTest.itHasPackageDependencies([ 'Kitura-OpenAPI' ])
+      commonTest.itAddedOpenAPIContent()
     })
 
     describe('with docker', function () {

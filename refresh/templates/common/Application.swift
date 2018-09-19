@@ -10,6 +10,9 @@ import <%- generatedModule %>
 <% if (healthcheck) { -%>
 import Health
 <% } -%>
+<% if (openapi) { -%>
+import KituraOpenAPI
+<% } -%>
 <% if (appInitCode.service_imports.length > 0) { -%>
 
 // Service imports
@@ -80,6 +83,9 @@ public class App {
 <% appInitCode.endpoints.forEach(function(endpoint) { -%>
         <%- endpoint %>
 <% }); -%>
+<% if (appInitCode.openapi) { -%>
+        <%- appInitCode.openapi %>
+<% } -%>
     }
 
     public func run() throws {
