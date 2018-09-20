@@ -166,6 +166,24 @@ exports.itCreatedCommonFiles = function (executableModule) {
       assert.file(filepath)
     })
   })
+  it(`added correct Application module name in RouteTests.swift`, function () {
+    assert.fileContent('Tests/ApplicationTests/RouteTests.swift', `Application`)
+  })
+  it(`added correct Application module name in LinuxMain.swift`, function () {
+    assert.fileContent('tests/LinuxMain.swift', `ApplicationTests`)
+  })
+  it(`added correct Application module name in gitignore`, function () {
+    assert.fileContent('.gitignore', `./config/localdev-config.json`)
+  })
+  it(`added correct content in Package.swift`, function () {
+    assert.fileContent('Package.swift', `.package(url: "https://github.com/IBM-Swift/Health.git", from: "1.0.0"),`)
+  })
+  it(`added correct content in Package.swift part 2`, function () {
+    assert.fileContent('Package.swift', `"Kitura"`)
+  })
+  it(`added correct content in Application.swift`, function () {
+    assert.fileContent(exports.applicationSourceFile, `Kitura.run()`)
+  })
 }
 
 exports.itHasApplicationModuleImports = function (moduleNameOrModuleNames) {
@@ -240,7 +258,7 @@ exports.itCreatedRoutes = function (routeNameOrRouteNames) {
     })
     it(`application initializes ${routeName} routes`, function () {
       assert.fileContent('Sources/Application/Application.swift',
-                         `initialize${routeName}Routes(`)
+        `initialize${routeName}Routes(`)
     })
   })
 }
@@ -253,7 +271,7 @@ exports.itDidNotCreateRoutes = function (routeNameOrRouteNames) {
     })
     it(`application does not initialize ${routeName} routes`, function () {
       assert.noFileContent('Sources/Application/Application.swift',
-                         `initialize${routeName}Routes(`)
+      `initialize${routeName}Routes(`)
     })
   })
 }
@@ -379,7 +397,7 @@ exports.itDidNotCreateWebFiles = function () {
 
   it('application does not initialize file serving middleware', function () {
     assert.noFileContent(exports.applicationSourceFile,
-                         'router.all(middleware: StaticFileServer())')
+      'router.all(middleware: StaticFileServer())')
   })
 }
 
@@ -390,7 +408,7 @@ exports.itCreatedWebFiles = function () {
 
   it('application initializes file serving middleware', function () {
     assert.fileContent(exports.applicationSourceFile,
-                       'router.all(middleware: StaticFileServer())')
+      'router.all(middleware: StaticFileServer())')
   })
 }
 
