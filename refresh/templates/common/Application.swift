@@ -71,7 +71,7 @@ public class App {
         // Capabilities
         {{#each appInitCode.capabilities}}
         {{this}}
-        {{/each
+        {{/each}}
 {{/ifCond}}
 {{#ifCond appInitCode.middlewares.length '>' 0}}
         // Middleware

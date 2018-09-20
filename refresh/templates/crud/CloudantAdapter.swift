@@ -7,8 +7,9 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
     let client: CouchDBClient
     var database: Database {
         // TODO: Properly ensure database exists
-        client.createDB("{{model.classname.toLowerCase()}}") { _, _ in }
-        return client.database("{{model.classname.toLowerCase()}}")
+        {{log "this is " model.classname}}
+        client.createDB("{{lowerClassName}}") { _, _ in }
+        return client.database("{{lowerClassName}}")
     }
 
     public init(_ connectionProperties: ConnectionProperties) {
@@ -85,7 +86,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
     }
 
     public func deleteAll(onCompletion: @escaping (Swift.Error?) -> Void) {
-        client.deleteDB("{{model.classname.toLowerCase()}}") { error in
+        client.deleteDB("{{lowerClassName}}") { error in
             if let error = error, error.code != HTTPStatusCode.notFound.rawValue {
                 onCompletion(AdapterError.internalError(error.localizedDescription))
             } else {

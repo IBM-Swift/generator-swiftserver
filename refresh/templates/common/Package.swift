@@ -8,28 +8,28 @@ let package = Package(
       .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", .upToNextMinor(from: "1.7.1")),
       .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "8.0.0"),
 {{#each dependencies}}
-      {{this}}
+      {{{this}}}
 {{/each}}
     ],
     targets: [
       .target(name: "{{executableModule}}", dependencies: [ .target(name: "{{applicationModule}}"), "Kitura" , "HeliumLogger"]),
-      .target(name: "{{applicationModule}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{this}}, {{/each}}
+      .target(name: "{{applicationModule}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}
 {{#ifCond appType '===' 'crud'}}
 .target(name: "{{generatedModule}}"),
 {{/ifCond}}
 {{#ifCond sdkTargets.length '>' 0}}
 {{#each sdkTargets as |value key|}}
-.target(name: "{{this[target]}}"),
+.target(name: "{{this}}"),
 {{/each}}
 {{#each sdkTargets as |value key|}}
-      .target(name: "{{this[target]}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{this[target]}}" ),
+      .target(name: "{{this}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{target}}" ),
 {{/each}}
       ]),
 {{else}}
       ]),
 {{/ifCond}}
-{{#ifCpmd appType '===' 'crud'}}
-      .target(name: "{{generatedModule}}", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", {{#each modules}}], path: "Sources/{{generatedModule}}"),
+{{#ifCond appType '===' 'crud'}}
+      .target(name: "{{generatedModule}}", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", {{#each modules}}{{{this}}},{{/each}}], path: "Sources/{{generatedModule}}"),
 {{/ifCond}}
 
       .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "{{applicationModule}}"), "Kitura","HeliumLogger" ])
