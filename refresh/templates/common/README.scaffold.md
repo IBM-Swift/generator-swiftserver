@@ -28,7 +28,7 @@ This application has been generated with the following capabilities and services
 {{#if metrics}}
 * [Embedded metrics dashboard](#embedded-metrics-dashboard)
 {{/if}}
-{{if docker}}
+{{#if docker}}
 * [Docker files](#docker-files)
 {{#if}}
 * [Iterative Development](#iterative-development)
@@ -144,7 +144,7 @@ The specification of this interface is made available through an embedded Swagge
 The Swagger UI will document the paths and http methods that are supported by the application.
 {{/if}}
 {{/if}}
-{{if metrics}}
+{{#if metrics}}
 #### Embedded metrics dashboard
 This application uses the [SwiftMetrics package](https://github.com/RuntimeTools/SwiftMetrics) to gather application and system metrics.
 
