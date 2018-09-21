@@ -2,9 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5e29ffb2-22d8-471d-b5b6-7e62c7b14bbd" name="Default" comment="">
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/test/lib/common_test.js" afterPath="$PROJECT_DIR$/test/lib/common_test.js" />
       <change beforePath="$PROJECT_DIR$/test/unit/refresh.js" afterPath="$PROJECT_DIR$/test/unit/refresh.js" />
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/lib/common_test.js" afterPath="$PROJECT_DIR$/test/lib/common_test.js" />
+>>>>>>> 4403418... fix: fixed some tests
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,9 +26,17 @@
       <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="90">
               <caret line="6" column="62" lean-forward="false" selection-start-line="6" selection-start-column="62" selection-end-line="6" selection-end-column="62" />
               <folding />
+=======
+            <state relative-caret-position="19800">
+              <caret line="1334" column="45" lean-forward="false" selection-start-line="1334" selection-start-column="45" selection-end-line="1334" selection-end-column="45" />
+              <folding>
+                <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
+              </folding>
+>>>>>>> 4403418... fix: fixed some tests
             </state>
           </provider>
         </entry>
@@ -31,8 +44,13 @@
       <file leaf-file-name="refresh.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="465">
               <caret line="481" column="32" lean-forward="false" selection-start-line="481" selection-start-column="32" selection-end-line="481" selection-end-column="32" />
+=======
+            <state relative-caret-position="173">
+              <caret line="1517" column="102" lean-forward="false" selection-start-line="1517" selection-start-column="102" selection-end-line="1517" selection-end-column="102" />
+>>>>>>> 4403418... fix: fixed some tests
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -40,8 +58,33 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
+=======
+      <file leaf-file-name="common_test.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="178">
+              <caret line="394" column="95" lean-forward="false" selection-start-line="394" selection-start-column="71" selection-end-line="394" selection-end-column="95" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="150">
+              <caret line="10" column="136" lean-forward="true" selection-start-line="10" selection-start-column="136" selection-end-line="10" selection-end-column="136" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ErrorRoutes.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
+>>>>>>> 4403418... fix: fixed some tests
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
               <caret line="8" column="5" lean-forward="false" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
@@ -53,8 +96,13 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/index.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="161">
               <caret line="1097" column="26" lean-forward="true" selection-start-line="1097" selection-start-column="26" selection-end-line="1097" selection-end-column="26" />
+=======
+            <state relative-caret-position="1095">
+              <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
+>>>>>>> 4403418... fix: fixed some tests
               <folding />
             </state>
           </provider>
@@ -70,6 +118,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="README.scaffold.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
@@ -87,6 +136,10 @@
       </file>
       <file leaf-file-name="common_test.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+=======
+      <file leaf-file-name="Package.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
+>>>>>>> 4403418... fix: fixed some tests
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="107">
               <caret line="500" column="46" lean-forward="false" selection-start-line="500" selection-start-column="46" selection-end-line="500" selection-end-column="46" />
@@ -123,6 +176,7 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+<<<<<<< HEAD
       <find>lib/handlebar</find>
       <find>Handlebars</find>
       <find>classname.toLo</find>
@@ -131,6 +185,8 @@
       <find>ifcpm</find>
       <find>tolower</find>
       <find>tolow</find>
+=======
+>>>>>>> 4403418... fix: fixed some tests
       <find>getservice</find>
       <find>tolowercase</find>
       <find>cloudantadapt</find>
@@ -152,7 +208,19 @@
       <find>routes</find>
       <find>raw route</find>
       <find>refreshge</find>
+<<<<<<< HEAD
       <find>readme</find>
+=======
+      <find>LinuxM</find>
+      <find>LInuxMain</find>
+      <find>integra</find>
+      <find>LinuxMain.swift</find>
+      <find>linux</find>
+      <find>application.sw</find>
+      <find>application</find>
+      <find>router</find>
+      <find>(addEndpoints(to: router)</find>
+>>>>>>> 4403418... fix: fixed some tests
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -197,9 +265,8 @@
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="-1920" />
-    <option name="width" value="1920" />
-    <option name="height" value="1080" />
+    <option name="width" value="1680" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -217,8 +284,11 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+<<<<<<< HEAD
       <pane id="Scratches" />
       <pane id="Scope" />
+=======
+>>>>>>> 4403418... fix: fixed some tests
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -264,6 +334,11 @@
           <select />
         </subPane>
       </pane>
+<<<<<<< HEAD
+=======
+      <pane id="Scratches" />
+      <pane id="Scope" />
+>>>>>>> 4403418... fix: fixed some tests
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -349,10 +424,12 @@
       <workItem from="1537391817445" duration="1415000" />
       <workItem from="1537456118528" duration="13000" />
       <workItem from="1537457854839" duration="352000" />
+      <workItem from="1537543112762" duration="495000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
     <option name="totallyTimeSpent" value="45445000" />
   </component>
   <component name="ToolWindowManager">
@@ -370,23 +447,43 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4001986" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4756703" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+=======
+    <option name="totallyTimeSpent" value="46070000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13392857" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37666327" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+>>>>>>> 4403418... fix: fixed some tests
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+<<<<<<< HEAD
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37669903" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+=======
+>>>>>>> 4403418... fix: fixed some tests
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.134375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+<<<<<<< HEAD
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+=======
+>>>>>>> 4403418... fix: fixed some tests
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -422,13 +519,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Model.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -681,6 +771,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+<<<<<<< HEAD
+=======
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+          </folding>
+>>>>>>> 4403418... fix: fixed some tests
         </state>
       </provider>
     </entry>
@@ -729,9 +825,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="161">
           <caret line="1097" column="26" lean-forward="true" selection-start-line="1097" selection-start-column="26" selection-end-line="1097" selection-end-column="26" />
           <folding />
+=======
+        <state relative-caret-position="19800">
+          <caret line="1334" column="45" lean-forward="false" selection-start-line="1334" selection-start-column="45" selection-end-line="1334" selection-end-column="45" />
+          <folding>
+            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
+          </folding>
+>>>>>>> 4403418... fix: fixed some tests
         </state>
       </provider>
     </entry>
@@ -744,7 +848,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
+        <state relative-caret-position="1095">
           <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
         </state>
       </provider>
@@ -757,15 +861,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="136" lean-forward="true" selection-start-line="10" selection-start-column="136" selection-end-line="10" selection-end-column="136" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="465">
           <caret line="481" column="32" lean-forward="false" selection-start-line="481" selection-start-column="32" selection-end-line="481" selection-end-column="32" />
+=======
+        <state relative-caret-position="173">
+          <caret line="1517" column="102" lean-forward="false" selection-start-line="1517" selection-start-column="102" selection-end-line="1517" selection-end-column="102" />
+>>>>>>> 4403418... fix: fixed some tests
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
+=======
+    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="394" column="95" lean-forward="false" selection-start-line="394" selection-start-column="71" selection-end-line="394" selection-end-column="95" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+>>>>>>> 4403418... fix: fixed some tests
   </component>
 </project>
