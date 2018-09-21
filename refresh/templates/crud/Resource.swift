@@ -2,13 +2,13 @@ import Kitura
 import LoggerAPI
 import SwiftyJSON
 
-public class {{model.classname}}Resource {
-    private let adapter: {{model.classname}}Adapter
-    private let path = "/api/{{model.plural}}"
-    private let pathWithID = "/api/{{model.plural}}/:id"
+public class {{{model.classname}}}Resource {
+    private let adapter: {{{model.classname}}}Adapter
+    private let path = "/api/{{{model.plural}}}"
+    private let pathWithID = "/api/{{{model.plural}}}/:id"
 
     init(factory: AdapterFactory) throws {
-        adapter = try factory.get{{model.classname}}Adapter()
+        adapter = try factory.get{{{model.classname}}}Adapter()
     }
 
     func setupRoutes(router: Router) {
@@ -53,7 +53,7 @@ public class {{model.classname}}Resource {
             return next()
         }
         do {
-            let model = try {{model.classname}}(json: JSON(json))
+            let model = try {{{model.classname}}}(json: JSON(json))
             adapter.create(model) { storedModel, error in
                 if let error = error {
                     // TODO: Handle model errors (eg id conflict)
@@ -119,7 +119,7 @@ public class {{model.classname}}Resource {
             return next()
         }
         do {
-            let model = try {{model.classname}}(json: JSON(json))
+            let model = try {{{model.classname}}}(json: JSON(json))
             adapter.update(request.parameters["id"], with: model) { storedModel, error in
                 if let error = error {
                     switch error {

@@ -5,7 +5,7 @@ import Configuration
 import CloudEnvironment
 import KituraContracts
 {{#ifCond appType '===' 'crud'}}
-import {{generatedModule}}
+import {{{generatedModule}}}
 {{/ifCond}}
 {{#if healthcheck}}
 import Health
@@ -17,13 +17,13 @@ import KituraOpenAPI
 
 // Service imports
 {{#each appInitCode.service_imports}}
-{{this}}
+{{{this}}}
 {{/each}}
 {{/ifCond}}
 
 public let projectPath = ConfigurationManager.BasePath.project.path
 {{#if basepath}}
-public var basePath = "{{basepath}}"
+public var basePath = "{{{basepath}}}"
 {{/if}}
 {{#if healthcheck}}
 public let health = Health()
@@ -33,13 +33,13 @@ public let health = Health()
 class ApplicationServices {
     // Initialize services
 {{#each appInitCode.service_variables}}
-    {{this}}
+    {{{this}}}
 {{/each}}
 
     public init(cloudEnv: CloudEnv) throws {
         // Run service initializers
 {{#each appInitCode.services}}
-        {{this}}
+        {{{this}}}
 {{/each}}
     }
 }
@@ -49,7 +49,7 @@ public class App {
     let router = Router()
     let cloudEnv = CloudEnv()
 {{#if swaggerPath}}
-    {{swaggerPath}}
+    {{{swaggerPath}}}
 {{/if}}
 {{#ifCond appInitCode.services.length '>' 0}}
     let services: ApplicationServices
@@ -58,7 +58,7 @@ public class App {
     public init() throws {
 {{#if appInitCode.metrics}}
         // Run the metrics initializer
-        {{appInitCode.metrics}}
+        {{{appInitCode.metrics}}}
 {{/if}}
 {{#ifCond appInitCode.services.length '>' 0}}
         // Services
@@ -70,23 +70,21 @@ public class App {
 {{#ifCond appInitCode.capabilities.length '>' 0}}
         // Capabilities
         {{#each appInitCode.capabilities}}
-        {{this}}
+        {{{this}}}
         {{/each}}
 {{/ifCond}}
 {{#ifCond appInitCode.middlewares.length '>' 0}}
         // Middleware
 {{#each appInitCode.middlewares}}
-        {{this}}
+        {{{this}}}
 {{/each}}
 {{/ifCond}}
         // Endpoints
-        {{log "appInitCode"}}
-        {{log appInitCode}}
 {{#each appInitCode.endpoints}}
-        {{this}}
+        {{{this}}}
 {{/each}}
 {{#if appInitCode.openapi}}
-        {{appInitCode.openapi}}
+        {{{appInitCode.openapi}}}
 {{/if}}
     }
 

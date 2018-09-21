@@ -3,20 +3,19 @@ import CouchDB
 import KituraNet
 import SwiftyJSON
 
-public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
+public class {{{model.classname}}}CloudantAdapter: {{{model.classname}}}Adapter {
     let client: CouchDBClient
     var database: Database {
         // TODO: Properly ensure database exists
-        {{log "this is " model.classname}}
-        client.createDB("{{lowerClassName}}") { _, _ in }
-        return client.database("{{lowerClassName}}")
+        client.createDB("{{{lowerClassName}}}") { _, _ in }
+        return client.database("{{{lowerClassName}}}")
     }
 
     public init(_ connectionProperties: ConnectionProperties) {
         client = CouchDBClient(connectionProperties: connectionProperties)
     }
 
-    public func findAll(onCompletion: @escaping ([{{model.classname}}], Swift.Error?) -> Void) {
+    public func findAll(onCompletion: @escaping ([{{{model.classname}}}], Swift.Error?) -> Void) {
         database.retrieveAll(includeDocuments: true) { maybeDocuments, error in
             if let error = error {
                 if error.code == Database.InternalError {
@@ -33,7 +32,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
             }
 
             do {
-                let models = try documents.map { _, document -> {{model.classname}} in
+                let models = try documents.map { _, document -> {{{model.classname}}} in
                     guard let docid = document["id"].string else {
                         let message = (document["id"].exists() ? "Unexpected type for" : "Missing")
                         throw AdapterError.internalError("\(message) docid in document")
@@ -44,7 +43,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
                     var modelJSON = document["doc"]
                     _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
                     _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
-                    let model = try {{model.classname}}(json: modelJSON)
+                    let model = try {{{model.classname}}}(json: modelJSON)
                     return model.settingID(docid)
                 }
                 onCompletion(models, nil)
@@ -54,7 +53,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
         }
     }
 
-    public func create(_ model: {{model.classname}}, onCompletion: @escaping ({{model.classname}}?, Swift.Error?) -> Void) {
+    public func create(_ model: {{{model.classname}}}, onCompletion: @escaping ({{{model.classname}}}?, Swift.Error?) -> Void) {
         database.create(model.toJSON()) { _, rev, maybeDocument, error in
             if let error = error {
                 switch error.code {
@@ -86,7 +85,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
     }
 
     public func deleteAll(onCompletion: @escaping (Swift.Error?) -> Void) {
-        client.deleteDB("{{lowerClassName}}") { error in
+        client.deleteDB("{{{lowerClassName}}}") { error in
             if let error = error, error.code != HTTPStatusCode.notFound.rawValue {
                 onCompletion(AdapterError.internalError(error.localizedDescription))
             } else {
@@ -95,7 +94,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
         }
     }
 
-    public func findOne(_ maybeID: String?, onCompletion: @escaping ({{model.classname}}?, Swift.Error?) -> Void) {
+    public func findOne(_ maybeID: String?, onCompletion: @escaping ({{{model.classname}}}?, Swift.Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
@@ -127,7 +126,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
                 var modelJSON = document
                 _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
                 _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
-                let model = try {{model.classname}}(json: modelJSON)
+                let model = try {{{model.classname}}}(json: modelJSON)
                 onCompletion(model.settingID(docid), nil)
             } catch {
                 onCompletion(nil, AdapterError.internalError(String(describing: error)))
@@ -135,7 +134,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
         }
     }
 
-    public func update(_ maybeID: String?, with model: {{model.classname}}, onCompletion: @escaping ({{model.classname}}?, Swift.Error?) -> Void) {
+    public func update(_ maybeID: String?, with model: {{{model.classname}}}, onCompletion: @escaping ({{{model.classname}}}?, Swift.Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
@@ -191,7 +190,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
         }
     }
 
-    public func delete(_ maybeID: String?, onCompletion: @escaping ({{model.classname}}?, Swift.Error?) -> Void) {
+    public func delete(_ maybeID: String?, onCompletion: @escaping ({{{model.classname}}}?, Swift.Error?) -> Void) {
         guard let id = maybeID else {
             return onCompletion(nil, AdapterError.invalidId(maybeID))
         }
@@ -244,7 +243,7 @@ public class {{model.classname}}CloudantAdapter: {{model.classname}}Adapter {
                     var modelJSON = document
                     _ = modelJSON.dictionaryObject?.removeValue(forKey: "_id")
                     _ = modelJSON.dictionaryObject?.removeValue(forKey: "_rev")
-                    let model = try {{model.classname}}(json: modelJSON)
+                    let model = try {{{model.classname}}}(json: modelJSON)
                     onCompletion(model.settingID(docid), nil)
                 } catch {
                     onCompletion(nil, AdapterError.internalError(String(describing: error)))

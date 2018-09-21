@@ -12,12 +12,12 @@ public class AdapterFactory {
         self.cloudEnv = cloudEnv
     }
 {{#each models}}
-    public func get{{classname}}Adapter() throws -> {{classname}}Adapter {
+    public func get{{{classname}}}Adapter() throws -> {{{classname}}}Adapter {
 {{#ifCond ../crudService.type '===' 'cloudant'}}
       guard let credentials = cloudEnv.getCloudantCredentials(name: "cloudant") else {
           throw AdapterError.unavailable("Failed to get cloudant credentials")
       }
-      return {{classname}}CloudantAdapter(ConnectionProperties(
+      return {{{classname}}}CloudantAdapter(ConnectionProperties(
           host:     credentials.host,
           port:     Int16(credentials.port),
           secured:  credentials.secured,
@@ -26,7 +26,7 @@ public class AdapterFactory {
       ))
 {{/ifCond}}
 {{#ifCond ../crudService.type '===' '__memory__'}}
-      return {{classname}}MemoryAdapter()
+      return {{{classname}}}MemoryAdapter()
 {{/ifCond}}
     }
 {{/each}}

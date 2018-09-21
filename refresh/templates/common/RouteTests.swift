@@ -5,7 +5,7 @@ import XCTest
 import HeliumLogger
 import LoggerAPI
 
-@testable import {{applicationModule}}
+@testable import {{{applicationModule}}}
 
 class RouteTests: XCTestCase {
     static var port: Int!
@@ -30,7 +30,7 @@ class RouteTests: XCTestCase {
             Kitura.addHTTPServer(onPort: RouteTests.port, with: app.router)
             Kitura.start()
         } catch {
-            XCTFail("Couldn't start {{applicationModule}} test server: \(error)")
+            XCTFail("Couldn't start {{{applicationModule}}} test server: \(error)")
         }
     }
 

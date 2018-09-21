@@ -130,13 +130,13 @@ This content is hosted on `/`. For example, if you want to view `public/myfile.h
 {{/if}}
 {{#if hostSwagger}}
 #### OpenAPI / Swagger endpoint
-This application hosts an endpoint for serving the OpenAPI Swagger definition for this application. It expects the definition file to be located in `definitions/{{appName}}.yaml`.
+This application hosts an endpoint for serving the OpenAPI Swagger definition for this application. It expects the definition file to be located in `definitions/{{{appName}}}.yaml`.
 
 The endpoint is hosted on `/swagger/api`. For example, if the application is hosted at https://localhost:8080, go to https://localhost:8080/swagger/api.
 {{/if}}
 {{#if exampleEndpoints}}
 #### Example endpoints
-This application includes an OpenAPI Swagger definition and routes for a Product example resource. The OpenAPI Swagger definition is located in the `definitions/{{appName}}.yaml` directory.
+This application includes an OpenAPI Swagger definition and routes for a Product example resource. The OpenAPI Swagger definition is located in the `definitions/{{{appName}}}.yaml` directory.
 
 {{#if hostSwagger}}
 The specification of this interface is made available through an embedded Swagger UI hosted on `/explorer`. For example, if the application is hosted at https://localhost:8080, go to https://localhost:8080/explorer.

@@ -41,35 +41,35 @@ public struct {{model.classname}} {
         }
     }
 
-    public func settingID(_ newId: String?) -> {{model.classname}} {
+    public func settingID(_ newId: String?) -> {{{model.classname}}} {
       {{#settingID propertyInfos args model}}
       {{/settingID}}
     }
 
-    public func updatingWith(json: JSON) throws -> {{model.classname}} {
+    public func updatingWith(json: JSON) throws -> {{{model.classname}}} {
         {{#each propertyInfos}}
-        if json["{{name}}"].exists() &&
-           json["{{name}}"].type != .{{swiftyJSONType}} {
-            throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{name}}"].description, valueType: String(describing: json["{{name}}"].type))
+        if json["{{{name}}}"].exists() &&
+           json["{{{name}}}"].type != .{{{swiftyJSONType}}} {
+            throw ModelError.propertyTypeMismatch(name: "{{{name}}}", type: "{{{jsType}}}", value: json["{{{name}}}"].description, valueType: String(describing: json["{{{name}}}"].type))
         }
             {{#ifCond jsType '===' 'number'}}
-        let {{name}} = json["{{name}}"].number.map { Double($0) } ?? self.{{name}}
+        let {{{name}}} = json["{{{name}}}"].number.map { Double($0) } ?? self.{{{name}}}
             {{else}}
-        let {{name}} = json["{{name}}"].{{swiftyJSONProperty}} ?? self.{{name}}
+        let {{name}} = json["{{{name}}}"].{{{swiftyJSONProperty}}} ?? self.{{{name}}}
             {{/ifCond}}
 
         {{/each}}
-        return {{model.classname}}({{#each propertyInfos}} {{name}}: {name}}, {{/each}})
+        return {{{model.classname}}}({{#each propertyInfos}} {{{name}}}: {{{name}}}, {{/each}})
     }
 
     public func toJSON() -> JSON {
         var result = JSON([:])
         {{each infoFilter}}
-        result["{{name}}"] = JSON({{name}})
+        result["{{{name}}}"] = JSON({{{name}}})
         {{/each}}
         {{each infoFilter}}
-        if let {{name}} = {{name}} {
-            result["{{name}}"] = JSON({{name}})
+        if let {{{name}}} = {{{name}}} {
+            result["{{{name}}}"] = JSON({{{name}}})
         }
         {{/each}}
 

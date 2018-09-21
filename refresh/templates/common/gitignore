@@ -5,5 +5,5 @@
 /config.json
 /spec.json
 {{#each itemsToIgnore}}
-{{this}}
+{{{this}}}
 {{/each}}

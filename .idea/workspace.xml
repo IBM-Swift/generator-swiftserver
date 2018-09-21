@@ -9,8 +9,21 @@
 =======
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/Application.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
+<<<<<<< HEAD
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/lib/common_test.js" afterPath="$PROJECT_DIR$/test/lib/common_test.js" />
 >>>>>>> 4403418... fix: fixed some tests
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/Package.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/Package.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" afterPath="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/RouteTests.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/RouteTests.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/gitignore" afterPath="$PROJECT_DIR$/refresh/templates/common/gitignore" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh" afterPath="$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/main.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/main.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/crud/Adapter.swift" afterPath="$PROJECT_DIR$/refresh/templates/crud/Adapter.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" afterPath="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" afterPath="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -23,6 +36,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
+<<<<<<< HEAD
     <leaf>
       <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
@@ -43,10 +57,20 @@
                 <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
               </folding>
 >>>>>>> 4403418... fix: fixed some tests
+=======
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="Package.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="422">
+              <caret line="34" column="97" lean-forward="false" selection-start-line="34" selection-start-column="97" selection-end-line="34" selection-end-column="97" />
+              <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="refresh.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -64,12 +88,20 @@
 =======
             <state relative-caret-position="23265">
               <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
+=======
+      <file leaf-file-name="productSwagger.yaml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-143">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
               <folding />
 >>>>>>> 4ef7137... fix: fixed Application.swift test
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
@@ -80,27 +112,36 @@
       <file leaf-file-name="common_test.js" pinned="false" current-in-tab="false">
 >>>>>>> 4ef7137... fix: fixed Application.swift test
         <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+=======
+      <file leaf-file-name="README.scaffold.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
-              <caret line="503" column="4" lean-forward="false" selection-start-line="503" selection-start-column="4" selection-end-line="503" selection-end-column="4" />
+            <state relative-caret-position="-1719">
+              <caret line="138" column="173" lean-forward="false" selection-start-line="138" selection-start-column="173" selection-end-line="138" selection-end-column="173" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/package.json">
+      <file leaf-file-name="RouteTests.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" column="6" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="6" />
+            <state relative-caret-position="105">
+              <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="19" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="ErrorRoutes.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
 >>>>>>> 4403418... fix: fixed some tests
+=======
+      <file leaf-file-name="swift-version" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
               <caret line="8" column="5" lean-forward="false" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
@@ -109,6 +150,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/index.js">
@@ -127,21 +169,37 @@
             <state relative-caret-position="317">
               <caret line="88" column="30" lean-forward="false" selection-start-line="88" selection-start-column="30" selection-end-line="88" selection-end-column="30" />
 >>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+      <file leaf-file-name="SwaggerRoutes.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="iterative-dev.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="358">
               <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
+=======
+      <file leaf-file-name="Adapter.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Adapter.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="36" lean-forward="false" selection-start-line="0" selection-start-column="36" selection-end-line="0" selection-end-column="36" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="README.scaffold.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
@@ -167,6 +225,13 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="107">
               <caret line="500" column="46" lean-forward="false" selection-start-line="500" selection-start-column="46" selection-end-line="500" selection-end-column="46" />
+=======
+      <file leaf-file-name="AdapterError.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
               <folding />
             </state>
           </provider>
@@ -175,15 +240,22 @@
       <file leaf-file-name="property.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/unit/property.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="-947">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
+=======
+            <state relative-caret-position="420">
+              <caret line="28" column="27" lean-forward="false" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
+              <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="model.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/unit/model.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -192,6 +264,14 @@
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
+=======
+      <file leaf-file-name="CloudantAdapter.swift" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="246" column="38" lean-forward="false" selection-start-line="246" selection-start-column="38" selection-end-line="246" selection-end-column="38" />
+              <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
             </state>
           </provider>
         </entry>
@@ -200,6 +280,7 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       <find>lib/handlebar</find>
@@ -225,6 +306,8 @@
       <find>crudserv</find>
       <find>crud</find>
       <find>each</find>
+=======
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
       <find>crudser</find>
       <find>adapterf</find>
       <find>crudServ</find>
@@ -257,7 +340,14 @@
       <find>application initializes kitura-openapi</find>
       <find>health</find>
       <find>endpo</find>
+<<<<<<< HEAD
 >>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+      <find>openapi</find>
+      <find>swag</find>
+      <find>{{ex</find>
+      <find>{{</find>
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -266,30 +356,38 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/refresh/templates/crud/Adapter.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/Resource.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/main.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/RouteTests.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/gitignore" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/Model.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" />
         <option value="$PROJECT_DIR$/lib/handlebars.js" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift" />
         <option value="$PROJECT_DIR$/app/index.js" />
-        <option value="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
         <option value="$PROJECT_DIR$/lib/helpers.js" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/Package.swift" />
         <option value="$PROJECT_DIR$/refresh/index.js" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
+=======
+        <option value="$PROJECT_DIR$/test/unit/refresh.js" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
         <option value="$PROJECT_DIR$/test/lib/common_test.js" />
 <<<<<<< HEAD
         <option value="$PROJECT_DIR$/test/unit/refresh.js" />
 =======
         <option value="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
+<<<<<<< HEAD
 >>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+        <option value="$PROJECT_DIR$/refresh/templates/common/gitignore" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/main.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/Package.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/RouteTests.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/Adapter.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
       </list>
     </option>
   </component>
@@ -486,11 +584,12 @@
       <workItem from="1537457854839" duration="352000" />
       <workItem from="1537543112762" duration="895000" />
       <workItem from="1537544964419" duration="1484000" />
-      <workItem from="1537546771875" duration="164000" />
+      <workItem from="1537546771875" duration="1053000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     <option name="totallyTimeSpent" value="45445000" />
@@ -515,14 +614,17 @@
 =======
     <option name="totallyTimeSpent" value="48118000" />
 >>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+    <option name="totallyTimeSpent" value="49007000" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13392857" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -543,7 +645,6 @@
 =======
 >>>>>>> 4403418... fix: fixed some tests
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
 <<<<<<< HEAD
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -585,21 +686,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Model.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="0" lean-forward="false" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/handlebars.js" />
-    <entry file="file://$PROJECT_DIR$/app/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2280">
-          <caret line="152" column="6" lean-forward="false" selection-start-line="152" selection-start-column="6" selection-end-line="152" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19695">
@@ -715,38 +801,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="9" lean-forward="false" selection-start-line="8" selection-start-column="9" selection-end-line="8" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/main.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="28" lean-forward="false" selection-start-line="4" selection-start-column="28" selection-end-line="4" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="5" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="5" />
-        </state>
-      </provider>
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="13" lean-forward="false" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="13" />
-            <folding />
-          </first_editor>
-          <second_editor>
-            <js_state />
-          </second_editor>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Resource.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -761,75 +815,29 @@
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="5" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="5" />
+=======
     <entry file="file://$PROJECT_DIR$/lib/handlebars.js" />
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Adapter.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="12" lean-forward="false" selection-start-line="2" selection-start-column="11" selection-end-line="2" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/HealthRoutes.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/InitializationError.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="358">
-          <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="21" column="26" lean-forward="false" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+        </state>
+      </provider>
+      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="0">
+            <caret line="0" column="13" lean-forward="false" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="13" />
+            <folding />
+          </first_editor>
+          <second_editor>
+            <js_state />
+          </second_editor>
         </state>
       </provider>
     </entry>
@@ -837,15 +845,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-          </folding>
->>>>>>> 4403418... fix: fixed some tests
-=======
->>>>>>> 4ef7137... fix: fixed Application.swift test
         </state>
       </provider>
     </entry>
@@ -856,84 +855,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="26" column="9" lean-forward="false" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="32" lean-forward="false" selection-start-line="10" selection-start-column="32" selection-end-line="10" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="22" lean-forward="false" selection-start-line="28" selection-start-column="22" selection-end-line="28" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/fromswagger/Routes.swift.hbs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="510">
           <caret line="34" column="35" lean-forward="false" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-<<<<<<< HEAD
-    <entry file="file://$PROJECT_DIR$/refresh/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="161">
-          <caret line="1097" column="26" lean-forward="true" selection-start-line="1097" selection-start-column="26" selection-end-line="1097" selection-end-column="26" />
           <folding />
-=======
-        <state relative-caret-position="19800">
-          <caret line="1334" column="45" lean-forward="false" selection-start-line="1334" selection-start-column="45" selection-end-line="1334" selection-end-column="45" />
-          <folding>
-            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
-          </folding>
->>>>>>> 4403418... fix: fixed some tests
-        </state>
-      </provider>
-    </entry>
-=======
->>>>>>> 4ef7137... fix: fixed Application.swift test
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
       <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-        <state relative-caret-position="1095">
-          <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="107">
-          <caret line="500" column="46" lean-forward="false" selection-start-line="500" selection-start-column="46" selection-end-line="500" selection-end-column="46" />
-=======
         <state relative-caret-position="23265">
           <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
->>>>>>> 4ef7137... fix: fixed Application.swift test
           <folding />
         </state>
       </provider>
@@ -948,6 +881,246 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4665">
+          <caret line="311" column="36" lean-forward="false" selection-start-line="311" selection-start-column="36" selection-end-line="311" selection-end-column="36" />
+          <folding>
+            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="498" column="4" lean-forward="false" selection-start-line="498" selection-start-column="4" selection-end-line="498" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="28" lean-forward="false" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="10" lean-forward="false" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/HealthRoutes.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/InitializationError.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="358">
+          <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
+=======
+        <state relative-caret-position="260">
+          <caret line="82" column="67" lean-forward="false" selection-start-line="82" selection-start-column="67" selection-end-line="82" selection-end-column="67" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LICENSE_for_generated_code">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="39" lean-forward="false" selection-start-line="2" selection-start-column="39" selection-end-line="2" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/main.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+          </folding>
+>>>>>>> 4403418... fix: fixed some tests
+=======
+>>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+        <state relative-caret-position="60">
+          <caret line="4" column="29" lean-forward="false" selection-start-line="4" selection-start-column="29" selection-end-line="4" selection-end-column="29" />
+          <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Metrics.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="40" lean-forward="false" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/NOTICES_for_generated_swaggerui">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="390">
+          <caret line="26" column="9" lean-forward="false" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
+=======
+        <state relative-caret-position="422">
+          <caret line="34" column="97" lean-forward="false" selection-start-line="34" selection-start-column="97" selection-end-line="34" selection-end-column="97" />
+          <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="150">
+          <caret line="10" column="32" lean-forward="false" selection-start-line="10" selection-start-column="32" selection-end-line="10" selection-end-column="32" />
+=======
+        <state relative-caret-position="-143">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="420">
+          <caret line="28" column="22" lean-forward="false" selection-start-line="28" selection-start-column="22" selection-end-line="28" selection-end-column="22" />
+=======
+        <state relative-caret-position="-1719">
+          <caret line="138" column="173" lean-forward="false" selection-start-line="138" selection-start-column="173" selection-end-line="138" selection-end-column="173" />
+          <folding />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="510">
+          <caret line="34" column="35" lean-forward="false" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
+    <entry file="file://$PROJECT_DIR$/refresh/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+        <state relative-caret-position="161">
+          <caret line="1097" column="26" lean-forward="true" selection-start-line="1097" selection-start-column="26" selection-end-line="1097" selection-end-column="26" />
+=======
+        <state relative-caret-position="105">
+          <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="19" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+          <folding />
+=======
+        <state relative-caret-position="19800">
+          <caret line="1334" column="45" lean-forward="false" selection-start-line="1334" selection-start-column="45" selection-end-line="1334" selection-end-column="45" />
+          <folding>
+            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
+          </folding>
+>>>>>>> 4403418... fix: fixed some tests
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
+=======
+>>>>>>> 4ef7137... fix: fixed Application.swift test
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
+=======
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
+<<<<<<< HEAD
+        <state relative-caret-position="1095">
+          <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="500" column="46" lean-forward="false" selection-start-line="500" selection-start-column="46" selection-end-line="500" selection-end-column="46" />
+=======
+        <state relative-caret-position="23265">
+          <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Adapter.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="36" lean-forward="false" selection-start-line="0" selection-start-column="36" selection-end-line="0" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="465">
@@ -969,17 +1142,26 @@
 <<<<<<< HEAD
 =======
     <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="503" column="4" lean-forward="false" selection-start-line="503" selection-start-column="4" selection-end-line="503" selection-end-column="4" />
+=======
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift">
+>>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="88" column="30" lean-forward="false" selection-start-line="88" selection-start-column="30" selection-end-line="88" selection-end-column="30" />
+        <state relative-caret-position="420">
+          <caret line="28" column="27" lean-forward="false" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="246" column="38" lean-forward="false" selection-start-line="246" selection-start-column="38" selection-end-line="246" selection-end-column="38" />
           <folding />
         </state>
       </provider>
