@@ -80,11 +80,13 @@ public class App {
 {{/each}}
 {{/ifCond}}
         // Endpoints
+        {{log "appInitCode"}}
+        {{log appInitCode}}
 {{#each appInitCode.endpoints}}
         {{this}}
 {{/each}}
 {{#if appInitCode.openapi}}
-        {{this}}
+        {{appInitCode.openapi}}
 {{/if}}
     }
 

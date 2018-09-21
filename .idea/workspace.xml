@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/test/unit/refresh.js" afterPath="$PROJECT_DIR$/test/unit/refresh.js" />
 =======
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/Application.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/lib/common_test.js" afterPath="$PROJECT_DIR$/test/lib/common_test.js" />
 >>>>>>> 4403418... fix: fixed some tests
     </list>
@@ -27,12 +28,17 @@
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+<<<<<<< HEAD
             <state relative-caret-position="90">
               <caret line="6" column="62" lean-forward="false" selection-start-line="6" selection-start-column="62" selection-end-line="6" selection-end-column="62" />
               <folding />
 =======
             <state relative-caret-position="19800">
               <caret line="1334" column="45" lean-forward="false" selection-start-line="1334" selection-start-column="45" selection-end-line="1334" selection-end-column="45" />
+=======
+            <state relative-caret-position="4665">
+              <caret line="311" column="36" lean-forward="false" selection-start-line="311" selection-start-column="36" selection-end-line="311" selection-end-column="36" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
               <folding>
                 <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
               </folding>
@@ -45,6 +51,7 @@
         <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
           <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+<<<<<<< HEAD
             <state relative-caret-position="465">
               <caret line="481" column="32" lean-forward="false" selection-start-line="481" selection-start-column="32" selection-end-line="481" selection-end-column="32" />
 =======
@@ -54,19 +61,28 @@
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
+=======
+            <state relative-caret-position="23265">
+              <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
+              <folding />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
             </state>
           </provider>
         </entry>
       </file>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
 =======
       <file leaf-file-name="common_test.js" pinned="false" current-in-tab="true">
+=======
+      <file leaf-file-name="common_test.js" pinned="false" current-in-tab="false">
+>>>>>>> 4ef7137... fix: fixed Application.swift test
         <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="178">
-              <caret line="394" column="95" lean-forward="false" selection-start-line="394" selection-start-column="71" selection-end-line="394" selection-end-column="95" />
+            <state relative-caret-position="297">
+              <caret line="503" column="4" lean-forward="false" selection-start-line="503" selection-start-column="4" selection-end-line="503" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -75,8 +91,8 @@
       <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/package.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="136" lean-forward="true" selection-start-line="10" selection-start-column="136" selection-end-line="10" selection-end-column="136" />
+            <state relative-caret-position="270">
+              <caret line="18" column="6" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -93,6 +109,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/index.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -103,6 +120,13 @@
             <state relative-caret-position="1095">
               <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
 >>>>>>> 4403418... fix: fixed some tests
+=======
+      <file leaf-file-name="Application.swift" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="317">
+              <caret line="88" column="30" lean-forward="false" selection-start-line="88" selection-start-column="30" selection-end-line="88" selection-end-column="30" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
               <folding />
             </state>
           </provider>
@@ -177,6 +201,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
 <<<<<<< HEAD
+<<<<<<< HEAD
       <find>lib/handlebar</find>
       <find>Handlebars</find>
       <find>classname.toLo</find>
@@ -194,6 +219,8 @@
       <find>lower</find>
       <find>lowercase</find>
       <find>targets</find>
+=======
+>>>>>>> 4ef7137... fix: fixed Application.swift test
       <find>adapterfacto</find>
       <find>crudserv</find>
       <find>crud</find>
@@ -220,7 +247,17 @@
       <find>application</find>
       <find>router</find>
       <find>(addEndpoints(to: router)</find>
+<<<<<<< HEAD
 >>>>>>> 4403418... fix: fixed some tests
+=======
+      <find>addEndpoints(to: router)</find>
+      <find>key</find>
+      <find>endpoin</find>
+      <find>KituraOpenAPI</find>
+      <find>application initializes kitura-openapi</find>
+      <find>health</find>
+      <find>endpo</find>
+>>>>>>> 4ef7137... fix: fixed Application.swift test
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -241,7 +278,6 @@
         <option value="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" />
         <option value="$PROJECT_DIR$/lib/handlebars.js" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
         <option value="$PROJECT_DIR$/app/index.js" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
         <option value="$PROJECT_DIR$/lib/helpers.js" />
@@ -249,7 +285,11 @@
         <option value="$PROJECT_DIR$/refresh/index.js" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
         <option value="$PROJECT_DIR$/test/lib/common_test.js" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/test/unit/refresh.js" />
+=======
+        <option value="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
       </list>
     </option>
   </component>
@@ -329,6 +369,26 @@
               <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="unit" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
+              <item name="model" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
+              <item name="property" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -424,11 +484,14 @@
       <workItem from="1537391817445" duration="1415000" />
       <workItem from="1537456118528" duration="13000" />
       <workItem from="1537457854839" duration="352000" />
-      <workItem from="1537543112762" duration="495000" />
+      <workItem from="1537543112762" duration="895000" />
+      <workItem from="1537544964419" duration="1484000" />
+      <workItem from="1537546771875" duration="164000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
 <<<<<<< HEAD
     <option name="totallyTimeSpent" value="45445000" />
   </component>
@@ -449,6 +512,9 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
 =======
     <option name="totallyTimeSpent" value="46070000" />
+=======
+    <option name="totallyTimeSpent" value="48118000" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
@@ -457,7 +523,6 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13392857" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -478,6 +543,7 @@
 =======
 >>>>>>> 4403418... fix: fixed some tests
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
 <<<<<<< HEAD
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -772,11 +838,14 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
           <folding>
             <element signature="n#!!doc" expanded="false" />
           </folding>
 >>>>>>> 4403418... fix: fixed some tests
+=======
+>>>>>>> 4ef7137... fix: fixed Application.swift test
         </state>
       </provider>
     </entry>
@@ -823,6 +892,7 @@
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
@@ -839,6 +909,8 @@
         </state>
       </provider>
     </entry>
+=======
+>>>>>>> 4ef7137... fix: fixed Application.swift test
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -846,8 +918,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
+    <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="1095">
           <caret line="73" column="17" lean-forward="false" selection-start-line="73" selection-start-column="17" selection-end-line="73" selection-end-column="17" />
         </state>
@@ -857,20 +930,25 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="107">
           <caret line="500" column="46" lean-forward="false" selection-start-line="500" selection-start-column="46" selection-end-line="500" selection-end-column="46" />
+=======
+        <state relative-caret-position="23265">
+          <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="136" lean-forward="true" selection-start-line="10" selection-start-column="136" selection-end-line="10" selection-end-column="136" />
+        <state relative-caret-position="270">
+          <caret line="18" column="6" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
+    <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="465">
           <caret line="481" column="32" lean-forward="false" selection-start-line="481" selection-start-column="32" selection-end-line="481" selection-end-column="32" />
@@ -878,8 +956,12 @@
         <state relative-caret-position="173">
           <caret line="1517" column="102" lean-forward="false" selection-start-line="1517" selection-start-column="102" selection-end-line="1517" selection-end-column="102" />
 >>>>>>> 4403418... fix: fixed some tests
+=======
+        <state relative-caret-position="4665">
+          <caret line="311" column="36" lean-forward="false" selection-start-line="311" selection-start-column="36" selection-end-line="311" selection-end-column="36" />
+>>>>>>> 4ef7137... fix: fixed Application.swift test
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -888,8 +970,16 @@
 =======
     <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="394" column="95" lean-forward="false" selection-start-line="394" selection-start-column="71" selection-end-line="394" selection-end-column="95" />
+        <state relative-caret-position="297">
+          <caret line="503" column="4" lean-forward="false" selection-start-line="503" selection-start-column="4" selection-end-line="503" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="317">
+          <caret line="88" column="30" lean-forward="false" selection-start-line="88" selection-start-column="30" selection-end-line="88" selection-end-column="30" />
           <folding />
         </state>
       </provider>
