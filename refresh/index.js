@@ -1236,6 +1236,7 @@ module.exports = Generator.extend({
 
       var crudService
       if (this.spec.crudservice) {
+
         crudService = getService(this.services, this.spec.crudservice)
       } else {
         crudService = { type: '__memory__' }
@@ -1243,6 +1244,7 @@ module.exports = Generator.extend({
       this._writeHandlebarsFile('crud/CRUDResources.swift', `Sources/${this.generatedModule}/CRUDResources.swift`,
         {models: this.models}
       )
+
       this._writeHandlebarsFile('crud/AdapterFactory.swift', `Sources/${this.generatedModule}/AdapterFactory.swift`,
         { models: this.models, crudService: crudService }
       )

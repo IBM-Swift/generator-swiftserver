@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/test/unit/refresh.js" afterPath="$PROJECT_DIR$/test/unit/refresh.js" />
 =======
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+<<<<<<< HEAD
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/common/Application.swift" afterPath="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
 <<<<<<< HEAD
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/lib/common_test.js" afterPath="$PROJECT_DIR$/test/lib/common_test.js" />
@@ -24,6 +25,10 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" afterPath="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" afterPath="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/refresh/index.js" afterPath="$PROJECT_DIR$/refresh/index.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/unit/refresh.js" afterPath="$PROJECT_DIR$/test/unit/refresh.js" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -59,17 +64,26 @@
 >>>>>>> 4403418... fix: fixed some tests
 =======
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Package.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
+      <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/index.js">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="422">
               <caret line="34" column="97" lean-forward="false" selection-start-line="34" selection-start-column="97" selection-end-line="34" selection-end-column="97" />
               <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+            <state relative-caret-position="690">
+              <caret line="60" column="21" lean-forward="false" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
+              <folding>
+                <marker date="1537990446802" expanded="true" signature="54722:54744" ph="{...}" />
+              </folding>
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="refresh.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
@@ -91,16 +105,27 @@
 =======
       <file leaf-file-name="productSwagger.yaml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
+=======
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/unit/app.js">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-143">
+            <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+<<<<<<< HEAD
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
               <folding />
 >>>>>>> 4ef7137... fix: fixed Application.swift test
+=======
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -116,24 +141,29 @@
       <file leaf-file-name="README.scaffold.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <file leaf-file-name="refresh.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1719">
-              <caret line="138" column="173" lean-forward="false" selection-start-line="138" selection-start-column="173" selection-end-line="138" selection-end-column="173" />
+            <state relative-caret-position="-93">
+              <caret line="365" column="50" lean-forward="false" selection-start-line="365" selection-start-column="50" selection-end-line="365" selection-end-column="50" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RouteTests.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/bluemix/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="19" />
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="ErrorRoutes.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
@@ -142,6 +172,10 @@
       <file leaf-file-name="swift-version" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <file leaf-file-name="productSwagger.yaml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="120">
               <caret line="8" column="5" lean-forward="false" selection-start-line="8" selection-start-column="5" selection-end-line="8" selection-end-column="5" />
@@ -150,6 +184,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
@@ -176,11 +211,19 @@
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <file leaf-file-name="RouteTests.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="19" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="iterative-dev.sh" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh">
@@ -194,11 +237,19 @@
             <state relative-caret-position="0">
               <caret line="0" column="36" lean-forward="false" selection-start-line="0" selection-start-column="36" selection-end-line="0" selection-end-column="36" />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <file leaf-file-name="SwaggerRoutes.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
               <folding />
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="README.scaffold.md" pinned="false" current-in-tab="false">
@@ -228,6 +279,10 @@
 =======
       <file leaf-file-name="AdapterError.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
+=======
+      <file leaf-file-name="swift-version" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -237,6 +292,7 @@
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
       <file leaf-file-name="property.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/unit/property.js">
           <provider selected="true" editor-type-id="text-editor">
@@ -249,12 +305,20 @@
 =======
             <state relative-caret-position="420">
               <caret line="28" column="27" lean-forward="false" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
+=======
+      <file leaf-file-name="CRUDResources.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="23" lean-forward="false" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
               <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
             </state>
           </provider>
         </entry>
       </file>
+<<<<<<< HEAD
 <<<<<<< HEAD
       <file leaf-file-name="model.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/unit/model.js">
@@ -267,9 +331,13 @@
 =======
       <file leaf-file-name="CloudantAdapter.swift" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
+=======
+      <file leaf-file-name="package.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/package.json">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="246" column="38" lean-forward="false" selection-start-line="246" selection-start-column="38" selection-end-line="246" selection-end-column="38" />
+            <state relative-caret-position="180">
+              <caret line="12" column="78" lean-forward="false" selection-start-line="12" selection-start-column="78" selection-end-line="12" selection-end-column="78" />
               <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
             </state>
@@ -280,6 +348,7 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -323,6 +392,8 @@
 =======
       <find>LinuxM</find>
       <find>LInuxMain</find>
+=======
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
       <find>integra</find>
       <find>LinuxMain.swift</find>
       <find>linux</find>
@@ -346,8 +417,23 @@
       <find>openapi</find>
       <find>swag</find>
       <find>{{ex</find>
+      <find>each modules</find>
       <find>{{</find>
+<<<<<<< HEAD
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+      <find>appInitC</find>
+      <find>appInitCode</find>
+      <find>openApiServer</find>
+      <find>openapiServer</find>
+      <find>openApiS</find>
+      <find>write</find>
+      <find>l</find>
+      <find>openApiSer</find>
+      <find>openApi</find>
+      <find>readme</find>
+      <find>console.log</find>
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -356,13 +442,10 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/refresh/templates/crud/Resource.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/crud/Model.swift" />
         <option value="$PROJECT_DIR$/lib/handlebars.js" />
-        <option value="$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift" />
         <option value="$PROJECT_DIR$/app/index.js" />
         <option value="$PROJECT_DIR$/lib/helpers.js" />
+<<<<<<< HEAD
         <option value="$PROJECT_DIR$/refresh/index.js" />
 <<<<<<< HEAD
         <option value="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
@@ -377,17 +460,30 @@
 <<<<<<< HEAD
 >>>>>>> 4ef7137... fix: fixed Application.swift test
 =======
+=======
+        <option value="$PROJECT_DIR$/test/lib/common_test.js" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
         <option value="$PROJECT_DIR$/refresh/templates/common/gitignore" />
         <option value="$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh" />
         <option value="$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/common/main.swift" />
-        <option value="$PROJECT_DIR$/refresh/templates/common/Package.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/common/README.scaffold.md" />
         <option value="$PROJECT_DIR$/refresh/templates/common/RouteTests.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/Adapter.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift" />
         <option value="$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift" />
+<<<<<<< HEAD
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+        <option value="$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/Model.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/crud/Resource.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/Package.swift" />
+        <option value="$PROJECT_DIR$/refresh/templates/common/Application.swift" />
+        <option value="$PROJECT_DIR$/refresh/index.js" />
+        <option value="$PROJECT_DIR$/test/unit/refresh.js" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
       </list>
     </option>
   </component>
@@ -402,9 +498,11 @@
   <component name="NodeModulesDirectoryManager">
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-1857" />
+    <option name="y" value="46" />
     <option name="width" value="1680" />
-    <option name="height" value="1050" />
+    <option name="height" value="983" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -455,6 +553,13 @@
               <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
               <item name="refresh" type="462c0819:PsiDirectoryNode" />
               <item name="templates" type="462c0819:PsiDirectoryNode" />
+              <item name="bluemix" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="refresh" type="462c0819:PsiDirectoryNode" />
+              <item name="templates" type="462c0819:PsiDirectoryNode" />
               <item name="common" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -479,6 +584,13 @@
               <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="integration" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="integration" type="462c0819:PsiDirectoryNode" />
               <item name="model" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -487,6 +599,12 @@
               <item name="test" type="462c0819:PsiDirectoryNode" />
               <item name="integration" type="462c0819:PsiDirectoryNode" />
               <item name="property" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="generator-swiftserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="generator-swiftserver" type="462c0819:PsiDirectoryNode" />
+              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="unit" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -585,10 +703,28 @@
       <workItem from="1537543112762" duration="895000" />
       <workItem from="1537544964419" duration="1484000" />
       <workItem from="1537546771875" duration="1053000" />
+      <workItem from="1537548718805" duration="707000" />
+      <workItem from="1537557471266" duration="1233000" />
+      <workItem from="1537800263965" duration="358000" />
+      <workItem from="1537802568649" duration="546000" />
+      <workItem from="1537804377303" duration="423000" />
+      <workItem from="1537804912797" duration="221000" />
+      <workItem from="1537807511140" duration="858000" />
+      <workItem from="1537809327197" duration="454000" />
+      <workItem from="1537821233105" duration="13000" />
+      <workItem from="1537894082088" duration="317000" />
+      <workItem from="1537894417465" duration="212000" />
+      <workItem from="1537898724463" duration="693000" />
+      <workItem from="1537900535955" duration="360000" />
+      <workItem from="1537906168206" duration="608000" />
+      <workItem from="1537907993498" duration="8000" />
+      <workItem from="1537989464432" duration="1444000" />
+      <workItem from="1537991479012" duration="312000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -617,19 +753,22 @@
 =======
     <option name="totallyTimeSpent" value="49007000" />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+    <option name="totallyTimeSpent" value="57774000" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
+    <frame x="-1857" y="46" width="1680" height="983" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13392857" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33958104" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37666327" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.40202704" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
 >>>>>>> 4403418... fix: fixed some tests
@@ -645,6 +784,7 @@
 =======
 >>>>>>> 4403418... fix: fixed some tests
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
 <<<<<<< HEAD
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -686,20 +826,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/refresh/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19695">
-          <caret line="1327" column="9" lean-forward="false" selection-start-line="1327" selection-start-column="9" selection-end-line="1327" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Model.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
@@ -766,45 +892,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/ModelError.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/swagger-ui/swagger-ui.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="47130">
           <caret line="3142" column="58" lean-forward="false" selection-start-line="3142" selection-start-column="58" selection-end-line="3142" selection-end-column="73" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Model.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="54" column="17" lean-forward="false" selection-start-line="54" selection-start-column="12" selection-end-line="54" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="244">
-          <caret line="33" column="29" lean-forward="true" selection-start-line="33" selection-start-column="29" selection-end-line="33" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="0" lean-forward="true" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Resource.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="27" lean-forward="false" selection-start-line="5" selection-start-column="25" selection-end-line="5" selection-end-column="27" />
         </state>
       </provider>
     </entry>
@@ -815,6 +906,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/lib/handlebars.js" />
+    <entry file="file://$PROJECT_DIR$/app/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="21" column="26" lean-forward="false" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/sdkGenHelper.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/helpers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="574" column="1" lean-forward="false" selection-start-line="574" selection-start-column="1" selection-end-line="574" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/fromswagger/Routes.swift.hbs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="35" lean-forward="false" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="498" column="4" lean-forward="false" selection-start-line="498" selection-start-column="4" selection-end-line="498" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+<<<<<<< HEAD
 <<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
       <provider editor-type-id="text-editor">
@@ -838,86 +973,12 @@
           <second_editor>
             <js_state />
           </second_editor>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/sdkGenHelper.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/helpers.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="574" column="1" lean-forward="false" selection-start-line="574" selection-start-column="1" selection-end-line="574" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/fromswagger/Routes.swift.hbs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="35" lean-forward="false" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23265">
-          <caret line="1551" column="102" lean-forward="false" selection-start-line="1551" selection-start-column="102" selection-end-line="1551" selection-end-column="102" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="6" lean-forward="false" selection-start-line="18" selection-start-column="3" selection-end-line="18" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4665">
-          <caret line="311" column="36" lean-forward="false" selection-start-line="311" selection-start-column="36" selection-end-line="311" selection-end-column="36" />
-          <folding>
-            <marker date="1537476588439" expanded="true" signature="54867:54889" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/lib/common_test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="498" column="4" lean-forward="false" selection-start-line="498" selection-start-column="4" selection-end-line="498" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="28" lean-forward="false" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+=======
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="10" lean-forward="false" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
-          <folding />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
         </state>
       </provider>
     </entry>
@@ -925,7 +986,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -933,12 +993,96 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/iterative-dev.sh">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="260">
+          <caret line="82" column="67" lean-forward="false" selection-start-line="82" selection-start-column="67" selection-end-line="82" selection-end-column="67" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LICENSE_for_generated_code">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="39" lean-forward="false" selection-start-line="2" selection-start-column="39" selection-end-line="2" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Metrics.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="40" lean-forward="false" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/NOTICES_for_generated_swaggerui">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2070">
+          <caret line="138" column="173" lean-forward="false" selection-start-line="138" selection-start-column="173" selection-end-line="138" selection-end-column="173" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Adapter.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="36" lean-forward="false" selection-start-line="0" selection-start-column="36" selection-end-line="0" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="27" lean-forward="false" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/MemoryAdapter.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="89" lean-forward="false" selection-start-line="22" selection-start-column="89" selection-end-line="22" selection-end-column="89" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Model.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1065">
+          <caret line="71" column="50" lean-forward="false" selection-start-line="71" selection-start-column="50" selection-end-line="71" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/ModelError.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="31" lean-forward="false" selection-start-line="0" selection-start-column="31" selection-end-line="0" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Resource.swift">
+      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="358">
           <caret line="62" column="2" lean-forward="false" selection-start-line="62" selection-start-column="2" selection-end-line="62" selection-end-column="2" />
@@ -947,22 +1091,24 @@
           <caret line="82" column="67" lean-forward="false" selection-start-line="82" selection-start-column="67" selection-end-line="82" selection-end-column="67" />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
           <folding />
+=======
+        <state relative-caret-position="390">
+          <caret line="26" column="44" lean-forward="false" selection-start-line="26" selection-start-column="44" selection-end-line="26" selection-end-column="44" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LICENSE_for_generated_code">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="330">
+          <caret line="22" column="9" lean-forward="false" selection-start-line="22" selection-start-column="9" selection-end-line="22" selection-end-column="9" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/LinuxMain.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Application.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="39" lean-forward="false" selection-start-line="2" selection-start-column="39" selection-end-line="2" selection-end-column="39" />
-          <folding />
+        <state relative-caret-position="1290">
+          <caret line="86" column="15" lean-forward="false" selection-start-line="86" selection-start-column="15" selection-end-line="86" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -983,35 +1129,42 @@
 =======
         <state relative-caret-position="60">
           <caret line="4" column="29" lean-forward="false" selection-start-line="4" selection-start-column="29" selection-end-line="4" selection-end-column="29" />
+<<<<<<< HEAD
           <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Metrics.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="40" lean-forward="false" selection-start-line="10" selection-start-column="40" selection-end-line="10" selection-end-column="40" />
+        <state relative-caret-position="75">
+          <caret line="5" column="53" lean-forward="false" selection-start-line="5" selection-start-column="51" selection-end-line="5" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CRUDResources.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="23" lean-forward="false" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/NOTICES_for_generated_swaggerui">
+    <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/Package.swift">
-      <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
 <<<<<<< HEAD
         <state relative-caret-position="390">
           <caret line="26" column="9" lean-forward="false" selection-start-line="26" selection-start-column="9" selection-end-line="26" selection-end-column="9" />
 =======
         <state relative-caret-position="422">
           <caret line="34" column="97" lean-forward="false" selection-start-line="34" selection-start-column="97" selection-end-line="34" selection-end-column="97" />
+=======
+        <state relative-caret-position="180">
+          <caret line="12" column="78" lean-forward="false" selection-start-line="12" selection-start-column="78" selection-end-line="12" selection-end-column="78" />
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
         </state>
@@ -1020,16 +1173,21 @@
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/productSwagger.yaml">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
+<<<<<<< HEAD
         <state relative-caret-position="150">
           <caret line="10" column="32" lean-forward="false" selection-start-line="10" selection-start-column="32" selection-end-line="10" selection-end-column="32" />
 =======
         <state relative-caret-position="-143">
+=======
+        <state relative-caret-position="0">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/README.scaffold.md">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
@@ -1043,6 +1201,8 @@
         </state>
       </provider>
     </entry>
+=======
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/RouteTests.swift">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
@@ -1073,19 +1233,23 @@
       </provider>
     </entry>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 4ef7137... fix: fixed Application.swift test
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/ErrorRoutes.swift">
 =======
     <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/common/SwaggerRoutes.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/common/swift-version">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1110,15 +1274,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/Adapter.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="36" lean-forward="false" selection-start-line="0" selection-start-column="36" selection-end-line="0" selection-end-column="36" />
-          <folding />
+        <state relative-caret-position="690">
+          <caret line="60" column="21" lean-forward="false" selection-start-line="60" selection-start-column="21" selection-end-line="60" selection-end-column="21" />
+          <folding>
+            <marker date="1537990446802" expanded="true" signature="54722:54744" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterError.swift">
+    <entry file="file://$PROJECT_DIR$/test/unit/app.js">
       <provider selected="true" editor-type-id="text-editor">
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1145,23 +1311,29 @@
 =======
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
+<<<<<<< HEAD
     <entry file="file://$PROJECT_DIR$/refresh/templates/crud/AdapterFactory.swift">
 >>>>>>> b2d82a9... fix: added triple braces to all variables bc getting illegal characters
+=======
+    <entry file="file://$PROJECT_DIR$/test/unit/refresh.js">
+>>>>>>> ff3cbf8... fix: got rid of log statements and added tests for README content
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="27" lean-forward="false" selection-start-line="28" selection-start-column="27" selection-end-line="28" selection-end-column="27" />
+        <state relative-caret-position="-93">
+          <caret line="365" column="50" lean-forward="false" selection-start-line="365" selection-start-column="50" selection-end-line="365" selection-end-column="50" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/refresh/templates/crud/CloudantAdapter.swift">
+    <entry file="file://$PROJECT_DIR$/refresh/templates/bluemix/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="246" column="38" lean-forward="false" selection-start-line="246" selection-start-column="38" selection-end-line="246" selection-end-column="38" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>

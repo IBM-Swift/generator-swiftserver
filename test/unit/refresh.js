@@ -276,6 +276,10 @@ describe('Unit tests for swiftserver:refresh', function () {
           assert.file(commonTest.modelFileGenerator(todoModel.name))
         })
 
+        it(`README has correct content`, function () {
+          assert.fileContent(`README.md`, 'Create Toolchain')
+        })
+
         it(`created ${todoModel.name} source files`, function () {
           assert.file(commonTest.modelSourceFilesGenerator(todoModel.classname))
         })
@@ -770,6 +774,10 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       it('created cloudfoundry files', function () {
         assert.file(cloudFoundryFiles)
+      })
+
+      it(`README has correct content`, function () {
+        assert.fileContent(`README.md`, 'Scaffolded Swift Kitura server application')
       })
 
       it('created bluemix files', function () {
