@@ -478,7 +478,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('created bx dev config file', function () {
+        it('created ibmcloud dev config file', function () {
           assert.file(bxdevConfigFile)
         })
 
@@ -948,7 +948,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
-      it('created bx dev config file', function () {
+      it('created ibmcloud dev config file', function () {
         assert.file(bxdevConfigFile)
       })
 
