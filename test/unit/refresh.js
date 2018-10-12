@@ -498,6 +498,40 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
       })
 
+      describe('with VSI', function () {
+        var runContext
+
+        before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .withOptions({
+                                specObj: {
+                                  appType: 'crud',
+                                  appName: applicationName,
+                                  models: [ todoModel ],
+                                  docker: true,
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: {
+                                      domain: 'mydomain.net',
+                                      cloudDeploymentType: 'VSI'
+                                    }
+                                  }
+                                }
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedVSIFilesWithExpectedContent({
+          applicationName: applicationName
+        })
+      })
+
       describe('with apic', function () {
         var runContext
         var apicProductFile = `definitions/${applicationName}-product.yaml`
@@ -1462,6 +1496,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
@@ -1528,6 +1563,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
