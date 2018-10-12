@@ -1496,6 +1496,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
@@ -1562,6 +1563,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
