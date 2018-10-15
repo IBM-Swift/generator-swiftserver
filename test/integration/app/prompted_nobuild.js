@@ -155,7 +155,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itCreatedMetricsFilesWithExpectedContent()
 
-        it('created bx dev config file', function () {
+        it('created ibmcloud dev config file', function () {
           assert.file(bxdevConfigFile)
         })
 
@@ -197,7 +197,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         commonTest.itCreatedMetricsFilesWithExpectedContent()
         commonTest.itCreatedWebFiles()
 
-        it('created bx dev config file', function () {
+        it('created ibmcloud dev config file', function () {
           assert.file(bxdevConfigFile)
         })
 
@@ -271,7 +271,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           ])
         })
 
-        it('created bx dev config file', function () {
+        it('created ibmcloud dev config file', function () {
           assert.file(bxdevConfigFile)
         })
 
@@ -395,7 +395,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         runContext.cleanTestDirectory()
       })
 
-      it('created bx dev config file', function () {
+      it('created ibmcloud dev config file', function () {
         assert.file(bxdevConfigFile)
       })
 
