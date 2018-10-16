@@ -478,7 +478,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('created bx dev config file', function () {
+        it('created ibmcloud dev config file', function () {
           assert.file(bxdevConfigFile)
         })
 
@@ -495,6 +495,40 @@ describe('Unit tests for swiftserver:refresh', function () {
         commonTest.itCreatedKubernetesPipelineFilesWithExpectedContent({
           clusterName: 'devex-default',
           clusterNamespace: 'myClusterNamespace'
+        })
+      })
+
+      describe('with VSI', function () {
+        var runContext
+
+        before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .withOptions({
+                                specObj: {
+                                  appType: 'crud',
+                                  appName: applicationName,
+                                  models: [ todoModel ],
+                                  docker: true,
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: {
+                                      domain: 'mydomain.net',
+                                      cloudDeploymentType: 'VSI'
+                                    }
+                                  }
+                                }
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedVSIFilesWithExpectedContent({
+          applicationName: applicationName
         })
       })
 
@@ -914,7 +948,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         runContext.cleanTestDirectory()
       })
 
-      it('created bx dev config file', function () {
+      it('created ibmcloud dev config file', function () {
         assert.file(bxdevConfigFile)
       })
 
@@ -1462,6 +1496,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
@@ -1528,6 +1563,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
+            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
                                 .withOptions({
                                   specObj: {
