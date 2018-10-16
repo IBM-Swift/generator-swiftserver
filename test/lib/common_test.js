@@ -64,6 +64,10 @@ exports.crudSourceFiles = [
 
 exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
+exports.deploymentRegion = '{{deploymentRegion}}'
+exports.deploymentSpace = '{{deploymentSpace}}'
+exports.deploymentOrg = '{{deploymentOrg}}'
+exports.toolchainName = 'toolchainName'
 exports.cloudFoundryFiles = [ exports.cloudFoundryManifestFile, '.cfignore' ]
 exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
 exports.bluemixToolchainFile = '.bluemix/toolchain.yml'
@@ -500,7 +504,19 @@ exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
   it('bluemix pipeline files contains proper kube values', function () {
     assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
     assert.fileContent(exports.bluemixToolchainFile, `cluster-namespace: ${clusterNamespace}`)
+    assert.fileContent(exports.bluemixToolchainFile, `dev-region: "` + exports.deploymentRegion + '"')
     assert.fileContent(exports.bluemixPipelineFile, 'mv Dockerfile-tools Dockerfile')
+  })
+}
+
+//
+// CF Pipeline
+//
+exports.itCreatedCFPipelineFilesWithExpectedContent = function () {
+  it('bluemix pipeline files contains proper cf values', function () {
+    assert.fileContent(exports.bluemixToolchainFile, `dev-region: "` + exports.deploymentRegion + '"')
+    assert.fileContent(exports.bluemixToolchainFile, `dev-space: "` + exports.deploymentSpace + '"')
+    assert.fileContent(exports.bluemixToolchainFile, `dev-organization: "` + exports.deploymentOrg + '"')
   })
 }
 

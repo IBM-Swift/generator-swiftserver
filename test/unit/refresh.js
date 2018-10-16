@@ -36,6 +36,10 @@ var bxdevConfigFile = commonTest.bxdevConfigFile
 var cloudFoundryManifestFile = commonTest.cloudFoundryManifestFile
 var cloudFoundryFiles = commonTest.cloudFoundryFiles
 var bluemixFiles = commonTest.bluemixFiles
+var deploymentRegion = commonTest.deploymentRegion
+var deploymentSpace = commonTest.deploymentSpace
+var deploymentOrg = commonTest.deploymentOrg
+var toolchainName = commonTest.toolchainName
 
 // Require config to alter sdkgen delay between
 // status checks to speed up unit tests
@@ -451,6 +455,10 @@ describe('Unit tests for swiftserver:refresh', function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
                               .withOptions({
+                                deploymentRegion: deploymentRegion,
+                                deploymentOrg: deploymentOrg,
+                                deploymentSpace: deploymentSpace,
+                                toolchainName: toolchainName,
                                 specObj: {
                                   appType: 'crud',
                                   appName: applicationName,
@@ -530,6 +538,42 @@ describe('Unit tests for swiftserver:refresh', function () {
         commonTest.itCreatedVSIFilesWithExpectedContent({
           applicationName: applicationName
         })
+      })
+
+      describe('with CF', function () {
+        var runContext
+
+        before(function () {
+          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
+          runContext = helpers.run(refreshGeneratorPath)
+                              .withOptions({
+                                deploymentRegion: deploymentRegion,
+                                deploymentOrg: deploymentOrg,
+                                deploymentSpace: deploymentSpace,
+                                toolchainName: toolchainName,
+                                specObj: {
+                                  appType: 'crud',
+                                  appName: applicationName,
+                                  models: [ todoModel ],
+                                  docker: true,
+                                  bluemix: {
+                                    backendPlatform: 'SWIFT',
+                                    server: {
+                                      domain: 'mydomain.net',
+                                      cloudDeploymentType: 'CF'
+                                    }
+                                  }
+                                }
+                              })
+          return runContext.toPromise()
+        })
+
+        after(function () {
+          nock.cleanAll()
+          runContext.cleanTestDirectory()
+        })
+
+        commonTest.itCreatedCFPipelineFilesWithExpectedContent()
       })
 
       describe('with apic', function () {
