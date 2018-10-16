@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.6.0"></a>
+# [5.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.5.0...5.6.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* options definitions changes ([e0927a6](https://github.com/IBM-Swift/generator-swiftserver/commit/e0927a6))
+
+
+### Features
+
+* adding node 10 support, dropping node 4 support ([f17175f](https://github.com/IBM-Swift/generator-swiftserver/commit/f17175f))
+* adding node 10 support, dropping node 4 support ([6694f4f](https://github.com/IBM-Swift/generator-swiftserver/commit/6694f4f))
+* devops v2 ([67b4b46](https://github.com/IBM-Swift/generator-swiftserver/commit/67b4b46))
+
+
+
 <a name="5.5.0"></a>
 # [5.5.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.4.2...5.5.0) (2018-08-30)
 

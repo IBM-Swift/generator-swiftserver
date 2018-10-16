@@ -64,6 +64,10 @@ exports.crudSourceFiles = [
 
 exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
+exports.deploymentRegion = '{{deploymentRegion}}'
+exports.deploymentSpace = '{{deploymentSpace}}'
+exports.deploymentOrg = '{{deploymentOrg}}'
+exports.toolchainName = 'toolchainName'
 exports.cloudFoundryFiles = [ exports.cloudFoundryManifestFile, '.cfignore' ]
 exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
 exports.bluemixToolchainFile = '.bluemix/toolchain.yml'
@@ -82,6 +86,25 @@ exports.kubernetesFilesGenerator = (applicationName) => [
   exports.kubernetesValuesFileGenerator(applicationName),
   exports.kubernetesDeploymentFileGenerator(applicationName),
   exports.kubernetesServiceFileGenerator(applicationName)
+]
+exports.jenkinsfile = 'Jenkinsfile'
+exports.debianInstall = 'debian/install'
+exports.debianControl = 'debian/control'
+exports.terraformStart = 'terraform/scripts/start.sh'
+exports.terraformVariables = 'terraform/variables.tf'
+exports.vsiFiles = [ 'debian/changelog',
+  'debian/compat',
+  'debian/rules',
+  'terraform/main.tf',
+  'terraform/output.tf',
+  'terraform/scripts/build.sh',
+  'terraform/scripts/fetch-state.sh',
+  'terraform/scripts/install.sh',
+  'terraform/scripts/publish-state.sh',
+  exports.debianControl,
+  exports.debianInstall,
+  exports.terraformStart,
+  exports.terraformVariables
 ]
 
 //
@@ -460,13 +483,13 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
     assert.fileContent(valuesFile, `repository: registry.${domain}/${namespace}/${applicationName}`)
   })
 
-  it('bx dev config contains expected chart-path', function () {
+  it('ibmcloud dev config contains expected chart-path', function () {
     assert.fileContent(exports.bxdevConfigFile, `chart-path : "chart/${applicationName}"`)
   })
 }
 
 //
-// Kuberneetes Pipeline
+// Kubernetes Pipeline
 //
 exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
   opts = opts || {}
@@ -481,7 +504,51 @@ exports.itCreatedKubernetesPipelineFilesWithExpectedContent = function (opts) {
   it('bluemix pipeline files contains proper kube values', function () {
     assert.fileContent(exports.bluemixToolchainFile, `kube-cluster-name: ${clusterName}`)
     assert.fileContent(exports.bluemixToolchainFile, `cluster-namespace: ${clusterNamespace}`)
+    assert.fileContent(exports.bluemixToolchainFile, `dev-region: "` + exports.deploymentRegion + '"')
     assert.fileContent(exports.bluemixPipelineFile, 'mv Dockerfile-tools Dockerfile')
+  })
+}
+
+//
+// CF Pipeline
+//
+exports.itCreatedCFPipelineFilesWithExpectedContent = function () {
+  it('bluemix pipeline files contains proper cf values', function () {
+    assert.fileContent(exports.bluemixToolchainFile, `dev-region: "` + exports.deploymentRegion + '"')
+    assert.fileContent(exports.bluemixToolchainFile, `dev-space: "` + exports.deploymentSpace + '"')
+    assert.fileContent(exports.bluemixToolchainFile, `dev-organization: "` + exports.deploymentOrg + '"')
+  })
+}
+
+//
+// VSI deployment
+//
+exports.itCreatedVSIFilesWithExpectedContent = function (opts) {
+  opts = opts || {}
+  var applicationName = opts.applicationName || 'appname'
+
+  it('created VSI files', function () {
+    assert.file(exports.vsiFiles)
+  })
+
+  it('created toolchain files', function () {
+    assert.file(exports.bluemixFiles)
+  })
+
+  it('debian control file contains expected content', function () {
+    assert.fileContent(exports.debianControl, `Package: ${applicationName}-0.0`)
+  })
+
+  it('debian install file contains expected content', function () {
+    assert.fileContent(exports.debianInstall, `usr/src/${applicationName}`)
+  })
+
+  it('terraform start file contains expected content', function () {
+    assert.fileContent(exports.terraformStart, `./${applicationName}`)
+  })
+
+  it('terraform variables file contains expected content', function () {
+    assert.fileContent(exports.terraformVariables, `default = "${applicationName}-01"`)
   })
 }
 

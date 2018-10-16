@@ -1402,7 +1402,15 @@ module.exports = Generator.extend({
         var services = Array.isArray(this.services[prop]) ? this.services[prop] : [this.services[prop]]
         this.bluemix.services[prop] = services.map(service => service.serviceInfo)
       })
-      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'), { force: this.force, bluemix: this.bluemix, repoType: this.repoType })
+      this.composeWith(require.resolve('generator-ibm-cloud-enablement/generators/deployment'),
+        { force: this.force,
+          bluemix: this.bluemix,
+          repoType: this.repoType,
+          deploymentRegion: this.options.deploymentRegion,
+          deploymentOrg: this.options.deploymentOrg,
+          deploymentSpace: this.options.deploymentSpace,
+          toolchainName: this.options.toolchainName
+        })
     },
 
     writeKubernetesFiles: function () {
