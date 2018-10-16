@@ -483,7 +483,7 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
     assert.fileContent(valuesFile, `repository: registry.${domain}/${namespace}/${applicationName}`)
   })
 
-  it('bx dev config contains expected chart-path', function () {
+  it('ibmcloud dev config contains expected chart-path', function () {
     assert.fileContent(exports.bxdevConfigFile, `chart-path : "chart/${applicationName}"`)
   })
 }
