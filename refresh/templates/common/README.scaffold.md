@@ -30,7 +30,7 @@ This application has been generated with the following capabilities and services
 {{/if}}
 {{#if docker}}
 * [Docker files](#docker-files)
-{{#if}}
+{{/if}}
 * [Iterative Development](#iterative-development)
 * [IBM Cloud deployment](#ibm-cloud-deployment)
 {{#if cloudant}}

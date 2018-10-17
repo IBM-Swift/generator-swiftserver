@@ -1236,7 +1236,6 @@ module.exports = Generator.extend({
 
       var crudService
       if (this.spec.crudservice) {
-
         crudService = getService(this.services, this.spec.crudservice)
       } else {
         crudService = { type: '__memory__' }
