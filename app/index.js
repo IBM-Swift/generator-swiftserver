@@ -187,7 +187,11 @@ module.exports = Generator.extend({
           repoType: 'clone',
           healthcheck: healthcheck,
           usecase: usecase,
-          starterOptions: starterOptions
+          starterOptions: starterOptions,
+          deploymentOrg: this.options.deploymentOrg,
+          deploymentSpace: this.options.deploymentSpace,
+          deploymentRegion: this.options.deploymentRegion,
+          toolchainName: this.options.toolchainName
         }
       } else if (this.options.init) {
         // User passed the --init flag, so no prompts, just generate basic default scaffold
