@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.6.1"></a>
+## [5.6.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.0...5.6.1) (2018-10-28)
+
+
+### Bug Fixes
+
+* addressing option handling for temporary devops pipeline workflow ([ec72a92](https://github.com/IBM-Swift/generator-swiftserver/commit/ec72a92))
+* addressing option handling for temporary devops pipeline workflow ([d4bb0ed](https://github.com/IBM-Swift/generator-swiftserver/commit/d4bb0ed))
+
+
+
 <a name="5.6.0"></a>
 # [5.6.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.5.0...5.6.0) (2018-10-16)
 
