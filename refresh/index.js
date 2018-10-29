@@ -991,7 +991,7 @@ module.exports = Generator.extend({
                      filepath)
       })
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
-        this._writeHandlebarsFile('crud/AdapterFactory.swift', `Sources/${this.applicationModule}/Application.swift`,
+        this._writeHandlebarsFile('common/Application.swift', `Sources/${this.applicationModule}/Application.swift`,
           {
             appType: this.appType,
             generatedModule: this.generatedModule,
@@ -1021,14 +1021,14 @@ module.exports = Generator.extend({
       }
 
       this._ifNotExistsInProject(['Tests', this.applicationModule + 'Tests', 'RouteTests.swift'], (filepath) => {
-        this._writeHandlebarsFile('crud/Resource.swift', filepath,
+        this._writeHandlebarsFile('common/RouteTests.swift', filepath,
           { applicationModule: this.applicationModule }
         )
       })
 
       this._ifNotExistsInProject(['Tests', 'LinuxMain.swift'], (filepath) => {
         this._writeHandlebarsFile('common/LinuxMain.swift', filepath,
-          { executableModule: this.executableModule }
+          { executableModule: this.executableModule, applicationModule: this.applicationModule }
         )
       })
 
@@ -1262,6 +1262,7 @@ module.exports = Generator.extend({
         this._writeHandlebarsFile('crud/Adapter.swift', `Sources/${this.generatedModule}/${model.classname}Adapter.swift`,
           { model: model }
         )
+
         switch (crudService.type) {
           case 'cloudant':
             this._writeHandlebarsFile('crud/CloudantAdapter.swift', `Sources/${this.generatedModule}/${model.classname}CloudantAdapter.swift`,
@@ -1269,7 +1270,7 @@ module.exports = Generator.extend({
             )
             break
           case '__memory__':
-            this._writeHandlebarsFile('crud/MemoryAdapter.swift', `Sources/${this.generatedModule}/${model.classname}MemeoryAdapter.swift`,
+            this._writeHandlebarsFile('crud/MemoryAdapter.swift', `Sources/${this.generatedModule}/${model.classname}MemoryAdapter.swift`,
               { model: model }
             )
             break

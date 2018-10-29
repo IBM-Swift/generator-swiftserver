@@ -283,7 +283,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         it(`created ${todoModel.name} source files`, function () {
           assert.file(commonTest.modelSourceFilesGenerator(todoModel.classname))
         })
-
         it('created memory adapter', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}MemoryAdapter.swift`)
         })
@@ -715,7 +714,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`)
         })
         it('has correct content in CloudantAdapter.swift', function () {
-          assert.fileContent(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`, 'todo')
+          assert.fileContent(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`, 'Todo')
         })
         it('adapter factory uses cloudant adapter', function () {
           assert.fileContent(`${generatedSourceDir}/AdapterFactory.swift`, `${todoModel.classname}CloudantAdapter(`)
