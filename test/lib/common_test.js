@@ -64,9 +64,9 @@ exports.crudSourceFiles = [
 
 exports.bxdevConfigFile = 'cli-config.yml'
 exports.cloudFoundryManifestFile = 'manifest.yml'
-exports.deploymentRegion = '{{deploymentRegion}}'
-exports.deploymentSpace = '{{deploymentSpace}}'
-exports.deploymentOrg = '{{deploymentOrg}}'
+exports.deploymentRegion = '{{region}}'
+exports.deploymentSpace = '{{space}}'
+exports.deploymentOrg = '{{organization}}'
 exports.toolchainName = 'toolchainName'
 exports.cloudFoundryFiles = [ exports.cloudFoundryManifestFile, '.cfignore' ]
 exports.bluemixPipelineFile = '.bluemix/pipeline.yml'
