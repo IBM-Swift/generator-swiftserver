@@ -5,7 +5,7 @@ public struct {{model.classname}} {
     public let {{name}}: {{swiftType}}
     {{/each}}
 
-    public init({{#each propertyInfos}} {{name}}: {{swiftType}}, {{/each}} {
+    public init({{#each propertyInfos}} {{name}}: {{swiftType}}, {{/each}}) {
         {{#each propertyInfos}}
         self.{{name}} = {{name}}
         {{/each}}
