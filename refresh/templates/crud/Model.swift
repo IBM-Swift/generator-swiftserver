@@ -22,7 +22,7 @@ public struct {{model.classname}} {
         }
             {{#ifCond jsType '===' 'number'}}
         self.{{name}} = Double({{name}})
-            {{else}} f
+            {{else}}
         self.{{name}} = {{name}}
             {{/ifCond}}
         {{/each}}
