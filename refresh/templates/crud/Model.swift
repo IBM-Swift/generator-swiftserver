@@ -59,7 +59,7 @@ public struct {{model.classname}} {
             {{/ifCond}}
 
         {{/each}}
-        return {{model.classname}}({{#each propertyInfos}} {{name}}: {{name}}, {{/each}})
+        return {{model.classname}}({{#each propertyInfos}}{{#if @last}}{{name}}: {{name}}{{else}}{{name}}: {{name}}, {{/if}}{{/each}})
     }
 
     public func toJSON() -> JSON {
