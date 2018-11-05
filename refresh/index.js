@@ -1306,8 +1306,9 @@ module.exports = Generator.extend({
             optional: optional(propertyName)
           })
         )
+        const infoFilter = propertyInfos.filter(info => !info.optional)
         this._writeHandlebarsFile('crud/Model.swift', `Sources/${this.generatedModule}/${model.classname}.swift`,
-          { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: propertyInfos.filter(info => !info.optional) }
+          { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: infoFilter }
           )
       }.bind(this))
       if (this.product) {
