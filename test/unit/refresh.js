@@ -269,6 +269,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         it('created CRUD source files', function () {
           assert.file(commonTest.crudSourceFiles)
         })
+
         it('has correct content in CRUDResources.swift', function () {
           assert.fileContent(`${generatedSourceDir}/CRUDResources.swift`, 'TodoResource(factory: factory)')
         })
