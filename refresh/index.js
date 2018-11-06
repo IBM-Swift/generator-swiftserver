@@ -1003,7 +1003,7 @@ module.exports = Generator.extend({
             healthcheck: this.healthcheck,
             basepath: this.parsedSwagger && this.parsedSwagger.basepath
           }
-      )
+        )
       })
 
       // Check if there is a spec.json, if there isn't create one
