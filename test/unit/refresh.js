@@ -719,6 +719,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         it('has correct content in CloudantAdapter.swift', function () {
           assert.fileContent(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`, 'Todo')
         })
+        
         it('adapter factory uses cloudant adapter', function () {
           assert.fileContent(`${generatedSourceDir}/AdapterFactory.swift`, `${todoModel.classname}CloudantAdapter(`)
         })
