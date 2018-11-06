@@ -1391,10 +1391,10 @@ module.exports = Generator.extend({
         { force: this.force,
           bluemix: this.bluemix,
           repoType: this.repoType,
-          deploymentRegion: this.options.deploymentRegion,
-          deploymentOrg: this.options.deploymentOrg,
-          deploymentSpace: this.options.deploymentSpace,
-          toolchainName: this.options.toolchainName
+          deploymentRegion: this.spec.deploymentRegion,
+          deploymentOrg: this.spec.deploymentOrg,
+          deploymentSpace: this.spec.deploymentSpace,
+          toolchainName: this.spec.toolchainName
         })
     },
 
