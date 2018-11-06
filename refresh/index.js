@@ -1092,7 +1092,8 @@ module.exports = Generator.extend({
 
       if (this.appType !== 'crud') {
         this._writeHandlebarsFile('common/README.scaffold.md', 'README.md',
-          { appName: this.projectName,
+          {
+            appName: this.projectName,
             executableName: this.executableModule,
             chartName: helpers.sanitizeAppName(this.bluemix.name),
             generatorVersion: this.generatorVersion,
