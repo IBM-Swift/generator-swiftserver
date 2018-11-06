@@ -21,19 +21,30 @@ public struct {{model.classname}} {
             throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{name}}"].description, valueType: String(describing: json["{{name}}"].type))
         }
 
-            {{#ifCond jsType '===' 'number'}}
+        {{#ifCond jsType '===' 'number'}}
         self.{{name}} = Double({{name}})
             {{else}}
         self.{{name}} = {{name}}
             {{/ifCond}}
         {{/each}}
 
-        {{#optionalProperties propertyInfos helpers model}}
-        {{/optionalProperties}}
+        {{#each noInfoFilter}}
+        if json["{{name}}"].exists() &&
+           json["{{name}}"].type != .{{swiftyJSONType}} {
+            throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{info.name}}"].description, valueType: String(describing: json["{{name}}"].type))
+        }
+
+        {{#ifCond jsType '===' 'number'}}
+          self.{{name}} = json["{{name}}"].number.map { Double($0) }{{defaultValueClause}}
+        {{else}}
+          self.{{name}} = json["{{name}}"].{{swiftyJSONProperty}}{{defaultValueClause}}
+        }
+        {{/ifCond}}
+        {{/each}}
 
         // Check for extraneous properties
         if let jsonProperties = json.dictionary?.keys {
-            let properties: [String] = [{{#propertyMapping propertyInfos}}{{/propertyMapping}}]
+            let properties: [String] = [{{#each propertyInfos}}{{#if @last}}{{name}}{{else}}{{name}}, {{/if}}{{/each}}]
             for jsonPropertyName in jsonProperties {
                 if !properties.contains(where: { $0 == jsonPropertyName }) {
                     throw ModelError.extraneousProperty(name: jsonPropertyName)
@@ -65,7 +76,7 @@ public struct {{model.classname}} {
 
     public func toJSON() -> JSON {
         var result = JSON([:])
-        {{#each infoFilter}}
+        {{#each noInfoFilter}}
         result["{{name}}"] = JSON({{name}})
         {{/each}}
         {{#each infoFilter}}

@@ -1306,9 +1306,17 @@ module.exports = Generator.extend({
             optional: optional(propertyName)
           })
         )
-        const infoFilter = propertyInfos.filter(info => !info.optional)
+        var defaultValueClause = ''
+        propertyInfos.filter((info) => info.optional).forEach(function (info) {
+          if (typeof (model.properties[info.name].default) !== 'undefined') {
+            var swiftDefaultLiteral = helpers.convertJSDefaultValueToSwift(model.properties[info.name].default)
+            defaultValueClause = ' ?? ' + swiftDefaultLiteral
+          }
+        })
+        const noInfoFilter = propertyInfos.filter(info => !info.optional)
+        const infoFilter = propertyInfos.filter(info => info.optional)
         this._writeHandlebarsFile('crud/Model.swift', `Sources/${this.generatedModule}/${model.classname}.swift`,
-          { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: infoFilter }
+          { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: infoFilter, noInfoFilter: noInfoFilter, defaultValueClause: defaultValueClause }
           )
       }.bind(this))
       if (this.product) {
