@@ -170,7 +170,7 @@ exports.itCreatedCommonFiles = function (executableModule) {
     assert.fileContent('Tests/ApplicationTests/RouteTests.swift', `Application`)
   })
   it(`added correct Application module name in LinuxMain.swift`, function () {
-    assert.fileContent('tests/LinuxMain.swift', `ApplicationTests`)
+    assert.fileContent('Tests/LinuxMain.swift', `ApplicationTests`)
   })
   it(`added correct Application module name in gitignore`, function () {
     assert.fileContent('.gitignore', `./config/localdev-config.json`)
