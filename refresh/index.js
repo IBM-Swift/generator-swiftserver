@@ -1109,7 +1109,8 @@ module.exports = Generator.extend({
             appid: !!this.bluemix.appid,
             conversation: !!this.bluemix.conversation,
             alertNotification: !!this.bluemix.alertNotification,
-            push: !!this.bluemix.push }
+            push: !!this.bluemix.push
+          }
         )
         this.fs.write(this.destinationPath('Sources', this.applicationModule, 'Routes', '.keep'), '')
       }
