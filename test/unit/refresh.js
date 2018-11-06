@@ -283,6 +283,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         it(`created ${todoModel.name} source files`, function () {
           assert.file(commonTest.modelSourceFilesGenerator(todoModel.classname))
         })
+
         it(`created ${todoModel.name} content`, function () {
           assert.fileContent(`${generatedSourceDir}/${todoModel.classname}.swift`, `public init(id: String?, title: String?) {`)
         })
