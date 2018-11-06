@@ -6,4 +6,4 @@ coverage.lcov
 *.swp
 .DS_Store
 xunit.xml
-.idea
+.idea/
