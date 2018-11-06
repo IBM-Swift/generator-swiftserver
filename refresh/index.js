@@ -1320,7 +1320,7 @@ module.exports = Generator.extend({
         const infoFilter = propertyInfos.filter(info => info.optional)
         this._writeHandlebarsFile('crud/Model.swift', `Sources/${this.generatedModule}/${model.classname}.swift`,
           { model: model, propertyInfos: propertyInfos, helpers: helpers, infoFilter: infoFilter, noInfoFilter: noInfoFilter, defaultValueClause: defaultValueClause }
-          )
+        )
       }.bind(this))
       if (this.product) {
         var productRelativeFilename = path.join('definitions', `${this.projectName}-product.yaml`)
