@@ -20,6 +20,7 @@ public struct {{model.classname}} {
         guard let {{name}} = json["{{name}}"].{{swiftyJSONType}} else {
             throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{name}}"].description, valueType: String(describing: json["{{name}}"].type))
         }
+
             {{#ifCond jsType '===' 'number'}}
         self.{{name}} = Double({{name}})
             {{else}}
