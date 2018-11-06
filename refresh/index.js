@@ -1261,7 +1261,7 @@ module.exports = Generator.extend({
       this.models.forEach(function (model) {
         this._writeHandlebarsFile('crud/Resource.swift', `Sources/${this.generatedModule}/${model.classname}Resource.swift`,
           { model: model }
-      )
+        )
         this._writeHandlebarsFile('crud/Adapter.swift', `Sources/${this.generatedModule}/${model.classname}Adapter.swift`,
           { model: model }
         )
