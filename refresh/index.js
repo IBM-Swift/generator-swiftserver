@@ -88,7 +88,6 @@ module.exports = Generator.extend({
       cb.call(this, filepath)
     }
   },
-  
   _writeHandlebarsFile: function (templateFile, destinationFile, data) {
     let template = this.fs.read(this.templatePath(templateFile))
     let compiledTemplate = Handlebars.compile(template)
