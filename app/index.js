@@ -958,8 +958,8 @@ module.exports = Generator.extend({
 
       var prompts = [
         { name: 'pushNotificationsName', message: 'Enter service name (blank for default):' },
-        { name: 'pushNotificationsAppGuid', message: 'Enter app GUID:' },
-        { name: 'pushNotificationsAppSecret', message: 'Enter app secret:', type: 'password' },
+        { name: 'pushNotificationsAppGuid', message: 'Enter app GUID (blank for none):' },
+        { name: 'pushNotificationsAPIKey', message: 'Enter API Key (blank for none):', type: 'password' },
         {
           name: 'pushNotificationsRegion',
           type: 'list',
@@ -972,7 +972,7 @@ module.exports = Generator.extend({
         var pushService = this.services.push
         this.services.push = {
           appGuid: answers.pushNotificationsAppGuid || undefined,
-          appSecret: answers.pushNotificationsAppSecret || undefined,
+          apikey: answers.pushNotificationsAPIKey || undefined,
           serviceInfo: {
             label: pushService.serviceInfo.label,
             name: answers.pushNotificationsName || pushService.serviceInfo.name,

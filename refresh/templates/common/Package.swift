@@ -6,7 +6,7 @@ let package = Package(
     dependencies: [
       .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.5.0")),
       .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", .upToNextMinor(from: "1.7.1")),
-      .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "8.0.0"),
+      .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "9.0.0"),
 {{#each dependencies}}
       {{{this}}}
 {{/each}}
