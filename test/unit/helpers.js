@@ -143,7 +143,7 @@ describe('Unit tests for helpers', function () {
           appGuid: '',
           url: '',
           admin_url: '',
-          appSecret: '',
+          apikey: '',
           clientSecret: ''
         },
         autoscaling: {
@@ -209,7 +209,7 @@ describe('Unit tests for helpers', function () {
           appGuid: 'my-app-guid',
           url: 'http://my-host',
           admin_url: 'http://my-admin-host',
-          appSecret: 'my-app-secret',
+          apikey: 'my-apikey',
           clientSecret: 'my-client-secret'
         },
         autoscaling: {
