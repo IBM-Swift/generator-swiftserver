@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.6.2"></a>
+## [5.6.2](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.1...5.6.2) (2018-11-08)
+
+
+### Bug Fixes
+
+* update Push Notifications prompts and tests to use IAM apikey credentials ([368ba51](https://github.com/IBM-Swift/generator-swiftserver/commit/368ba51))
+
+
+
 <a name="5.6.1"></a>
 ## [5.6.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.0...5.6.1) (2018-10-28)
 
