@@ -2,7 +2,7 @@ import Foundation
 import Kitura
 import LoggerAPI
 import HeliumLogger
-import <%- applicationModule %>
+import {{{applicationModule}}}
 
 do {
 
