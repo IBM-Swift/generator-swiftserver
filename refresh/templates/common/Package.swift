@@ -18,13 +18,13 @@ let package = Package(
 .target(name: "{{{generatedModule}}}"),
 {{/ifCond}}
 {{#ifCond sdkTargets.length '>' 0}}
-{{#each sdkTargets as |value key|}}
+{{#each sdkTargets}}
 .target(name: "{{{this}}}"),
 {{/each}}
-{{#each sdkTargets as |value key|}}
-      .target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{target}}}" ),
-{{/each}}
       ]),
+{{#each sdkTargets}}
+      .target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{this}}}" ),
+{{/each}}
 {{else}}
       ]),
 {{/ifCond}}
