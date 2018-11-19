@@ -23,8 +23,7 @@ let package = Package(
 {{/each}}
       ]),
 {{#each sdkTargets}}
-      .target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{this}}}" ),
-{{/each}}
+      .target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{this}}}" ), {{/each}}
 {{else}}
       ]),
 {{/ifCond}}
