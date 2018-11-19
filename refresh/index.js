@@ -1071,16 +1071,7 @@ module.exports = Generator.extend({
         )
       }
 
-      if (this.web) {
-        this.fs.write(this.destinationPath('public', '.keep'), '')
-      }
-
       if (this.usecase) {
-        this.fs.copy(
-          this.templatePath('public'),
-          this.destinationPath('public')
-        )
-
         this._ifNotExistsInProject(['Sources', this.applicationModule, 'Routes', 'ErrorRoutes.swift'], (filepath) => {
           this.fs.copyTpl(
             this.templatePath('common', 'ErrorRoutes.swift'),

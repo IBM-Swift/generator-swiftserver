@@ -402,10 +402,6 @@ exports.itDidNotCreateWebFiles = function () {
 }
 
 exports.itCreatedWebFiles = function () {
-  it('created a web content directory', function () {
-    assert.file(`${exports.webDir}/.keep`)
-  })
-
   it('application initializes file serving middleware', function () {
     assert.fileContent(exports.applicationSourceFile,
       'router.all(middleware: StaticFileServer())')

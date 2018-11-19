@@ -960,10 +960,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         assert.fileContent(applicationSourceFile, 'router.all(middleware: StaticFileServer())')
       })
 
-      it('does copy public folder', function () {
-        assert.file(commonTest.webDir)
-      })
-
       it('does initialize AppRoutes', function () {
         assert.fileContent(applicationSourceFile, 'initializeAppRoutes(app: self)')
       })
