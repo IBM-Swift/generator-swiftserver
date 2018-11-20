@@ -15,14 +15,12 @@ let package = Package(
       .target(name: "{{{executableModule}}}", dependencies: [ .target(name: "{{{applicationModule}}}"), "Kitura" , "HeliumLogger"]),
       .target(name: "{{{applicationModule}}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}
 {{#ifCond appType '===' 'crud'}}
-.target(name: "{{{generatedModule}}}"),
+      .target(name: "{{{generatedModule}}}"),
 {{/ifCond}}
 {{#ifCond sdkTargets.length '>' 0}}
-{{#each sdkTargets}}
-.target(name: "{{{this}}}"), {{/each}}
+      {{#each sdkTargets}}.target(name: "{{{this}}}"), {{/each}}
       ]),
-{{#each sdkTargets}}
-      .target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{this}}}" ), {{/each}}
+      {{#each sdkTargets}}.target(name: "{{{this}}}", dependencies: ["SimpleHttpClient"], path: "Sources/{{{this}}}" ), {{/each}}
 {{else}}
       ]),
 {{/ifCond}}
