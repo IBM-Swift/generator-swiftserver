@@ -13,7 +13,8 @@ let package = Package(
     ],
     targets: [
       .target(name: "{{{executableModule}}}", dependencies: [ .target(name: "{{{applicationModule}}}"), "Kitura" , "HeliumLogger"]),
-      .target(name: "{{{applicationModule}}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}{{#ifCond appType '===' 'crud'}}.target(name: "{{{generatedModule}}}"),{{/ifCond}}
+      .target(name: "{{{applicationModule}}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}
+{{#ifCond appType '===' 'crud'}}.target(name: "{{{generatedModule}}}"),{{/ifCond}}
 {{#ifCond sdkTargets.length '>' 0}}
       {{#each sdkTargets}}.target(name: "{{{this}}}"), {{/each}}
       ]),
