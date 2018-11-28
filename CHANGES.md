@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.7.0"></a>
+# [5.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.2...5.7.0) (2018-11-28)
+
+
+### Bug Fixes
+
+* Relax HeliumLogger dependency ([5731888](https://github.com/IBM-Swift/generator-swiftserver/commit/5731888))
+
+
+### Features
+
+* convert ejs to handlebars ([#621](https://github.com/IBM-Swift/generator-swiftserver/issues/621)) ([5e5c295](https://github.com/IBM-Swift/generator-swiftserver/commit/5e5c295))
+
+
+
 <a name="5.6.2"></a>
 ## [5.6.2](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.1...5.6.2) (2018-11-10)
 
