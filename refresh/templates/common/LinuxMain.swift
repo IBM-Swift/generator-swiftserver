@@ -1,6 +1,6 @@
 import XCTest
 
-@testable import <%- applicationModule %>Tests
+@testable import {{{applicationModule}}}Tests
 
 XCTMain([
     testCase(RouteTests.allTests),

@@ -66,7 +66,7 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({ specObj: {} })
+          .withOptions({ specObj: {} })
         return runContext.toPromise().catch(function (err) {
           error = err
         })
@@ -88,11 +88,11 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'tomato'
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'tomato'
+            }
+          })
         return runContext.toPromise().catch(function (err) {
           error = err
         })
@@ -114,11 +114,11 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold'
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold'
+            }
+          })
         return runContext.toPromise().catch(function (err) {
           error = err
         })
@@ -140,16 +140,16 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: 'myapp',
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: 'myapp',
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
+              }
+            }
+          })
         return runContext.toPromise().catch(function (err) {
           error = err
         })
@@ -172,17 +172,17 @@ describe('Unit tests for swiftserver:refresh', function () {
       before(function () {
         // var swagger = JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/person_dino.json'), 'utf8'))
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: 'myapp',
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  openApiServers: [{ spec: '{ swagger doc }' }]
-                                },
-                                fromSwagger: '/path/to/swagger/file'
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: 'myapp',
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                openApiServers: [{ spec: '{ swagger doc }' }]
+              },
+              fromSwagger: '/path/to/swagger/file'
+            }
+          })
         return runContext.toPromise().catch(function (err) {
           error = err
         })
@@ -226,13 +226,13 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ]
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'crud',
+                appName: applicationName,
+                models: [ todoModel ]
+              }
+            })
           return runContext.toPromise()
         })
 
@@ -270,14 +270,24 @@ describe('Unit tests for swiftserver:refresh', function () {
           assert.file(commonTest.crudSourceFiles)
         })
 
+        it('has correct content in CRUDResources.swift', function () {
+          assert.fileContent(`${generatedSourceDir}/CRUDResources.swift`, 'TodoResource(factory: factory)')
+        })
         it(`created ${todoModel.name} model file`, function () {
           assert.file(commonTest.modelFileGenerator(todoModel.name))
+        })
+
+        it(`README has correct content`, function () {
+          assert.fileContent(`README.md`, 'Create Toolchain')
         })
 
         it(`created ${todoModel.name} source files`, function () {
           assert.file(commonTest.modelSourceFilesGenerator(todoModel.classname))
         })
 
+        it(`created ${todoModel.name} content`, function () {
+          assert.fileContent(`${generatedSourceDir}/${todoModel.classname}.swift`, `public init(id: String?, title: String?) {`)
+        })
         it('created memory adapter', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}MemoryAdapter.swift`)
         })
@@ -361,7 +371,7 @@ describe('Unit tests for swiftserver:refresh', function () {
           .concat(commonTest.bluemixFiles)
           .concat(commonTest.dockerFiles)
           .concat(commonTest.kubernetesFilesGenerator(applicationName))
-          // TODO: add server sdk source file as user owned
+        // TODO: add server sdk source file as user owned
 
         var spec = {
           appType: 'crud',
@@ -387,25 +397,25 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .inTmpDir(function (tmpDir) {
-                                // Create dummy project
-                                var projectMarkerFile = `${tmpDir}/${commonTest.projectMarkerFile}`
-                                var generatorSpecFile = `${tmpDir}/${commonTest.generatorSpecFile}`
-                                var generatorConfigFile = `${tmpDir}/${commonTest.generatorConfigFile}`
+            .inTmpDir(function (tmpDir) {
+              // Create dummy project
+              var projectMarkerFile = `${tmpDir}/${commonTest.projectMarkerFile}`
+              var generatorSpecFile = `${tmpDir}/${commonTest.generatorSpecFile}`
+              var generatorConfigFile = `${tmpDir}/${commonTest.generatorConfigFile}`
 
-                                var config = { 'generator-swiftserver': { version: commonTest.generatorVersion } }
+              var config = { 'generator-swiftserver': { version: commonTest.generatorVersion } }
 
-                                fs.writeFileSync(projectMarkerFile, '')
-                                fs.writeFileSync(generatorSpecFile, JSON.stringify(spec))
-                                fs.writeFileSync(generatorConfigFile, JSON.stringify(config))
+              fs.writeFileSync(projectMarkerFile, '')
+              fs.writeFileSync(generatorSpecFile, JSON.stringify(spec))
+              fs.writeFileSync(generatorConfigFile, JSON.stringify(config))
 
-                                // Write dummy content to user owned files
-                                userOwnedFiles.forEach((filename) => {
-                                  mkdirp.sync(path.dirname(filename))
-                                  fs.writeFileSync(path.join(tmpDir, filename),
-                                                   dummyContent)
-                                })
-                              })
+              // Write dummy content to user owned files
+              userOwnedFiles.forEach((filename) => {
+                mkdirp.sync(path.dirname(filename))
+                fs.writeFileSync(path.join(tmpDir, filename),
+                dummyContent)
+              })
+            })
           return runContext.toPromise()
         })
 
@@ -583,14 +593,14 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ]
-                                },
-                                apic: true
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'crud',
+                appName: applicationName,
+                models: [ todoModel ]
+              },
+              apic: true
+            })
           return runContext.toPromise()
         })
 
@@ -623,14 +633,14 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ],
-                                  metrics: true
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'crud',
+                appName: applicationName,
+                models: [ todoModel ],
+                metrics: true
+              }
+            })
           return runContext.toPromise()
         })
 
@@ -649,18 +659,18 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ],
-                                  bluemix: {
-                                    backendPlatform: 'SWIFT',
-                                    server: { services: ['myAutoscalingService'] },
-                                    autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
-                                  }
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'crud',
+                appName: applicationName,
+                models: [ todoModel ],
+                bluemix: {
+                  backendPlatform: 'SWIFT',
+                  server: { services: ['myAutoscalingService'] },
+                  autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
+                }
+              }
+            })
           return runContext.toPromise()
         })
 
@@ -680,19 +690,19 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ],
-                                  bluemix: {
-                                    backendPlatform: 'SWIFT',
-                                    server: { services: ['myCloudantService'] },
-                                    cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
-                                  },
-                                  crudservice: 'myCloudantService'
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'crud',
+                appName: applicationName,
+                models: [ todoModel ],
+                bluemix: {
+                  backendPlatform: 'SWIFT',
+                  server: { services: ['myCloudantService'] },
+                  cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
+                },
+                crudservice: 'myCloudantService'
+              }
+            })
           return runContext.toPromise()
         })
 
@@ -708,7 +718,9 @@ describe('Unit tests for swiftserver:refresh', function () {
         it('created cloudant adapter', function () {
           assert.file(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`)
         })
-
+        it('has correct content in CloudantAdapter.swift', function () {
+          assert.fileContent(`${generatedSourceDir}/${todoModel.classname}CloudantAdapter.swift`, 'Todo')
+        })
         it('adapter factory uses cloudant adapter', function () {
           assert.fileContent(`${generatedSourceDir}/AdapterFactory.swift`, `${todoModel.classname}CloudantAdapter(`)
         })
@@ -725,12 +737,12 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -766,6 +778,10 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       it('created cloudfoundry files', function () {
         assert.file(cloudFoundryFiles)
+      })
+
+      it(`README has correct content`, function () {
+        assert.fileContent(`README.md`, 'Scaffolded Swift Kitura server application')
       })
 
       it('created bluemix files', function () {
@@ -805,13 +821,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName
-                              },
-                              'single-shot': true
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName
+            },
+            'single-shot': true
+          })
         return runContext.toPromise()
       })
 
@@ -830,21 +846,21 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: {
-                                    name: applicationName,
-                                    host: 'myhost',
-                                    domain: 'mydomain.net',
-                                    disk_quota: '1024M'
-                                  }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: {
+                  name: applicationName,
+                  host: 'myhost',
+                  domain: 'mydomain.net',
+                  disk_quota: '1024M'
+                }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -873,13 +889,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: bluemixJSON
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: bluemixJSON
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -903,36 +919,36 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .inTmpDir(function (tmpDir) {
-                              // Create dummy starterkit project
-                              const pathToCreate = 'src/swift-kitura/Sources/Application/Routes'
+          .inTmpDir(function (tmpDir) {
+            // Create dummy starterkit project
+            const pathToCreate = 'src/swift-kitura/Sources/Application/Routes'
 
-                              mkdirp.sync(pathToCreate)
+            mkdirp.sync(pathToCreate)
 
-                              var starterSwiftAppRoutesFile = path.join(tmpDir, 'src', 'swift-kitura', 'Sources', 'Application', 'Routes', 'AppRoutes.swift')
-                              var starterPackageSwiftFile = path.join(tmpDir, 'src', 'swift-kitura', 'Package.swift.partial')
+            var starterSwiftAppRoutesFile = path.join(tmpDir, 'src', 'swift-kitura', 'Sources', 'Application', 'Routes', 'AppRoutes.swift')
+            var starterPackageSwiftFile = path.join(tmpDir, 'src', 'swift-kitura', 'Package.swift.partial')
 
-                              fs.writeFileSync(starterSwiftAppRoutesFile, '')
-                              fs.writeFileSync(starterPackageSwiftFile, '')
+            fs.writeFileSync(starterSwiftAppRoutesFile, '')
+            fs.writeFileSync(starterPackageSwiftFile, '')
 
-                              this.inDir(path.join(tmpDir, 'build'))
-                            })
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: {
-                                    name: applicationName,
-                                    host: 'myhost',
-                                    domain: 'mydomain.net',
-                                    disk_quota: '1024M'
-                                  }
-                                },
-                                usecase: true
-                              }
-                            })
+            this.inDir(path.join(tmpDir, 'build'))
+          })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: {
+                  name: applicationName,
+                  host: 'myhost',
+                  domain: 'mydomain.net',
+                  disk_quota: '1024M'
+                }
+              },
+              usecase: true
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1011,13 +1027,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                metrics: true
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              metrics: true
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1034,13 +1050,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                web: true
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              web: true
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1069,7 +1085,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           sdkScope = mockSDKGen.mockServerSDKNetworkRequest(serverSDKName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({ specObj: spec })
+            .withOptions({ specObj: spec })
           return runContext.toPromise()
         })
 
@@ -1099,7 +1115,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           sdkScope = mockSDKGen.mockServerSDKDownloadFailure(serverSDKName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({ specObj: spec })
+            .withOptions({ specObj: spec })
           return runContext.toPromise().catch(function (err) {
             error = err.message
           })
@@ -1126,7 +1142,7 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           mockSDKGen.mockServerSDKPackageRequest(serverSDKName)
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({ specObj: spec })
+            .withOptions({ specObj: spec })
           return runContext.toPromise().catch((e) => { error = e.message })
         })
 
@@ -1156,14 +1172,14 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      hostSwagger: true,
-                                      fromSwagger: inputSwaggerFile
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    hostSwagger: true,
+                    fromSwagger: inputSwaggerFile
+                  }
+                })
               return runContext.toPromise()
             })
 
@@ -1237,13 +1253,13 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKDownloadFailure(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      fromSwagger: inputSwaggerFile
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    fromSwagger: inputSwaggerFile
+                  }
+                })
               return runContext.toPromise().catch(function (err) {
                 error = err.message
               })
@@ -1272,13 +1288,13 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKGenerationFailure(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      fromSwagger: inputSwaggerFile
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    fromSwagger: inputSwaggerFile
+                  }
+                })
               return runContext.toPromise().catch(function (err) {
                 error = err.message
               })
@@ -1307,13 +1323,13 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKGenerationTimeout(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      fromSwagger: inputSwaggerFile
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    fromSwagger: inputSwaggerFile
+                  }
+                })
               return runContext.toPromise().catch(function (err) {
                 error = err.message
               })
@@ -1343,14 +1359,14 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      hostSwagger: true,
-                                      exampleEndpoints: true
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    hostSwagger: true,
+                    exampleEndpoints: true
+                  }
+                })
               return runContext.toPromise()
             })
 
@@ -1402,15 +1418,15 @@ describe('Unit tests for swiftserver:refresh', function () {
             before(function () {
               sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
               runContext = helpers.run(refreshGeneratorPath)
-                                  .withOptions({
-                                    specObj: {
-                                      appType: 'scaffold',
-                                      appName: applicationName,
-                                      hostSwagger: true,
-                                      exampleEndpoints: true,
-                                      swaggerUI: true
-                                    }
-                                  })
+                .withOptions({
+                  specObj: {
+                    appType: 'scaffold',
+                    appName: applicationName,
+                    hostSwagger: true,
+                    exampleEndpoints: true,
+                    swaggerUI: true
+                  }
+                })
               return runContext.toPromise()
             })
 
@@ -1442,13 +1458,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
             sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
-                                .withOptions({
-                                  specObj: {
-                                    appType: 'scaffold',
-                                    appName: applicationName,
-                                    fromSwagger: 'http://dino.io/stuff'
-                                  }
-                                })
+              .withOptions({
+                specObj: {
+                  appType: 'scaffold',
+                  appName: applicationName,
+                  fromSwagger: 'http://dino.io/stuff'
+                }
+              })
             return runContext.toPromise()
           })
 
@@ -1495,16 +1511,16 @@ describe('Unit tests for swiftserver:refresh', function () {
           before(function () {
             mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
-                                .withOptions({
-                                  specObj: {
-                                    appType: 'scaffold',
-                                    appName: applicationName,
-                                    bluemix: {
-                                      backendPlatform: 'SWIFT',
-                                      openApiServers: [{ spec: JSON.stringify(swagger) }]
-                                    }
-                                  }
-                                })
+              .withOptions({
+                specObj: {
+                  appType: 'scaffold',
+                  appName: applicationName,
+                  bluemix: {
+                    backendPlatform: 'SWIFT',
+                    openApiServers: [{ spec: JSON.stringify(swagger) }]
+                  }
+                }
+              })
             return runContext.toPromise()
           })
 
@@ -1542,15 +1558,15 @@ describe('Unit tests for swiftserver:refresh', function () {
           before(function () {
             mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
-                                .withOptions({
-                                  specObj: {
-                                    appType: 'scaffold',
-                                    appName: applicationName,
-                                    hostSwagger: true,
-                                    fromSwagger: inputSwaggerFile,
-                                    generateCodableRoutes: true
-                                  }
-                                })
+              .withOptions({
+                specObj: {
+                  appType: 'scaffold',
+                  appName: applicationName,
+                  hostSwagger: true,
+                  fromSwagger: inputSwaggerFile,
+                  generateCodableRoutes: true
+                }
+              })
             return runContext.toPromise()
           })
 
@@ -1577,7 +1593,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           it('application defines base path', function () {
             assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
           })
-
           it('swagger id has correct type', function () {
             assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'func getOne__persons__handler(id: String')
             assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'func getOne__dinosaurs__handler(id: Int')
@@ -1609,15 +1624,15 @@ describe('Unit tests for swiftserver:refresh', function () {
           before(function () {
             mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
-                                .withOptions({
-                                  specObj: {
-                                    appType: 'scaffold',
-                                    appName: applicationName,
-                                    hostSwagger: true,
-                                    fromSwagger: inputSwaggerFile,
-                                    generateCodableRoutes: false
-                                  }
-                                })
+              .withOptions({
+                specObj: {
+                  appType: 'scaffold',
+                  appName: applicationName,
+                  hostSwagger: true,
+                  fromSwagger: inputSwaggerFile,
+                  generateCodableRoutes: false
+                }
+              })
             return runContext.toPromise()
           })
 
@@ -1666,13 +1681,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
         before(function () {
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'scaffold',
-                                  appName: applicationName,
-                                  fromSwagger: inputSwaggerFile
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'scaffold',
+                appName: applicationName,
+                fromSwagger: inputSwaggerFile
+              }
+            })
           return runContext.toPromise().catch(function (err) {
             error = err.message
           })
@@ -1694,13 +1709,13 @@ describe('Unit tests for swiftserver:refresh', function () {
 
         before(function () {
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'scaffold',
-                                  appName: applicationName,
-                                  fromSwagger: 'unknown_file_!£123'
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'scaffold',
+                appName: applicationName,
+                fromSwagger: 'unknown_file_!£123'
+              }
+            })
           return runContext.toPromise().catch(function (err) {
             error = err.message
           })
@@ -1724,17 +1739,17 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           // Simulate a 404 error
           sdkScope = nock('http://nothing')
-                       .get('/here')
-                       .reply(404)
+            .get('/here')
+            .reply(404)
 
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'scaffold',
-                                  appName: applicationName,
-                                  fromSwagger: 'http://nothing/here'
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'scaffold',
+                appName: applicationName,
+                fromSwagger: 'http://nothing/here'
+              }
+            })
           return runContext.toPromise().catch(function (err) {
             error = err.message
           })
@@ -1763,20 +1778,20 @@ describe('Unit tests for swiftserver:refresh', function () {
         before(function () {
           // Simulate a DNS lookup failure
           sdkScope = nock('http://nothing')
-                       .get('/here')
-                       .replyWithError({
-                         'message': 'getaddrinfo ENOTFOUND nothing nothing:80',
-                         'code': 'ENOTFOUND'
-                       })
+            .get('/here')
+            .replyWithError({
+              'message': 'getaddrinfo ENOTFOUND nothing nothing:80',
+              'code': 'ENOTFOUND'
+            })
 
           runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'scaffold',
-                                  appName: applicationName,
-                                  fromSwagger: 'http://nothing/here'
-                                }
-                              })
+            .withOptions({
+              specObj: {
+                appType: 'scaffold',
+                appName: applicationName,
+                fromSwagger: 'http://nothing/here'
+              }
+            })
           return runContext.toPromise().catch(function (err) {
             error = err.message
           })
@@ -1803,17 +1818,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['name with spaces'] },
-                                  cloudant: [{ serviceInfo: { name: 'name with spaces' } }]
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['name with spaces'] },
+                cloudant: [{ serviceInfo: { name: 'name with spaces' } }]
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1829,17 +1844,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myCloudantService'] },
-                                  cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myCloudantService'] },
+                cloudant: [{ serviceInfo: { name: 'myCloudantService' } }]
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1856,17 +1871,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myAutoscalingService'] },
-                                  autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myAutoscalingService'] },
+                autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1883,17 +1898,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myAppidService'] },
-                                  appid: { serviceInfo: { name: 'myAppidService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myAppidService'] },
+                appid: { serviceInfo: { name: 'myAppidService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1910,17 +1925,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myAssistantService'] },
-                                  conversation: { serviceInfo: { name: 'myAssistantService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myAssistantService'] },
+                conversation: { serviceInfo: { name: 'myAssistantService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1937,17 +1952,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myPushService'] },
-                                  push: { serviceInfo: { name: 'myPushService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myPushService'] },
+                push: { serviceInfo: { name: 'myPushService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1964,17 +1979,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myAlertService'] },
-                                  alertNotification: { serviceInfo: { name: 'myAlertService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myAlertService'] },
+                alertNotification: { serviceInfo: { name: 'myAlertService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -1991,17 +2006,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myObjectStorageService'] },
-                                  objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }]
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myObjectStorageService'] },
+                objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }]
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -2018,17 +2033,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: ['myRedisService'] },
-                                  redis: { serviceInfo: { name: 'myRedisService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: ['myRedisService'] },
+                redis: { serviceInfo: { name: 'myRedisService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -2045,17 +2060,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: [ 'myMongoDBService' ] },
-                                  mongodb: { serviceInfo: { name: 'myMongoDBService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: [ 'myMongoDBService' ] },
+                mongodb: { serviceInfo: { name: 'myMongoDBService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 
@@ -2072,17 +2087,17 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       before(function () {
         runContext = helpers.run(refreshGeneratorPath)
-                            .withOptions({
-                              specObj: {
-                                appType: 'scaffold',
-                                appName: applicationName,
-                                bluemix: {
-                                  backendPlatform: 'SWIFT',
-                                  server: { services: [ 'myHypersecuredbService' ] },
-                                  hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
-                                }
-                              }
-                            })
+          .withOptions({
+            specObj: {
+              appType: 'scaffold',
+              appName: applicationName,
+              bluemix: {
+                backendPlatform: 'SWIFT',
+                server: { services: [ 'myHypersecuredbService' ] },
+                hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
+              }
+            }
+          })
         return runContext.toPromise()
       })
 

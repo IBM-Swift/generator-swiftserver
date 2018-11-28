@@ -1,53 +1,50 @@
 import SwiftyJSON
 
-public struct <%- model.classname %> {
-    <%_ propertyInfos.forEach(function(info) { _%>
-    public let <%- info.name %>: <%- info.swiftType %>
-    <%_ }); _%>
+public struct {{model.classname}} {
+    {{#each propertyInfos}}
+    public let {{name}}: {{swiftType}}
+    {{/each}}
 
-    public init(<%- propertyInfos.map((info) => `${info.name}: ${info.swiftType}`).join(', ') %>) {
-        <%_ propertyInfos.forEach(function(info) { _%>
-        self.<%- info.name %> = <%- info.name %>
-        <%_ }); _%>
+    public init({{#each propertyInfos}}{{#if @last}}{{name}}: {{swiftType}}{{else}}{{name}}: {{swiftType}}, {{/if}}{{/each}}) {
+        {{#each propertyInfos}}
+        self.{{name}} = {{name}}
+        {{/each}}
     }
 
     public init(json: JSON) throws {
         // Required properties
-        <%_ propertyInfos.filter((info) => !info.optional).forEach(function(info) { _%>
-        guard json["<%- info.name %>"].exists() else {
-            throw ModelError.requiredPropertyMissing(name: "<%- info.name %>")
+        {{#each infoFilter}}
+        guard json["{{name}}"].exists() else {
+            throw ModelError.requiredPropertyMissing(name: "{{name}}")
         }
-        guard let <%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONType %> else {
-            throw ModelError.propertyTypeMismatch(name: "<%- info.name %>", type: "<%- info.jsType %>", value: json["<%- info.name %>"].description, valueType: String(describing: json["<%- info.name %>"].type))
+        guard let {{name}} = json["{{name}}"].{{swiftyJSONType}} else {
+            throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{name}}"].description, valueType: String(describing: json["{{name}}"].type))
         }
-            <%_ if (info.jsType === 'number') { _%>
-        self.<%- info.name %> = Double(<%- info.name %>)
-            <%_ } else { _%>
-        self.<%- info.name %> = <%- info.name %>
-            <%_ } _%>
-        <%_ }); _%>
 
-        // Optional properties
-        <%_ propertyInfos.filter((info) => info.optional).forEach(function(info) { _%>
-            <%_ var defaultValueClause = ''; _%>
-            <%_ if (typeof(model.properties[info.name].default) !== 'undefined') { _%>
-                <%_ var swiftDefaultLiteral = helpers.convertJSDefaultValueToSwift(model.properties[info.name].default); _%>
-                <%_ defaultValueClause = ' ?? ' + swiftDefaultLiteral; _%>
-            <%_ } _%>
-        if json["<%- info.name %>"].exists() &&
-           json["<%- info.name %>"].type != .<%- info.swiftyJSONType %> {
-            throw ModelError.propertyTypeMismatch(name: "<%- info.name %>", type: "<%- info.jsType %>", value: json["<%- info.name %>"].description, valueType: String(describing: json["<%- info.name %>"].type))
+        {{#ifCond jsType '===' 'number'}}
+        self.{{name}} = Double({{name}})
+            {{else}}
+        self.{{name}} = {{name}}
+            {{/ifCond}}
+        {{/each}}
+
+        {{#each noInfoFilter}}
+        if json["{{name}}"].exists() &&
+           json["{{name}}"].type != .{{swiftyJSONType}} {
+            throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{info.name}}"].description, valueType: String(describing: json["{{name}}"].type))
         }
-            <%_ if (info.jsType === 'number') { _%>
-        self.<%- info.name %> = json["<%- info.name %>"].number.map { Double($0) }<%- defaultValueClause %>
-            <%_ } else { _%>
-        self.<%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONProperty %><%- defaultValueClause %>
-            <%_ } _%>
-        <%_ }); _%>
+
+        {{#ifCond jsType '===' 'number'}}
+          self.{{name}} = json["{{name}}"].number.map { Double($0) }{{defaultValueClause}}
+        {{else}}
+          self.{{name}} = json["{{name}}"].{{swiftyJSONProperty}}{{defaultValueClause}}
+        }
+        {{/ifCond}}
+        {{/each}}
 
         // Check for extraneous properties
         if let jsonProperties = json.dictionary?.keys {
-            let properties: [String] = [<%- propertyInfos.map((info) => `"${info.name}"`).join(', ') %>]
+            let properties: [String] = [{{#each propertyInfos}}{{#if @last}}{{name}}{{else}}{{name}}, {{/if}}{{/each}}]
             for jsonPropertyName in jsonProperties {
                 if !properties.contains(where: { $0 == jsonPropertyName }) {
                     throw ModelError.extraneousProperty(name: jsonPropertyName)
@@ -56,37 +53,37 @@ public struct <%- model.classname %> {
         }
     }
 
-    public func settingID(_ newId: String?) -> <%- model.classname %> {
-      <% var args = (['id: newId'].concat(propertyInfos.filter((info) => info.name !== 'id').map((info) => `${info.name}: ${info.name}`))).join(', ')
-      %>return <%- model.classname %>(<%- args %>)
+    public func settingID(_ newId: String?) -> {{model.classname}} {
+      {{#settingID propertyInfos model}}
+      {{/settingID}}
     }
 
-    public func updatingWith(json: JSON) throws -> <%- model.classname %> {
-        <%_ propertyInfos.forEach(function(info) { _%>
-        if json["<%- info.name %>"].exists() &&
-           json["<%- info.name %>"].type != .<%- info.swiftyJSONType %> {
-            throw ModelError.propertyTypeMismatch(name: "<%- info.name %>", type: "<%- info.jsType %>", value: json["<%- info.name %>"].description, valueType: String(describing: json["<%- info.name %>"].type))
+    public func updatingWith(json: JSON) throws -> {{model.classname}} {
+        {{#each propertyInfos}}
+        if json["{{name}}"].exists() &&
+           json["{{name}}"].type != .{{swiftyJSONType}} {
+            throw ModelError.propertyTypeMismatch(name: "{{name}}", type: "{{jsType}}", value: json["{{name}}"].description, valueType: String(describing: json["{{name}}"].type))
         }
-            <%_ if (info.jsType === 'number') { _%>
-        let <%- info.name %> = json["<%- info.name %>"].number.map { Double($0) } ?? self.<%- info.name %>
-            <%_ } else { _%>
-        let <%- info.name %> = json["<%- info.name %>"].<%- info.swiftyJSONProperty %> ?? self.<%- info.name %>
-            <%_ } _%>
+            {{#ifCond jsType '===' 'number'}}
+        let {{name}} = json["{{name}}"].number.map { Double($0) } ?? self.{{name}}
+            {{else}}
+        let {{name}} = json["{{name}}"].{{swiftyJSONProperty}} ?? self.{{name}}
+            {{/ifCond}}
 
-        <%_ }); _%>
-        return <%- model.classname %>(<%- propertyInfos.map((info) => `${info.name}: ${info.name}`).join(', ') %>)
+        {{/each}}
+        return {{model.classname}}({{#each propertyInfos}}{{#if @last}}{{name}}: {{name}}{{else}}{{name}}: {{name}}, {{/if}}{{/each}})
     }
 
     public func toJSON() -> JSON {
         var result = JSON([:])
-        <%_ propertyInfos.filter((info) => !info.optional).forEach(function(info) { _%>
-        result["<%- info.name %>"] = JSON(<%- info.name %>)
-        <%_ }); _%>
-        <%_ propertyInfos.filter((info) => info.optional).forEach(function(info) { _%>
-        if let <%- info.name %> = <%- info.name %> {
-            result["<%- info.name %>"] = JSON(<%- info.name %>)
+        {{#each noInfoFilter}}
+        result["{{name}}"] = JSON({{name}})
+        {{/each}}
+        {{#each infoFilter}}
+        if let {{name}} = {{name}} {
+            result["{{name}}"] = JSON({{name}})
         }
-        <%_ }); _%>
+        {{/each}}
 
         return result
     }
