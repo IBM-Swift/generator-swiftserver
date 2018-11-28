@@ -17,7 +17,7 @@
 'use strict'
 var config = {}
 
-config.sdkGenURL = 'https://us-south.devex.bluemix.net/sdkgen/api/generator/'
+config.sdkGenURL = 'https://global.devx.cloud.ibm.com/sdkgen/api/generator/'
 config.sdkGenCheckDelay = 3000
 
 module.exports = config
