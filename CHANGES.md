@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.8.0"></a>
+# [5.8.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.7.0...5.8.0) (2018-12-03)
+
+
+### Features
+
+* upgrading to Swift 4.2 ([f21b37d](https://github.com/IBM-Swift/generator-swiftserver/commit/f21b37d))
+* upgrading to Swift 4.2 ([080cc98](https://github.com/IBM-Swift/generator-swiftserver/commit/080cc98))
+
+
+
 <a name="5.7.0"></a>
 # [5.7.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.6.2...5.7.0) (2018-11-28)
 
