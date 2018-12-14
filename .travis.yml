@@ -17,7 +17,7 @@ dist: trusty
 osx_image: xcode10
 before_install:
 - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get head; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && rvm get head; fi
 - git clone https://github.com/IBM-Swift/Package-Builder.git
 - npm i -g makeshift
 - wget https://github.com/github/hub/releases/download/v2.2.9/hub-linux-386-2.2.9.tgz
