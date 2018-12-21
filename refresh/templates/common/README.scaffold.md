@@ -90,7 +90,7 @@ Your application configuration information for any services is stored in the `lo
 
 The application uses the [CloudEnvironment package](https://github.com/IBM-Swift/CloudEnvironment) to read the connection and configuration information from the environment and this file. It uses `mappings.json`, found in the `config` directory, to communicate where the credentials can be found for each service.
 
-If the application is running locally, it can connect to IBM Cloud services using unbound credentials read from this file. If you need to create unbound credentials you can do so from the IBM Cloud web console ([example](https://console.ng.bluemix.net/docs/services/Cloudant/tutorials/create_service.html#creating-a-service-instance)), or using the CloudFoundry CLI [`cf create-service-key` command](http://cli.cloudfoundry.org/en-US/cf/create-service-key.html).
+If the application is running locally, it can connect to IBM Cloud services using unbound credentials read from this file. If you need to create unbound credentials you can do so from the IBM Cloud web console ([example](https://cloud.ibm.com/docs/services/Cloudant/tutorials/create_service.html#creating-a-service-instance)), or using the CloudFoundry CLI [`cf create-service-key` command](http://cli.cloudfoundry.org/en-US/cf/create-service-key.html).
 
 When you push your application to IBM Cloud, these values are no longer used, instead the application automatically connects to bound services using environment variables.
 
@@ -104,22 +104,22 @@ To use iterative development:
 {{/if}}
 
 ### Deploy to IBM Cloud
-You can deploy your application to Bluemix using:
+You can deploy your application to IBM Cloud using:
 * the [CloudFoundry CLI](#cloudfoundry-cli)
 * an [IBM Cloud toolchain](#ibm-cloud-toolchain)
 
 #### CloudFoundry CLI
-You can deploy the application to IBM Cloud using the CloudFoundry command-line:
-1. Install the Cloud Foundry command-line (https://docs.cloudfoundry.org/cf-cli/install-go-cli.html)
+You can deploy the application using the IBM Cloud command-line:
+1. Install the [IBM Cloud CLI](https://cloud.ibm.com/docs/cli/index.html)
 1. Ensure all configured services have been provisioned
-1. Run `cf push` from the project root directory
+1. Run `ibmcloud app push` from the project root directory
 
-The Cloud Foundry CLI will not provision the configured services for you, so you will need to do this manually using the IBM Cloud web console ([example](https://console.ng.bluemix.net/docs/services/Cloudant/tutorials/create_service.html#creating-a-service-instance)) or the CloudFoundry CLI (`cf create-service` command)[http://cli.cloudfoundry.org/en-US/cf/create-service.html]. The service names and types will need to match your [configuration](#configuration).
+The Cloud Foundry CLI will not provision the configured services for you, so you will need to do this manually using the IBM Cloud web console ([example](https://cloud.ibm.com/docs/services/Cloudant/tutorials/create_service.html#creating-a-service-instance)) or the CloudFoundry CLI (`cf create-service` command)[http://cli.cloudfoundry.org/en-US/cf/create-service.html]. The service names and types will need to match your [configuration](#configuration).
 
 #### IBM Cloud toolchain
 You can also set up a default IBM Cloud Toolchain to handle deploying your application to IBM Cloud. This is achieved by publishing your application to a publicly accessible github repository and using the "Create Toolchain" button below. In this case configured services will be automatically provisioned, once, during toolchain creation.
 
-[![Create Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy/)
+[![Create Toolchain](https://cloud.ibm.com/devops/graphics/create_toolchain_button.png)](https://cloud.ibm.com/devops/setup/deploy/)
 
 ### Service descriptions
 {{#if web}}
@@ -171,9 +171,9 @@ Your application has a set of cloud deployment configuration files defined to su
 * `.bluemix/toolchain.yml`
 * `.bluemix/pipeline.yml`
 
-The [`manifest.yml`](https://console.ng.bluemix.net/docs/manageapps/depapps.html#appmanifest) defines options which are passed to the Cloud Foundry `cf push` command during application deployment.
+The [`manifest.yml`](https://cloud.ibm.com/docs/cloud-foundry/deploy-apps.html#appmanifest) defines options which are passed to the Cloud Foundry `cf push` command during application deployment.
 
-[IBM Cloud DevOps](https://console.ng.bluemix.net/docs/services/ContinuousDelivery/index.html) service provides toolchains as a set of tool integrations that support development, deployment, and operations tasks inside IBM Cloud, for both Cloud Foundry and Kubernetes applications. The ["Create Toolchain"](#deploy-to-ibm-cloud) button creates a DevOps toolchain and acts as a single-click deploy to IBM Cloud including provisioning all required services.
+[IBM Cloud DevOps](https://cloud.ibm.com/docs/services/ContinuousDelivery/index.html#cd_getting_started) service provides toolchains as a set of tool integrations that support development, deployment, and operations tasks inside IBM Cloud, for both Cloud Foundry and Kubernetes applications. The ["Create Toolchain"](#deploy-to-ibm-cloud) button creates a DevOps toolchain and acts as a single-click deploy to IBM Cloud including provisioning all required services.
 
 {{#if cloudant}}
 #### Cloudant
@@ -257,7 +257,7 @@ Boilerplate code for creating a client object for the Alert Notification API is 
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Alert Notification client in the boilerplate code.
 
-A quick start guide to the Alert Notification Service on IBM Cloud can be found  [here](https://www.ibm.com/blogs/bluemix/2015/12/quick-start-guide-to-alert-notification-service/).
+A quick start guide to the Alert Notification Service on IBM Cloud can be found in the [official Alert Notification documentation](https://cloud.ibm.com/docs/services/AlertNotification/alert_overview.html#alert_overview).
 {{/if}}
 {{#if push}}
 #### Push Notifications
@@ -269,7 +269,7 @@ The connection details for this client are loaded by the [configuration](#config
 {{/if}}
 {{#if autoscaling}}
 #### Auto-scaling
-This application uses the [SwiftMetrics package](https://github.com/RuntimeTools/SwiftMetrics) for connecting to the IBM Cloud Auto-scaling service. You can use this to automatically manage your application capacity when deployed to the cloud.  You will need to define the Auto-Scaling policy (https://console.ng.bluemix.net/docs/services/Auto-Scaling/index.html) to define the rules used to scale the application.
+This application uses the [SwiftMetrics package](https://github.com/RuntimeTools/SwiftMetrics) for connecting to the IBM Cloud Auto-scaling service. You can use this to automatically manage your application capacity when deployed to the cloud.  You will need to define the Auto-Scaling policy (https://cloud.ibm.com/docs/services/Auto-Scaling/index.html#get-started) to define the rules used to scale the application.
 
 The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the SwiftMetrics auto-scaling client in the boilerplate code.
 {{/if}}
