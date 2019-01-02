@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.9.0"></a>
+# [5.9.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.8.1...5.9.0) (2018-12-21)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 3.1.3 ([fc7c09f](https://github.com/IBM-Swift/generator-swiftserver/commit/fc7c09f))
+
+
+### Features
+
+* Kitura 2.6 ([523f2f0](https://github.com/IBM-Swift/generator-swiftserver/commit/523f2f0))
+
+
+
 <a name="5.8.1"></a>
 ## [5.8.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.8.0...5.8.1) (2018-12-14)
 
