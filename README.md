@@ -12,7 +12,7 @@
 
 This module is a [Yeoman](http://yeoman.io) generator for creating REST webservices based on the [Kitura web framework](http://kitura.io) with the [Swift](https://swift.org/) language.
 
-This generator and the Yeoman library runs on Node.js and generates a Swift 4.2 application.
+This generator and the Yeoman library runs on Node.js and generates a Swift 4.2.1 application.
 
 ## Contents
 1. [Prerequisites](#prerequisites)
@@ -26,7 +26,7 @@ This generator and the Yeoman library runs on Node.js and generates a Swift 4.2 
 1. [Contributing](#contributing)
 
 ## Prerequisites
-To use this module, you will need Node.js and Swift 4.2 installed on your Linux or macOS system. You can get Node.js from https://nodejs.org and Swift 4.2 from https://swift.org/download.
+To use this module, you will need Node.js and Swift 4.2.1 installed on your Linux or macOS system. You can get Node.js from https://nodejs.org and Swift 4.2.1 from https://swift.org/download.
 
 You will also need the Yeoman command line utility [yo](https://github.com/yeoman/yo) installed in your global Node.js module directory.
 
@@ -56,7 +56,7 @@ To add a data model to your generated project, `cd` to the new project directory
 yo swiftserver:<model>
 ```
 
-For more information on data models, check out [this guide on Kitura.io](http://www.kitura.io/en/starter/generator/model_definition_json_file.html).
+For more information on data models, check out [this guide on Kitura.io](https://www.kitura.io/guides/kituracli/model_definition.html).
 
 ### Options
 You can also change how generator-swiftserver is invoked by choosing options:
