@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.10.1"></a>
+## [5.10.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.10.0...5.10.1) (2019-01-08)
+
+
+### Bug Fixes
+
+* **package:** update generator-ibm-service-enablement to version 3.2.0 ([eb0d76c](https://github.com/IBM-Swift/generator-swiftserver/commit/eb0d76c))
+
+
+
 <a name="5.10.0"></a>
 # [5.10.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.9.0...5.10.0) (2019-01-02)
 
