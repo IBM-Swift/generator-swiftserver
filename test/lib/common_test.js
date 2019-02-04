@@ -374,11 +374,13 @@ exports.itCreatedMetricsFilesWithExpectedContent = function () {
       [metricsFile, 'import SwiftMetrics'],
       [metricsFile, 'import SwiftMetricsDash'],
       [metricsFile, 'import SwiftMetricsPrometheus'],
+      [metricsFile, 'import SwiftMetricsREST'],
       [metricsFile, 'swiftMetrics: SwiftMetrics'],
       [metricsFile, 'func initializeMetrics(router: Router)'],
       [metricsFile, 'SwiftMetrics()'],
       [metricsFile, 'try SwiftMetricsDash('],
-      [metricsFile, 'try SwiftMetricsPrometheus(']
+      [metricsFile, 'try SwiftMetricsPrometheus('],
+      [metricsFile, 'try SwiftMetricsREST(']
     ])
   })
 

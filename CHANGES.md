@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.11.0"></a>
+# [5.11.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.10.1...5.11.0) (2019-01-30)
+
+
+### Features
+
+* add SwiftMetrics REST API ([154a185](https://github.com/IBM-Swift/generator-swiftserver/commit/154a185))
+
+
+
 <a name="5.10.1"></a>
 ## [5.10.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.10.0...5.10.1) (2019-01-08)
 
