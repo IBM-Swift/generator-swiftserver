@@ -27,7 +27,7 @@ script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
-- export SWIFT_SNAPSHOT=swift-4.2.1
+- export SWIFT_SNAPSHOT=swift-4.2.2
 - source ./Package-Builder/install-swift.sh
 - if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then npm run testsdkgen; fi
 - if [[ $TRAVIS_EVENT_TYPE != "cron" ]]; then npm run coverage && npm run report-coverage; fi
