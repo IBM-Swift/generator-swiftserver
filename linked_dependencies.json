@@ -1,0 +1,14 @@
+[
+  {
+    "name": "generator-ibm-cloud-enablement",
+    "repo": "https://github.com/ibm-developer/generator-ibm-cloud-enablement.git"
+  },
+  {
+    "name": "generator-ibm-service-enablement",
+    "repo": "https://github.com/ibm-developer/generator-ibm-service-enablement.git"
+  },
+  {
+    "name": "generator-ibm-usecase-enablement",
+    "repo": "https://github.com/ibm-developer/generator-ibm-usecase-enablement.git"
+  }
+]

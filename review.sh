@@ -42,6 +42,8 @@ done
 VERSION=`node -e "console.log(require('./package.json').version);"`
 BRANCH=updateTo${VERSION}
 git branch -m $BRANCH
+# Update linked dependencies only if on prod branch
+node $DEVOPS_SCRIPT_DIR/update_linked_dependencies.js
 git push -u origin $BRANCH
 # Protect the branch from force push and deletion
 curl -u ${USER} -X PUT -H "Content-Type: application/json" -H "Accept: application/vnd.github.loki-preview+json" -d "{\"required_status_checks\": {\"strict\": true,\"contexts\": []},\"required_pull_request_reviews\":{},\"restrictions\": null,\"enforce_admins\": true}" "https://api.github.com/repos/IBM-Swift/generator-swiftserver/branches/$BRANCH/protection"

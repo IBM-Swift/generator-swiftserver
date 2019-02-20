@@ -22,7 +22,12 @@ before_install:
 - wget https://github.com/github/hub/releases/download/v2.2.9/hub-linux-386-2.2.9.tgz
 - tar -xvzf hub-linux-386-2.2.9.tgz
 - export PATH=${PATH}:$PWD/hub-linux-386-2.2.9/bin/
+- cd /tmp
+- git clone -b master https://github.com/ibm-developer/standard-npm-devops.git
+- npm --prefix ./standard-npm-devops install fs-extra bluebird
+- cd -
 script:
+- node tmp/install_linked_dependencies.js
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - export projectFolder=`pwd`
