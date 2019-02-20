@@ -27,7 +27,7 @@ before_install:
 - npm --prefix ./standard-npm-devops install fs-extra bluebird
 - cd -
 script:
-- node tmp/install_linked_dependencies.js
+- NODE_ENV=production node /tmp/standard-npm-devops/install_linked_dependencies.js || travis_terminate 1
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - export projectFolder=`pwd`
