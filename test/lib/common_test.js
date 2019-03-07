@@ -484,7 +484,7 @@ exports.itCreatedDockerFilesWithExpectedContent = function (applicationName) {
 exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   opts = opts || {}
   var applicationName = opts.applicationName || 'appname'
-  var domain = opts.domain || 'ng.bluemix.net'
+  var domain = opts.domain || 'icr.io'
   var namespace = opts.imageRegistryNamespace || 'replace-me-namespace'
 
   var chartFile = exports.kubernetesChartFileGenerator(applicationName)
@@ -500,7 +500,7 @@ exports.itCreatedKubernetesFilesWithExpectedContent = function (opts) {
   })
 
   it('kubernetes values file contains expected content', function () {
-    assert.fileContent(valuesFile, `repository: registry.${domain}/${namespace}/${applicationName}`)
+    assert.fileContent(valuesFile, `repository: ${domain}/${namespace}/${applicationName}`)
   })
 
   it('ibmcloud dev config contains expected chart-path', function () {
