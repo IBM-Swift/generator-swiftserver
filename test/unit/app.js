@@ -1037,7 +1037,7 @@ describe('Unit tests for swiftserver:app', function () {
                                   capabilities: [],
                                   endpoints: [ 'Endpoints from swagger file' ],
                                   swaggerChoice: 'Custom swagger file',
-                                  path: 'http://dino.io/stuff'
+                                  path: 'https://dino.io/stuff'
                                 })
             return runContext.toPromise()
           })
@@ -1053,7 +1053,7 @@ describe('Unit tests for swiftserver:app', function () {
             generateCodableRoutes: true,
             capabilities: [],
             services: {},
-            fromSwagger: 'http://dino.io/stuff'
+            fromSwagger: 'https://dino.io/stuff'
           }))
         })
       })
@@ -1698,7 +1698,7 @@ describe('Unit tests for swiftserver:app', function () {
                 },
                 appGuid: 'myAppGuid',
                 apikey: 'myAPIKey',
-                url: 'http://imfpush.ng.bluemix.net'
+                url: 'https://imfpush.ng.bluemix.net'
               }
             }
           }))
