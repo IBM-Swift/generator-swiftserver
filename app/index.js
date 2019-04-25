@@ -980,9 +980,9 @@ module.exports = Generator.extend({
           }
         }
         switch (answers.pushNotificationsRegion) {
-          case 'US South': this.services.push.url = 'http://imfpush.ng.bluemix.net'; break
-          case 'United Kingdom': this.services.push.url = 'http://imfpush.eu-gb.bluemix.net'; break
-          case 'Sydney': this.services.push.url = 'http://imfpush.au-syd.bluemix.net'; break
+          case 'US South': this.services.push.url = 'https://imfpush.ng.bluemix.net'; break
+          case 'United Kingdom': this.services.push.url = 'https://imfpush.eu-gb.bluemix.net'; break
+          case 'Sydney': this.services.push.url = 'https://imfpush.au-syd.bluemix.net'; break
           default:
             this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`))
         }
