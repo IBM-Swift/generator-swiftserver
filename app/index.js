@@ -537,7 +537,6 @@ module.exports = Generator.extend({
         'MongoDB',
         'PostgreSQL',
         'ElephantSQL',
-        'Object Storage',
         'AppID',
         'Auto-scaling',
         'Watson Assistant, formerly Conversation',
@@ -566,9 +565,6 @@ module.exports = Generator.extend({
         }
         if (answers.services.indexOf('ElephantSQL') !== -1) {
           this._addService('elephantsql', generateServiceName(this.appname, 'ElephantSQL'))
-        }
-        if (answers.services.indexOf('Object Storage') !== -1) {
-          this._addService('objectStorage', generateServiceName(this.appname, 'ObjectStorage'))
         }
         if (answers.services.indexOf('AppID') !== -1) {
           this._addService('appid', generateServiceName(this.appname, 'AppID'))
@@ -651,7 +647,6 @@ module.exports = Generator.extend({
           case 'mongodb': return 'MongoDB'
           case 'postgresql': return 'PostgreSQL'
           case 'elephantsql': return 'ElephantSQL'
-          case 'objectStorage': return 'Object Storage'
           case 'appid': return 'AppID'
           case 'autoscaling': return 'Auto-scaling'
           case 'conversation': return 'Watson Assistant'
@@ -985,52 +980,6 @@ module.exports = Generator.extend({
           case 'Sydney': this.services.push.url = 'http://imfpush.au-syd.bluemix.net'; break
           default:
             this.env.error(chalk.red(`Internal error: unknown region ${answers.pushNotificationsRegion}`))
-        }
-      })
-    },
-
-    promptConfigureObjectStorage: function () {
-      if (this.skipPrompting) return
-      if (!this.servicesToConfigure) return
-      if (!this.servicesToConfigure.objectStorage) return
-
-      this.log()
-      this.log('Configure Object Storage')
-      var prompts = [
-        /*
-        { name: 'objectstorageAuth_url'    message: 'Enter auth url:' },
-        { name: 'objectstorageDomainId',   message: 'Enter domain ID:' },
-        { name: 'objectstorageDomainName', message: 'Enter domain name:' },
-        { name: 'objectstorageProject',    message: 'Enter project:' },
-        { name: 'objectstorageRole',       message: 'Enter role:' },
-        { name: 'objectstorageUsername',   message: 'Enter username:' },
-        */
-        { name: 'objectstorageName', message: 'Enter name (blank for default):' },
-        { name: 'objectstorageRegion', message: 'Enter region:' },
-        { name: 'objectstorageProjectId', message: 'Enter project ID:' },
-        { name: 'objectstorageUserId', message: 'Enter user ID:' },
-        { name: 'objectstoragePassword', message: 'Enter password:', type: 'password' }
-      ]
-      return this.prompt(prompts).then((answers) => {
-        var objectStorageService = this.services.objectStorage[0]
-        this.services.objectStorage[0] = {
-          /*
-          auth_url:   answers.objectstorageAuth_url || undefined,
-          domainId:   answers.objectstorageDomainId || undefined,
-          domainName: answers.objectstorageDomainName || undefined,
-          project:    answers.objectstorageProject || undefined,
-          role:       answers.objectstorageRole || undefined,
-          username:   answers.objectstorageUsername || undefined,
-          */
-          region: answers.objectstorageRegion || undefined,
-          projectId: answers.objectstorageProjectId || undefined,
-          userId: answers.objectstorageUserId || undefined,
-          password: answers.objectstoragePassword || undefined,
-          serviceInfo: {
-            label: objectStorageService.serviceInfo.label,
-            name: answers.objectstorageName || objectStorageService.serviceInfo.name,
-            plan: objectStorageService.serviceInfo.plan
-          }
         }
       })
     },

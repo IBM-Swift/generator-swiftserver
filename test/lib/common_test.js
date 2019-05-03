@@ -18,8 +18,6 @@
 var assert = require('yeoman-assert')
 var path = require('path')
 
-var helpers = require('../../lib/helpers')
-
 exports.generatorVersion = require('../../package.json').version
 
 //
@@ -123,7 +121,6 @@ exports.serviceDisplayNames = {
   mongodb: 'MongoDB',
   postgresql: 'PostgreSQL',
   elephantsql: 'ElephantSQL',
-  objectstorage: 'Object Storage',
   appid: 'AppID',
   watsonassistant: 'Watson Assistant',
   alertnotification: 'Alert Notification',
@@ -586,10 +583,6 @@ exports.itDidNotCreateServiceFiles = function () {
   it('cloudfoundry manifest does not contain services', function () {
     assert.noFileContent(exports.cloudFoundryManifestFile, 'services:')
   })
-
-  it('bluemix pipeline does not contain services', function () {
-    assert.noFileContent(exports.bluemixPipelineFile, 'cf create-services')
-  })
 }
 
 exports.itDidNotCreateService = function (service) {
@@ -601,10 +594,6 @@ exports.itDidNotCreateService = function (service) {
     assert.noFileContent([
       [exports.cloudFoundryManifestFile, `- ${service}`]
     ])
-  })
-
-  it(`bluemix pipeline does not contain ${service} create-service command`, function () {
-    assert.noFileContent(exports.bluemixPipelineFile, `cf create-service "${service}"`)
   })
 
   it(`does not create ${service} boilerplate`, function () {
@@ -654,12 +643,6 @@ exports.itHasServiceInCloudFoundryManifest = function (serviceDescription, servi
   })
 }
 
-exports.itHasServiceInBluemixPipeline = function (serviceDescription, serviceLabel, servicePlan, serviceName) {
-  it(`bluemix pipeline contains ${serviceDescription} create-service command`, function () {
-    assert.fileContent(exports.bluemixPipelineFile, `cf create-service "${serviceLabel}" "${servicePlan}" "${serviceName}"`)
-  })
-}
-
 exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, initFuncName) {
   it(`created ${serviceDescription} boilerplate`, function () {
     assert.file(`${exports.servicesSourceDir}/${fileName}`)
@@ -674,13 +657,10 @@ exports.itCreatedServiceBoilerplate = function (serviceDescription, fileName, in
 exports.autoscaling = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'autoscaling'
-    var label = 'Auto-Scaling'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('autoscaling')
     var sourceFile = 'ServiceAutoscaling.swift'
     var initFunction = 'initializeServiceAutoscaling'
 
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('autoscaling boilerplate contains expected content', function () {
@@ -700,14 +680,11 @@ exports.cloudant = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'cloudant'
     var mapping = 'cloudant'
-    var label = 'cloudantNoSQLDB'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('cloudant')
     var sourceFile = 'ServiceCloudant.swift'
     var initFunction = 'initializeServiceCloudant'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('cloudant boilerplate contains expected content', function () {
@@ -727,20 +704,17 @@ exports.appid = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'appid'
     var mapping = 'appid'
-    var label = 'AppID'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('appid')
     var sourceFile = 'ServiceAppid.swift'
     var initFunction = 'initializeServiceAppid'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('appid boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
-        [serviceFile, 'import BluemixAppID'],
+        [serviceFile, 'import IBMCloudAppID'],
         [serviceFile, 'import class Credentials.Credentials'],
         [serviceFile, 'func initializeServiceAppid(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'WebAppKituraCredentialsPlugin('],
@@ -755,14 +729,11 @@ exports.watsonassistant = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'watson assistant'
     var mapping = 'watson_assistant'
-    var label = 'conversation'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('conversation')
     var sourceFile = 'ServiceWatsonAssistant.swift'
     var initFunction = 'initializeServiceWatsonAssistant'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('watson assistant boilerplate contains expected content', function () {
@@ -782,14 +753,11 @@ exports.pushnotifications = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'push notifications'
     var mapping = 'push'
-    var label = 'imfpush'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('push')
     var sourceFile = 'ServicePush.swift'
     var initFunction = 'initializeServicePush'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('push notifications boilerplate contains expected content', function () {
@@ -809,14 +777,11 @@ exports.alertnotification = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'alert notification'
     var mapping = 'alert_notification'
-    var label = 'AlertNotification'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('alertNotification')
     var sourceFile = 'ServiceAlertNotification.swift'
     var initFunction = 'initializeServiceAlertNotification'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('alert notification boilerplate contains expected content', function () {
@@ -831,47 +796,16 @@ exports.alertnotification = {
   }
 }
 
-// Object storage
-exports.objectstorage = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'object storage'
-    var mapping = 'object_storage'
-    var label = 'Object-Storage'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('objectStorage')
-    var sourceFile = 'ServiceObjectStorage.swift'
-    var initFunction = 'initializeServiceObjectStorage'
-
-    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
-    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
-    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
-
-    it('object storage boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
-      assert.fileContent([
-        [serviceFile, 'import BluemixObjectStorage'],
-        [serviceFile, 'func initializeServiceObjectStorage(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'guard let storageCredentials ='],
-        [serviceFile, 'guard let connectedObjectStorage ='],
-        [serviceFile, 'return connectedObjectStorage']
-      ])
-    })
-  }
-}
-
 // Redis
 exports.redis = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'redis'
     var mapping = 'redis'
-    var label = 'compose-for-redis'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('redis')
     var sourceFile = 'ServiceRedis.swift'
     var initFunction = 'initializeServiceRedis'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('redis boilerplate contains expected content', function () {
@@ -891,21 +825,18 @@ exports.mongodb = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'mongodb'
     var mapping = 'mongodb'
-    var label = 'compose-for-mongodb'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('mongodb')
     var sourceFile = 'ServiceMongodb.swift'
     var initFunction = 'initializeServiceMongodb'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('mongodb boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database('],
+        [serviceFile, 'mongodb = try Database.synchronousConnect('],
         [serviceFile, 'func initializeServiceMongodb(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getMongoDBCredentials(']
       ])
@@ -918,14 +849,11 @@ exports.postgresql = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'postgresql'
     var mapping = 'postgre'
-    var label = 'compose-for-postgresql'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('postgresql')
     var sourceFile = 'ServicePostgre.swift'
     var initFunction = 'initializeServicePostgre'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('postgresql boilerplate contains expected content', function () {
@@ -946,14 +874,11 @@ exports.elephantsql = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'elephantsql'
     var mapping = 'elephant_sql'
-    var label = 'elephantsql'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('elephantsql')
     var sourceFile = 'ServiceElephantSql.swift'
     var initFunction = 'initializeServiceElephantSql'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('elephantsql boilerplate contains expected content', function () {
@@ -973,21 +898,18 @@ exports.hypersecuredb = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
     var description = 'hypersecuredb'
     var mapping = 'hypersecure_dbaas_mongodb'
-    var label = 'hypersecuredb'
-    var plan = servicePlan || helpers.getBluemixDefaultPlan('hypersecuredbaas')
     var sourceFile = 'ServiceHypersecureDbaasMongodb.swift'
     var initFunction = 'initializeServiceHypersecureDbaasMongodb'
 
     exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
     exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itHasServiceInBluemixPipeline(description, label, plan, serviceName)
     exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
 
     it('mongodb boilerplate contains expected content', function () {
       var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
       assert.fileContent([
         [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database('],
+        [serviceFile, 'mongodb = try Database.synchronousConnect('],
         [serviceFile, 'func initializeServiceHypersecureDbaasMongodb(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getHyperSecureDBaaSCredentials(']
       ])

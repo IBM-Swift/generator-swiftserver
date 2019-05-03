@@ -146,7 +146,7 @@ describe('Unit tests for swiftserver:refresh', function () {
               appName: 'myapp',
               bluemix: {
                 backendPlatform: 'SWIFT',
-                objectStorage: [{ serviceInfo: {label: 'Object-Storage'} }]
+                cloudant: [{ serviceInfo: {label: 'cloudant'} }]
               }
             }
           })
@@ -360,7 +360,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceCloudant.swift',
           commonTest.servicesSourceDir + '/ServiceRedis.swift',
           commonTest.servicesSourceDir + '/ServiceMongodb.swift',
-          commonTest.servicesSourceDir + '/ServiceObjectStorage.swift',
           commonTest.servicesSourceDir + '/ServiceWatsonAssistant.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
@@ -384,7 +383,6 @@ describe('Unit tests for swiftserver:refresh', function () {
             cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
             redis: { serviceInfo: { name: 'myRedisService' } },
             mongodb: { serviceInfo: { name: 'myMongoDBService' } },
-            objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }],
             conversation: { serviceInfo: { name: 'myAssistantService' } },
             push: { serviceInfo: { name: 'myPushService' } },
             alertNotification: { serviceInfo: { name: 'myAlertService' } },
@@ -1999,33 +1997,6 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedServiceConfigFiles()
       commonTest.alertnotification.itCreatedServiceFilesWithExpectedContent('myAlertService')
-    })
-
-    describe('with object storage', function () {
-      var runContext
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-          .withOptions({
-            specObj: {
-              appType: 'scaffold',
-              appName: applicationName,
-              bluemix: {
-                backendPlatform: 'SWIFT',
-                server: { services: ['myObjectStorageService'] },
-                objectStorage: [{ serviceInfo: { name: 'myObjectStorageService' } }]
-              }
-            }
-          })
-        return runContext.toPromise()
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      commonTest.itCreatedServiceConfigFiles()
-      commonTest.objectstorage.itCreatedServiceFilesWithExpectedContent('myObjectStorageService')
     })
 
     describe('with redis', function () {
