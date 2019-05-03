@@ -574,7 +574,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           var sdkScope
 
           before(function () {
-            swaggerScope = nock('http://dino.io')
+            swaggerScope = nock('https://dino.io')
               .get('/stuff')
               .replyWithFile(200, inputSwaggerFile)
 
@@ -587,7 +587,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
                                   capabilities: [],
                                   endpoints: [ 'Endpoints from swagger file' ],
                                   swaggerChoice: 'Custom swagger file',
-                                  path: 'http://dino.io/stuff'
+                                  path: 'https://dino.io/stuff'
                                 })
             return runContext.toPromise()
           })
@@ -1213,7 +1213,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           appGuid: 'myAppGuid',
           apikey: 'myAPIKey',
           clientSecret: '',
-          url: 'http://imfpush.eu-gb.bluemix.net'
+          url: 'https://imfpush.eu-gb.bluemix.net'
         })
       })
     })
