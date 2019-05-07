@@ -13,8 +13,8 @@ node_js:
 os:
 - linux
 - osx
-dist: trusty
-osx_image: xcode10.1
+dist: xenial
+osx_image: xcode10.2
 before_install:
 - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
 - git clone https://github.com/IBM-Swift/Package-Builder.git
@@ -25,9 +25,10 @@ before_install:
 script:
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libressl; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
-- export SWIFT_SNAPSHOT=swift-4.2.3
+- export SWIFT_SNAPSHOT=swift-5.0
 - source ./Package-Builder/install-swift.sh
 - if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then npm run testsdkgen; fi
 - if [[ $TRAVIS_EVENT_TYPE != "cron" ]]; then npm run coverage && npm run report-coverage; fi
