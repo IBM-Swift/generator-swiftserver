@@ -11,6 +11,10 @@ All notable changes to this project will be documented in this file. See [standa
 * swift 5 application generation ([337061c](https://github.com/IBM-Swift/generator-swiftserver/commit/337061c))
 * Swift 5.0 support ([a61ae2c](https://github.com/IBM-Swift/generator-swiftserver/commit/a61ae2c))
 
+<a name="5.13.1"></a>
+## [5.13.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.13.0...5.13.1) (2019-04-25)
+
+
 
 
 <a name="5.13.0"></a>
