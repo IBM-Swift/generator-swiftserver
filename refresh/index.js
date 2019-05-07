@@ -1104,7 +1104,6 @@ module.exports = Generator.extend({
             autoscaling: !!this.bluemix.autoscaling,
             cloudant: this.bluemix.cloudant && this.bluemix.cloudant.length > 0,
             redis: !!this.bluemix.redis,
-            objectStorage: this.bluemix.objectStorage && this.bluemix.objectStorage.length > 0,
             appid: !!this.bluemix.appid,
             conversation: !!this.bluemix.conversation,
             alertNotification: !!this.bluemix.alertNotification,

@@ -92,22 +92,6 @@ describe('Unit tests for helpers', function () {
           },
           uri: 'redis://:@localhost:6379'
         },
-        objectStorage: {
-          serviceInfo: {
-            label: 'Object-Storage',
-            plan: 'Free'
-          },
-          auth_url: 'https://identity.open.softlayer.com',
-          project: '',
-          projectId: '',
-          region: '',
-          userId: '',
-          username: '',
-          password: '',
-          domainId: '',
-          domainName: '',
-          role: ''
-        },
         appid: {
           serviceInfo: {
             label: 'AppID',
@@ -176,18 +160,6 @@ describe('Unit tests for helpers', function () {
         },
         redis: {
           uri: 'redis://:my-password@my-host:5555'
-        },
-        objectStorage: {
-          auth_url: 'http://my-auth-host',
-          project: 'my-project',
-          projectId: 'my-project-id',
-          region: 'my-region',
-          userId: 'my-user-id',
-          username: 'my-username',
-          password: 'my-password',
-          domainId: 'my-domain-id',
-          domainName: 'my-domain-name',
-          role: 'my-role'
         },
         appid: {
           clientId: 'my-client-id',
@@ -360,10 +332,6 @@ describe('Unit tests for helpers', function () {
       assert.equal(helpers.getBluemixServiceLabel('redis'), 'compose-for-redis')
     })
 
-    it('get label for objectstorage', function () {
-      assert.equal(helpers.getBluemixServiceLabel('objectStorage'), 'Object-Storage')
-    })
-
     it('get label for appid', function () {
       assert.equal(helpers.getBluemixServiceLabel('appid'), 'AppID')
     })
@@ -392,10 +360,6 @@ describe('Unit tests for helpers', function () {
 
     it('get default plan for redis', function () {
       assert.equal(helpers.getBluemixDefaultPlan('redis'), 'Standard')
-    })
-
-    it('get default plan for objectstorage', function () {
-      assert.equal(helpers.getBluemixDefaultPlan('objectStorage'), 'Free')
     })
 
     it('get default plan for appid', function () {

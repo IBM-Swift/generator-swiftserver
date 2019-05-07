@@ -117,8 +117,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     // TODO with endpoints from swagger file @full
 
     var servicesToTest = [ 'cloudant', 'redis', 'mongodb', 'postgresql', 'elephantsql',
-      'objectstorage', 'appid', 'watsonassistant', 'alertnotification',
-      'pushnotifications', 'autoscaling' ]
+      'appid', 'watsonassistant', 'alertnotification', 'pushnotifications', 'autoscaling' ]
     servicesToTest.forEach(service => {
       var serviceDisplayName = commonTest.serviceDisplayNames[service]
 
@@ -215,7 +214,6 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                                 'Cloudant / CouchDB',
                                 'Redis',
                                 'MongoDB',
-                                'Object Storage',
                                 'AppID',
                                 'Auto-scaling',
                                 'Watson Assistant',

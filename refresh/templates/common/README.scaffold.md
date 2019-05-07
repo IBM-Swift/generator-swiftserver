@@ -39,9 +39,6 @@ This application has been generated with the following capabilities and services
 {{#if redis}}
 * [Redis](#redis)
 {{/if}}
-{{#if objectStorage}}
-* [Object Storage](#object-storage)
-{{/if}}
 {{#if appid}}
 * [AppID](#appid)
 {{/if}}
@@ -194,16 +191,6 @@ Redis is an open source (BSD licensed), in-memory data structure store, used as 
 Boilerplate code for creating a client object for the Kitura-redis API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module.
 
 The connection details for this client are loaded by  the [configuration](#configuration) code and are passed to the Kitura-redis client in the boilerplate code.
-{{/if}}
-{{#if objectStorage}}
-#### Object Storage
-This application uses the [Object Storage package](https://github.com/ibm-bluemix-mobile-services/bluemix-objectstorage-serversdk-swift.git) to connect to the IBM Cloud Object Storage service.
-
-Object Storage provides an unstructured cloud data store, which allows the application to store and access unstructured data content.
-
-Boilerplate code for creating a client object for the Object Storage API is included inside `Sources/Application/Application.swift` as an `internal` variable available for use anywhere in the `Application` module.
-
-The connection details for this client are loaded by the [configuration](#configuration) code and are passed to the Object Storage client in the boilerplate code.
 {{/if}}
 {{#if appid}}
 #### AppID
