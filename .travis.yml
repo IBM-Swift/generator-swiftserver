@@ -13,7 +13,7 @@ node_js:
 os:
 - linux
 - osx
-dist: trusty
+dist: xenial
 osx_image: xcode10.2
 before_install:
 - if [[ $TRAVIS_NODE_VERSION == "8" ]]; then npm install -g npm@4; fi
@@ -25,6 +25,7 @@ before_install:
 script:
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libressl; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
 - export SWIFT_SNAPSHOT=swift-5.0
