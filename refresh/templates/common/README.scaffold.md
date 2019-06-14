@@ -66,21 +66,21 @@ To build and run the application:
 
 {{#if docker}}
 #### Docker
-A description of the files related to Docker can be found in the [Docker files](#docker-files) section. To build the two docker images, run the following commands from the root directory of the project.
+A description of the files related to Docker can be found in the [Docker files](#docker-files) section. To build the two Docker images, run the following commands from the root directory of the project.
 
 First, build the 'tools' image. This image contains a full Linux Swift toolchain and is capable of compiling your application for Linux:
-* `docker build -t myapp-build -f Dockerfile-tools .`
+* `docker build --tag myapp-build --file Dockerfile-tools .`
 You may customize the names of these images by specifying a different value after the `-t` option.
 
-To compile the application for Linux using the tools docker image, run:
+To compile the application for Linux using the tools Docker image, run:
 * `docker run -v $PWD:/swift-project -w /swift-project myapp-build /swift-utils/tools-utils.sh build release`
 This produces a `.build-ubuntu` directory which will be incorporated into your final image.
 
 Now that your application has been built, you can build the final run image:
-* `docker build -t myapp-run .`
+* `docker build --tag myapp-run .`
 
 Finally, to run the application:
-* `docker run -it -p 8080:8080 -v $PWD:/swift-project -w /swift-project myapp-run sh -c .build-ubuntu/release/{{executableName}}`
+* `docker run -it --publish 8080:8080 --volume $PWD:/swift-project --workdir /swift-project myapp-run sh -c .build-ubuntu/release/{{executableName}}`
 
 
 #### Kubernetes
