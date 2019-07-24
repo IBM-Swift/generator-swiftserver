@@ -27,7 +27,6 @@ var nock = require('nock')
 
 var modelGeneratorPath = path.join(__dirname, '../../../model')
 var commonTest = require('../../lib/common_test')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 var yorcJSON = JSON.stringify({
   'generator-swiftserver': { version: commonTest.generatorVersion }
@@ -89,7 +88,6 @@ describe('Prompt and no build integration tests for model generator', function (
     var runContext
 
     before(function () {
-      mockSDKGen.mockClientSDKNetworkRequest('test')
       runContext = helpers.run(modelGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')

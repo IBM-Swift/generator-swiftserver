@@ -26,7 +26,6 @@ var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var commonTest = require('../../lib/common_test.js')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 // Short names for commonTest values
 var applicationSourceFile = commonTest.applicationSourceFile
@@ -216,7 +215,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         var sdkScope
 
         before(function () {
-          sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(appGeneratorPath)
                               .withOptions({ skipBuild: true })
                               .withPrompts({
@@ -471,7 +469,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         var sdkScope
 
         before(function () {
-          sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(appGeneratorPath)
                               .withOptions({ skipBuild: true })
                               .withPrompts({
@@ -524,7 +521,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           var sdkScope
 
           before(function () {
-            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(appGeneratorPath)
                                 .withOptions({ skipBuild: true })
                                 .withPrompts({
@@ -578,7 +574,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
               .get('/stuff')
               .replyWithFile(200, inputSwaggerFile)
 
-            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(appGeneratorPath)
                                 .withOptions({ skipBuild: true })
                                 .withPrompts({

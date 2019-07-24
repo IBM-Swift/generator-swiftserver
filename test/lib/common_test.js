@@ -232,18 +232,6 @@ exports.itHasCorrectFilesForSingleShotFalse = function () {
   })
 }
 
-exports.itDidNotCreateClientSDKFile = function (applicationName) {
-  it('did not create a client sdk zip file', function () {
-    assert.noFile(applicationName + '_iOS_SDK.zip')
-  })
-}
-
-exports.itCreatedClientSDKFile = function (applicationName) {
-  it('created a client sdk zip file', function () {
-    assert.file(applicationName + '_iOS_SDK.zip')
-  })
-}
-
 //
 // Routes
 //

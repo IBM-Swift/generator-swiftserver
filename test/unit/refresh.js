@@ -24,13 +24,11 @@ var mkdirp = require('mkdirp')
 
 var refreshGeneratorPath = path.join(__dirname, '../../refresh')
 var commonTest = require('../lib/common_test.js')
-var mockSDKGen = require('../lib/mock_sdkgen.js')
 
 // Short names for commonTest values
 var generatedSourceDir = commonTest.generatedSourceDir
 var applicationSourceFile = commonTest.applicationSourceFile
 var routesSourceDir = commonTest.routesSourceDir
-var modelsSourceDir = commonTest.modelsSourceDir
 
 var bxdevConfigFile = commonTest.bxdevConfigFile
 var cloudFoundryManifestFile = commonTest.cloudFoundryManifestFile
@@ -221,10 +219,8 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       describe('base', function () {
         var runContext
-        var sdkScope
 
         before(function () {
-          sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .withOptions({
               specObj: {
@@ -241,15 +237,10 @@ describe('Unit tests for swiftserver:refresh', function () {
           runContext.cleanTestDirectory()
         })
 
-        it('requested client sdk over http', function () {
-          assert(sdkScope.isDone())
-        })
-
         commonTest.itUsedDefaultDestinationDirectory()
 
         commonTest.itCreatedCommonFiles(executableModule)
         commonTest.itHasCorrectFilesForSingleShotFalse()
-        commonTest.itCreatedClientSDKFile(applicationName)
 
         commonTest.itHasPackageDependencies([
           'Kitura',
@@ -393,7 +384,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         }
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .inTmpDir(function (tmpDir) {
               // Create dummy project
@@ -460,7 +450,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
                               .withOptions({
                                 deploymentRegion: deploymentRegion,
@@ -518,7 +507,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
                               .withOptions({
                                 specObj: {
@@ -552,7 +540,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
                               .withOptions({
                                 deploymentRegion: deploymentRegion,
@@ -589,7 +576,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var apicProductFile = `definitions/${applicationName}-product.yaml`
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .withOptions({
               specObj: {
@@ -629,7 +615,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .withOptions({
               specObj: {
@@ -655,7 +640,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .withOptions({
               specObj: {
@@ -686,7 +670,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(refreshGeneratorPath)
             .withOptions({
               specObj: {
@@ -752,7 +735,6 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedCommonFiles(executableModule)
       commonTest.itHasCorrectFilesForSingleShotFalse()
-      commonTest.itDidNotCreateClientSDKFile()
 
       commonTest.itHasPackageDependencies([
         'Kitura',
@@ -983,7 +965,6 @@ describe('Unit tests for swiftserver:refresh', function () {
       var runContext
 
       before(function () {
-        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
         runContext = helpers.run(refreshGeneratorPath)
           .withOptions({
             specObj: {
@@ -1065,396 +1046,20 @@ describe('Unit tests for swiftserver:refresh', function () {
       commonTest.itCreatedWebFiles()
     })
 
-    describe('with server sdk', function () {
-      var serverSDKName = 'Swagger_Petstore'
-      var spec = {
-        appType: 'scaffold',
-        appName: applicationName,
-        hostSwagger: true,
-        serverSwaggerFiles: [
-          path.join(__dirname, '../resources/petstore.yaml')
-        ]
-      }
-
-      describe('successful server sdk generation', function () {
-        var runContext
-        var sdkScope
-
-        before(function () {
-          sdkScope = mockSDKGen.mockServerSDKNetworkRequest(serverSDKName)
-          runContext = helpers.run(refreshGeneratorPath)
-            .withOptions({ specObj: spec })
-          return runContext.toPromise()
-        })
-
-        after(function () {
-          nock.cleanAll()
-          runContext.cleanTestDirectory()
-        })
-
-        it('requested server sdk over http', function () {
-          assert(sdkScope.isDone())
-        })
-
-        it('created pet model from swagger file', function () {
-          assert.file('Sources/Swagger_Petstore_ServerSDK/Pet.swift')
-        })
-
-        it('modified Package.swift to include server sdk module', function () {
-          assert.fileContent('Package.swift', 'Swagger_Petstore_ServerSDK')
-        })
-      })
-
-      describe('server sdk download failure (host lookup error)', function () {
-        var runContext
-        var sdkScope
-        var error
-
-        before(function () {
-          sdkScope = mockSDKGen.mockServerSDKDownloadFailure(serverSDKName)
-          runContext = helpers.run(refreshGeneratorPath)
-            .withOptions({ specObj: spec })
-          return runContext.toPromise().catch(function (err) {
-            error = err.message
-          })
-        })
-
-        after(function () {
-          nock.cleanAll()
-          runContext.cleanTestDirectory()
-        })
-
-        it('requested server sdk over http', function () {
-          assert(sdkScope.isDone())
-        })
-
-        it('aborted the generator with an error', function () {
-          assert(error, 'Should throw an error')
-          assert(error.match(/Getting server SDK.*failed/), 'Thrown error should be about failing to download server SDK, it was: ' + error)
-        })
-      })
-
-      describe('SDKGen package format is incorrect', function () {
-        var runContext
-        var error
-        before(function () {
-          mockSDKGen.mockServerSDKPackageRequest(serverSDKName)
-          runContext = helpers.run(refreshGeneratorPath)
-            .withOptions({ specObj: spec })
-          return runContext.toPromise().catch((e) => { error = e.message })
-        })
-
-        after(function () {
-          nock.cleanAll()
-          runContext.cleanTestDirectory()
-        })
-
-        it(`should throw error`, function () {
-          assert(error, 'Should throw an error')
-          assert(error.match(/SDKGEN.*incompatible.*.package\(url: ".*", from: "1\.0"\)/), 'Thrown error should be about failing to parse SDK package dependency, it was: ' + error)
-        })
-      })
-    })
-
     describe('from swagger', function () {
       var outputSwaggerFile = `definitions/${applicationName}.yaml`
-
-      describe('from local file', function () {
-        describe('using dinosaur swagger (json, with basepath)', function () {
-          var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
-
-          describe('successful client sdk generation', function () {
-            var runContext
-            var sdkScope
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    hostSwagger: true,
-                    fromSwagger: inputSwaggerFile
-                  }
-                })
-              return runContext.toPromise()
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            commonTest.itUsedDefaultDestinationDirectory()
-
-            commonTest.itCreatedCommonFiles(executableModule)
-            commonTest.itHasCorrectFilesForSingleShotFalse()
-            commonTest.itCreatedClientSDKFile(applicationName)
-
-            commonTest.itCreatedRoutes([
-              'Dinosaurs_',
-              'Persons_',
-              'Swagger'
-            ])
-
-            commonTest.itCreatedModels([
-              'Dino',
-              'Age',
-              'Newage'
-            ])
-
-            it('created the correct types from the swagger model definition', function () {
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'public struct dino: Codable {')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, '/// comments go here')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let age: String')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt: Int')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt8: Int8?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt8: UInt8?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt16: Int16?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt16: UInt16?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt32: Int32?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt32: UInt32?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightInt64: Int64?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let heightUInt64: UInt64?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weight: Double?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightDouble: Double?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let weightFloat: Float?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let toesBool: Bool?')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let dietDictionaryInt32: Dictionary<String, Int32>')
-              assert.fileContent(`${modelsSourceDir}/Dino.swift`, 'let agesArray: [newage]?')
-            })
-
-            it('created a swagger definition file', function () {
-              assert.file(outputSwaggerFile)
-            })
-
-            it('application defines base path', function () {
-              assert.fileContent(applicationSourceFile, 'basePath = "/basepath"')
-            })
-
-            it('swagger routes prepend base path', function () {
-              assert.fileContent(`${routesSourceDir}/Dinosaurs_Routes.swift`, 'app.router.get("\\(basePath)/dinosaurs"')
-              assert.fileContent(`${routesSourceDir}/Persons_Routes.swift`, 'app.router.get("\\(basePath)/persons"')
-            })
-          })
-
-          describe('client sdk download failure (host lookup error)', function () {
-            var runContext
-            var sdkScope
-            var error
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKDownloadFailure(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    fromSwagger: inputSwaggerFile
-                  }
-                })
-              return runContext.toPromise().catch(function (err) {
-                error = err.message
-              })
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            it('aborted the generator with an error', function () {
-              assert(error, 'Should throw an error')
-              assert(error.match(/Getting client SDK.*failed/), 'Thrown error should be about failing to download client SDK: ' + error)
-            })
-          })
-
-          describe('client sdk generation failure', function () {
-            var runContext
-            var sdkScope
-            var error
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKGenerationFailure(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    fromSwagger: inputSwaggerFile
-                  }
-                })
-              return runContext.toPromise().catch(function (err) {
-                error = err.message
-              })
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            it('aborted the generator with an error', function () {
-              assert(error, 'Should throw an error')
-              assert(error.match(/SDK generator.*failed.*FAILED/), 'Thrown error should be about a service failure, it was: ' + error)
-            })
-          })
-
-          describe('client sdk generation timeout', function () {
-            var runContext
-            var sdkScope
-            var error
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKGenerationTimeout(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    fromSwagger: inputSwaggerFile
-                  }
-                })
-              return runContext.toPromise().catch(function (err) {
-                error = err.message
-              })
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            it('aborted the generator with an error', function () {
-              assert(error, 'Should throw an error')
-              assert(error.match(/generate SDK.*timeout/), 'Thrown error should be about service timeout: ' + error)
-            })
-          })
-        })
-
-        describe('using example product swagger (yaml, no basepath)', function () {
-          describe('base', function () {
-            var runContext
-            var sdkScope
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    hostSwagger: true,
-                    exampleEndpoints: true
-                  }
-                })
-              return runContext.toPromise()
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            commonTest.itDidNotCreateSwaggerUIFiles()
-            commonTest.itCreatedClientSDKFile(applicationName)
-
-            commonTest.itCreatedRoutes([
-              'Products_',
-              'Swagger'
-            ])
-
-            it('cloudfoundry manifest defines OPENAPI_SPEC environment variable', function () {
-              assert.fileContent(cloudFoundryManifestFile, 'OPENAPI_SPEC : "/swagger/api"')
-            })
-
-            it('created a swagger definition file', function () {
-              assert.file(outputSwaggerFile)
-            })
-
-            it('application does not define base path', function () {
-              assert.noFileContent(applicationSourceFile, 'basePath =')
-            })
-
-            it('swagger routes match definition', function () {
-              var productsRoutesFile = `${routesSourceDir}/Products_Routes.swift`
-              assert.fileContent([
-                [ productsRoutesFile, 'app.router.get("/products"' ],
-                [ productsRoutesFile, 'app.router.post("/products"' ],
-                [ productsRoutesFile, 'app.router.get("/products/:id"' ],
-                [ productsRoutesFile, 'app.router.delete("/products/:id"' ],
-                [ productsRoutesFile, 'app.router.put("/products/:id"' ]
-              ])
-            })
-          })
-
-          describe('with swaggerui', function () {
-            var runContext
-            var sdkScope
-
-            before(function () {
-              sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-              runContext = helpers.run(refreshGeneratorPath)
-                .withOptions({
-                  specObj: {
-                    appType: 'scaffold',
-                    appName: applicationName,
-                    hostSwagger: true,
-                    exampleEndpoints: true,
-                    swaggerUI: true
-                  }
-                })
-              return runContext.toPromise()
-            })
-
-            after(function () {
-              nock.cleanAll()
-              runContext.cleanTestDirectory()
-            })
-
-            it('requested client sdk over http', function () {
-              assert(sdkScope.isDone())
-            })
-
-            commonTest.itCreatedSwaggerUIFiles()
-          })
-        })
-      })
 
       describe('from http url', function () {
         describe('using dinosaur swagger (json, with basepath)', function () {
           var inputSwaggerFile = path.join(__dirname, '../resources/person_dino.json')
           var runContext
           var swaggerScope
-          var sdkScope
 
           before(function () {
             swaggerScope = nock('http://dino.io')
               .get('/stuff')
               .replyWithFile(200, inputSwaggerFile)
 
-            sdkScope = mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
               .withOptions({
                 specObj: {
@@ -1480,10 +1085,6 @@ describe('Unit tests for swiftserver:refresh', function () {
             assert(swaggerScope.isDone())
           })
 
-          it('requested client sdk over http', function () {
-            assert(sdkScope.isDone())
-          })
-
           it('created a swagger definition file', function () {
             assert.file(outputSwaggerFile)
           })
@@ -1507,7 +1108,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
-            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
               .withOptions({
                 specObj: {
@@ -1554,7 +1154,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
-            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
               .withOptions({
                 specObj: {
@@ -1620,7 +1219,6 @@ describe('Unit tests for swiftserver:refresh', function () {
           var runContext
 
           before(function () {
-            mockSDKGen.mockClientSDKNetworkRequest(applicationName)
             runContext = helpers.run(refreshGeneratorPath)
               .withOptions({
                 specObj: {

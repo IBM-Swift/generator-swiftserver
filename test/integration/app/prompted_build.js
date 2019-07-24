@@ -25,7 +25,6 @@ var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var commonTest = require('../../lib/common_test.js')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 describe('Integration tests (prompt build) for swiftserver:app', function () {
   // Swift build is slow so we need to set a longer timeout for the test
@@ -40,7 +39,6 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
         var runContext
 
         before(function () {
-          mockSDKGen.mockClientSDKNetworkRequest(applicationName)
           runContext = helpers.run(appGeneratorPath)
                               .withPrompts({
                                 appType: 'Scaffold a starter',
@@ -146,18 +144,11 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
     })
 
     describe.skip('with server sdk @full', function () {
-      var petstoreSDKName = 'Swagger_Petstore'
-      var petstore2SDKName = 'Swagger_Petstore_Two'
       var petstoreSwaggerFile = path.join(__dirname, '../../resources/petstore.yaml')
       var petstore2SwaggerFile = path.join(__dirname, '../../resources/petstore2.yaml')
       var runContext
 
       before(function () {
-        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-        // TODO this test is in skip mode until we mock the server sdk
-        // with real content instead of dummy content
-        mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
-        mockSDKGen.mockServerSDKNetworkRequest(petstore2SDKName)
         runContext = helpers.run(appGeneratorPath)
                             .withPrompts({
                               appType: 'Scaffold a starter',
@@ -194,10 +185,6 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
       var runContext
 
       before(function () {
-        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-        // TODO don't include a server sdk until we mock the server sdk
-        // with real content instead of dummy content
-        // mockSDKGen.mockServerSDKNetworkRequest(petstoreSDKName)
         runContext = helpers.run(appGeneratorPath)
                             .withPrompts({
                               appType: 'Scaffold a starter',
