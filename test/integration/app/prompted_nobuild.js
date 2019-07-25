@@ -212,7 +212,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       describe('bff', function () {
         var outputSwaggerFile = `definitions/${applicationName}.yaml`
         var runContext
-        var sdkScope
 
         before(function () {
           runContext = helpers.run(appGeneratorPath)
@@ -233,11 +232,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         commonTest.itDidNotCreateServiceFiles()
 
-        it('requested client sdk over http', function () {
-          assert(sdkScope.isDone())
-        })
-
-        commonTest.itCreatedClientSDKFile(applicationName)
         commonTest.itHasPackageDependencies([ 'SwiftMetrics', 'Kitura-OpenAPI' ])
         commonTest.itCreatedRoutes([ 'Products_', 'Swagger' ])
 
@@ -466,7 +460,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
       describe('example swagger file', function () {
         var runContext
-        var sdkScope
 
         before(function () {
           runContext = helpers.run(appGeneratorPath)
@@ -486,11 +479,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
           runContext.cleanTestDirectory()
         })
 
-        it('requested client sdk over http', function () {
-          assert(sdkScope.isDone())
-        })
-
-        commonTest.itCreatedClientSDKFile(applicationName)
         commonTest.itCreatedRoutes([ 'Products_' ])
 
         it('created a swagger definition file', function () {
@@ -518,7 +506,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
         describe('from local file', function () {
           var runContext
-          var sdkScope
 
           before(function () {
             runContext = helpers.run(appGeneratorPath)
@@ -538,12 +525,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
             nock.cleanAll()
             runContext.cleanTestDirectory()
           })
-
-          it('requested client sdk over http', function () {
-            assert(sdkScope.isDone())
-          })
-
-          commonTest.itCreatedClientSDKFile(applicationName)
 
           commonTest.itCreatedRoutes([
             'Dinosaurs_',
@@ -567,7 +548,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
         describe('from http url', function () {
           var runContext
           var swaggerScope
-          var sdkScope
 
           before(function () {
             swaggerScope = nock('https://dino.io')
@@ -599,10 +579,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
 
           it('requested swagger over http', function () {
             assert(swaggerScope.isDone())
-          })
-
-          it('requested client sdk over http', function () {
-            assert(sdkScope.isDone())
           })
 
           it('created a swagger definition file', function () {

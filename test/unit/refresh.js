@@ -39,24 +39,7 @@ var deploymentSpace = commonTest.deploymentSpace
 var deploymentOrg = commonTest.deploymentOrg
 var toolchainName = commonTest.toolchainName
 
-// Require config to alter sdkgen delay between
-// status checks to speed up unit tests
-var config = require('../../config')
-var sdkGenCheckDelaySaved
-
 describe('Unit tests for swiftserver:refresh', function () {
-  before('set sdkgen status check delay to 1ms', function () {
-    // alter delay between status checks to speed up unit tests
-    sdkGenCheckDelaySaved = config.sdkGenCheckDelay
-    config.sdkGenCheckDelay = 1
-  })
-
-  after('restore sdkgen status check delay', function () {
-    // restore delay between status checks so integration tests
-    // remain resilient
-    config.sdkGenCheckDelay = sdkGenCheckDelaySaved
-  })
-
   describe('invalid spec', function () {
     describe('missing appType', function () {
       var runContext
