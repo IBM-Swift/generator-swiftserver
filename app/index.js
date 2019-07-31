@@ -27,7 +27,6 @@ var validateDirName = helpers.validateDirName
 var validateAppName = helpers.validateAppName
 var validateCredential = helpers.validateRequiredCredential
 var validatePort = helpers.validatePort
-var validateFilePathOrURL = helpers.validateFilePathOrURL
 var generateServiceName = helpers.generateServiceName
 
 module.exports = Generator.extend({
@@ -331,14 +330,13 @@ module.exports = Generator.extend({
         name: 'appPattern',
         type: 'list',
         message: 'Select capability presets for application pattern:',
-        choices: [ 'Basic', 'Web', 'Backend for frontend' ],
+        choices: [ 'Basic', 'Web' ],
         default: 'Basic'
       }]
       return this.prompt(prompts).then((answers) => {
         switch (answers.appPattern) {
           case 'Basic': this.appPattern = 'Basic'; break
           case 'Web': this.appPattern = 'Web'; break
-          case 'Backend for frontend': this.appPattern = 'BFF'; break
           default:
             this.env.error(chalk.red(`Internal error: unknown application pattern ${answers.appPattern}`))
         }
@@ -372,13 +370,6 @@ module.exports = Generator.extend({
             'Embedded metrics dashboard',
             'Docker files'
           ]
-          case 'BFF': return [
-            'Swagger UI',
-            'Embedded metrics dashboard',
-            'Static web file serving',
-            'Docker files',
-            'Kitura OpenAPI'
-          ]
           default:
             self.env.error(chalk.red(`Internal error: unknown application pattern ${appPattern}`))
         }
@@ -405,126 +396,6 @@ module.exports = Generator.extend({
           this[choice] = (answers.capabilities.indexOf(displayName(choice)) !== -1)
         })
       })
-    },
-
-    promptGenerateEndpoints: function () {
-      if (this.skipPrompting) return
-      if (this.appType !== 'scaffold') return
-
-      var choices = [ 'Swagger file serving endpoint', 'Endpoints from swagger file' ]
-      var defaults = this.appPattern === 'BFF' ? choices : []
-
-      var prompts = [{
-        name: 'endpoints',
-        type: 'checkbox',
-        message: 'Select endpoints to generate:',
-        choices: choices,
-        default: defaults
-      }]
-      return this.prompt(prompts).then((answers) => {
-        if (answers.endpoints) {
-          if (answers.endpoints.indexOf('Swagger file serving endpoint') !== -1) {
-            this.hostSwagger = true
-          }
-          if (answers.endpoints.indexOf('Endpoints from swagger file') !== -1) {
-            this.swaggerEndpoints = true
-          }
-        }
-      })
-    },
-
-    promptSwaggerEndpoints: function () {
-      if (this.skipPrompting) return
-      if (this.appType !== 'scaffold') return
-      if (!this.swaggerEndpoints) return
-
-      var choices = {'customSwagger': 'Custom swagger file',
-        'exampleEndpoints': 'Example swagger file'}
-
-      var prompts = [{
-        name: 'swaggerChoice',
-        type: 'list',
-        message: 'Swagger file to use to create endpoints and companion iOS SDK:',
-        choices: [choices.customSwagger, choices.exampleEndpoints],
-        default: choices.customSwagger
-      }, {
-        name: 'path',
-        type: 'input',
-        message: 'Provide the path to a swagger file:',
-        filter: (response) => response.trim(),
-        validate: (response) => validateFilePathOrURL(response, this.initialWorkingDir),
-        when: (question) => (question.swaggerChoice === choices.customSwagger)
-      }, {
-        name: 'generateCodableRoutes',
-        type: 'confirm',
-        message: 'Would you like to generate codable routes, (yes recommended)?',
-        default: true
-      }]
-      return this.prompt(prompts).then((answers) => {
-        this.generateCodableRoutes = answers.generateCodableRoutes
-        if (answers.swaggerChoice === choices.exampleEndpoints) {
-          this.exampleEndpoints = true
-        } else if (answers.path) {
-          var httpPattern = new RegExp(/^https?:\/\/\S+/)
-
-          if (httpPattern.test(answers.path)) {
-            this.fromSwagger = answers.path
-          } else {
-            this.fromSwagger = path.resolve(this.initialWorkingDir, answers.path)
-          }
-        }
-      })
-    },
-
-    promptSwiftServerSwaggerFiles: function () {
-      if (this.skipPrompting) return
-      this.log(chalk.magenta('Service prompts'))
-
-      var depth = 0
-      var prompts = [{
-        name: 'serverSwaggerInput' + depth,
-        type: 'confirm',
-        message: 'Would you like to generate a Swift server SDK from a Swagger file?',
-        default: false
-      }, {
-        when: (props) => props[Object.keys(props)[0]],
-        name: 'serverSwaggerInputPath' + depth,
-        type: 'input',
-        message: 'Enter Swagger yaml file path:',
-        filter: (response) => response.trim(),
-        validate: (response) => validateFilePathOrURL(response, this.initialWorkingDir)
-      }]
-
-      // Declaring a function to handle the answering of these prompts so that
-      // we can repeat them until the user responds that they do not want to
-      // generate any more SDKs
-      var handleAnswers = (answers) => {
-        // Creating and accessing dynamic answer keys for yeoman-test compatability.
-        // It needs unique keys in order to simulate the generation of multiple swagger file paths.
-        if (!answers['serverSwaggerInput' + depth]) {
-          // Sentinel blank value to end looping
-          return
-        }
-
-        if (this.serverSwaggerFiles === undefined) {
-          this.serverSwaggerFiles = []
-        }
-        if (this.serverSwaggerFiles.indexOf(answers['serverSwaggerInputPath' + depth]) === -1) {
-          this.serverSwaggerFiles.push(answers['serverSwaggerInputPath' + depth])
-        } else {
-          this.log(chalk.yellow('This Swagger file is already being used'))
-        }
-        depth += 1
-        prompts[0].name = prompts[0].name.slice(0, -1) + depth
-        prompts[1].name = prompts[1].name.slice(0, -1) + depth
-        prompts[0].message = 'Would you like to generate another Swift server SDK from a Swagger file?'
-        // Now we have processed the response, we need to ask if the user
-        // wants to add any more SDKs. We do this by returning a new
-        // promise here, which will be resolved before the promise
-        // in which it is nested is resolved.
-        return this.prompt(prompts).then(handleAnswers)
-      }
-      return this.prompt(prompts).then(handleAnswers)
     },
 
     promptServicesForScaffold: function () {

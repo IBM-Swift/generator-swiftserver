@@ -190,7 +190,7 @@ describe('Integration tests (prompt build) for swiftserver:app', function () {
                               appType: 'Scaffold a starter',
                               name: applicationName,
                               dir: applicationName,
-                              appPattern: 'Backend for frontend',
+                              appPattern: 'Web',
                               swaggerChoice: 'Custom swagger file',
                               path: petstoreSwaggerFile,
                               generateCodableRoutes: true,
