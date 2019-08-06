@@ -238,12 +238,6 @@ exports.itDidNotCreateClientSDKFile = function (applicationName) {
   })
 }
 
-exports.itCreatedClientSDKFile = function (applicationName) {
-  it('created a client sdk zip file', function () {
-    assert.file(applicationName + '_iOS_SDK.zip')
-  })
-}
-
 //
 // Routes
 //

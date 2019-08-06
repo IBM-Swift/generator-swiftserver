@@ -30,7 +30,6 @@ script:
 - projectName="$(basename $projectFolder)"
 - export SWIFT_SNAPSHOT=swift-5.0
 - source ./Package-Builder/install-swift.sh
-- if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then npm run testsdkgen; fi
 - if [[ $TRAVIS_EVENT_TYPE != "cron" ]]; then npm run coverage && npm run report-coverage; fi
 jobs:
   include:
