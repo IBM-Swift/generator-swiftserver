@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.15.0"></a>
+# [5.15.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.14.0...5.15.0) (2019-08-07)
+
+
+### Features
+
+* remove SDK generation ([#705](https://github.com/IBM-Swift/generator-swiftserver/issues/705)) ([08a5efd](https://github.com/IBM-Swift/generator-swiftserver/commit/08a5efd))
+
+
+
 <a name="5.14.0"></a>
 # [5.14.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.13.0...5.14.0) (2019-05-07)
 
