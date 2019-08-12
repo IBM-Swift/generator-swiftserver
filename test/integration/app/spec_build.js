@@ -32,7 +32,6 @@ var nock = require('nock')
 
 var appGeneratorPath = path.join(__dirname, '../../../app')
 var commonTest = require('../../lib/common_test.js')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 describe('Integration tests (spec build) for swiftserver:app', function () {
   // Swift build is slow so we need to set a long timeout for the test
@@ -60,7 +59,6 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
       var runContext
 
       before(function () {
-        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
         runContext = helpers.run(appGeneratorPath)
                             .withOptions({
                               spec: JSON.stringify({
@@ -87,10 +85,6 @@ describe('Integration tests (spec build) for swiftserver:app', function () {
       var runContext
 
       before(function () {
-        mockSDKGen.mockClientSDKNetworkRequest(applicationName)
-        // TODO don't include a server sdk until we mock the server sdk
-        // with real content instead of dummy content
-        // mockSDKGen.mockServerSDKNetworkRequest(serverSDKName)
         runContext = helpers.run(appGeneratorPath)
                             .withOptions({
                               spec: JSON.stringify({

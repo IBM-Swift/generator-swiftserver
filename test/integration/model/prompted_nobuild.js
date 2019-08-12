@@ -27,7 +27,6 @@ var nock = require('nock')
 
 var modelGeneratorPath = path.join(__dirname, '../../../model')
 var commonTest = require('../../lib/common_test')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 var yorcJSON = JSON.stringify({
   'generator-swiftserver': { version: commonTest.generatorVersion }
@@ -89,7 +88,6 @@ describe('Prompt and no build integration tests for model generator', function (
     var runContext
 
     before(function () {
-      mockSDKGen.mockClientSDKNetworkRequest('test')
       runContext = helpers.run(modelGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')
@@ -151,17 +149,6 @@ describe('Prompt and no build integration tests for model generator', function (
         }]
       }
       assert.jsonFileContent('spec.json', expected)
-    })
-
-    it('created a iOS SDK zip file', function () {
-      assert.file('test_iOS_SDK.zip')
-    })
-
-    it('added reference to generated iOS SDK to .gitignore', function () {
-      // ensure reference is present and that there is only one reference to iOS SDK
-      var fileContent = fs.readFileSync('.gitignore').toString('utf-8')
-      var occurrences = (fileContent.match(/\/test_iOS_SDK\*/g) || []).length
-      assert.equal(occurrences, 1)
     })
   })
 })

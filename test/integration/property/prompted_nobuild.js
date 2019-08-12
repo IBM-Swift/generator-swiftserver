@@ -27,7 +27,6 @@ var nock = require('nock')
 
 var propertyGeneratorPath = path.join(__dirname, '../../../property')
 var commonTest = require('../../lib/common_test')
-var mockSDKGen = require('../../lib/mock_sdkgen.js')
 
 var yorcJSON = JSON.stringify({
   'generator-swiftserver': { version: commonTest.generatorVersion }
@@ -111,7 +110,6 @@ describe('Prompt and no build integration tests for property generator', functio
     var runContext
 
     before(function () {
-      mockSDKGen.mockClientSDKNetworkRequest('test')
       runContext = helpers.run(propertyGeneratorPath)
                           .inTmpDir(function (tmpDir) {
                             var tmpFile = path.join(tmpDir, '.swiftservergenerator-project')

@@ -1,13 +1,12 @@
 {
   "name": "generator-swiftserver",
-  "version": "5.14.0",
+  "version": "5.15.0",
   "description": "Generator for Kitura REST webservice servers",
   "main": "app/index.js",
   "scripts": {
     "test": "standard --env mocha && mocha 'test/unit/**/*.js'",
     "testint": "standard --env mocha && mocha 'test/integration/**/*.js'",
     "testintfast": "standard --env mocha && mocha 'test/integration/**/*nobuild*.js'",
-    "testsdkgen": "standard --env mocha && mocha 'test/sdkgen/**/*.js'",
     "mocha": "nyc --reporter=lcov mocha 'test/unit/**/*.js' --reporter mocha-multi-reporters --reporter-options configFile=config.json",
     "coverage": "standard --env mocha && nyc mocha --grep @full --invert 'test/unit/**/*.js' 'test/integration/**/*.js'",
     "report-coverage": "nyc report --reporter=lcov > coverage.lcov && codecov"
@@ -24,7 +23,6 @@
     "generator"
   ],
   "dependencies": {
-    "bluebird": "^3.5.0",
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
     "generator-ibm-cloud-enablement": "1.7.17",
@@ -33,9 +31,6 @@
     "handlebars": "^4.0.5",
     "ibm-openapi-support": "^0.0.12",
     "js-yaml": "^3.12.0",
-    "request": "^2.81.0",
-    "rimraf": "^2.5.2",
-    "unzip2": "^0.2.5",
     "yeoman-generator": "^1.1.1"
   },
   "devDependencies": {
