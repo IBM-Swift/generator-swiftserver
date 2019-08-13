@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "{{{executableModule}}}",
     dependencies: [
-      .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.7.0")),
+      .package(url: "https://github.com/IBM-Swift/Kitura.git", .upToNextMinor(from: "2.8.0")),
       .package(url: "https://github.com/IBM-Swift/HeliumLogger.git", from: "1.7.1"),
       .package(url: "https://github.com/IBM-Swift/CloudEnvironment.git", from: "9.0.0"),
 {{#each dependencies}}
