@@ -12,8 +12,8 @@ let package = Package(
 {{/each}}
     ],
     targets: [
-      .target(name: "{{{executableModule}}}", dependencies: [ .target(name: "{{{applicationModule}}}"), "Kitura" , "HeliumLogger"]),
-      .target(name: "{{{applicationModule}}}", dependencies: [ "Kitura", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}
+      .target(name: "{{{executableModule}}}", dependencies: [ .target(name: "{{{applicationModule}}}") ]),
+      .target(name: "{{{applicationModule}}}", dependencies: [ "Kitura", "HeliumLogger", "CloudEnvironment",{{#each modules}}{{{this}}}, {{/each}}
 {{#ifCond appType '===' 'crud'}}.target(name: "{{{generatedModule}}}"),{{/ifCond}}
 {{#ifCond sdkTargets.length '>' 0}}
       {{#each sdkTargets}}.target(name: "{{{this}}}"), {{/each}}
@@ -23,9 +23,9 @@ let package = Package(
       ]),
 {{/ifCond}}
 {{#ifCond appType '===' 'crud'}}
-      .target(name: "{{{generatedModule}}}", dependencies: ["Kitura", "CloudEnvironment","SwiftyJSON", {{#each modules}}{{{this}}},{{/each}}], path: "Sources/{{{generatedModule}}}"),
+      .target(name: "{{{generatedModule}}}", dependencies: ["Kitura", "CloudEnvironment", "SwiftyJSON", {{#each modules}}{{{this}}},{{/each}}], path: "Sources/{{{generatedModule}}}"),
 {{/ifCond}}
 
-      .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "{{{applicationModule}}}"), "Kitura","HeliumLogger" ])
+      .testTarget(name: "ApplicationTests" , dependencies: [.target(name: "{{{applicationModule}}}"), "Kitura", "HeliumLogger" ])
     ]
 )
