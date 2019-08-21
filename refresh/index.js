@@ -920,6 +920,10 @@ module.exports = Generator.extend({
         this.fs.copy(this.templatePath('common', 'InitializationError.swift'),
                      filepath)
       })
+      this._ifNotExistsInProject(['Sources', this.applicationModule, 'Logging.swift'], (filepath) => {
+        this.fs.copy(this.templatePath('common', 'Logging.swift'),
+                     filepath)
+      })
       this._ifNotExistsInProject(['Sources', this.applicationModule, 'Application.swift'], (filepath) => {
         this._writeHandlebarsFile('common/Application.swift', `Sources/${this.applicationModule}/Application.swift`,
           {

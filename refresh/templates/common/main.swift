@@ -1,12 +1,8 @@
-import Foundation
 import Kitura
 import LoggerAPI
-import HeliumLogger
 import {{{applicationModule}}}
 
 do {
-
-    HeliumLogger.use(LoggerMessageType.info)
 
     let app = try App()
     try app.run()
