@@ -56,6 +56,8 @@ public class App {
 {{/ifCond}}
 
     public init() throws {
+        // Configure logging
+        initializeLogging()
 {{#if appInitCode.metrics}}
         // Run the metrics initializer
         {{{appInitCode.metrics}}}
