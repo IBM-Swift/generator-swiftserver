@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.15.1"></a>
+## [5.15.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.15.0...5.15.1) (2019-08-30)
+
+
+
 <a name="5.15.0"></a>
 # [5.15.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.14.0...5.15.0) (2019-08-07)
 
