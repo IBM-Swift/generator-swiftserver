@@ -27,10 +27,10 @@
     "debug": "^3.0.0",
     "generator-ibm-cloud-enablement": "1.7.40",
     "generator-ibm-service-enablement": "3.4.0",
-    "generator-ibm-usecase-enablement": "3.2.7",
-    "handlebars": "^4.0.5",
+    "generator-ibm-usecase-enablement": "^3.2.8",
+    "handlebars": "^4.1.2",
     "ibm-openapi-support": "^0.0.12",
-    "js-yaml": "^3.12.0",
+    "js-yaml": "^3.13.1",
     "yeoman-generator": "^1.1.1"
   },
   "devDependencies": {
