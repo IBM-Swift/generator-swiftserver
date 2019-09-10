@@ -93,7 +93,7 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       it('cloudfoundry manifest contains the expected content', function () {
         assert.fileContent([
           [ cloudFoundryManifestFile, `name: ${applicationName}` ],
-          [ cloudFoundryManifestFile, `command: "'${executableModule}'"` ],
+          [ cloudFoundryManifestFile, `command: '${executableModule}'` ],
           [ cloudFoundryManifestFile, 'random-route: true' ],
           [ cloudFoundryManifestFile, 'instances: 1' ],
           [ cloudFoundryManifestFile, 'memory: 128M' ],
