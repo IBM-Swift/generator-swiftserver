@@ -25,7 +25,7 @@
   "dependencies": {
     "chalk": "^2.1.0",
     "debug": "^3.0.0",
-    "generator-ibm-cloud-enablement": "1.9.4",
+    "generator-ibm-cloud-enablement": "1.10.0",
     "generator-ibm-service-enablement": "3.4.0",
     "generator-ibm-usecase-enablement": "^3.2.8",
     "handlebars": "^4.1.2",
