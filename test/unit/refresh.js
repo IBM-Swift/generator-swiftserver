@@ -486,39 +486,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         })
       })
 
-      describe('with VSI', function () {
-        var runContext
-
-        before(function () {
-          runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ],
-                                  docker: true,
-                                  bluemix: {
-                                    backendPlatform: 'SWIFT',
-                                    server: {
-                                      domain: 'mydomain.net',
-                                      cloudDeploymentType: 'VSI'
-                                    }
-                                  }
-                                }
-                              })
-          return runContext.toPromise()
-        })
-
-        after(function () {
-          nock.cleanAll()
-          runContext.cleanTestDirectory()
-        })
-
-        commonTest.itCreatedVSIFilesWithExpectedContent({
-          applicationName: applicationName
-        })
-      })
-
       describe('with CF', function () {
         var runContext
 

@@ -86,24 +86,6 @@ exports.kubernetesFilesGenerator = (applicationName) => [
   exports.kubernetesServiceFileGenerator(applicationName)
 ]
 exports.jenkinsfile = 'Jenkinsfile'
-exports.debianInstall = 'debian/install'
-exports.debianControl = 'debian/control'
-exports.terraformStart = 'terraform/scripts/start.sh'
-exports.terraformVariables = 'terraform/variables.tf'
-exports.vsiFiles = [ 'debian/changelog',
-  'debian/compat',
-  'debian/rules',
-  'terraform/main.tf',
-  'terraform/output.tf',
-  'terraform/scripts/build.sh',
-  'terraform/scripts/fetch-state.sh',
-  'terraform/scripts/install.sh',
-  'terraform/scripts/publish-state.sh',
-  exports.debianControl,
-  exports.debianInstall,
-  exports.terraformStart,
-  exports.terraformVariables
-]
 
 //
 // Prompts
@@ -527,38 +509,6 @@ exports.itCreatedCFPipelineFilesWithExpectedContent = function () {
     assert.fileContent(exports.bluemixToolchainFile, `dev-region: "` + exports.deploymentRegion + '"')
     assert.fileContent(exports.bluemixToolchainFile, `dev-space: "` + exports.deploymentSpace + '"')
     assert.fileContent(exports.bluemixToolchainFile, `dev-organization: "` + exports.deploymentOrg + '"')
-  })
-}
-
-//
-// VSI deployment
-//
-exports.itCreatedVSIFilesWithExpectedContent = function (opts) {
-  opts = opts || {}
-  var applicationName = opts.applicationName || 'appname'
-
-  it('created VSI files', function () {
-    assert.file(exports.vsiFiles)
-  })
-
-  it('created toolchain files', function () {
-    assert.file(exports.bluemixFiles)
-  })
-
-  it('debian control file contains expected content', function () {
-    assert.fileContent(exports.debianControl, `Package: ${applicationName}-0.0`)
-  })
-
-  it('debian install file contains expected content', function () {
-    assert.fileContent(exports.debianInstall, `usr/src/${applicationName}`)
-  })
-
-  it('terraform start file contains expected content', function () {
-    assert.fileContent(exports.terraformStart, `./${applicationName}`)
-  })
-
-  it('terraform variables file contains expected content', function () {
-    assert.fileContent(exports.terraformVariables, `default = "${applicationName}-01"`)
   })
 }
 
