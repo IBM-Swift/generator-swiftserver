@@ -333,12 +333,10 @@ describe('Unit tests for swiftserver:refresh', function () {
           commonTest.servicesSourceDir + '/ServiceAppid.swift',
           commonTest.servicesSourceDir + '/ServiceCloudant.swift',
           commonTest.servicesSourceDir + '/ServiceRedis.swift',
-          commonTest.servicesSourceDir + '/ServiceMongodb.swift',
           commonTest.servicesSourceDir + '/ServiceWatsonAssistant.swift',
           commonTest.servicesSourceDir + '/ServicePush.swift',
           commonTest.servicesSourceDir + '/ServiceAlertNotification.swift',
-          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift',
-          commonTest.servicesSourceDir + '/ServiceHypersecureDbaasMongodb'
+          commonTest.servicesSourceDir + '/ServiceAutoscaling.swift'
         ]
           .concat(commonTest.cloudFoundryFiles)
           .concat(commonTest.bluemixFiles)
@@ -356,12 +354,10 @@ describe('Unit tests for swiftserver:refresh', function () {
             appid: { serviceInfo: { name: 'myAppIDService' } },
             cloudant: [{ serviceInfo: { name: 'myCloudantService' } }],
             redis: { serviceInfo: { name: 'myRedisService' } },
-            mongodb: { serviceInfo: { name: 'myMongoDBService' } },
             conversation: { serviceInfo: { name: 'myAssistantService' } },
             push: { serviceInfo: { name: 'myPushService' } },
             alertNotification: { serviceInfo: { name: 'myAlertService' } },
-            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } },
-            hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
+            autoscaling: { serviceInfo: { name: 'myAutoscalingService' } }
           },
           crudservice: 'myCloudantService'
         }
@@ -483,39 +479,6 @@ describe('Unit tests for swiftserver:refresh', function () {
         commonTest.itCreatedKubernetesPipelineFilesWithExpectedContent({
           clusterName: 'devex-default',
           clusterNamespace: 'myClusterNamespace'
-        })
-      })
-
-      describe('with VSI', function () {
-        var runContext
-
-        before(function () {
-          runContext = helpers.run(refreshGeneratorPath)
-                              .withOptions({
-                                specObj: {
-                                  appType: 'crud',
-                                  appName: applicationName,
-                                  models: [ todoModel ],
-                                  docker: true,
-                                  bluemix: {
-                                    backendPlatform: 'SWIFT',
-                                    server: {
-                                      domain: 'mydomain.net',
-                                      cloudDeploymentType: 'VSI'
-                                    }
-                                  }
-                                }
-                              })
-          return runContext.toPromise()
-        })
-
-        after(function () {
-          nock.cleanAll()
-          runContext.cleanTestDirectory()
-        })
-
-        commonTest.itCreatedVSIFilesWithExpectedContent({
-          applicationName: applicationName
         })
       })
 
@@ -1605,60 +1568,6 @@ describe('Unit tests for swiftserver:refresh', function () {
 
       commonTest.itCreatedServiceConfigFiles()
       commonTest.redis.itCreatedServiceFilesWithExpectedContent('myRedisService')
-    })
-
-    describe('with mongodb', function () {
-      var runContext
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-          .withOptions({
-            specObj: {
-              appType: 'scaffold',
-              appName: applicationName,
-              bluemix: {
-                backendPlatform: 'SWIFT',
-                server: { services: [ 'myMongoDBService' ] },
-                mongodb: { serviceInfo: { name: 'myMongoDBService' } }
-              }
-            }
-          })
-        return runContext.toPromise()
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      commonTest.itCreatedServiceConfigFiles()
-      commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoDBService')
-    })
-
-    describe('with hypersecuredb', function () {
-      var runContext
-
-      before(function () {
-        runContext = helpers.run(refreshGeneratorPath)
-          .withOptions({
-            specObj: {
-              appType: 'scaffold',
-              appName: applicationName,
-              bluemix: {
-                backendPlatform: 'SWIFT',
-                server: { services: [ 'myHypersecuredbService' ] },
-                hypersecuredb: { serviceInfo: { name: 'myHypersecuredbService' } }
-              }
-            }
-          })
-        return runContext.toPromise()
-      })
-
-      after(function () {
-        runContext.cleanTestDirectory()
-      })
-
-      commonTest.itCreatedServiceConfigFiles()
-      commonTest.hypersecuredb.itCreatedServiceFilesWithExpectedContent('myHypersecuredbService')
     })
   })
 })
