@@ -511,66 +511,6 @@ describe('Integration tests (prompt no build) for swiftserver:app', function () 
       })
     })
 
-    describe('with mongodb', function () {
-      describe('default credentials', function () {
-        var runContext
-
-        before(function () {
-          runContext = helpers.run(appGeneratorPath)
-                              .withOptions({ skipBuild: true })
-                              .withPrompts({
-                                name: applicationName,
-                                appType: 'Scaffold a starter',
-                                capabilities: [],
-                                services: [ 'MongoDB' ],
-                                configure: [ 'MongoDB' ],
-                                mongodbName: 'myMongoService'
-                              })
-          return runContext.toPromise()
-        })
-
-        after(function () {
-          runContext.cleanTestDirectory()
-        })
-
-        commonTest.itCreatedServiceConfigFiles()
-        commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoService', {
-          uri: 'mongodb://localhost:27017'
-        })
-      })
-
-      describe('non-default credentials', function () {
-        var runContext
-
-        before(function () {
-          runContext = helpers.run(appGeneratorPath)
-                              .withOptions({ skipBuild: true })
-                              .withPrompts({
-                                name: applicationName,
-                                appType: 'Scaffold a starter',
-                                capabilities: [],
-                                services: [ 'MongoDB' ],
-                                configure: [ 'MongoDB' ],
-                                mongodbName: 'myMongoService',
-                                mongodbHost: 'myhost',
-                                mongodbPort: '1234',
-                                mongodbPassword: 'password1234',
-                                mongodbDatabase: 'mydb'
-                              })
-          return runContext.toPromise()
-        })
-
-        after(function () {
-          runContext.cleanTestDirectory()
-        })
-
-        commonTest.itCreatedServiceConfigFiles()
-        commonTest.mongodb.itCreatedServiceFilesWithExpectedContent('myMongoService', {
-          uri: 'mongodb://:password1234@myhost:1234/mydb'
-        })
-      })
-    })
-
     describe('with postgresql', function () {
       describe('default credentials', function () {
         var runContext

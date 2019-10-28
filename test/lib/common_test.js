@@ -100,7 +100,6 @@ exports.capabilityDisplayNames = {
 exports.serviceDisplayNames = {
   cloudant: 'Cloudant / CouchDB',
   redis: 'Redis',
-  mongodb: 'MongoDB',
   postgresql: 'PostgreSQL',
   elephantsql: 'ElephantSQL',
   appid: 'AppID',
@@ -764,30 +763,6 @@ exports.redis = {
   }
 }
 
-// MongoDB
-exports.mongodb = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'mongodb'
-    var mapping = 'mongodb'
-    var sourceFile = 'ServiceMongodb.swift'
-    var initFunction = 'initializeServiceMongodb'
-
-    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
-    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
-
-    it('mongodb boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
-      assert.fileContent([
-        [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database.synchronousConnect('],
-        [serviceFile, 'func initializeServiceMongodb(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'cloudEnv.getMongoDBCredentials(']
-      ])
-    })
-  }
-}
-
 // PostgreSQL
 exports.postgresql = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
@@ -833,29 +808,6 @@ exports.elephantsql = {
         [serviceFile, 'func initializeServiceElephantSql(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
         [serviceFile, 'PostgreSQLConnection']
-      ])
-    })
-  }
-}
-// MongoDB
-exports.hypersecuredb = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'hypersecuredb'
-    var mapping = 'hypersecure_dbaas_mongodb'
-    var sourceFile = 'ServiceHypersecureDbaasMongodb.swift'
-    var initFunction = 'initializeServiceHypersecureDbaasMongodb'
-
-    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
-    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
-
-    it('mongodb boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
-      assert.fileContent([
-        [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database.synchronousConnect('],
-        [serviceFile, 'func initializeServiceHypersecureDbaasMongodb(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'cloudEnv.getHyperSecureDBaaSCredentials(']
       ])
     })
   }

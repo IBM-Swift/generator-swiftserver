@@ -208,17 +208,6 @@
             "plan": "fss-historical-instrument-analytics-service-free-plan"
         }
     },
-    "hypersecuredb": {
-        "cert": "-----BEGIN CERTIFICATE-----11111-----END CERTIFICATE-----2222222-----BEGIN CERTIFICATE-----33333333-----END CERTIFICATE-----\n",
-        "password": "pwd",
-        "url": "mongodb://111111111111:222222222@dbaas10.hypersecuredbaas.ibm.com:33333,dbaas11.hypersecuredbaas.ibm.com:44444,dbaas12.hypersecuredbaas.ibm.com:55555/6666666666666666666?replicaSet=myreplica",
-        "userid": "123456",
-        "serviceInfo": {
-            "label": "hypersecuredbaas",
-            "name": "my-hypersecuredb",
-            "plan": "Lite"
-        }
-    },
     "instrumentAnalytics": {
         "uri": "https://fss-analytics.mybluemix.net/",
         "accessToken": "instrument-analytics-accesstoken",
@@ -270,20 +259,6 @@
             "plan": "Basic"
         },
         "user": "5Nijfs1RqlnvDq46"
-    },
-    "mongodb": {
-        "ca_certificate_base64": "BASE64-CERT",
-        "db_type": "mongodb",
-        "maps": [],
-        "name": "bmix-dal-yp-11111111-1111-1111-1111-87d2894a1111",
-        "uri": "mongodb://admin:PASSCODE@hostname1.dblayer.com:11111,hostname2.dblayer.com:22222/compose?ssl=true&authSource=admin",
-        "uri_cli": "mongo --ssl --sslAllowInvalidCertificates hostname1.7.dblayer.com:11111/compose --authenticationDatabase admin -u admin -p PASSCODE",
-        "deployment_id": "1234123412346f001800558a",
-        "serviceInfo": {
-            "label": "compose-for-mongodb",
-            "name": "my-mongodb",
-            "plan": "Standard"
-        }
     },
     "naturalLanguageClassifier": {
         "url": "https://gateway.watsonplatform.net/natural-language-classifier/api",
