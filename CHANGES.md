@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="5.16.0"></a>
+# [5.16.0](https://github.com/IBM-Swift/generator-swiftserver/compare/5.15.1...5.16.0) (2019-10-28)
+
+
+### Bug Fixes
+
+* remove mongo and hypersecure from tests ([c6952ed](https://github.com/IBM-Swift/generator-swiftserver/commit/c6952ed))
+
+
+### Features
+
+* remove VSI support ([bb94c06](https://github.com/IBM-Swift/generator-swiftserver/commit/bb94c06))
+
+
+
 <a name="5.15.1"></a>
 ## [5.15.1](https://github.com/IBM-Swift/generator-swiftserver/compare/5.15.0...5.15.1) (2019-09-10)
 
