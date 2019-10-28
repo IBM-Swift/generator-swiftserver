@@ -86,24 +86,6 @@ exports.kubernetesFilesGenerator = (applicationName) => [
   exports.kubernetesServiceFileGenerator(applicationName)
 ]
 exports.jenkinsfile = 'Jenkinsfile'
-exports.debianInstall = 'debian/install'
-exports.debianControl = 'debian/control'
-exports.terraformStart = 'terraform/scripts/start.sh'
-exports.terraformVariables = 'terraform/variables.tf'
-exports.vsiFiles = [ 'debian/changelog',
-  'debian/compat',
-  'debian/rules',
-  'terraform/main.tf',
-  'terraform/output.tf',
-  'terraform/scripts/build.sh',
-  'terraform/scripts/fetch-state.sh',
-  'terraform/scripts/install.sh',
-  'terraform/scripts/publish-state.sh',
-  exports.debianControl,
-  exports.debianInstall,
-  exports.terraformStart,
-  exports.terraformVariables
-]
 
 //
 // Prompts
@@ -118,7 +100,6 @@ exports.capabilityDisplayNames = {
 exports.serviceDisplayNames = {
   cloudant: 'Cloudant / CouchDB',
   redis: 'Redis',
-  mongodb: 'MongoDB',
   postgresql: 'PostgreSQL',
   elephantsql: 'ElephantSQL',
   appid: 'AppID',
@@ -531,38 +512,6 @@ exports.itCreatedCFPipelineFilesWithExpectedContent = function () {
 }
 
 //
-// VSI deployment
-//
-exports.itCreatedVSIFilesWithExpectedContent = function (opts) {
-  opts = opts || {}
-  var applicationName = opts.applicationName || 'appname'
-
-  it('created VSI files', function () {
-    assert.file(exports.vsiFiles)
-  })
-
-  it('created toolchain files', function () {
-    assert.file(exports.bluemixFiles)
-  })
-
-  it('debian control file contains expected content', function () {
-    assert.fileContent(exports.debianControl, `Package: ${applicationName}-0.0`)
-  })
-
-  it('debian install file contains expected content', function () {
-    assert.fileContent(exports.debianInstall, `usr/src/${applicationName}`)
-  })
-
-  it('terraform start file contains expected content', function () {
-    assert.fileContent(exports.terraformStart, `./${applicationName}`)
-  })
-
-  it('terraform variables file contains expected content', function () {
-    assert.fileContent(exports.terraformVariables, `default = "${applicationName}-01"`)
-  })
-}
-
-//
 // Services
 //
 exports.itDidNotCreateServiceFiles = function () {
@@ -814,30 +763,6 @@ exports.redis = {
   }
 }
 
-// MongoDB
-exports.mongodb = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'mongodb'
-    var mapping = 'mongodb'
-    var sourceFile = 'ServiceMongodb.swift'
-    var initFunction = 'initializeServiceMongodb'
-
-    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
-    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
-
-    it('mongodb boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
-      assert.fileContent([
-        [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database.synchronousConnect('],
-        [serviceFile, 'func initializeServiceMongodb(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'cloudEnv.getMongoDBCredentials(']
-      ])
-    })
-  }
-}
-
 // PostgreSQL
 exports.postgresql = {
   itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
@@ -883,29 +808,6 @@ exports.elephantsql = {
         [serviceFile, 'func initializeServiceElephantSql(cloudEnv: CloudEnv) throws'],
         [serviceFile, 'cloudEnv.getPostgreSQLCredentials('],
         [serviceFile, 'PostgreSQLConnection']
-      ])
-    })
-  }
-}
-// MongoDB
-exports.hypersecuredb = {
-  itCreatedServiceFilesWithExpectedContent: function (serviceName, serviceCredentials, servicePlan) {
-    var description = 'hypersecuredb'
-    var mapping = 'hypersecure_dbaas_mongodb'
-    var sourceFile = 'ServiceHypersecureDbaasMongodb.swift'
-    var initFunction = 'initializeServiceHypersecureDbaasMongodb'
-
-    exports.itHasServiceInConfig(description, mapping, serviceName, serviceCredentials)
-    exports.itHasServiceInCloudFoundryManifest(description, serviceName)
-    exports.itCreatedServiceBoilerplate(description, sourceFile, initFunction)
-
-    it('mongodb boilerplate contains expected content', function () {
-      var serviceFile = `${exports.servicesSourceDir}/${sourceFile}`
-      assert.fileContent([
-        [serviceFile, 'import MongoKitten'],
-        [serviceFile, 'mongodb = try Database.synchronousConnect('],
-        [serviceFile, 'func initializeServiceHypersecureDbaasMongodb(cloudEnv: CloudEnv) throws'],
-        [serviceFile, 'cloudEnv.getHyperSecureDBaaSCredentials(']
       ])
     })
   }
