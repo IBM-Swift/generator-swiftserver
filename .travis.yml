@@ -25,7 +25,6 @@ script:
 - osName="linux"
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then osName="osx"; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libressl; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then apt-get update && apt-get install -y sudo openssl libssl-dev libcurl4-openssl-dev; fi
 - export projectFolder=`pwd`
 - projectName="$(basename $projectFolder)"
 - export SWIFT_SNAPSHOT=swift-5.0
